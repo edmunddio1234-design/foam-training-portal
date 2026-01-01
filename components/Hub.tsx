@@ -35,7 +35,7 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
     {
       id: 'db',
       title: 'Database Access',
-      description: 'AI-powered access to all organization files, folders, and records on Google Drive & SharePoint.',
+      description: 'AI-powered access to all organization files, folders, and records on Google Drive.',
       icon: 'fa-database',
       color: 'bg-slate-800',
       shadow: 'shadow-slate-300'
@@ -59,8 +59,11 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
              <span className="font-black text-4xl italic tracking-tighter">F</span>
           </div>
           <div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-none mb-1">FOAM Command Center</h1>
-            <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-xs">Case Management Ecosystem</p>
+            <h1 className="text-5xl font-black text-slate-900 tracking-tight leading-none mb-3">Command Center</h1>
+            <div className="space-y-1">
+              <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-xs">Fathers On A Mission</p>
+              <p className="text-blue-600 font-black uppercase tracking-[0.3em] text-[10px]">FOAM ECOSYSTEM</p>
+            </div>
           </div>
         </div>
         
@@ -70,7 +73,7 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
            </div>
            <div>
               <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Active Staff</p>
-              <p className="text-sm font-bold text-slate-800">Trainee User</p>
+              <p className="text-sm font-bold text-slate-800">Administrator</p>
            </div>
            <button 
              onClick={onLogout}
@@ -129,7 +132,7 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
            <i className="fas fa-shield-heart absolute -right-6 -bottom-6 text-[10rem] opacity-5 group-hover:scale-110 transition-transform duration-1000"></i>
            <div className="space-y-4 relative z-10">
               <h3 className="text-xl font-bold uppercase tracking-widest text-indigo-300">FOAM Mission</h3>
-              <p className="text-xl font-medium leading-relaxed italic">"Enhancing Fathers to strengthen the very foundation of families."</p>
+              <p className="text-xl font-medium leading-relaxed italic">"Enhancing Fathers and Father Figures to ultimately strengthen families."</p>
            </div>
            <div className="pt-8">
               <p className="text-xs font-black uppercase tracking-widest text-indigo-400 mb-2">Need Assistance?</p>

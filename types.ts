@@ -1,3 +1,4 @@
+
 export enum ModuleType {
   FOUNDATIONAL = 'FOUNDATIONAL',
   ROLE = 'ROLE',
@@ -10,6 +11,8 @@ export enum ModuleType {
   CRISIS = 'CRISIS',
   SUSTAINABILITY = 'SUSTAINABILITY'
 }
+
+export type TrainingTrack = 'case_manager' | 'facilitator' | 'board';
 
 export interface QuizQuestion {
   id: string;
@@ -94,4 +97,40 @@ export interface APIResponse<T> {
   message?: string;
   data?: T;
   error?: string;
+}
+
+// --- FATHERHOOD TRACKER TYPES ---
+
+export interface Father {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone: string | null;
+  email: string | null;
+  completedModules: number[]; // Array of Module IDs
+  joinedDate: string;
+  status: 'Active' | 'Graduated' | 'At Risk';
+  isDuplicate?: boolean;
+}
+
+export interface TrackerModule {
+  id: number;
+  title: string;
+  category: string;
+}
+
+export interface AttendanceRecord {
+  id: string;
+  fatherId: string;
+  date: string; // ISO Date string (YYYY-MM-DD)
+  moduleId: number;
+}
+
+export type TrackerViewState = 'dashboard' | 'roster' | 'checkin' | 'portal' | 'import' | 'lost' | 'father-detail' | 'export' | 'financials';
+
+export interface KPI {
+  totalEnrolled: number;
+  avgCompletion: number; // percentage
+  highlyEngaged: number; // count of fathers > 70% complete
+  graduates: number;
 }

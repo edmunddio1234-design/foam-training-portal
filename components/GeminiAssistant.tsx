@@ -12,6 +12,7 @@ const GeminiAssistant: React.FC<GeminiAssistantProps> = ({ isOpen, onClose, cont
   const [messages, setMessages] = useState<{ role: 'user' | 'bot'; text: string }[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,6 +47,29 @@ const GeminiAssistant: React.FC<GeminiAssistantProps> = ({ isOpen, onClose, cont
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleSpeechToText = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(prev => (prev ? `${prev} ${transcript}` : transcript));
+    };
+
+    recognition.start();
   };
 
   if (!isOpen) return null;
@@ -89,14 +113,17 @@ const GeminiAssistant: React.FC<GeminiAssistantProps> = ({ isOpen, onClose, cont
       <div className="p-4 border-t bg-white">
         <div className="flex gap-2">
           <button 
-            onClick={onClose}
-            className="px-3 py-2 bg-slate-100 text-slate-500 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors whitespace-nowrap"
+            onClick={toggleSpeechToText}
+            className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
+              isListening ? 'bg-rose-500 text-white animate-pulse shadow-lg shadow-rose-200' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+            }`}
+            title="Speech to Text"
           >
-            Close
+            <i className={`fas ${isListening ? 'fa-microphone' : 'fa-microphone-alt'}`}></i>
           </button>
           <input 
             type="text" 
-            placeholder="Type your question..."
+            placeholder={isListening ? "Listening..." : "Type your question..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}

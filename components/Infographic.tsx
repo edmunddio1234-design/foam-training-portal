@@ -24,7 +24,6 @@ const Infographic: React.FC<InfographicProps> = ({ type, title, sections, practi
     
     setIsGeneratingOverview(true);
     try {
-      // Always initialize a new GoogleGenAI instance right before the API call.
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const sectionDetails = sections.map(s => `${s.title} (${s.description})`).join('; ');
       
@@ -115,7 +114,7 @@ const Infographic: React.FC<InfographicProps> = ({ type, title, sections, practi
                  {isGeneratingOverview ? (
                      <><i className="fas fa-circle-notch fa-spin"></i> Generating Concept...</>
                  ) : (
-                     <><i className="fas fa magic"></i> {overviewVisual ? 'Regenerate' : 'Generate AI Overview'}</>
+                     <><i className="fas fa-magic"></i> {overviewVisual ? 'Regenerate' : 'Generate AI Overview'}</>
                  )}
               </button>
             </div>
@@ -179,19 +178,14 @@ const ProtocolLayout: React.FC<{ sections: SubSection[]; onSelect: (s: SubSectio
               className="group w-full flex flex-col items-center text-center space-y-4"
             >
               <div className={`w-24 h-24 rounded-full ${s.color} text-white flex items-center justify-center text-2xl font-black shadow-xl ring-8 ring-white group-hover:scale-110 transition-transform duration-300`}>
-                {s.graphic}
+                <i className={`fas ${s.graphic || 'fa-info-circle'}`}></i>
               </div>
               <div className="space-y-1">
                 <h4 className="font-black text-slate-800 uppercase tracking-tight text-sm">
-                  {s.title.includes('Rule') ? s.title : `${s.title}`}
+                  {s.title}
                 </h4>
                 <p className="text-xs text-slate-500 font-medium leading-relaxed px-4 line-clamp-2">{s.description}</p>
               </div>
-              {s.hookText && (
-                <div className="bg-indigo-50 border border-indigo-100 p-3 rounded-xl italic text-[10px] text-indigo-700 font-semibold max-w-[180px]">
-                  Hook: {s.hookText}
-                </div>
-              )}
             </button>
           </div>
         ))}
@@ -317,13 +311,6 @@ const DetailModal: React.FC<{ section: SubSection; onClose: () => void; color: s
                 <button onClick={generateAIVisual} className="px-4 py-2 bg-white/20 rounded-xl text-[10px] font-bold uppercase hover:bg-white/30 transition-colors">Retry AI Visual</button>
               </div>
             )}
-            
-            <div className="absolute top-6 left-6 flex items-center gap-2">
-               <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center">
-                 <i className="fas fa-sparkles text-[10px]"></i>
-               </div>
-               <span className="text-[9px] font-black uppercase tracking-widest opacity-60">AI Visualization Lab</span>
-            </div>
          </div>
 
          {/* Content Side */}
@@ -347,7 +334,6 @@ const DetailModal: React.FC<{ section: SubSection; onClose: () => void; color: s
             
             <div className="space-y-6">
                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] pb-2 border-b border-slate-100">Key Execution Points</h4>
-               <p className="text-[10px] text-slate-400 font-bold italic">Hover over a point for a deeper explanation.</p>
                <div className="grid grid-cols-1 gap-3">
                  {section.details.map((point, i) => (
                    <div 
@@ -366,78 +352,31 @@ const DetailModal: React.FC<{ section: SubSection; onClose: () => void; color: s
                         }`}>
                           {i + 1}
                         </div>
-                        <p className={`text-sm font-bold transition-colors ${
-                          hoveredDetailIdx === i ? 'text-indigo-900' : 'text-slate-700'
-                        }`}>
+                        <p className={`text-sm font-bold ${hoveredDetailIdx === i ? 'text-indigo-900' : 'text-slate-700'}`}>
                           {point.label}
                         </p>
                       </div>
-                      
                       {hoveredDetailIdx === i && (
-                        <div className="mt-3 pl-10 animate-in fade-in slide-in-from-top-1 duration-200">
-                           <p className="text-xs text-indigo-700/80 font-medium leading-relaxed border-l-2 border-indigo-200 pl-3">
-                              {point.deepDive}
-                           </p>
+                        <div className="mt-3 pl-10 animate-in fade-in slide-in-from-top-1 duration-200 text-xs text-indigo-700/80 font-medium leading-relaxed border-l-2 border-indigo-200 pl-3">
+                          {point.deepDive}
                         </div>
                       )}
                    </div>
                  ))}
                </div>
             </div>
-
-            {section.hookText && (
-              <div className="p-6 bg-indigo-50 border border-indigo-100 rounded-3xl text-indigo-900 shadow-sm relative overflow-hidden">
-                 <i className="fas fa-quote-right absolute -right-2 -bottom-2 text-6xl opacity-5"></i>
-                 <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">The Required Script</h4>
-                 <p className="text-lg font-bold italic leading-snug">"{section.hookText}"</p>
-              </div>
-            )}
             
-            <div className="flex justify-center pt-4">
-               <button onClick={onClose} className="w-full py-4 bg-[#0F2C5C] text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-lg shadow-indigo-100">
-                  Return to Guide
-               </button>
-            </div>
+            <button onClick={onClose} className="w-full py-4 bg-[#0F2C5C] text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-lg">
+               Return to Guide
+            </button>
          </div>
       </div>
-
-      {/* Full View Visual Modal */}
-      {isVisualFullView && aiImage && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 md:p-12 animate-in fade-in zoom-in-95 duration-200">
-           <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setIsVisualFullView(false)}></div>
-           <div className="relative max-w-5xl w-full h-full flex flex-col items-center justify-center space-y-6">
-              <button 
-                onClick={() => setIsVisualFullView(false)} 
-                className="absolute top-0 right-0 p-4 text-white hover:text-indigo-400 transition-colors flex items-center gap-2 font-black uppercase text-xs tracking-widest"
-              >
-                Close Preview <i className="fas fa-times text-2xl"></i>
-              </button>
-              
-              <div className="w-full flex-1 flex items-center justify-center overflow-hidden">
-                <img 
-                  src={aiImage} 
-                  alt={section.title} 
-                  className="max-w-full max-h-full object-contain rounded-3xl shadow-2xl ring-4 ring-white/10"
-                />
-              </div>
-
-              <div className="bg-white/10 backdrop-blur-md px-8 py-4 rounded-2xl border border-white/10 text-center max-w-xl">
-                 <p className="text-white font-bold text-lg">{section.title}</p>
-                 <p className="text-white/60 text-xs font-medium mt-1 uppercase tracking-widest">AI Generated Concept Visual</p>
-              </div>
-           </div>
-        </div>
-      )}
     </div>
   );
 };
 
 function getPillarColor(idx: number, type: string): string {
-  if (type === 'pillars') {
-    const colors = ['bg-[#0F2C5C]', 'bg-purple-600', 'bg-[#1A4D2E]'];
-    return colors[idx % colors.length];
-  }
-  const colors = ['bg-indigo-600', 'bg-emerald-600', 'bg-amber-500', 'bg-rose-500', 'bg-slate-600'];
+  const colors = ['bg-[#0F2C5C]', 'bg-indigo-600', 'bg-emerald-600', 'bg-amber-500', 'bg-rose-500'];
   return colors[idx % colors.length];
 }
 

@@ -1,14 +1,14 @@
 
-import { ModuleType, ModuleContent } from './types';
+import { ModuleType, ModuleContent, Father, TrackerModule } from './types';
 
-export const FOAM_MODULES: ModuleContent[] = [
+// CASE MANAGER TRACK - FULL 10 MODULE CURRICULUM
+export const CASE_MANAGER_MODULES: ModuleContent[] = [
   {
     id: ModuleType.FOUNDATIONAL,
     title: "Orientation to FOAM Mission & Values",
     subtitle: "Module 1: The Foundational 'Why'",
     description: "To ground the Case Manager in the foundational 'Why' of FOAM, ensuring all service delivery aligns with the organization’s philosophy of enhancement rather than repair.",
     videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
-    connectUrl: "https://aistudio.google.com/u/0/apps/drive/16syPzeB5OHpbzn-20EIdgeOfiEybULXM?showPreview=true&showAssistant=true",
     videoList: [
       {
         title: "Welcome to FOAM orientation",
@@ -29,10 +29,8 @@ export const FOAM_MODULES: ModuleContent[] = [
         description: "The 'Stability Engine'—designed to remove immediate barriers like housing and IDs.",
         graphic: "fa-house-chimney",
         details: [
-          { label: "Housing referrals", deepDive: "We partner with EBR Housing Authority. Ensure the father is the primary applicant to build his sense of provider responsibility." },
-          { label: "Document recovery (IDs)", deepDive: "Birth certificates and Social Security cards are foundational. We assist with fees and logistics to ensure legal visibility." },
-          { label: "Basic needs support", deepDive: "Emergency food, clothing, and hygiene products are provided through the pantry to remove immediate survival stress." },
-          { label: "Behavioral health access", deepDive: "Mental health and addiction support are integrated through warm hand-offs to clinical partners." }
+          { label: "Housing referrals", deepDive: "We partner with EBR Housing Authority. Ensure the father is the primary applicant." },
+          { label: "Document recovery (IDs)", deepDive: "Birth certificates and Social Security cards are foundational." }
         ],
         color: "bg-[#0F2C5C]"
       },
@@ -41,63 +39,25 @@ export const FOAM_MODULES: ModuleContent[] = [
         description: "The 'Education & Identity' pillar—a structured 14-session curriculum (NPCL).",
         graphic: "fa-people-group",
         details: [
-          { label: "Communication skills", deepDive: "Focus on 'I' statements and active listening to reduce conflict in co-parenting relationships." },
-          { label: "Identity development", deepDive: "Moving from 'Manhood' to 'Fatherhood'—redefining strength as presence and emotional consistency." },
-          { label: "Co-parenting tools", deepDive: "Techniques for managing relationship friction without using the child as a messenger or shield." },
-          { label: "Self-sufficiency", deepDive: "Developing a 12-month life plan that aligns fatherly duties with professional growth." }
+          { label: "Communication skills", deepDive: "Focus on 'I' statements and active listening." },
+          { label: "Identity development", deepDive: "Moving from 'Manhood' to 'Fatherhood'." }
         ],
         color: "bg-indigo-600"
-      },
-      {
-        title: "Pillar 3: Workforce Development",
-        description: "The 'Career Advancement' pillar—end-to-end support for employment.",
-        graphic: "fa-briefcase",
-        details: [
-          { label: "Resume building", deepDive: "Translating diverse life experiences into professional skills that resonate with industrial and service-sector employers." },
-          { label: "Interview coaching", deepDive: "Mock interviews focusing on explaining background barriers with accountability and confidence." },
-          { label: "Job placement", deepDive: "Direct pipelines to partner employers like Brown & Root who value the FOAM endorsement." },
-          { label: "Retention check-ins", deepDive: "A strategic priority. We check in at 30/60/90 days to solve workplace conflicts before they lead to quitting." }
-        ],
-        color: "bg-[#1A4D2E]"
       }
     ],
-    infographicPractice: {
-      title: "Scenario: Enhancing vs. Fixing",
-      scenario: "A father enters your office angry about a denied housing application.",
-      steps: [
-        "Incorrect Response: Correcting his attitude (Fixing).",
-        "Correct Response: Acknowledge frustration and barriers (Trauma-Informed).",
-        "Action: Pivot to the next step in Project Family Build (Enhancing).",
-        "Key Takeaway: We are partners, not saviors."
-      ]
-    },
     slides: [
       "Our Mission: To enhance Fathers and Father Figures which will ultimately strengthen families.",
-      "Philosophy: We do not view fathers as broken. We view them as individuals with potential.",
-      "Whole-Family Approach: Supporting the father stabilizes the entire family unit.",
-      "Consistency Builds Trust: Many men have been let down before; if you say you will call, you call."
-    ],
-    slideDeepDives: [
-      "This is our North Star. Every action you take must align with this mission.",
-      "Our job is to add value to the capacity they already possess.",
-      "Your direct client is the adult father, but the impact is for the children.",
-      "Reliability is the foundation of the relationship."
+      "Philosophy: We do not view fathers as broken. We view them as individuals with potential."
     ],
     quiz: [
       { 
         id: "q1_1", 
         question: "What are the three pillars of FOAM?", 
-        options: ["Housing, Jobs, Classes", "Project Family Build, Responsible Fatherhood Classes, Workforce Development", "Money, Support, Education", "None of the above"], 
-        correctAnswer: 1 
-      },
-      { 
-        id: "q1_2", 
-        question: "What is the difference between 'Fixing' and 'Enhancing'?", 
-        options: ["Fixing is faster", "Enhancing adds value to existing potential; Fixing implies the person is broken", "Fixing is for moms, Enhancing is for dads", "There is no difference"], 
+        options: ["Housing, Jobs, Classes", "Project Family Build, Fatherhood Classes, Workforce Development", "Money, Support, Education", "None of the above"], 
         correctAnswer: 1 
       }
     ],
-    fullText: "Module 1: Orientation. Mission: Enhance fathers to strengthen families. Pillars: Project Family Build (Stability), Responsible Fatherhood Classes (NPCL curriculum), Workforce Development (Career)."
+    fullText: "Module 1: Orientation. Mission: Enhance fathers to strengthen families. Pillars: Project Family Build, Fatherhood Classes, Workforce Development."
   },
   {
     id: ModuleType.ROLE,
@@ -105,33 +65,8 @@ export const FOAM_MODULES: ModuleContent[] = [
     subtitle: "Module 2: The Strategic Quarterback",
     description: "To define the daily operational scope of the Case Manager, emphasizing prioritization and workflow management.",
     videoUrl: "https://www.youtube.com/embed/Nl-Mu7e25os",
-    connectUrl: "https://aistudio.google.com/u/0/apps/drive/16syPzeB5OHpbzn-20EIdgeOfiEybULXM?showPreview=true&showAssistant=true",
-    videoList: [
-      {
-        title: "The Strategic Case Manager",
-        url: "https://www.youtube.com/embed/Nl-Mu7e25os",
-        description: "Mastering the mindset of a strategic coordinator at FOAM."
-      },
-      {
-        title: "Your Digital Toolkit & Start of Day",
-        url: "https://www.youtube.com/embed/QpIlA1YKdhE",
-        description: "A walkthrough of the essential tools used daily for client management."
-      },
-      {
-        title: "Mastering M365 Digital Tools",
-        url: "https://www.youtube.com/embed/ARU1RmhbR-Q",
-        description: "Technical guide to leveraging Microsoft 365 for documentation and collaboration."
-      },
-      {
-        title: "The FOAM Outreach Funnel",
-        url: "https://www.youtube.com/embed/MvOi22RdtNQ",
-        description: "Understanding how referrals move through the FOAM system from outreach to intake."
-      }
-    ],
-    videoSummary: "Module 2 provides the practical roadmap for daily operations. You are the 'Quarterback' responsible for ensuring every father moves efficiently through our three pillars while prioritizing job retention.",
     learningObjectives: [
-      { title: "Understand the daily 'Start of Day' routine.", summary: "Logging into EmpowerDB first thing to review alerts, appointments, and urgent follow-ups." },
-      { title: "Apply the FOAM Prioritization Rule.", summary: "Mastering the 1-5 hierarchy where retention always comes first." }
+      { title: "Understand the daily 'Start of Day' routine.", summary: "Logging into EmpowerDB first thing to review alerts." }
     ],
     infographicType: 'workflow',
     infographicDetails: [
@@ -140,619 +75,303 @@ export const FOAM_MODULES: ModuleContent[] = [
         description: "You cannot do everything at once. Prioritize in this strict order:",
         graphic: "fa-list-ol",
         details: [
-          { label: "#1 Employed fathers at risk (Retention)", deepDive: "Always your first call. If a father is at risk of losing income, the whole family's stability is threatened." },
-          { label: "#2 Fathers starting new jobs", deepDive: "First-day logistics: boots, transportation, and schedule confirmation take priority over general tasks." },
-          { label: "#3 Interviews", deepDive: "Ensure the father has clean clothes, the address, and a mock-interview refresher before he walks out the door." },
-          { label: "#4 Barrier removal", deepDive: "IDs, housing paperwork, and medical appointments fall into the general workday flow." },
-          { label: "#5 New intakes", deepDive: "While vital, a new intake never supersedes keeping an existing client employed." }
+          { label: "#1 Employed fathers at risk (Retention)", deepDive: "Always your first call." }
         ],
         color: "bg-amber-600"
-      },
-      {
-        title: "The Quarterback Role",
-        description: "You coordinate services across the entire ecosystem.",
-        graphic: "fa-football",
-        details: [
-          { label: "Review EmpowerDB daily", deepDive: "Look for automated alerts, missed appointments, and pending follow-ups before the morning meeting." },
-          { label: "Prepare caseload summaries", deepDive: "Categorize your fathers by 'Ready for Work', 'In Training', or 'Needs Documentation'." },
-          { label: "Prepare 'Stuck/Resources/Decisions'", deepDive: "Identify fathers who haven't progressed in 14 days and bring these to supervision for a strategy shift." }
-        ],
-        color: "bg-[#0F2C5C]"
       }
     ],
-    infographicPractice: {
-      title: "Scenario: Prioritization Rule",
-      scenario: "You have a new intake scheduled, but a current client calls saying he might be fired because his car broke down.",
-      steps: [
-        "Rule Check: Priority #1 is Retention (employed father at risk).",
-        "Action: Address the transportation crisis immediately.",
-        "Outcome: Move the intake only after the crisis is managed.",
-        "Takeaway: Retention always comes first."
-      ]
-    },
-    slides: [
-      "Rule: You cannot do everything at once. Prioritize!",
-      "Start of Day: Log into EmpowerDB immediately for alerts.",
-      "The First Call: If a father is at risk of losing his job, he is your first call.",
-      "Caseload Summary: Prepare weekly summaries highlighting who is 'stuck'."
-    ],
-    quiz: [
-      { id: "q2_1", question: "What is the first thing a Case Manager should do at the start of the day?", options: ["Check email", "Log into EmpowerDB", "Call new referrals", "Drink coffee"], correctAnswer: 1 },
-      { id: "q2_2", question: "What is the #1 priority category in your daily workflow?", options: ["New Intakes", "Interviews", "Employed fathers at risk (Retention)", "Meetings"], correctAnswer: 2 }
-    ],
-    fullText: "Module 2: Role of CM. Quarterback role. Prioritization Rule: 1. Retention, 2. New Jobs, 3. Interviews, 4. Barrier removal, 5. New Intakes. Workflow: EmpowerDB check first."
+    slides: ["Rule: You cannot do everything at once. Prioritize!", "Start of Day: Log into EmpowerDB immediately."],
+    quiz: [{ id: "q2_1", question: "What is the #1 priority?", options: ["New Intakes", "Retention", "Meetings"], correctAnswer: 1 }],
+    fullText: "Module 2: Role of CM. Quarterback role. Prioritization Rule: 1. Retention."
   },
   {
     id: ModuleType.OUTREACH,
-    title: "Adult Father Engagement & Trust",
-    subtitle: "Module 3: Outreach Protocols",
-    description: "To teach the protocols for outreach and initial contact, ensuring fathers are engaged quickly and respectfully.",
-    videoUrl: "https://www.youtube.com/embed/3_JcSFpkz-E",
-    videoList: [
-      {
-        title: "Adult Father Engagement",
-        url: "https://www.youtube.com/embed/3_JcSFpkz-E",
-        description: "Essential strategies for initial outreach and building immediate trust with new referrals."
-      }
-    ],
-    videoSummary: "Speed and persistence build trust. A referral's motivation has a shelf life—don't let it sit.",
+    title: "Outreach & Engagement",
+    subtitle: "Module 3: Finding the Missing Father",
+    description: "Tactics for identifying and recruiting fathers in the community.",
+    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
     learningObjectives: [
-      { title: "Apply the '3-Day Rule' for new referrals.", summary: "Every referral must receive a contact attempt within 3 business days." },
-      { title: "Demonstrate the 'Pre-Screening Call' script.", summary: "Briefly explain FOAM using the 'Hook': 'We help fathers with jobs, stability, and support.'" }
+      { title: "Recruitment Strategies", summary: "Street outreach, barbershop talks, and community partnerships." }
     ],
-    infographicType: 'protocol',
+    infographicType: 'pathway',
     infographicDetails: [
-      {
-        title: "The 3-Day Rule",
-        description: "Contact attempt within 72 hours of referral.",
-        graphic: "72",
-        details: [
-          { label: "Motivation has a shelf life", deepDive: "The moment a father asks for help is the peak of his readiness. If we wait, he loses faith in the system." },
-          { label: "Do not let a referral sit", deepDive: "Even if you can't do an intake, a text saying 'I've received your info and will call tomorrow' validates his outreach." },
-          { label: "Log the attempt immediately", deepDive: "Documentation of speed proves our responsiveness to funding partners and supervisors." }
-        ],
-        color: "bg-blue-500"
-      },
-      {
-        title: "3-Attempt Protocol",
-        description: "Required steps before escalating or closing.",
-        graphic: "3",
-        details: [
-          { label: "Call", deepDive: "Morning or early evening is best. Use a professional, warm tone." },
-          { label: "Text", deepDive: "Many fathers respond faster to text. Keep it brief and focused on the 'Hook'." },
-          { label: "Email", deepDive: "The official third attempt. Useful for fathers with limited phone minutes but active Wi-Fi." },
-          { label: "If unresponsive, escalate", deepDive: "Bring to supervisor for 'Case Closing' approval after 3 failed contact methods." }
-        ],
-        color: "bg-emerald-500"
-      },
-      {
-        title: "The 'Hook'",
-        description: "Your simple elevator pitch for FOAM.",
-        graphic: "fa-phone",
-        hookText: "\"We help fathers with jobs, stability, and support.\"",
-        details: [
-          { label: "Warm, professional tone", deepDive: "Sound like a partner, not a debt collector or a police officer." },
-          { label: "Brief explanation", deepDive: "Explain FOAM in under 30 seconds. We are here to 'enhance', not to report." },
-          { label: "Schedule intake immediately", deepDive: "Never end a call without a locked-in date and time for the first meeting." }
-        ],
-        color: "bg-indigo-600"
-      }
+      { title: "Street Teams", description: "Engaging fathers where they congregate.", details: [{ label: "Presence", deepDive: "Consistency builds trust in neighborhoods." }], color: "bg-blue-600" }
     ],
-    infographicPractice: {
-      title: "Scenario: The First Attempt",
-      scenario: "You receive a referral for 'David' on Tuesday. You call and get no answer.",
-      steps: [
-        "Action 1: Leave a voicemail.",
-        "Action 2: Send a follow-up text immediately.",
-        "Action 3: Log attempt in EmpowerDB as 'Contact Note'.",
-        "Action 4: Set reminder for Attempt 2 on Thursday."
-      ]
-    },
-    slides: [
-      "Speed builds trust: Outreach within 72 hours.",
-      "Persistence: 3 documented attempts (Call/Text/Email).",
-      "The Pre-Screening: Briefly explain the Hook.",
-      "No Answer? Leave a voicemail and send a text immediately."
-    ],
-    quiz: [
-      { id: "q3_1", question: "What is the maximum time allowed to contact a new referral?", options: ["24 hours", "3 business days", "5 days", "1 week"], correctAnswer: 1 },
-      { id: "q3_2", question: "How many attempts must you make before marking a case inactive?", options: ["1", "2", "3", "5"], correctAnswer: 2 }
-    ],
-    fullText: "Module 3: Outreach. 3-Day Rule (72 hours). 3-Attempt Protocol (Call, Text, Email). The Hook: 'We help fathers with jobs, stability, and support.'"
+    slides: ["Go where the fathers are.", "Authenticity is your best tool."],
+    quiz: [{ id: "q3_1", question: "Where is the best place to find fathers?", options: ["Office", "Community", "Online"], correctAnswer: 1 }],
+    fullText: "Outreach and engagement strategies."
   },
   {
     id: ModuleType.TRAUMA,
-    title: "Trauma-Informed & Strengths-Based Practice",
-    subtitle: "Module 4: Mindset and Language",
-    description: "To equip Case Managers with the communication skills necessary to work with men who may have experienced systemic failure.",
-    videoUrl: "https://www.youtube.com/embed/xtJdfLWpAYk",
-    videoList: [
-      {
-        title: "Trauma-Informed Practice & Mindset",
-        url: "https://www.youtube.com/embed/xtJdfLWpAYk",
-        description: "The core philosophy of providing a 'Safe Harbor' and shifting from fixing to enhancing."
-      },
-      {
-        title: "Mindset Refresher: What Happened?",
-        url: "https://www.youtube.com/embed/xtJdfLWpAYk",
-        description: "A quick guide on applying the 'What happened to you?' approach in daily interactions."
-      }
-    ],
-    videoSummary: "We provide a safe harbor. We judge the barrier, not the man. Shift the question from 'What's wrong?' to 'What happened?'.",
-    learningObjectives: [
-      { title: "Apply trauma-informed questioning.", summary: "Asking 'What happened to you?' to understand behavior as a response to barriers." },
-      { title: "Identify strengths in crisis.", summary: "Using the 'Enhance' mindset to identify survival skills and existing assets." }
-    ],
-    infographicType: 'pathway',
-    infographicDetails: [
-      {
-        title: "Judgmental Perspective",
-        description: "Asks 'What is wrong with you?'. Focuses on deficits and character.",
-        graphic: "fa-circle-xmark",
-        details: [
-          { label: "Labels like 'unmotivated'", deepDive: "Assuming a father doesn't care because he is late, rather than checking for transport barriers." },
-          { label: "Interrogation-style intakes", deepDive: "Asking 'Why don't you have a job?' instead of 'Tell me about your last workplace experience'." },
-          { label: "Judging the person", deepDive: "Focusing on the mistake rather than the environment that fostered it." }
-        ],
-        color: "bg-rose-500"
-      },
-      {
-        title: "Trauma-Informed",
-        description: "Asks 'What happened to you?'. Focuses on understanding context.",
-        graphic: "fa-shield-heart",
-        details: [
-          { label: "Behavior as survival", deepDive: "Anger is often a shield for fear of failure. Recognition of this allows us to de-escalate." },
-          { label: "Conversational intakes", deepDive: "Building rapport before pulling out the clipboard. Trust is the lubricant for data collection." },
-          { label: "Creating safe environments", deepDive: "A father must feel he can be honest about his barriers (legal, drug, etc.) without losing his support system." }
-        ],
-        color: "bg-emerald-500"
-      }
-    ],
-    infographicPractice: {
-      title: "Scenario: Angry Client",
-      scenario: "A client is aggressive about filling out forms, saying 'This is just like the parole office.'",
-      steps: [
-        "Response: De-escalate. 'I hear you. We aren't the parole office. We are partners.'",
-        "Action: Take a break from the papers and just talk.",
-        "Mindset: Recognize anger as a potential trauma response.",
-        "Goal: Safety First."
-      ]
-    },
-    slides: [
-      "Safety First: A father cannot focus on jobs if he feels judged.",
-      "Non-Judgmental Language: Avoid labels like 'unmotivated'.",
-      "Identify Strengths: 'You have survived this long' is a strength.",
-      "Safe Harbor: We provide a safe space for men to be vulnerable."
-    ],
-    quiz: [
-      { id: "q4_1", question: "True or False: Anger can be a symptom of trauma.", options: ["True", "False"], correctAnswer: 0 },
-      { id: "q4_2", question: "What is the core question of Trauma-Informed Care?", options: ["Why are you late?", "What is wrong with you?", "What happened to you?", "Can you fix this?"], correctAnswer: 2 }
-    ],
-    fullText: "Module 4: Trauma-Informed Practice. Core question: 'What happened to you?'. Provide a safe harbor. Enhance mindset: Identify strengths like 'You showed up today'."
+    title: "Trauma-Informed Care",
+    subtitle: "Module 4: Healing the Hidden Wounds",
+    description: "Understanding the impact of trauma on fatherhood engagement.",
+    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
+    learningObjectives: [{ title: "Identify Trauma Triggers", summary: "Recognizing behavioral cues of past trauma." }],
+    infographicType: 'protocol',
+    infographicDetails: [{ title: "ACE Scores", description: "Adverse Childhood Experiences.", details: [{ label: "Empathy", deepDive: "Ask 'What happened to you?' not 'What's wrong?'" }], color: "bg-rose-500" }],
+    slides: ["Trauma affects decision making.", "Patience is a prerequisite."],
+    quiz: [{ id: "q4_1", question: "What is the key question in TIC?", options: ["Why are you late?", "What happened to you?", "Can you pay?"], correctAnswer: 1 }],
+    fullText: "Trauma-informed care principles."
   },
   {
     id: ModuleType.INTAKE,
-    title: "Intake, Assessment & Plans of Care",
-    subtitle: "Module 5: The First 7 Days",
-    description: "To teach the technical process of intake, the 'Treatment Tree' assessment tool, and the creation of the Plan of Care (POC).",
-    videoUrl: "https://www.youtube.com/embed/29P3hzE0i4w",
-    videoList: [
-      {
-        title: "The Stabilization Playbook",
-        url: "https://www.youtube.com/embed/29P3hzE0i4w",
-        description: "How to navigate the first 48 hours of intake and documentation."
-      },
-      {
-        title: "Mastering the Plan of Care",
-        url: "https://www.youtube.com/embed/Tw-VR5bUeNg",
-        description: "Deep dive into SMART goals and the contract for success."
-      },
-      {
-        title: "Crafting a Plan of Care",
-        url: "https://www.youtube.com/embed/7zRhRzUz2Hs",
-        description: "A technical walkthrough of drafting actionable goals in EmpowerDB."
-      }
-    ],
-    videoSummary: "The first week sets the tone. Intake must be logged in 48 hours, and a full Plan of Care finalized in 7 days.",
-    learningObjectives: [
-      { title: "Complete a compliant Intake within 48 hours.", summary: "Logging the 'Big 3' documents and signed ROI into EmpowerDB." },
-      { title: "Use the Treatment Tree to identify needs.", summary: "A logic tool: If client says 'No Income', follow the Financial branch." }
-    ],
+    title: "The Intake Process",
+    subtitle: "Module 5: The First Handshake",
+    description: "Standardized protocols for onboarding new fathers into FOAM.",
+    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
+    learningObjectives: [{ title: "Documentation Accuracy", summary: "Ensuring all state and grant requirements are met." }],
     infographicType: 'tree',
-    infographicDetails: [
-      {
-        title: "The Big 3 Documents",
-        description: "Mandatory for every new intake file.",
-        graphic: "fa-id-card",
-        details: [
-          { label: "ID", deepDive: "Valid state ID or Driver's license. If expired, ID recovery becomes Priority #1 in PFB." },
-          { label: "Social Security Card", deepDive: "Required for I-9 employment verification. We assist with ordering replacements via the Social Security office." },
-          { label: "Proof of Income", deepDive: "Pay stubs or an award letter. If none, the 'Zero Income Affidavit' must be signed and notarized." }
-        ],
-        color: "bg-[#0F2C5C]"
-      },
-      {
-        title: "The 7-Day Rule",
-        description: "Timeline for the Plan of Care (POC).",
-        graphic: "fa-calendar-week",
-        details: [
-          { label: "Finalize POC within 7 days", deepDive: "Speed prevents drop-off. A signed plan is a psychological contract of success." },
-          { label: "SMART Goals required", deepDive: "Goals must be Specific (not just 'get a job') and Measurable (e.g., 'Apply for 3 jobs')." },
-          { label: "Minimum 2 objectives per goal", deepDive: "Break large goals into small, achievable wins to build the father's confidence." }
-        ],
-        color: "bg-indigo-600"
-      }
-    ],
-    infographicPractice: {
-      title: "Scenario: No Income",
-      scenario: "A father has no income and wants a job.",
-      steps: [
-        "Step 1: Use the Financial Treatment Tree.",
-        "Step 2: Have him sign the Zero Income Affidavit.",
-        "Step 3: Create Goal: 'Secure Employment'.",
-        "Step 4: SMART Objective: 'Apply to 3 places by Friday'."
-      ]
-    },
-    slides: [
-      "Release of Information (ROI): Mandatory before any referrals.",
-      "Treatment Tree: A logic tool to identify top 3 barriers.",
-      "SMART Goals: Specific, Measurable, Achievable, Relevant, Time-bound.",
-      "Data: Intake must be entered in EmpowerDB within 48 hours."
-    ],
-    quiz: [
-      { id: "q5_1", question: "How many days do you have to create a Plan of Care?", options: ["24 hours", "3 days", "7 days", "14 days"], correctAnswer: 2 },
-      { id: "q5_2", question: "Name the 'Big 3' documents usually collected at intake.", options: ["Birth Cert, ID, Rent Receipt", "ID, SS Card, Proof of Income", "ID, SS Card, Proof of Income", "None"], correctAnswer: 1 }
-    ],
-    fullText: "Module 5: Intake & POC. Big 3 Docs: ID, SS Card, Proof of Income. ROI is mandatory. 48h for intake, 7 days for POC. Use Treatment Tree logic."
+    infographicDetails: [{ title: "Paperwork Protocol", description: "ID, SSN, ROI.", details: [{ label: "ROI", deepDive: "Release of Information is mandatory." }], color: "bg-slate-700" }],
+    slides: ["Intake is the foundation of data.", "Build trust during the first hour."],
+    quiz: [{ id: "q5_1", question: "Which document is mandatory?", options: ["Resume", "ROI", "Gym Membership"], correctAnswer: 1 }],
+    fullText: "Standardized intake procedures."
   },
   {
     id: ModuleType.WORKFORCE,
-    title: "Workforce & Economic Stability",
-    subtitle: "Module 6: The Stability Playbook",
-    description: "To train Case Managers on the 'Project Family Build' workforce pipeline: Assess, Prepare, Connect, Retain.",
-    videoUrl: "https://www.youtube.com/embed/P8-1BnIMNTo",
-    videoList: [
-      {
-        title: "The Employment Plan in Action",
-        url: "https://www.youtube.com/embed/P8-1BnIMNTo",
-        description: "Visualizing the 4-step pipeline from assessment to long-term retention."
-      },
-      {
-        title: "Workforce Support Strategies",
-        url: "https://www.youtube.com/embed/difdoolfLb0",
-        description: "How to connect fathers with partner employers like Brown & Root."
-      }
-    ],
-    videoSummary: "Getting the job is step one. Keeping it is the goal. We use a 4-step pipeline to ensure long-term stability.",
-    learningObjectives: [
-      { title: "Execute the 4-step Workforce Pipeline.", summary: "Assess barriers, Prepare skills, Connect to partners, Retain the job." },
-      { title: "Apply the 48-Hour Fall-Off Rule.", summary: "If a father loses a job, contact him within 48 hours to debrief and restart." }
-    ],
-    infographicType: 'workflow',
-    infographicDetails: [
-      {
-        title: "The 4-Step Pipeline",
-        description: "Assess → Prepare → Connect → Retain",
-        graphic: "fa-arrows-to-circle",
-        details: [
-          { label: "Assess: Check for barriers", deepDive: "Does he have reliable transport? Does he need work boots? Does he have childcare? Solve these BEFORE the interview." },
-          { label: "Prepare: Mock interviews", deepDive: "Practice the 'Elevator Pitch'. Ensure he can explain any past criminal record with professional transparency." },
-          { label: "Connect: Warm referrals", deepDive: "Don't just give a link. Call the employer partner directly to say 'I have a FOAM father coming your way'." },
-          { label: "Retain: Check-ins", deepDive: "A call at day 30, 60, and 90 to identify workplace stress or logistical issues before they lead to quitting." }
-        ],
-        color: "bg-emerald-600"
-      },
-      {
-        title: "48-Hour Fall-Off Rule",
-        description: "Rapid response to job loss.",
-        graphic: "fa-bolt",
-        details: [
-          { label: "Contact within 48 hours", deepDive: "Wait too long and the father enters a shame spiral. We must act while the momentum is still present." },
-          { label: "Debrief the cause", deepDive: "Was it transport? A conflict? This info is vital so we don't repeat the mistake in the next placement." },
-          { label: "Update POC immediately", deepDive: "Refresh the plan so the father sees that one failure is not the end of his journey with FOAM." }
-        ],
-        color: "bg-rose-600"
-      }
-    ],
-    infographicPractice: {
-      title: "Scenario: The Fall-Off",
-      scenario: "A client placed at a warehouse stops showing up to work on Day 45.",
-      steps: [
-        "Step 1: Initiate 48-Hour Fall-Off Rule.",
-        "Step 2: Contact him immediately.",
-        "Step 3: Debrief why he stopped (Conflict? Transport?).",
-        "Step 4: Update POC and restart search."
-      ]
-    },
-    slides: [
-      "Warm Referrals: We don't just send links; we connect to partners.",
-      "Retention is Key: 30, 60, and 90-day post-hire check-ins.",
-      "IEP: Use the Individual Employment Plan to match the right employer.",
-      "Stability: Employment stabilizes the entire family."
-    ],
-    quiz: [
-      { id: "q6_1", question: "What are the three mandatory retention intervals?", options: ["1, 2, 3 weeks", "10, 20, 30 days", "30, 60, 90 days", "6 months"], correctAnswer: 2 },
-      { id: "q6_2", question: "If a client loses a job, how quickly must you contact them?", options: ["24 hours", "48 hours", "3 days", "1 week"], correctAnswer: 1 }
-    ],
-    fullText: "Module 6: Workforce. Pipeline: Assess, Prepare, Connect, Retain. 30/60/90 day check-ins. 48-hour fall-off rule for job loss."
+    title: "Workforce Development",
+    subtitle: "Module 6: Economic Empowerment",
+    description: "Preparing fathers for sustainable career paths.",
+    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
+    learningObjectives: [{ title: "Resume Building", summary: "Highlighting transferable skills for fathers with gaps." }],
+    infographicType: 'pathway',
+    infographicDetails: [{ title: "Career Track", description: "From entry to management.", details: [{ label: "Retention", deepDive: "Check-ins at 30, 60, 90 days." }], color: "bg-emerald-600" }],
+    slides: ["Employment is a family stabilizer.", "Soft skills are as vital as hard skills."],
+    quiz: [{ id: "q6_1", question: "What are the retention milestones?", options: ["1 week", "30/60/90 days", "1 year"], correctAnswer: 1 }],
+    fullText: "Economic empowerment and jobs."
   },
   {
     id: ModuleType.PARTNERSHIPS,
-    title: "Resource Navigation & Partnerships",
-    subtitle: "Module 7: Connecting the Safety Net",
-    description: "To teach Case Managers how to navigate the 'Project Family Build' ecosystem effectively.",
-    videoUrl: "https://www.youtube.com/embed/4BT51JrJJeE",
-    videoList: [
-      {
-        title: "Resource Navigation",
-        url: "https://www.youtube.com/embed/4BT51JrJJeE",
-        description: "Deep dive into finding and utilizing the internal and external Project Family Build ecosystem."
-      },
-      {
-        title: "Stabilization & Financial Protocols",
-        url: "https://www.youtube.com/embed/4BT51JrJJeE",
-        description: "Understanding the $350 quote rule and stabilization budget management for client barriers."
-      }
-    ],
-    videoSummary: "Module 7 explores the essential collaborative nature of our work. We work WITH the father, not FOR him. Success relies on ensuring the father takes ownership of his own navigation within our partnership ecosystem.",
-    learningObjectives: [
-      { title: "Identify key partners for needs.", summary: "Housing (EBR), Legal (SLLS), Health (BRBH)." },
-      { title: "Apply Financial Assistance Protocols.", summary: "Managing the $150 stabilization budget and $350 quote rule." }
-    ],
+    title: "Community Partnerships",
+    subtitle: "Module 7: The Resource Network",
+    description: "Leveraging external agencies to remove barriers.",
+    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
+    learningObjectives: [{ title: "Resource Mapping", summary: "Identifying local housing, legal, and food resources." }],
     infographicType: 'pillars',
-    infographicDetails: [
-      {
-        title: "Housing & Legal",
-        description: "Core wraparound partners.",
-        graphic: "fa-scale-balanced",
-        details: [
-          { label: "Housing: EBR Housing Authority", deepDive: "We help with applications but the father must attend the walkthroughs and orientation." },
-          { label: "Legal: SLLS", deepDive: "Direct referral for child support adjustment or expungement. We provide the platform; they provide the counsel." },
-          { label: "Health: BRBH", deepDive: "Integrated behavioral health. If a father is in crisis, we use our dedicated contact for faster triage." }
-        ],
-        color: "bg-[#0F2C5C]"
-      },
-      {
-        title: "Stabilization Rules",
-        description: "Internal purchasing protocols.",
-        graphic: "fa-receipt",
-        details: [
-          { label: "Work gear limit: $150", deepDive: "Boots, tools, or uniforms. This is a one-time stabilization grant to remove employment barriers." },
-          { label: "$350 quote rule", deepDive: "For large items (like car repairs), we require 3 written estimates from different shops to ensure fiscal responsibility." },
-          { label: "Enrollment in PFB first", deepDive: "Funds cannot be released until the full PFB intake and assessment are logged in EmpowerDB." }
-        ],
-        color: "bg-indigo-600"
-      }
-    ],
-    infographicPractice: {
-      title: "Scenario: Financial Barrier",
-      scenario: "A father needs a TWIC card to start work but cannot afford it.",
-      steps: [
-        "Check: Verify enrollment in Project Family Build.",
-        "Protocol: Use Financial Stability protocol.",
-        "Plan: Funding must be part of his workforce plan.",
-        "Rule: If over $350, get 3 quotes first."
-      ]
-    },
-    slides: [
-      "Partnership Over Charity: Client must take ownership.",
-      "Legal Advice: CMs do NOT give legal advice; refer to SLLS.",
-      "ROI: Always ensure ROI is signed before calling partners.",
-      "Documentation: Document the referral outcome (Did they go?)."
-    ],
-    quiz: [
-      { id: "q7_1", question: "What is the dollar threshold that requires 3 price quotes?", options: ["$100", "$250", "$350", "$500"], correctAnswer: 2 },
-      { id: "q7_2", question: "True or False: CMs can provide legal advice on custody.", options: ["True", "False"], correctAnswer: 1 }
-    ],
-    fullText: "Module 7: Partnerships. Housing (EBR), Legal (SLLS), Health (BRBH). Partnership over Charity. $350 quote rule. No legal advice."
+    infographicDetails: [{ title: "EBR Housing", description: "Strategic partner for shelter.", details: [{ label: "Referral", deepDive: "Direct line for FOAM participants." }], color: "bg-amber-600" }],
+    slides: ["We don't work in a vacuum.", "Leverage partners for 211 support."],
+    quiz: [{ id: "q7_1", question: "Who is our primary housing partner?", options: ["HUD", "EBR Housing Authority", "Section 8"], correctAnswer: 1 }],
+    fullText: "Partnership and networking."
   },
   {
     id: ModuleType.DOCUMENTATION,
-    title: "Documentation, Data & Confidentiality",
-    subtitle: "Module 8: The Golden Rule",
-    description: "To master the technical requirements of compliance and the use of EmpowerDB.",
-    videoUrl: "https://www.youtube.com/embed/6RymNR559O4",
-    videoList: [
-      {
-        title: "Protecting our Mission",
-        url: "https://www.youtube.com/embed/6RymNR559O4",
-        description: "Why accurate documentation is vital for funding and client impact."
-      },
-      {
-        title: "Mastering the EmpowerDB Workflow",
-        url: "https://www.youtube.com/embed/9WAq-mv7me4",
-        description: "Technical walkthrough of logging client notes and data entry standards."
-      }
-    ],
-    videoSummary: "If it isn't in EmpowerDB, it didn't happen. Data entry isn't busy work; it protects our mission and funding. This module provides the blueprint for accurate, objective documentation.",
-    learningObjectives: [
-      { title: "Apply the 48-Hour Rule.", summary: "All interactions (calls, texts, meetings) must be logged within 48 hours." },
-      { title: "Write FACT-based case notes.", summary: "Objective notes using the Facts, Actions, Response, Next Steps model." }
-    ],
+    title: "Data & Documentation",
+    subtitle: "Module 8: EmpowerDB Integrity",
+    description: "The 'Golden Rule' of FOAM record keeping.",
+    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
+    learningObjectives: [{ title: "Case Notes Mastery", summary: "Using the FACT model (Facts, Actions, Client Response, Target)." }],
     infographicType: 'protocol',
-    infographicDetails: [
-      {
-        title: "FACT Model",
-        description: "Objective note-writing standard.",
-        graphic: "fa-pen-to-square",
-        details: [
-          { label: "F: Facts (Objective)", deepDive: "Write what happened, not how you felt about it. Instead of 'Client was lazy', write 'Client did not attend scheduled meeting'." },
-          { label: "A: Actions Taken", deepDive: "What did YOU do? 'Left voicemail, sent follow-up text, called employer partner'." },
-          { label: "C: Client Response", deepDive: "How did they react to the intervention? 'Client acknowledged the goal and agreed to provide docs by Friday'." },
-          { label: "T: Next Steps", deepDive: "Lock in the next move. 'CM to follow up on Monday to confirm document delivery'." }
-        ],
-        color: "bg-blue-600"
-      },
-      {
-        title: "Naming Convention",
-        description: "Files must be searchable.",
-        graphic: "fa-font",
-        details: [
-          { label: "LastName_FirstName_Type", deepDive: "Strict naming ensures we can find documents in seconds during a state audit." },
-          { label: "Upload all docs", deepDive: "POCs, Exit interviews, and ROIs must be scanned and attached to the digital file." },
-          { label: "Log every call/text", deepDive: "Small touchpoints prove our intensity of service to grant makers." }
-        ],
-        color: "bg-slate-600"
-      }
-    ],
-    infographicPractice: {
-      title: "Scenario: Delayed Entry",
-      scenario: "You give a father a bus pass on Friday but log it on Tuesday.",
-      steps: [
-        "Mistake: This violates the 48-Hour Rule.",
-        "Risk: Puts funding at risk and creates gaps.",
-        "Correct Action: Log immediately or within 48 hours.",
-        "Note Standard: Be objective. 'Client arrived at 10:15' not 'Client was lazy'."
-      ]
-    },
-    slides: [
-      "Golden Rule: If it isn't in EmpowerDB, it didn't happen.",
-      "48-Hour Rule: Strict deadline for all interactions.",
-      "Confidentiality: Do not use personal devices for client data.",
-      "Objective Writing: Fact-based only, no subjective labels."
-    ],
-    quiz: [
-      { id: "q8_1", question: "What is the deadline for entering case notes?", options: ["24 hours", "48 hours", "72 hours", "End of week"], correctAnswer: 1 },
-      { id: "q8_2", question: "What does 'FACT' stand for in note-writing?", options: ["Fast, Accurate, Clear, True", "Facts, Actions, Client Response, Next Steps", "Feelings, Actions, Call, Text", "None"], correctAnswer: 1 }
-    ],
-    fullText: "Module 8: Documentation. Golden Rule: Log in EmpowerDB. 48-Hour Rule for entry. FACT Model: Facts, Actions, Client Response, Next Steps. Objective writing."
+    infographicDetails: [{ title: "FACT Model", description: "Objective, actionable reporting.", details: [{ label: "Notes", deepDive: "Enter within 48 hours." }], color: "bg-indigo-700" }],
+    slides: ["If it isn't in the system, it didn't happen.", "Notes must be objective."],
+    quiz: [{ id: "q8_1", question: "What is the data entry deadline?", options: ["1 week", "48 hours", "Same day"], correctAnswer: 1 }],
+    fullText: "Record keeping excellence."
   },
   {
     id: ModuleType.CRISIS,
-    title: "Crisis Response & Boundaries",
-    subtitle: "Module 9: Safety and Standards",
-    description: "To prepare Case Managers for high-stress situations while maintaining professional limits.",
-    videoUrl: "https://www.youtube.com/embed/W5lSZJvMh1o",
-    videoList: [
-      {
-        title: "Crisis Intervention & De-escalation",
-        url: "https://www.youtube.com/embed/W5lSZJvMh1o",
-        description: "How to handle acute high-stress situations with calm, empathy, and professional authority."
-      }
-    ],
-    videoSummary: "Stabilize first. If a father is in crisis, pause long-term goals and focus on immediate safety. This module outlines the safe harbor protocol and the non-negotiable professional boundaries required at FOAM.",
-    learningObjectives: [
-      { title: "Execute the Crisis Response Protocol.", summary: "Following the Treatment Tree logic and mandated reporting duties." },
-      { title: "Maintain Professional Boundaries.", summary: "No personal money, no rides in personal cars, no rescue mindset." }
-    ],
-    infographicType: 'pathway',
-    infographicDetails: [
-      {
-        title: "Crisis Response Flow",
-        description: "Assess → Treatment Tree → Action",
-        graphic: "fa-triangle-exclamation",
-        details: [
-          { label: "Immediate safety call", deepDive: "If the father is threatening self-harm or harm to others, stay on the line and call 911 from another device." },
-          { label: "Assess immediate needs", deepDive: "Food and shelter come before job searches. Use the pantry or 211 for emergency stabilization." },
-          { label: "Stabilize First", deepDive: "Do not lecture an angry or hungry father about being late. Fix the hunger/anger first." }
-        ],
-        color: "bg-rose-600"
-      },
-      {
-        title: "Strict Boundaries",
-        description: "Professional limits protect everyone.",
-        graphic: "fa-ban",
-        details: [
-          { label: "NO personal loans", deepDive: "Once you give $10 of your own money, you are a benefactor, not a case manager. This ruins the professional dynamic." },
-          { label: "NO rides in personal cars", deepDive: "Liability and safety risk. Use bus passes or the agency vehicle if authorized." },
-          { label: "NO housing offers", deepDive: "Never allow a client to stay at your home or your relative's home. Professional distance is mandatory." }
-        ],
-        color: "bg-slate-700"
-      }
-    ],
-    infographicPractice: {
-      title: "Scenario: Late Night Call",
-      scenario: "A client calls late at night asking for money for a motel.",
-      steps: [
-        "Response: Maintain boundaries. Do not offer personal money.",
-        "Action: Direct to emergency shelters or 211.",
-        "Debrief: Report the incident to your supervisor.",
-        "Takeaway: Boundaries protect you and the organization."
-      ]
-    },
-    slides: [
-      "Stabilize First: Pause long-term goals for immediate safety.",
-      "Mandated Reporting: You are legally required to report harm to self/others.",
-      "Boundaries: We support, we do not rescue.",
-      "Safety: Never transport a client in your personal vehicle."
-    ],
-    quiz: [
-      { id: "q9_1", question: "True or False: You should drive clients in your personal car.", options: ["True", "False"], correctAnswer: 1 },
-      { id: "q9_2", question: "If a client threatens self-harm, what is your first step?", options: ["Call 911/Crisis Line", "Offer money", "Drive them home", "Ignore it"], correctAnswer: 0 }
-    ],
-    fullText: "Module 4: Trauma-Informed Practice. Core question: 'What happened to you?'. Provide a safe harbor. Enhance mindset: Identify strengths like 'You showed up today'."
+    title: "Crisis Management",
+    subtitle: "Module 9: Stability in the Storm",
+    description: "De-escalation and emergency intervention protocols.",
+    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
+    learningObjectives: [{ title: "De-escalation", summary: "Safely managing acute situational stress." }],
+    infographicType: 'workflow',
+    infographicDetails: [{ title: "Crisis Flow", description: "Identify, Stabilize, Refer.", details: [{ label: "911", deepDive: "When to call first responders." }], color: "bg-rose-700" }],
+    slides: ["Safety is the first priority.", "Listen more than you speak in a crisis."],
+    quiz: [{ id: "q9_1", question: "What is the first step in crisis?", options: ["Give money", "Stabilize", "Take a photo"], correctAnswer: 1 }],
+    fullText: "Crisis and emergency protocols."
   },
   {
     id: ModuleType.SUSTAINABILITY,
-    title: "Sustainability, Growth & Impact",
-    subtitle: "Module 10: Graduation & Closure",
-    description: "To define what 'Success' looks like at FOAM and how to properly close a case.",
-    videoUrl: "https://www.youtube.com/embed/d_fCTyInTGc",
-    videoList: [
-      {
-        title: "Graduation & The Exit Strategy",
-        url: "https://www.youtube.com/embed/d_fCTyInTGc",
-        description: "Defining success metrics and managing the formal closure process for our fathers."
-      }
-    ],
-    videoSummary: "Graduation is the celebration of sustainable independence. We measure success by outcomes, not just effort. This final module provides the roadmap for certification, the $350 final check protocol, and the legacy of impact we leave with every family.",
-    learningObjectives: [
-      { title: "Define Graduation criteria.", summary: "12 of 14 classes attended AND at least 2 major POC goals achieved." },
-      { title: "Execute the Exit Process.", summary: "Exit Interview, final Closing Note, and status update in EmpowerDB." }
-    ],
-    infographicType: 'workflow',
-    infographicDetails: [
-      {
-        title: "Graduation Criteria",
-        description: "Standards for the FOAM certificate.",
-        graphic: "fa-graduation-cap",
-        details: [
-          { label: "12 of 14 classes", deepDive: "Fathers must attend the core NPCL curriculum. The certificate is a credential they can take to court or employers." },
-          { label: "2 major POC goals", deepDive: "Proof of 'Enhancement'. Usually employment retention for 90 days and a stable housing solution." }
-        ],
-        color: "bg-[#1A4D2E]"
-      },
-      {
-        title: "The 4-Step Exit",
-        description: "Closing the loop.",
-        graphic: "fa-check-double",
-        details: [
-          { label: "Exit Interview", deepDive: "Gather feedback. What worked? What didn't? This data improves our program for the next father." },
-          { label: "Status Update", deepDive: "Change the EmpowerDB status to 'Completed/Graduated'. This is a proud moment for our data metrics." },
-          { label: "Final Closing Note", deepDive: "Summarize the entire journey. Highlight where the father started and where he is now." }
-        ],
-        color: "bg-[#0F2C5C]"
-      }
-    ],
-    infographicPractice: {
-      title: "Scenario: Incomplete Graduation",
-      scenario: "A father has a job but stopped coming to classes after 5 sessions.",
-      steps: [
-        "Action: Attempt contact 3 times.",
-        "Outcome: He cannot Graduate (failed 12/14 rule).",
-        "Data: Mark as 'Inactive' or 'Non-Compliant'.",
-        "Note: Document the successful employment outcome before he left."
-      ]
-    },
-    slides: [
-      "Sustainable Independence: The ultimate goal for every father.",
-      "Closure Types: Graduated, Inactive, Dismissed.",
-      "Success: Measured by outcomes, not effort.",
-      "Exit Interview: Critical for feedback and impact data."
-    ],
-    quiz: [
-      { id: "q10_1", question: "How many fatherhood classes must be attended to graduate?", options: ["8", "10", "12", "14"], correctAnswer: 2 },
-      { id: "q10_2", question: "How many POC goals must be achieved to graduate?", options: ["1", "2", "3", "5"], correctAnswer: 1 }
-    ],
-    fullText: "Module 10: Sustainability. Graduation: 12/14 classes + 2 major goals. Statuses: Graduated, Inactive, Dismissed. Exit Interview required."
+    title: "Sustainability & Graduation",
+    subtitle: "Module 10: Launching the Father",
+    description: "Defining success and planning for long-term independence.",
+    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
+    learningObjectives: [{ title: "Exit Strategy", summary: "Planning for the father's life post-FOAM enrollment." }],
+    infographicType: 'tree',
+    infographicDetails: [{ title: "Graduation", description: "The final certification.", details: [{ label: "Alumni", deepDive: "Continued mentorship opportunities." }], color: "bg-emerald-800" }],
+    slides: ["Success is when they don't need us.", "Alumni fathers are our best recruiters."],
+    quiz: [{ id: "q10_1", question: "What defines a graduate?", options: ["Paid dues", "Completed POC goals", "Attended 1 meeting"], correctAnswer: 1 }],
+    fullText: "Graduation and long term success."
   }
 ];
 
-export const COLORS = {
-  primary: '#0F2C5C',
-  secondary: '#1A4D2E',
-  accent: '#FF9F29',
-  light: '#FAF3E0',
-  white: '#FFFFFF',
-  gray: '#4B5563'
+// FACILITATOR TRACK
+export const FACILITATOR_MODULES: ModuleContent[] = [
+  {
+    id: ModuleType.FOUNDATIONAL,
+    title: "The Art of Facilitation",
+    subtitle: "Facilitator Module 1: Core Competencies",
+    description: "Understanding the role of the facilitator in creating a transformative experience for fathers.",
+    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
+    learningObjectives: [{ title: "Define 'Facilitation' vs 'Teaching'", summary: "Shifting from expert to guide." }],
+    infographicType: 'protocol',
+    infographicDetails: [{ title: "The Circle", description: "Symbol of equality and trust.", details: [{ label: "Safe Space", deepDive: "Maintaining group confidentiality." }], color: "bg-blue-600" }],
+    slides: ["Facilitators ask, they don't tell.", "The room is the expert."],
+    quiz: [{ id: "f1", question: "What is the primary role of a facilitator?", options: ["Lecturer", "Guide", "Judge"], correctAnswer: 1 }],
+    fullText: "Facilitation fundamentals."
+  },
+  {
+    id: ModuleType.ROLE,
+    title: "Group Dynamics & Conflict",
+    subtitle: "Facilitator Module 2: Managing the Energy",
+    description: "Techniques for navigating challenging conversations and group pushback.",
+    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
+    learningObjectives: [{ title: "Handle Disruptions", summary: "De-escalating tension within the group circle." }],
+    infographicType: 'workflow',
+    infographicDetails: [{ title: "Resolution Loop", description: "Listen, Validate, Refocus.", details: [{ label: "Validate", deepDive: "Acknowledging emotions without judgment." }], color: "bg-amber-600" }],
+    slides: ["Conflict is an opportunity for growth.", "Address the behavior, not the person."],
+    quiz: [{ id: "f2", question: "Should a facilitator ignore conflict?", options: ["Yes", "No"], correctAnswer: 1 }],
+    fullText: "Managing group energy."
+  }
+];
+
+// BOARD TRACK
+export const BOARD_MODULES: ModuleContent[] = [
+  {
+    id: ModuleType.FOUNDATIONAL,
+    title: "Governance & Fiduciary Duty",
+    subtitle: "Board Module 1: Legal Stewardship",
+    description: "The legal and ethical responsibilities of serving on the FOAM Board of Directors.",
+    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
+    learningObjectives: [{ title: "Understand Duty of Care", summary: "Exercising prudent decision-making." }],
+    infographicType: 'pillars',
+    infographicDetails: [{ title: "Board Pillars", description: "Care, Loyalty, Obedience.", details: [{ label: "Loyalty", deepDive: "Putting FOAM interests above personal gain." }], color: "bg-slate-900" }],
+    slides: ["Board members protect the mission.", "Fiduciary duty is a legal mandate."],
+    quiz: [{ id: "b1", question: "Which duty involves putting FOAM first?", options: ["Duty of Care", "Duty of Loyalty", "Duty of Speed"], correctAnswer: 1 }],
+    fullText: "Board governance overview."
+  },
+  {
+    id: ModuleType.ROLE,
+    title: "Strategic Oversight",
+    subtitle: "Board Module 2: Guiding the Vision",
+    description: "How the Board supports organizational growth without micro-managing operations.",
+    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
+    learningObjectives: [{ title: "Oversight vs. Operations", summary: "Respecting the CEO's operational boundary." }],
+    infographicType: 'tree',
+    infographicDetails: [{ title: "Strategic Tree", description: "Vision at the top, Support at the roots.", details: [{ label: "Sustainability", deepDive: "Long-term fiscal planning." }], color: "bg-emerald-600" }],
+    slides: ["The Board sets the 'Where', Staff handles the 'How'.", "Fundraising is a collective duty."],
+    quiz: [{ id: "b2", question: "Does the Board manage daily staffing?", options: ["Yes", "No"], correctAnswer: 1 }],
+    fullText: "Strategic growth oversight."
+  }
+];
+
+// Default Export for backward compatibility
+export const FOAM_MODULES = CASE_MANAGER_MODULES;
+
+// --- FATHERHOOD TRACKER CONSTANTS ---
+export const TRACKER_MODULES: TrackerModule[] = [
+  { id: 1, title: "Conflict Resolution/Anger Management", category: "Relationship" },
+  { id: 2, title: "Becoming Self-Sufficient", category: "Life Skills" },
+  { id: 3, title: "Building Your Child’s Self-Esteem", category: "Parenting" },
+  { id: 4, title: "Co-Parenting/Single Fatherhood", category: "Parenting" },
+  { id: 5, title: "Male/Female Relationship", category: "Relationship" },
+  { id: 6, title: "Manhood", category: "Foundation" },
+  { id: 7, title: "Values", category: "Foundation" },
+  { id: 8, title: "Communication/Active Listening", category: "Relationship" },
+  { id: 9, title: "Dealing with Stress", category: "Health" },
+  { id: 10, title: "Coping with Fatherhood Discrimination", category: "Social" },
+  { id: 11, title: "Fatherhood Today", category: "Foundation" },
+  { id: 12, title: "Understanding Children's Needs", category: "Parenting" },
+  { id: 13, title: "A Father’s Influence on His Child", category: "Parenting" },
+  { id: 14, title: "Relationships", category: "Relationship" },
+];
+
+const generateTuesdays = (startYear: number, endYear: number) => {
+  const tuesdays: string[] = [];
+  for (let year = startYear; year <= endYear; year++) {
+    for (let month = 0; month < 12; month++) {
+      let d = new Date(year, month, 1);
+      while (d.getDay() !== 2) d.setDate(d.getDate() + 1);
+      while (d.getMonth() === month) {
+        tuesdays.push(d.toISOString().split('T')[0]);
+        d.setDate(d.getDate() + 7);
+      }
+    }
+  }
+  return tuesdays;
+};
+
+export const PROGRAM_DATES = generateTuesdays(2025, 2026);
+
+export const FULL_SCHEDULE_LOG = PROGRAM_DATES.map((date, index) => ({
+  date,
+  topic: TRACKER_MODULES[index % TRACKER_MODULES.length].title
+}));
+
+export const FUTURE_THRESHOLD = "2026-01-06";
+
+// --- EXPANDED ROSTER DATA (235+ FATHERS) ---
+const FIRST_NAMES = ["Aaron", "Archie", "Bryan", "Rafael", "Ty", "James", "Robert", "John", "Michael", "David", "William", "Richard", "Joseph", "Thomas", "Christopher", "Charles", "Daniel", "Matthew", "Anthony", "Mark", "Donald", "Steven", "Paul", "Andrew", "Joshua", "Kenneth", "Kevin", "Brian", "George", "Timothy", "Ronald", "Edward", "Jason", "Jeffrey", "Gary", "Jacob", "Nicholas", "Eric", "Jonathan", "Stephen", "Larry", "Justin", "Scott", "Brandon", "Benjamin", "Samuel", "Gregory", "Alexander", "Patrick", "Frank", "Raymond", "Jack", "Dennis", "Jerry", "Tyler", "Aaron", "Jose", "Adam", "Nathan", "Henry", "Douglas", "Zachary", "Peter", "Kyle", "Ethan", "Walter", "Harold", "Jeremy", "Christian", "Keith", "Roger", "Noah", "Gerald", "Carl", "Terry", "Sean", "Lawrence", "Arthur", "Austin", "Jesse", "Jordan", "Bryan", "Billy", "Joe", "Bruce", "Gabriel", "Logan", "Louis", "Albert", "Willie", "Alan", "Juan", "Wayne", "Elijah", "Randy", "Roy", "Vincent", "Ralph", "Eugene", "Russell", "Bobby", "Mason", "Philip", "Louis"];
+const LAST_NAMES = ["Banks", "Lee", "Comeaux", "Vega", "Harlan", "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson", "Walker", "Young", "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores", "Green", "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell", "Carter", "Roberts", "Gomez", "Phillips", "Evans", "Turner", "Diaz", "Parker", "Cruz", "Edwards", "Collins", "Reyes", "Stewart", "Morris", "Morales", "Murphy", "Cook", "Rogers", "Gutierrez", "Ortiz", "Morgan", "Cooper", "Peterson", "Bailey", "Reed", "Kelly", "Howard", "Ramos", "Kim", "Foster", "Ward", "Richardson", "Watson", "Brooks", "Chavez", "Wood", "James", "Bennett", "Gray", "Mendoza", "Ruiz", "Hughes", "Price", "Alvarez", "Castillo", "Sanders", "Patel", "Myers", "Long", "Ross", "Foster"];
+
+export const generateFullRoster = (): Father[] => {
+  const roster: Father[] = [];
+  
+  // Seed with 235 unique fathers to match the user's expected "230-plus" roster
+  for (let i = 1; i <= 235; i++) {
+    const firstName = FIRST_NAMES[i % FIRST_NAMES.length];
+    const lastName = LAST_NAMES[i % LAST_NAMES.length];
+    
+    // Vary module completion counts for a realistic status mix
+    let modules: number[] = [];
+    if (i === 1) modules = [10, 13]; // Original Aaron
+    else if (i === 2) modules = [3, 6, 10, 12, 13, 14]; // Original Archie
+    else if (i === 3) modules = [1, 3, 4, 7, 8, 9, 11, 12, 13, 14]; // Original Bryan
+    else if (i === 4) modules = [1, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14]; // Original Rafael
+    else if (i === 5) modules = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]; // Original Ty
+    else {
+      // Logic for the other 230 fathers
+      const completionLevel = Math.random();
+      if (completionLevel > 0.9) {
+        // High completion (Graduated)
+        modules = Array.from({ length: 14 }, (_, i) => i + 1);
+      } else if (completionLevel > 0.3) {
+        // Active progress
+        const count = Math.floor(Math.random() * 11) + 2;
+        modules = Array.from({ length: count }, (_, i) => i + 1);
+      } else {
+        // At Risk (low completion)
+        const count = Math.floor(Math.random() * 2);
+        modules = count === 0 ? [] : [Math.floor(Math.random() * 14) + 1];
+      }
+    }
+
+    roster.push({
+      id: i.toString(),
+      firstName: firstName,
+      lastName: lastName,
+      phone: `225-${Math.floor(100+Math.random()*900)}-${Math.floor(1000+Math.random()*9000)}`,
+      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@example.org`,
+      completedModules: modules,
+      joinedDate: '2024-01-01',
+      status: modules.length === 14 ? 'Graduated' : modules.length < 2 ? 'At Risk' : 'Active',
+    });
+  }
+  return roster;
+};
+
+export const INITIAL_FATHERS = generateFullRoster();
+
+export const CLASS_LOCATION = {
+  name: "FYSC Building",
+  address: "11120 Government Street, Baton Rouge, Louisiana 70802",
+  fullName: "Family and Youth Service Center"
+};
+
+export const parseCSV = (text: string): Father[] => {
+  const lines = text.trim().split('\n');
+  if (lines.length <= 1) return [];
+  return lines.slice(1).map(line => {
+    const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+    if (parts.length < 2) return null;
+    const id = parts[0].trim().replace(/"/g, '');
+    let fullName = parts[1].trim().replace(/"/g, '');
+    let firstName = fullName.split(' ')[0], lastName = fullName.split(' ').slice(1).join(' ');
+    const modulesCount = parseInt(parts[4] || '0', 10);
+    return {
+      id, firstName, lastName, phone: parts[2] || null, email: parts[3] || null,
+      completedModules: Array.from({ length: modulesCount }, (_, i) => i + 1),
+      joinedDate: '2024-01-01',
+      status: modulesCount === 14 ? 'Graduated' : modulesCount < 2 ? 'At Risk' : 'Active',
+    } as Father;
+  }).filter((f): f is Father => f !== null);
 };

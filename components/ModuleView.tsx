@@ -8,9 +8,10 @@ import Quiz from './Quiz';
 interface ModuleViewProps {
   module: ModuleContent;
   onNext: () => void;
+  nextModuleTitle?: string;
 }
 
-const ModuleView: React.FC<ModuleViewProps> = ({ module, onNext }) => {
+const ModuleView: React.FC<ModuleViewProps> = ({ module, onNext, nextModuleTitle }) => {
   const [activeTab, setActiveTab] = useState<'info' | 'video' | 'graphic' | 'slides' | 'quiz'>('info');
   const [hoverObjective, setHoverObjective] = useState<number | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<ModuleVideo | null>(null);
@@ -26,8 +27,19 @@ const ModuleView: React.FC<ModuleViewProps> = ({ module, onNext }) => {
     setActiveTab('info');
   }, [module.id]);
 
+  const handleNextSection = () => {
+    if (currentIndex < tabs.length - 1) {
+      setActiveTab(tabs[currentIndex + 1]);
+    }
+  };
+
+  const handlePrevSection = () => {
+    if (currentIndex > 0) {
+      setActiveTab(tabs[currentIndex - 1]);
+    }
+  };
+
   const renderVideoTab = () => {
-    // If a specific video is selected, show the player
     if (selectedVideo) {
       return (
         <div className="h-full flex flex-col items-center animate-in fade-in duration-500 space-y-8">
@@ -62,7 +74,6 @@ const ModuleView: React.FC<ModuleViewProps> = ({ module, onNext }) => {
       );
     }
 
-    // If module has multiple videos (or if we are on the library landing page), show the landing page
     if (module.videoList && module.videoList.length > 0) {
       return (
         <div className="h-full animate-in fade-in duration-500 space-y-10">
@@ -110,18 +121,10 @@ const ModuleView: React.FC<ModuleViewProps> = ({ module, onNext }) => {
               </button>
             ))}
           </div>
-
-          {module.videoSummary && (
-             <div className="max-w-4xl mx-auto p-8 bg-slate-50 rounded-3xl border border-slate-100 text-center">
-                <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mb-2">Module Summary</p>
-                <p className="text-slate-600 font-medium italic">{module.videoSummary}</p>
-             </div>
-          )}
         </div>
       );
     }
 
-    // Default view for modules with a single primary videoUrl (fallback)
     return (
       <div className="h-full flex flex-col items-center animate-in fade-in duration-500 space-y-8">
         <div className="w-full max-w-4xl aspect-video bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl ring-8 ring-slate-50">
@@ -157,7 +160,7 @@ const ModuleView: React.FC<ModuleViewProps> = ({ module, onNext }) => {
       {/* Tab Landing Header */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-           <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] mb-1 block">Training Portal</span>
+           <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] mb-1 block">Academy Tracker</span>
            <h2 className="text-2xl font-black text-slate-800 leading-none">{module.title}</h2>
         </div>
         
@@ -179,19 +182,6 @@ const ModuleView: React.FC<ModuleViewProps> = ({ module, onNext }) => {
                 <div className="inline-flex px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-bold uppercase tracking-widest">Introduction</div>
                 <h3 className="text-4xl font-black text-slate-900 tracking-tight leading-[1.1]">{module.subtitle}</h3>
                 <p className="text-xl text-slate-500 font-medium leading-relaxed">{module.description}</p>
-                {module.connectUrl && (
-                  <div className="pt-2">
-                    <a 
-                      href={module.connectUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#0F2C5C] text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-200"
-                    >
-                      <i className="fas fa-link"></i>
-                      Connect Link
-                    </a>
-                  </div>
-                )}
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -221,37 +211,33 @@ const ModuleView: React.FC<ModuleViewProps> = ({ module, onNext }) => {
                         </div>
                       </div>
                     ))}
-                    {!hoverObjective && (
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic pt-4">
-                         <i className="fas fa-mouse-pointer mr-2"></i> Hover over an objective for a summary
-                      </p>
-                    )}
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-6">
-                  <div className="bg-[#FAF3E0] p-8 rounded-[2rem] border border-[#F1E4C3] relative overflow-hidden">
-                    <i className="fas fa-lightbulb absolute -right-4 -bottom-4 text-8xl text-[#EBD9A9] opacity-40"></i>
-                    <div className="relative z-10 space-y-4">
-                        <h4 className="text-[#8B7E58] font-black uppercase tracking-widest text-xs">Training Philosophy</h4>
-                        <p className="text-[#6B5E38] font-bold text-lg leading-snug">
-                          "We enhance Fathers and Father Figures which will ultimately strengthen families."
-                        </p>
-                        <div className="w-12 h-1 bg-[#DBC38B]"></div>
-                        <p className="text-[#8B7E58]/80 text-sm italic font-medium">Mission statement: Our North Star for every case coordination.</p>
-                    </div>
-                  </div>
                   <div className="bg-slate-900 p-8 rounded-[2rem] text-white relative overflow-hidden">
                     <i className="fas fa-shield-heart absolute -right-4 -bottom-4 text-8xl opacity-10"></i>
                     <div className="relative z-10 space-y-3">
-                        <h4 className="text-slate-500 font-black uppercase tracking-widest text-[10px]">Core Values</h4>
-                        <ul className="text-sm font-bold space-y-2">
-                          <li className="flex items-center gap-2 text-indigo-400"><i className="fas fa-check-circle text-[10px]"></i> Trauma-Informed Care</li>
-                          <li className="flex items-center gap-2 text-emerald-400"><i className="fas fa-check-circle text-[10px]"></i> Consistency Builds Trust</li>
-                          <li className="flex items-center gap-2 text-amber-400"><i className="fas fa-check-circle text-[10px]"></i> Whole-Family Approach</li>
-                        </ul>
+                        <h4 className="text-slate-500 font-black uppercase tracking-widest text-[10px]">Track Status</h4>
+                        <div className="flex items-center gap-4">
+                           <div className={`w-3 h-3 rounded-full ${isCertified ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`}></div>
+                           <p className="text-sm font-bold">{isCertified ? 'Module Certified' : 'Learning Phase Active'}</p>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-2">Pass the quiz to unlock the next module in this training track.</p>
                     </div>
                   </div>
+                  
+                  {nextModuleTitle && (
+                    <div className="bg-indigo-50 border-2 border-indigo-100 p-8 rounded-[2rem] space-y-4 shadow-sm animate-in fade-in duration-700">
+                      <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em]">Next in Series</h4>
+                      <div className="flex items-center justify-between">
+                         <p className="text-lg font-black text-indigo-900 leading-tight">{nextModuleTitle}</p>
+                         <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-indigo-400 border border-indigo-100">
+                            <i className="fas fa-chevron-right"></i>
+                         </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -287,43 +273,46 @@ const ModuleView: React.FC<ModuleViewProps> = ({ module, onNext }) => {
           )}
         </div>
 
-        {/* Improved Action Footer */}
-        <div className="bg-slate-50/50 p-6 px-10 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-3">
-               <div className={`w-2 h-2 rounded-full ${isCertified ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`}></div>
-               <span className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">
-                 {isCertified ? 'Module Certified' : 'Certification Pending'}
-               </span>
-            </div>
-            <div className="flex gap-4 w-full sm:w-auto">
+        {/* --- NAVIGATION FOOTER: Consolidated Controls --- */}
+        <div className="p-6 bg-slate-50 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 px-10">
+           <div className="flex flex-wrap items-center gap-4">
               <button 
-                onClick={() => {
-                  if (currentIndex > 0) setActiveTab(tabs[currentIndex - 1]);
-                }}
-                className={`flex-1 sm:flex-none px-8 py-3 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 ${currentIndex === 0 ? 'hidden' : 'bg-white border-2 border-slate-200 text-slate-700 hover:border-indigo-400 hover:text-indigo-600'}`}
+                onClick={handlePrevSection}
+                disabled={currentIndex === 0}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${currentIndex === 0 ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-white text-[#0F2C5C] border border-slate-200 shadow-sm hover:bg-indigo-50'}`}
               >
-                <i className="fas fa-arrow-left text-xs"></i> Previous Section
+                <i className="fas fa-chevron-left"></i>
+                Previous Section
               </button>
+
               <button 
-                onClick={() => {
-                  if (currentIndex < tabs.length - 1) setActiveTab(tabs[currentIndex + 1]);
-                }}
-                className={`flex-1 sm:flex-none px-8 py-3 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 ${activeTab === 'quiz' ? 'hidden' : 'bg-white border-2 border-slate-200 text-slate-700 hover:border-indigo-400 hover:text-indigo-600'}`}
+                onClick={handleNextSection}
+                disabled={currentIndex === tabs.length - 1}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${currentIndex === tabs.length - 1 ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-white text-[#0F2C5C] border border-slate-200 shadow-sm hover:bg-indigo-50'}`}
               >
-                Next Section <i className="fas fa-arrow-right text-xs"></i>
+                Next Section
+                <i className="fas fa-chevron-right"></i>
               </button>
-              <button 
-                onClick={onNext}
-                disabled={!isCertified}
-                className={`flex-1 sm:flex-none px-8 py-3 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 shadow-lg ${
-                  isCertified 
-                    ? 'bg-[#0F2C5C] text-white hover:bg-[#1A4D2E] shadow-indigo-100' 
-                    : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-                }`}
-              >
-                {isCertified ? 'Next Module' : 'Complete Quiz First'} <i className="fas fa-chevron-right text-xs"></i>
-              </button>
-            </div>
+
+              {nextModuleTitle && (
+                <button 
+                  onClick={onNext}
+                  disabled={!isCertified}
+                  className={`px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-3 transition-all shadow-xl ${isCertified ? 'bg-[#0F2C5C] text-white hover:bg-slate-800' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}
+                >
+                  {isCertified ? 'Proceed to Next Module' : 'Complete Quiz to Advance'}
+                  <i className="fas fa-forward"></i>
+                </button>
+              )}
+           </div>
+
+           <div className="flex items-center gap-4">
+              <div className="hidden lg:flex gap-1.5">
+                {tabs.map((_, i) => (
+                  <div key={i} className={`w-2 h-2 rounded-full transition-all ${i === currentIndex ? 'bg-indigo-600 w-6' : 'bg-slate-300'}`}></div>
+                ))}
+              </div>
+           </div>
         </div>
       </div>
     </div>
