@@ -1,0 +1,8 @@
+{
+  "name": "FOAM Training Portal",
+  "description": "An interactive training platform for Fathers On A Mission (FOAM) case managers, featuring module-based learning, infographics, quizzes, and AI-powered assistance.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
