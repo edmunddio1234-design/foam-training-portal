@@ -23,7 +23,7 @@ type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'db' | 'finance' | 'm
 type FinanceSubView = 'dashboard' | 'exchange' | 'bills';
 
 const App: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true); 
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
   const [isTrainingAuthenticated, setIsTrainingAuthenticated] = useState(false);
   const [trainingTrackSelected, setTrainingTrackSelected] = useState<TrainingTrack | null>(null);
   const [isFinanceAuthenticated, setIsFinanceAuthenticated] = useState(false);
