@@ -1,6 +1,6 @@
 import { AuthUser, DriveFile, APIResponse } from '../types';
 
-const API_BASE = 'http://localhost:3001';
+const API_BASE = 'https://foamla-backend-2.onrender.com';
 
 const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
