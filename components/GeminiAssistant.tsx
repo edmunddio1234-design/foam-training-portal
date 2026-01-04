@@ -29,28 +29,18 @@ const GeminiAssistant: React.FC<GeminiAssistantProps> = ({ isOpen, onClose, cont
     setLoading(true);
 
     try {
-      // Initialize the AI with your API key
       const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       
-      // Use the standard Flash model
       const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash', 
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              { text: `You are a training assistant for FOAM (Fathers On A Mission). Use the provided context: ${context}. User Question: ${userMessage}` }
-            ]
-          }
-        ]
+        model: 'gemini-2.0-flash',
+        contents: `You are a training assistant for FOAM (Fathers On A Mission). Help trainees understand the case management process. Use the provided context: ${context}. Be encouraging, professional, and clear. User Question: ${userMessage}`
       });
 
-      // Extract the text safely
-      const botText = response.text ? response.text() : "I'm sorry, I couldn't process that. Can you rephrase?";
+      const botText = response.text || "I'm sorry, I couldn't process that. Can you rephrase?";
       setMessages(prev => [...prev, { role: 'bot', text: botText }]);
       
     } catch (error) {
-      console.error(error);
+      console.error("Gemini Error:", error);
       setMessages(prev => [...prev, { role: 'bot', text: "Error connecting to AI. Please try again later." }]);
     } finally {
       setLoading(false);
