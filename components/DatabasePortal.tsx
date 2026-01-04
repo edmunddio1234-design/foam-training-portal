@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { fileService } from '../services/driveAPI';
@@ -66,15 +65,15 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
     if (summaryCache[file.id]) return;
     setIsGeneratingSummary(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      
       const prompt = `Provide a concise 3-sentence professional summary for a file titled "${file.name}". Context: This file belongs to Fathers On A Mission (FOAM), a non-profit focusing on fatherhood mentorship and community support. The summary should explain the likely administrative importance of this document.`;
       
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt
-      });
-
-      const summary = response.text || "Summary analysis currently unavailable for this record.";
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const summary = response.text() || "Summary analysis currently unavailable for this record.";
+      
       setSummaryCache(prev => ({ ...prev, [file.id]: summary }));
     } catch (err) {
       console.error("AI Summary generation failed", err);
@@ -87,7 +86,9 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
     if (!searchQuery.trim()) return;
     setIsAiProcessing(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      
       const fileListContext = files.map(f => `- ${f.name}`).join('\n');
       
       const prompt = `The user is searching the FOAM Google Drive with this query: "${searchQuery}". 
@@ -98,14 +99,13 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
       Return the answer in two parts:
       1. A conversational explanation.
       2. If specific files match, list their exact names.`;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt
-      });
-
+      
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text() || "I've analyzed the drive. Check the highlighted results.";
+      
       setMessages(prev => [...prev, { role: 'user', text: `Smart Search: ${searchQuery}` }]);
-      setMessages(prev => [...prev, { role: 'bot', text: response.text || "I've analyzed the drive. Check the highlighted results." }]);
+      setMessages(prev => [...prev, { role: 'bot', text: text }]);
     } catch (err) {
       console.error("Smart Search failed", err);
     } finally {
@@ -120,15 +120,14 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
     setChatInput('');
     setIsAiProcessing(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: userMsg,
-        config: {
-          systemInstruction: "You are the FOAM Digital Records Assistant. Help users find and understand files in their organization's Google Drive."
-        }
-      });
-      setMessages(prev => [...prev, { role: 'bot', text: response.text || "Understood. How else can I assist with the records?" }]);
+      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      
+      const result = await model.generateContent(userMsg);
+      const response = await result.response;
+      const text = response.text() || "Understood. How else can I assist with the records?";
+      
+      setMessages(prev => [...prev, { role: 'bot', text: text }]);
     } catch (err) {
       setMessages(prev => [...prev, { role: 'bot', text: "Error connecting to records intelligence." }]);
     } finally {
@@ -294,7 +293,6 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
                 }`}>
                    <i className={`fas ${activeDisplayFile.mimeType.includes('pdf') ? 'fa-file-pdf' : activeDisplayFile.mimeType.includes('sheet') ? 'fa-file-excel' : 'fa-file-alt'}`}></i>
                 </div>
-
                 <div className="space-y-1 max-w-full">
                    <h2 className="text-lg md:text-xl font-black text-slate-800 tracking-tight leading-tight uppercase break-words px-4">
                      {activeDisplayFile.name}
@@ -364,7 +362,6 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
                 <i className="fas fa-th-large text-[10px]"></i>
                 Back to Main Hub
               </button>
-
               <div className="flex items-center gap-3 pt-2">
                 <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
                   <i className="fas fa-comment-nodes text-xs"></i>
