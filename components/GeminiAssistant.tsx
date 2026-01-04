@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenerativeAI as GoogleGenAI } from "@google/generative-ai";interface GeminiAssistantProps {
-  isOpen: boolean;
+import { GoogleGenAI } from "@google/genai";
+isOpen: boolean;
   onClose: () => void;
   context: string;
 }
