@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
 interface GeminiAssistantProps {
   isOpen: boolean;
@@ -29,15 +29,14 @@ const GeminiAssistant: React.FC<GeminiAssistantProps> = ({ isOpen, onClose, cont
     setLoading(true);
 
     try {
-      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       
-      const prompt = `You are a training assistant for FOAM (Fathers On A Mission). Help trainees understand the case management process. Use the provided context: ${context}. Be encouraging, professional, and clear. User Question: ${userMessage}`;
-      
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const botText = response.text() || "I'm sorry, I couldn't process that. Can you rephrase?";
-      
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: `You are a training assistant for FOAM (Fathers On A Mission). Help trainees understand the case management process. Use the provided context: ${context}. Be encouraging, professional, and clear. User Question: ${userMessage}`
+      });
+
+      const botText = response.text || "I'm sorry, I couldn't process that. Can you rephrase?";
       setMessages(prev => [...prev, { role: 'bot', text: botText }]);
       
     } catch (error) {
