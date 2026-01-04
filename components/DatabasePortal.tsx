@@ -10,27 +10,16 @@ interface DriveFile {
   size?: string;
   webViewLink?: string;
   iconLink?: string;
-  folderId?: string;
 }
 
-// Backend API URL - Change this to your Render backend URL
+// Backend API URL
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
-
-const FOLDER_METADATA = [
-  { id: 'all', name: 'All Files', icon: 'fa-layer-group' },
-  { id: 'gov', name: 'Governance', icon: 'fa-landmark' },
-  { id: 'hr', name: 'HR & Personnel', icon: 'fa-users' },
-  { id: 'finance', name: 'Financials', icon: 'fa-file-invoice-dollar' },
-  { id: 'clients', name: 'Case Files', icon: 'fa-folder-closed' },
-  { id: 'training', name: 'Academy', icon: 'fa-book' },
-];
 
 interface DatabasePortalProps {
   onClose: () => void;
 }
 
 const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
-  const [activeFolder, setActiveFolder] = useState('all');
   const [files, setFiles] = useState<DriveFile[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -44,7 +33,6 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
   const [previewFile, setPreviewFile] = useState<DriveFile | null>(null);
   const [summaryCache, setSummaryCache] = useState<Record<string, string>>({});
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
-  const [fileContent, setFileContent] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatScrollRef = useRef<HTMLDivElement>(null);
@@ -77,7 +65,6 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
         if (data.files && data.files.length > 0) {
           setFiles(data.files);
           setConnectionStatus('connected');
-          // Notify AI that we have real files
           setMessages([{ 
             role: 'bot', 
             text: `✅ Connected to Google Drive! I found ${data.files.length} files. Ask me anything about your documents - I can search, summarize, and help you find what you need.` 
@@ -90,9 +77,7 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
           }]);
         }
       } else if (response.status === 401) {
-        // Not authenticated - switch to demo mode
         setConnectionStatus('demo');
-        loadDemoFiles();
         setMessages([{ 
           role: 'bot', 
           text: `⚠️ Running in Demo Mode. To access your real Google Drive files, please log in with your @foamla.org account.` 
@@ -103,7 +88,6 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
     } catch (err: any) {
       console.warn('Backend connection unavailable:', err.message);
       setConnectionStatus('demo');
-      loadDemoFiles();
       setMessages([{ 
         role: 'bot', 
         text: `📂 Demo Mode Active. Backend connection unavailable. Showing sample files for demonstration.` 
@@ -113,21 +97,6 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
     }
   };
 
-  // Demo files for when backend is unavailable
-  const loadDemoFiles = () => {
-    const demoFiles: DriveFile[] = [
-      { id: '1', name: 'FOAM_Case_Management_Standards.pdf', mimeType: 'application/pdf', modifiedTime: '2024-03-15T10:00:00Z', folderId: 'training' },
-      { id: '2', name: 'Project_Family_Build_Intake_Template.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', modifiedTime: '2024-03-20T14:30:00Z', folderId: 'clients' },
-      { id: '3', name: 'Financial_Quarterly_Projections_FY25.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', modifiedTime: '2024-04-01T09:15:00Z', folderId: 'finance' },
-      { id: '4', name: 'NPCL_Curriculum_Module_Overview.pdf', mimeType: 'application/pdf', modifiedTime: '2024-02-10T11:45:00Z', folderId: 'training' },
-      { id: '5', name: 'Board_Meeting_Minutes_Jan.pdf', mimeType: 'application/pdf', modifiedTime: '2025-01-05T10:00:00Z', folderId: 'gov' },
-      { id: '6', name: 'Staff_Handbook_2025.pdf', mimeType: 'application/pdf', modifiedTime: '2024-12-15T11:00:00Z', folderId: 'hr' },
-      { id: '7', name: 'Grant_Proposal_LCTF_2025.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', modifiedTime: '2025-01-10T09:00:00Z', folderId: 'finance' },
-      { id: '8', name: 'FOAM_Deliverables_Q4_2024.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', modifiedTime: '2024-12-20T14:00:00Z', folderId: 'gov' },
-    ];
-    setFiles(demoFiles);
-  };
-
   // Generate AI summary for a file
   const getAiSummary = async (file: DriveFile) => {
     if (summaryCache[file.id]) return;
@@ -135,30 +104,10 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
     try {
       const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       
-      // Try to get actual file content if connected
-      let contentContext = '';
-      if (connectionStatus === 'connected') {
-        try {
-          const response = await fetch(`${API_BASE_URL}/files/${file.id}`, {
-            credentials: 'include'
-          });
-          if (response.ok) {
-            const data = await response.json();
-            // For text-based files, include a snippet of content
-            if (data.content && (file.mimeType.includes('text') || file.mimeType.includes('document'))) {
-              const decoded = atob(data.content);
-              contentContext = `\n\nFile content preview: "${decoded.substring(0, 500)}..."`;
-            }
-          }
-        } catch (err) {
-          console.warn('Could not fetch file content for summary');
-        }
-      }
-      
       const prompt = `Provide a concise 3-sentence professional summary for a file titled "${file.name}". 
 Context: This file belongs to Fathers On A Mission (FOAM), a non-profit focusing on fatherhood mentorship and community support. 
 File type: ${file.mimeType}
-Last modified: ${file.modifiedTime}${contentContext}
+Last modified: ${file.modifiedTime}
 
 The summary should explain the likely administrative importance of this document and what it might contain.`;
       
@@ -189,8 +138,9 @@ The summary should explain the likely administrative importance of this document
       const fileListContext = files.map(f => {
         const type = f.mimeType.includes('pdf') ? 'PDF' : 
                      f.mimeType.includes('sheet') || f.mimeType.includes('excel') ? 'Spreadsheet' :
-                     f.mimeType.includes('document') || f.mimeType.includes('word') ? 'Document' : 'File';
-        return `- ${f.name} (${type}, modified: ${f.modifiedTime?.split('T')[0] || 'unknown'})`;
+                     f.mimeType.includes('document') || f.mimeType.includes('word') ? 'Document' :
+                     f.mimeType.includes('folder') ? 'Folder' : 'File';
+        return `- ${f.name} (${type})`;
       }).join('\n');
       
       const prompt = `You are the FOAM (Fathers On A Mission) intelligent document assistant. 
@@ -215,15 +165,6 @@ Be helpful, specific, and professional. Reference actual file names from the lis
       
       setMessages(prev => [...prev, { role: 'bot', text: response.text || "I've analyzed the drive but couldn't find specific matches. Try different keywords." }]);
       
-      // Also filter the visible files based on keyword match
-      const query = searchQuery.toLowerCase();
-      const matchingFiles = files.filter(f => f.name.toLowerCase().includes(query));
-      if (matchingFiles.length > 0 && matchingFiles.length < files.length) {
-        // Highlight matching files by putting them first
-        const otherFiles = files.filter(f => !f.name.toLowerCase().includes(query));
-        setFiles([...matchingFiles, ...otherFiles]);
-      }
-      
     } catch (err) {
       console.error("Smart Search failed", err);
       setMessages(prev => [...prev, { role: 'bot', text: "Sorry, I encountered an error while searching. Please try again." }]);
@@ -244,10 +185,8 @@ Be helpful, specific, and professional. Reference actual file names from the lis
     try {
       const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       
-      // Build context with file list
       const fileListContext = files.map(f => `- ${f.name}`).join('\n');
       
-      // Include any selected file context
       let selectedFileContext = '';
       if (previewFile) {
         selectedFileContext = `\n\nCurrently selected file: "${previewFile.name}" (${previewFile.mimeType})`;
@@ -258,15 +197,13 @@ Be helpful, specific, and professional. Reference actual file names from the lis
       
       const prompt = `You are the FOAM (Fathers On A Mission) Digital Records AI Assistant. You help users navigate, understand, and find files in their organization's Google Drive.
 
-Available files in the drive:
+Available files in the drive (${files.length} total):
 ${fileListContext}
 ${selectedFileContext}
 
-Connection status: ${connectionStatus === 'connected' ? 'Live connection to Google Drive' : 'Demo mode - showing sample files'}
-
 User question: ${userMsg}
 
-Provide a helpful, professional response. If the user asks about specific files, reference them by name. If they ask for recommendations or analysis, use the file names and types to give informed suggestions.`;
+Provide a helpful, professional response. If the user asks about specific files, reference them by name.`;
       
       const response = await ai.models.generateContent({
         model: 'gemini-2.0-flash',
@@ -324,7 +261,6 @@ Provide a helpful, professional response. If the user asks about specific files,
       if (response.ok) {
         const data = await response.json();
         setMessages(prev => [...prev, { role: 'bot', text: `✅ Successfully uploaded "${data.file.name}" to Google Drive!` }]);
-        // Refresh file list
         loadFiles();
       } else {
         throw new Error('Upload failed');
@@ -354,23 +290,23 @@ Provide a helpful, professional response. If the user asks about specific files,
 
   const activeDisplayFile = hoveredFile || previewFile;
 
-  const filteredFiles = files.filter(f => {
-    const matchesSearch = f.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFolder = activeFolder === 'all' || f.folderId === activeFolder;
-    return matchesSearch && matchesFolder;
-  });
+  // Filter files based on search
+  const filteredFiles = files.filter(f => 
+    f.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const getFileIcon = (mimeType: string) => {
+    if (mimeType.includes('folder')) return 'fa-folder';
     if (mimeType.includes('pdf')) return 'fa-file-pdf';
     if (mimeType.includes('sheet') || mimeType.includes('excel')) return 'fa-file-excel';
     if (mimeType.includes('document') || mimeType.includes('word')) return 'fa-file-word';
     if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return 'fa-file-powerpoint';
     if (mimeType.includes('image')) return 'fa-file-image';
-    if (mimeType.includes('folder')) return 'fa-folder';
     return 'fa-file-alt';
   };
 
   const getFileColor = (mimeType: string) => {
+    if (mimeType.includes('folder')) return 'bg-amber-50 text-amber-600';
     if (mimeType.includes('pdf')) return 'bg-rose-50 text-rose-500';
     if (mimeType.includes('sheet') || mimeType.includes('excel')) return 'bg-emerald-50 text-emerald-600';
     if (mimeType.includes('document') || mimeType.includes('word')) return 'bg-blue-50 text-blue-600';
@@ -459,23 +395,8 @@ Provide a helpful, professional response. If the user asks about specific files,
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Side: Category & File Stack */}
+        {/* Left Side: File List */}
         <div className="w-80 border-r border-slate-200 bg-white flex flex-col shrink-0 z-10">
-          <div className="p-6 border-b border-slate-100 bg-slate-50/30">
-             <div className="flex flex-wrap gap-2">
-                {FOLDER_METADATA.map(folder => (
-                   <button 
-                     key={folder.id}
-                     onClick={() => setActiveFolder(folder.id)}
-                     className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeFolder === folder.id ? 'bg-[#0F2C5C] text-white shadow-lg' : 'bg-slate-100 text-slate-400 hover:text-slate-600 hover:bg-slate-200'}`}
-                   >
-                     <i className={`fas ${folder.icon}`}></i>
-                     {folder.name}
-                   </button>
-                ))}
-             </div>
-          </div>
-          
           <div className="flex-1 overflow-y-auto p-4 space-y-2 hide-scrollbar">
             <div className="flex items-center justify-between px-4 mb-4 mt-2">
               <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">Document Stack</p>
@@ -517,11 +438,6 @@ Provide a helpful, professional response. If the user asks about specific files,
                     {file.modifiedTime?.split('T')[0] || 'Unknown date'}
                   </p>
                 </div>
-                {file.webViewLink && (
-                  <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <i className="fas fa-external-link-alt text-[8px] text-slate-400"></i>
-                  </div>
-                )}
               </button>
             ))}
           </div>
@@ -537,6 +453,7 @@ Provide a helpful, professional response. If the user asks about specific files,
             {activeDisplayFile ? (
               <div className="w-full flex flex-col items-center text-center space-y-4 md:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className={`w-16 h-16 md:w-20 md:h-20 rounded-[1.2rem] md:rounded-[1.5rem] flex items-center justify-center text-2xl md:text-3xl shadow-xl ring-4 ring-slate-50 shrink-0 ${
+                  activeDisplayFile.mimeType.includes('folder') ? 'bg-amber-500 text-white' :
                   activeDisplayFile.mimeType.includes('pdf') ? 'bg-rose-600 text-white' : 
                   activeDisplayFile.mimeType.includes('sheet') || activeDisplayFile.mimeType.includes('excel') ? 'bg-emerald-600 text-white' : 
                   activeDisplayFile.mimeType.includes('document') || activeDisplayFile.mimeType.includes('word') ? 'bg-blue-600 text-white' :
@@ -549,10 +466,8 @@ Provide a helpful, professional response. If the user asks about specific files,
                      {activeDisplayFile.name}
                    </h2>
                    <div className="flex items-center justify-center gap-2 flex-wrap">
-                      <span className={`text-[8px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded-full ${
-                        connectionStatus === 'connected' ? 'text-emerald-600 bg-emerald-50' : 'text-slate-500 bg-slate-100'
-                      }`}>
-                        {connectionStatus === 'connected' ? 'Google Drive' : 'Demo File'}
+                      <span className="text-[8px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded-full text-emerald-600 bg-emerald-50">
+                        Google Drive
                       </span>
                       <div className="w-1 h-1 rounded-full bg-slate-200"></div>
                       <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">{activeDisplayFile.modifiedTime?.split('T')[0]}</span>
