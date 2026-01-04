@@ -1,6 +1,5 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai"; 
 import { DriveFile } from '../types';
 
 const ADMIN_FOLDER_METADATA = [
@@ -49,14 +48,18 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setChatInput('');
     setIsAiProcessing(true);
-    try {const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: userMsg,
-      });
-      setMessages(prev => [...prev, { role: 'bot', text: response.text || "Executed." }]);
+    try {
+      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      
+      const result = await model.generateContent(userMsg);
+      const response = await result.response;
+      const text = response.text() || "Executed.";
+      
+      setMessages(prev => [...prev, { role: 'bot', text: text }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'bot', text: "Error." }]);
+      console.error("AI Error:", error);
+      setMessages(prev => [...prev, { role: 'bot', text: "Error connecting to AI." }]);
     } finally {
       setIsAiProcessing(false);
     }
@@ -181,5 +184,3 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 };
 
 export default AdminPortal;
-
-
