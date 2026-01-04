@@ -9,7 +9,6 @@ interface ManualProps {
 const Manual: React.FC<ManualProps> = ({ onSelectModule }) => {
   const [searchTerm, setSearchTerm] = useState('');
  const PDF_MANUAL_URL = "https://heyzine.com/flip-book/fa09642bd5.html";
-
   // Re-aligned sections to match the 10 Case Manager modules 1-to-1 for accurate navigation
   const sections = [
     { 
