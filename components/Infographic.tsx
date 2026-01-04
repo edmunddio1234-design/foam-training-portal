@@ -22,7 +22,7 @@ const Infographic: React.FC<InfographicProps> = ({ type, title, sections, practi
     setIsGeneratingOverview(true);
     try {
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
       
       const sectionDetails = sections.map(s => `${s.title}: ${s.description}`).join('; ');
       const prompt = `Create a brief executive summary (3-4 sentences) for a FOAM training module titled "${title}". Key sections include: ${sectionDetails}. Be professional and encouraging.`;
@@ -229,7 +229,7 @@ const DetailModal: React.FC<{ section: SubSection; onClose: () => void; color: s
     setGeneratingText(true);
     try {
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
       
       const prompt = `Provide a brief, encouraging explanation (2-3 sentences) about "${section.title}" for a fatherhood mentorship training program. Context: ${section.description}. Be professional and supportive.`;
       
