@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SubSection, PracticeScenario } from '../types';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
 interface InfographicProps {
   type: 'pillars' | 'workflow' | 'pathway' | 'tree' | 'protocol' | 'none';
@@ -21,16 +21,17 @@ const Infographic: React.FC<InfographicProps> = ({ type, title, sections, practi
     
     setIsGeneratingOverview(true);
     try {
-      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-      
+      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       const sectionDetails = sections.map(s => `${s.title}: ${s.description}`).join('; ');
+      
       const prompt = `Create a brief executive summary (3-4 sentences) for a FOAM training module titled "${title}". Key sections include: ${sectionDetails}. Be professional and encouraging.`;
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: prompt
+      });
+
+      const text = response.text;
       if (text) {
         setOverviewText(text);
       }
@@ -228,15 +229,15 @@ const DetailModal: React.FC<{ section: SubSection; onClose: () => void; color: s
     if (generatingText) return;
     setGeneratingText(true);
     try {
-      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-      
+      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       const prompt = `Provide a brief, encouraging explanation (2-3 sentences) about "${section.title}" for a fatherhood mentorship training program. Context: ${section.description}. Be professional and supportive.`;
       
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: prompt
+      });
+
+      const text = response.text;
       if (text) {
         setAiText(text);
       }
