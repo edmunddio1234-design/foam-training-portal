@@ -8,7 +8,7 @@ const ADMIN_FOLDER_METADATA = [
   { id: 'culture', name: 'Culture & Values', icon: 'fa-compass', path: 'Drive / Core / Alignment' },
   { id: 'leadership', name: 'Leadership Flow', icon: 'fa-sitemap', path: 'Drive / Leadership / Operations' },
   { id: 'hr', name: 'Employee Handbook', icon: 'fa-book-open', path: 'Drive / HR / Manuals' },
-  { id: 'resolutions', name: 'Board Resolutions', icon: 'fa-file-signature', path: 'Drive / Legal / Resolutions' },
+  { id: 'resolutions', name: 'Board Resolutions', icon: 'fa-file-signature', path: 'Drive / Legal / Resolutions' }, 
 ];
 
 const DEMO_ADMIN_FILES: DriveFile[] = [
