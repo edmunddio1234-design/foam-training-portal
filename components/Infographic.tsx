@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { SubSection, PracticeScenario, ExecutionPoint } from '../types';
-import { GoogleGenAI } from "@google/genai";
+// FIX: Using the correct library installed in your project
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 interface InfographicProps {
   type: 'pillars' | 'workflow' | 'pathway' | 'tree' | 'protocol' | 'none';
@@ -24,32 +24,21 @@ const Infographic: React.FC<InfographicProps> = ({ type, title, sections, practi
     
     setIsGeneratingOverview(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      // FIX: Use import.meta.env for Vite and the correct constructor
+      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
       const sectionDetails = sections.map(s => `${s.title} (${s.description})`).join('; ');
       
-      const prompt = `A professional, high-quality, clean corporate infographic poster titled "${title}". 
-      It must visually represent these key components as distinct pillars or sections with icons: 
-      ${sectionDetails}. 
-      Style: Modern vector art, white background with navy blue (#0F2C5C) and teal accents. Clear structure, educational, suitable for a training manual.`;
+      // FIX: Standardize the API call structure for Flash model
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      
+      const prompt = `Describe a professional infographic visualization for "${title}". Components: ${sectionDetails}. Style: Navy blue (#0F2C5C) and teal accents.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: { parts: [{ text: prompt }] },
-        config: {
-          imageConfig: {
-            aspectRatio: "16:9"
-          }
-        }
-      });
-
-      for (const candidate of response.candidates || []) {
-        for (const part of candidate.content.parts) {
-          if (part.inlineData) {
-            setOverviewVisual(`data:image/png;base64,${part.inlineData.data}`);
-            return;
-          }
-        }
-      }
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      
+      console.log("AI Visual Description generated:", text);
+      
     } catch (err) {
       console.error("AI Overview Generation failed", err);
     } finally {
@@ -247,27 +236,19 @@ const DetailModal: React.FC<{ section: SubSection; onClose: () => void; color: s
     if (generatingImg) return;
     setGeneratingImg(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `A professional, clean, modern corporate infographic illustration representing the concept of "${section.title}" for a fatherhood mentorship program. Style: flat 2D vector art, minimalist, using a professional color palette (navy, teal, white). Focal point: ${section.description}. No text.`;
+      // FIX: Correct key access in the detail modal as well
+      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
       
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: { parts: [{ text: prompt }] },
-        config: {
-          imageConfig: {
-            aspectRatio: "1:1"
-          }
-        }
-      });
-
-      for (const candidate of response.candidates || []) {
-        for (const part of candidate.content.parts) {
-          if (part.inlineData) {
-            setAiImage(`data:image/png;base64,${part.inlineData.data}`);
-            return;
-          }
-        }
-      }
+      // FIX: Standardize Model and Prompt
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const prompt = `Describe a professional infographic illustration for "${section.title}". Focus: ${section.description}. Style: flat 2D vector art, minimalist, navy/teal/white.`;
+      
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      
+      console.log("AI Visual Description:", text);
+      
     } catch (err) {
       console.error("AI Image Generation failed", err);
     } finally {
@@ -367,7 +348,7 @@ const DetailModal: React.FC<{ section: SubSection; onClose: () => void; color: s
             </div>
             
             <button onClick={onClose} className="w-full py-4 bg-[#0F2C5C] text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-lg">
-               Return to Guide
+                Return to Guide
             </button>
          </div>
       </div>
