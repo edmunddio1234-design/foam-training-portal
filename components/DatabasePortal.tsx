@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { fileService } from '../services/driveAPI';
 import { DriveFile } from '../types';
 
@@ -65,15 +65,14 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
     if (summaryCache[file.id]) return;
     setIsGeneratingSummary(true);
     try {
-      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-      
+      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       const prompt = `Provide a concise 3-sentence professional summary for a file titled "${file.name}". Context: This file belongs to Fathers On A Mission (FOAM), a non-profit focusing on fatherhood mentorship and community support. The summary should explain the likely administrative importance of this document.`;
       
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const summary = response.text() || "Summary analysis currently unavailable for this record.";
-      
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: prompt
+      });
+      const summary = response.text || "Summary analysis currently unavailable for this record.";
       setSummaryCache(prev => ({ ...prev, [file.id]: summary }));
     } catch (err) {
       console.error("AI Summary generation failed", err);
@@ -86,9 +85,7 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
     if (!searchQuery.trim()) return;
     setIsAiProcessing(true);
     try {
-      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-      
+      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       const fileListContext = files.map(f => `- ${f.name}`).join('\n');
       
       const prompt = `The user is searching the FOAM Google Drive with this query: "${searchQuery}". 
@@ -100,12 +97,12 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
       1. A conversational explanation.
       2. If specific files match, list their exact names.`;
       
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text() || "I've analyzed the drive. Check the highlighted results.";
-      
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: prompt
+      });
       setMessages(prev => [...prev, { role: 'user', text: `Smart Search: ${searchQuery}` }]);
-      setMessages(prev => [...prev, { role: 'bot', text: text }]);
+      setMessages(prev => [...prev, { role: 'bot', text: response.text || "I've analyzed the drive. Check the highlighted results." }]);
     } catch (err) {
       console.error("Smart Search failed", err);
     } finally {
@@ -120,14 +117,13 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
     setChatInput('');
     setIsAiProcessing(true);
     try {
-      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       
-      const result = await model.generateContent(userMsg);
-      const response = await result.response;
-      const text = response.text() || "Understood. How else can I assist with the records?";
-      
-      setMessages(prev => [...prev, { role: 'bot', text: text }]);
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: `You are the FOAM Digital Records Assistant. Help users find and understand files in their organization's Google Drive. User question: ${userMsg}`
+      });
+      setMessages(prev => [...prev, { role: 'bot', text: response.text || "Understood. How else can I assist with the records?" }]);
     } catch (err) {
       setMessages(prev => [...prev, { role: 'bot', text: "Error connecting to records intelligence." }]);
     } finally {
