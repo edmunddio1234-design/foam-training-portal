@@ -21,8 +21,8 @@ const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
 
 // Google Sheet IDs
 const SHEET_IDS = {
-  grants: '1qDqesHgyzuFdWai94wi5HTi16dR3Djf5',
-  finance: '15WLeRhHeIaZNJ8-o0F3VTV7rOdvX-xAVqKFwtWqg2Ys',
+  grants: '1WlHlTjsDCPDH8Qz8A-YCltkE1nalsc3htx9da0hg8zo',
+  finance: '1CLWL5L81YYKElX3dMNAUCkpaPJxsraTtEzaLMq9v4Yo',
 };
 
 interface AdminPortalProps {
