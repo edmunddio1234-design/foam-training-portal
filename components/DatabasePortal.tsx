@@ -66,7 +66,7 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
     setIsGeneratingSummary(true);
     try {
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
       
       const prompt = `Provide a concise 3-sentence professional summary for a file titled "${file.name}". Context: This file belongs to Fathers On A Mission (FOAM), a non-profit focusing on fatherhood mentorship and community support. The summary should explain the likely administrative importance of this document.`;
       
@@ -87,7 +87,7 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
     setIsAiProcessing(true);
     try {
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
       
       const fileListContext = files.map(f => `- ${f.name}`).join('\n');
       
@@ -121,7 +121,7 @@ const DatabasePortal: React.FC<DatabasePortalProps> = ({ onClose }) => {
     setIsAiProcessing(true);
     try {
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
       
       const result = await model.generateContent(userMsg);
       const response = await result.response;
