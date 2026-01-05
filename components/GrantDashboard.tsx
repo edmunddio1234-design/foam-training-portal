@@ -251,8 +251,8 @@ const GrantDashboard: React.FC = () => {
   }, {} as Record<string, { name: string; requested: number; approved: number; count: number }>);
 
   const fundingData = Object.values(fundingBySource)
-    .sort((a, b) => b.approved - a.approved)
-    .slice(0, 8);
+    .sort((a, b) => b.requested - a.requested)
+    .slice(0, 15);
 
   // Monthly funding trend (by submission date)
   const monthlyTrend = grants.reduce((acc, grant) => {
@@ -356,7 +356,7 @@ const GrantDashboard: React.FC = () => {
   // ============================================
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <RefreshCw className="w-8 h-8 text-amber-500 animate-spin" />
           <p className="text-slate-400">Loading grant data from Google Sheets...</p>
@@ -370,10 +370,10 @@ const GrantDashboard: React.FC = () => {
   // ============================================
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-8 max-w-md text-center">
           <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Failed to Load Data</h2>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Failed to Load Data</h2>
           <p className="text-slate-400 mb-4">{error}</p>
           <button
             onClick={fetchGrants}
@@ -390,7 +390,7 @@ const GrantDashboard: React.FC = () => {
   // MAIN RENDER
   // ============================================
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6">
+    <div className="min-h-screen bg-white text-slate-800 p-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
@@ -404,7 +404,7 @@ const GrantDashboard: React.FC = () => {
         <div className="flex gap-3">
           <button
             onClick={fetchGrants}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-300 transition-all"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
@@ -421,7 +421,7 @@ const GrantDashboard: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-2xl p-6 border border-slate-700/50 backdrop-blur">
+        <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl p-6 border border-slate-200 backdrop-blur">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-slate-400 text-sm">Total Grants</p>
@@ -436,7 +436,7 @@ const GrantDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-2xl p-6 border border-slate-700/50 backdrop-blur">
+        <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl p-6 border border-slate-200 backdrop-blur">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-slate-400 text-sm">Total Requested</p>
@@ -449,7 +449,7 @@ const GrantDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-2xl p-6 border border-slate-700/50 backdrop-blur">
+        <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl p-6 border border-slate-200 backdrop-blur">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-slate-400 text-sm">Total Approved</p>
@@ -465,7 +465,7 @@ const GrantDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-2xl p-6 border border-slate-700/50 backdrop-blur">
+        <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl p-6 border border-slate-200 backdrop-blur">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-slate-400 text-sm">Success Rate</p>
@@ -484,7 +484,7 @@ const GrantDashboard: React.FC = () => {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Status Distribution Pie Chart */}
-        <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-2xl p-6 border border-slate-700/50">
+        <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl p-6 border border-slate-200">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
             Status Distribution
@@ -505,7 +505,7 @@ const GrantDashboard: React.FC = () => {
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
+                contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -520,7 +520,7 @@ const GrantDashboard: React.FC = () => {
         </div>
 
         {/* Funding by Source Bar Chart */}
-        <div className="lg:col-span-2 bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-2xl p-6 border border-slate-700/50">
+        <div className="lg:col-span-2 bg-gradient-to-br from-white to-slate-50 rounded-2xl p-6 border border-slate-200">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
             Funding by Source
@@ -542,7 +542,7 @@ const GrantDashboard: React.FC = () => {
               />
               <Tooltip
                 formatter={(value: number) => formatCurrency(value)}
-                contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
+                contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
               />
               <Legend />
               <Bar dataKey="approved" fill="#10B981" radius={[0, 4, 4, 0]} name="Approved" />
@@ -555,7 +555,7 @@ const GrantDashboard: React.FC = () => {
       {/* Second Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Upcoming Deadlines */}
-        <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-2xl p-6 border border-slate-700/50">
+        <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl p-6 border border-slate-200">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Calendar className="w-5 h-5 text-red-400" />
             Upcoming Deadlines
@@ -574,7 +574,7 @@ const GrantDashboard: React.FC = () => {
                     className={`p-4 rounded-xl border ${
                       isUrgent 
                         ? 'bg-red-500/10 border-red-500/30' 
-                        : 'bg-slate-800/50 border-slate-700/50'
+                        : 'bg-slate-100/50 border-slate-200'
                     }`}
                   >
                     <div className="flex items-start justify-between">
@@ -602,7 +602,7 @@ const GrantDashboard: React.FC = () => {
         </div>
 
         {/* Funding Trend Area Chart */}
-        <div className="lg:col-span-2 bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-2xl p-6 border border-slate-700/50">
+        <div className="lg:col-span-2 bg-gradient-to-br from-white to-slate-50 rounded-2xl p-6 border border-slate-200">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-blue-400" />
             Funding Trend by Submission Date
@@ -625,7 +625,7 @@ const GrantDashboard: React.FC = () => {
                 <YAxis tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} stroke="#64748b" />
                 <Tooltip
                   formatter={(value: number) => formatCurrency(value)}
-                  contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
+                  contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
                 />
                 <Legend />
                 <Area type="monotone" dataKey="approved" stroke="#10B981" fill="url(#colorApproved)" name="Approved" />
@@ -641,7 +641,7 @@ const GrantDashboard: React.FC = () => {
       </div>
 
       {/* Grants Table */}
-      <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-2xl p-6 border border-slate-700/50">
+      <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl p-6 border border-slate-200">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <h3 className="text-lg font-semibold flex items-center gap-2">
             <FileText className="w-5 h-5 text-blue-400" />
@@ -657,7 +657,7 @@ const GrantDashboard: React.FC = () => {
                 placeholder="Search grants..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:outline-none focus:border-amber-500 w-48"
+                className="pl-10 pr-4 py-2 bg-slate-100 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-amber-500 w-48"
               />
             </div>
             
@@ -670,7 +670,7 @@ const GrantDashboard: React.FC = () => {
                   className={`px-3 py-2 text-sm rounded-lg capitalize transition-all ${
                     activeFilter === filter
                       ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                      : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 border border-transparent'
+                      : 'bg-slate-100 text-slate-400 hover:bg-slate-200 border border-transparent'
                   }`}
                 >
                   {filter}
@@ -690,7 +690,7 @@ const GrantDashboard: React.FC = () => {
             filteredGrants.map((grant) => (
               <div
                 key={grant.id}
-                className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden hover:border-slate-600 transition-all"
+                className="bg-slate-100/50 rounded-xl border border-slate-200 overflow-hidden hover:border-slate-600 transition-all"
               >
                 {/* Main Row */}
                 <div
@@ -722,7 +722,7 @@ const GrantDashboard: React.FC = () => {
                             e.stopPropagation();
                             setEditingGrant(grant);
                           }}
-                          className="p-2 hover:bg-slate-700 rounded-lg transition-all"
+                          className="p-2 hover:bg-slate-200 rounded-lg transition-all"
                         >
                           <Edit2 className="w-4 h-4 text-slate-400" />
                         </button>
@@ -746,7 +746,7 @@ const GrantDashboard: React.FC = () => {
 
                 {/* Expanded Details */}
                 {expandedGrant === grant.id && (
-                  <div className="px-4 pb-4 pt-2 border-t border-slate-700/50 bg-slate-900/50">
+                  <div className="px-4 pb-4 pt-2 border-t border-slate-200 bg-slate-100">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div className="flex items-center gap-2 text-slate-400">
                         <Target className="w-4 h-4 flex-shrink-0" />
@@ -792,8 +792,8 @@ const GrantDashboard: React.FC = () => {
       {/* Add Grant Modal */}
       {showAddForm && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 rounded-2xl border border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-slate-700 flex items-center justify-between">
+          <div className="bg-white rounded-2xl border border-slate-300 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-slate-300 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold flex items-center gap-2">
                   <Plus className="w-5 h-5 text-amber-500" />
@@ -805,7 +805,7 @@ const GrantDashboard: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowAddForm(false)}
-                className="p-2 hover:bg-slate-800 rounded-lg"
+                className="p-2 hover:bg-slate-100 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -819,7 +819,7 @@ const GrantDashboard: React.FC = () => {
                     type="text"
                     value={newGrant.Grant_name}
                     onChange={(e) => setNewGrant({...newGrant, Grant_name: e.target.value})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
                     placeholder="e.g., LCTF Family Support Grant"
                   />
                 </div>
@@ -829,7 +829,7 @@ const GrantDashboard: React.FC = () => {
                     type="text"
                     value={newGrant.Grant_source}
                     onChange={(e) => setNewGrant({...newGrant, Grant_source: e.target.value})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
                     placeholder="e.g., Louisiana Children's Trust Fund"
                   />
                 </div>
@@ -841,7 +841,7 @@ const GrantDashboard: React.FC = () => {
                   type="text"
                   value={newGrant.Purpose}
                   onChange={(e) => setNewGrant({...newGrant, Purpose: e.target.value})}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
+                  className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
                   placeholder="e.g., Fatherhood mentorship and family support services"
                 />
               </div>
@@ -853,7 +853,7 @@ const GrantDashboard: React.FC = () => {
                     type="text"
                     value={newGrant.Contact_person}
                     onChange={(e) => setNewGrant({...newGrant, Contact_person: e.target.value})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
                     placeholder="e.g., John Smith"
                   />
                 </div>
@@ -863,7 +863,7 @@ const GrantDashboard: React.FC = () => {
                     type="email"
                     value={newGrant.Contact_email}
                     onChange={(e) => setNewGrant({...newGrant, Contact_email: e.target.value})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
                     placeholder="e.g., jsmith@foundation.org"
                   />
                 </div>
@@ -876,7 +876,7 @@ const GrantDashboard: React.FC = () => {
                     type="number"
                     value={newGrant.Amount_requested}
                     onChange={(e) => setNewGrant({...newGrant, Amount_requested: e.target.value})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
                     placeholder="e.g., 50000"
                   />
                 </div>
@@ -886,7 +886,7 @@ const GrantDashboard: React.FC = () => {
                     type="number"
                     value={newGrant.Amount_approved}
                     onChange={(e) => setNewGrant({...newGrant, Amount_approved: e.target.value})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
                     placeholder="Leave blank if pending"
                   />
                 </div>
@@ -899,7 +899,7 @@ const GrantDashboard: React.FC = () => {
                     type="date"
                     value={newGrant.Application_deadline}
                     onChange={(e) => setNewGrant({...newGrant, Application_deadline: e.target.value})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
                   />
                 </div>
                 <div>
@@ -908,7 +908,7 @@ const GrantDashboard: React.FC = () => {
                     type="date"
                     value={newGrant.Submission_date}
                     onChange={(e) => setNewGrant({...newGrant, Submission_date: e.target.value})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
                   />
                 </div>
               </div>
@@ -920,7 +920,7 @@ const GrantDashboard: React.FC = () => {
                     type="text"
                     value={newGrant.Grant_cycle}
                     onChange={(e) => setNewGrant({...newGrant, Grant_cycle: e.target.value})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
                     placeholder="e.g., FY2025"
                   />
                 </div>
@@ -930,7 +930,7 @@ const GrantDashboard: React.FC = () => {
                     type="date"
                     value={newGrant.Grant_reporting_scheduled}
                     onChange={(e) => setNewGrant({...newGrant, Grant_reporting_scheduled: e.target.value})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
                   />
                 </div>
                 <div>
@@ -938,7 +938,7 @@ const GrantDashboard: React.FC = () => {
                   <select
                     value={newGrant.Grant_Awarded}
                     onChange={(e) => setNewGrant({...newGrant, Grant_Awarded: e.target.value})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-amber-500"
                   >
                     <option value="Pending">Pending</option>
                     <option value="Yes">Awarded</option>
@@ -949,10 +949,10 @@ const GrantDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-6 border-t border-slate-700 flex gap-3 justify-end">
+            <div className="p-6 border-t border-slate-300 flex gap-3 justify-end">
               <button
                 onClick={() => setShowAddForm(false)}
-                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-all"
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-200 rounded-lg transition-all"
               >
                 Cancel
               </button>
@@ -972,8 +972,8 @@ const GrantDashboard: React.FC = () => {
       {/* Edit Grant Modal */}
       {editingGrant && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 rounded-2xl border border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-slate-700 flex items-center justify-between">
+          <div className="bg-white rounded-2xl border border-slate-300 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-slate-300 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold flex items-center gap-2">
                   <Edit2 className="w-5 h-5 text-blue-500" />
@@ -985,7 +985,7 @@ const GrantDashboard: React.FC = () => {
               </div>
               <button
                 onClick={() => setEditingGrant(null)}
-                className="p-2 hover:bg-slate-800 rounded-lg"
+                className="p-2 hover:bg-slate-100 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -999,7 +999,7 @@ const GrantDashboard: React.FC = () => {
                     type="text"
                     value={editingGrant.Grant_name}
                     onChange={(e) => setEditingGrant({...editingGrant, Grant_name: e.target.value})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -1008,7 +1008,7 @@ const GrantDashboard: React.FC = () => {
                     type="text"
                     value={editingGrant.Grant_source}
                     onChange={(e) => setEditingGrant({...editingGrant, Grant_source: e.target.value})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -1020,7 +1020,7 @@ const GrantDashboard: React.FC = () => {
                     type="number"
                     value={editingGrant.Amount_requested}
                     onChange={(e) => setEditingGrant({...editingGrant, Amount_requested: parseFloat(e.target.value) || 0})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -1029,7 +1029,7 @@ const GrantDashboard: React.FC = () => {
                     type="number"
                     value={editingGrant.Amount_approved}
                     onChange={(e) => setEditingGrant({...editingGrant, Amount_approved: parseFloat(e.target.value) || 0})}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+                    className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -1039,7 +1039,7 @@ const GrantDashboard: React.FC = () => {
                 <select
                   value={editingGrant.Grant_Awarded}
                   onChange={(e) => setEditingGrant({...editingGrant, Grant_Awarded: e.target.value})}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+                  className="w-full bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
                 >
                   <option value="Pending">Pending</option>
                   <option value="Yes">Awarded</option>
@@ -1049,10 +1049,10 @@ const GrantDashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-6 border-t border-slate-700 flex gap-3 justify-end">
+            <div className="p-6 border-t border-slate-300 flex gap-3 justify-end">
               <button
                 onClick={() => setEditingGrant(null)}
-                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-all"
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-200 rounded-lg transition-all"
               >
                 Cancel
               </button>
@@ -1075,15 +1075,15 @@ const GrantDashboard: React.FC = () => {
           width: 6px;
         }
         ::-webkit-scrollbar-track {
-          background: #1e293b;
+          background: #f1f5f9;
           border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb {
-          background: #475569;
+          background: #cbd5e1;
           border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-          background: #64748b;
+          background: #94a3b8;
         }
       `}</style>
     </div>
