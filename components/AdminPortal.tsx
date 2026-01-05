@@ -5,6 +5,7 @@ import {
   PieChart, Pie, Cell,
   AreaChart, Area, CartesianGrid, Legend
 } from 'recharts';
+import GrantDashboard from './GrantDashboard';
 
 // ===========================================
 // CONFIGURATION - EDIT AUTHORIZED USERS HERE
@@ -12,6 +13,7 @@ import {
 const AUTHORIZED_ADMINS = [
   "sonny@foamla.org",
   "levar.robinson@foamla.org",
+  "admin@foamla.org",
   // Add more authorized emails below:
   // "newuser@foamla.org",
 ];
@@ -21,7 +23,7 @@ const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
 
 // Google Sheet IDs
 const SHEET_IDS = {
-  grants: '1ZTF1ipJ89k3jvPdCYM7jzDl0ie4yNUap',
+  grants: '1lb_BZi7wi2-ZMoxyu6AeaK8Kw9TWRvmTp73ucm1bu5o',
   finance: '1CLWL5L81YYKElX3dMNAUCkpaPJxsraTtEzaLMq9v4Yo',
 };
 
@@ -105,7 +107,9 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
   const handleCardClick = (view: 'grants' | 'finance' | 'monthly') => {
     if (userEmail) {
       setSubView(view);
-      loadDashboardData(view);
+      if (view !== 'grants') {
+        loadDashboardData(view);
+      }
     } else {
       setPendingView(view);
       setShowLoginModal(true);
@@ -135,7 +139,9 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     
     if (pendingView) {
       setSubView(pendingView);
-      loadDashboardData(pendingView);
+      if (pendingView !== 'grants') {
+        loadDashboardData(pendingView);
+      }
       setPendingView(null);
     }
   };
@@ -159,10 +165,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
       if (response.ok) {
         const data = await response.json();
         
-        if (view === 'grants') {
-          setGrantData(data.grants || []);
-          setMessages([{ role: 'bot', text: `📊 Loaded ${data.grants?.length || 0} grants from the database. How can I help you analyze the grant data?` }]);
-        } else if (view === 'finance') {
+        if (view === 'finance') {
           setFinanceData(data.finance || []);
           setMessages([{ role: 'bot', text: `💰 Financial data loaded. Total budget: $${data.totalBudget?.toLocaleString() || 'N/A'}. Total spent: $${data.totalSpent?.toLocaleString() || 'N/A'}. Ask me anything about the financials.` }]);
         } else if (view === 'monthly') {
@@ -184,15 +187,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
   // Demo data fallback
   const loadDemoData = (view: 'grants' | 'finance' | 'monthly') => {
-    if (view === 'grants') {
-      setGrantData([
-        { name: 'LCTF Grant', source: 'Louisiana Legislature', purpose: 'Workforce Development', amountRequested: 200000, amountApproved: 200000, status: 'Approved', deadline: '2025-07-01', submissionDate: '2025-05-15' },
-        { name: 'EBR Housing', source: 'EBR Housing Authority', purpose: 'Project Family Build', amountRequested: 25000, amountApproved: 21000, status: 'Approved', deadline: '2025-06-01', submissionDate: '2025-04-20' },
-        { name: 'Walmart Foundation', source: 'Walmart', purpose: 'Community Impact', amountRequested: 5000, amountApproved: 5000, status: 'Approved', deadline: '2025-03-15', submissionDate: '2025-02-10' },
-        { name: 'Blue Cross Shield', source: 'BCBSLA', purpose: 'Capacity Building', amountRequested: 10000, amountApproved: 0, status: 'Pending', deadline: '2025-09-01', submissionDate: '2025-08-15' },
-      ]);
-      setMessages([{ role: 'bot', text: `📊 Demo mode: Showing sample grant data. Connect to backend for live data.` }]);
-    } else if (view === 'finance') {
+    if (view === 'finance') {
       setFinanceData([
         { category: 'Gross Salaries', budget: 71700, spent: 36995 },
         { category: 'Related Benefits', budget: 8782, spent: 11435 },
@@ -230,9 +225,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
       const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       
       let context = '';
-      if (subView === 'grants') {
-        context = `Grant data: ${JSON.stringify(grantData.slice(0, 10))}`;
-      } else if (subView === 'finance') {
+      if (subView === 'finance') {
         context = `Finance data: ${JSON.stringify(financeData)}`;
       } else if (subView === 'monthly') {
         context = `Metrics: ${JSON.stringify(metricsData)}, Monthly: ${JSON.stringify(monthlyData)}`;
@@ -415,7 +408,43 @@ Provide a helpful, data-driven response. Be specific with numbers when available
   );
 
   // ===========================================
-  // RENDER: Dashboard Layout (shared)
+  // RENDER: Grant Dashboard (NEW - Full Page)
+  // ===========================================
+  const renderGrantsDashboard = () => (
+    <div className="min-h-screen bg-slate-950">
+      {/* Navigation Bar */}
+      <div className="bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setSubView('landing')}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 text-sm font-medium transition-all"
+          >
+            <i className="fas fa-arrow-left"></i>
+            Back to Admin
+          </button>
+          <div className="h-6 w-px bg-slate-700"></div>
+          <span className="text-amber-500 font-bold text-sm uppercase tracking-wider">Grant Management</span>
+        </div>
+        <div className="flex items-center gap-3">
+          {userEmail && (
+            <span className="text-slate-500 text-xs">{userEmail}</span>
+          )}
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-all"
+          >
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      
+      {/* Grant Dashboard Component */}
+      <GrantDashboard />
+    </div>
+  );
+
+  // ===========================================
+  // RENDER: Dashboard Layout (for Finance & Monthly)
   // ===========================================
   const renderDashboard = (
     title: string,
@@ -486,7 +515,7 @@ Provide a helpful, data-driven response. Be specific with numbers when available
         <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setSubView('grants')}
+              onClick={() => handleCardClick('grants')}
               className={`px-6 py-2 rounded-full font-black text-xs uppercase tracking-widest transition-all ${
                 subView === 'grants' ? 'bg-[#0F2C5C] text-white' : 'text-slate-400 hover:bg-slate-100'
               }`}
@@ -494,7 +523,7 @@ Provide a helpful, data-driven response. Be specific with numbers when available
               Grants
             </button>
             <button
-              onClick={() => setSubView('finance')}
+              onClick={() => handleCardClick('finance')}
               className={`px-6 py-2 rounded-full font-black text-xs uppercase tracking-widest transition-all ${
                 subView === 'finance' ? 'bg-[#0F2C5C] text-white' : 'text-slate-400 hover:bg-slate-100'
               }`}
@@ -502,7 +531,7 @@ Provide a helpful, data-driven response. Be specific with numbers when available
               Finance
             </button>
             <button
-              onClick={() => setSubView('monthly')}
+              onClick={() => handleCardClick('monthly')}
               className={`px-6 py-2 rounded-full font-black text-xs uppercase tracking-widest transition-all ${
                 subView === 'monthly' ? 'bg-[#0F2C5C] text-white' : 'text-slate-400 hover:bg-slate-100'
               }`}
@@ -622,128 +651,6 @@ Provide a helpful, data-driven response. Be specific with numbers when available
       </div>
     </div>
   );
-
-  // ===========================================
-  // RENDER: Grant Management Dashboard
-  // ===========================================
-  const renderGrantsDashboard = () => {
-    const activeGrants = grantData.filter(g => g.status === 'Approved').length;
-    const totalAwarded = grantData.reduce((sum, g) => sum + (g.amountApproved || 0), 0);
-    const totalRequested = grantData.reduce((sum, g) => sum + (g.amountRequested || 0), 0);
-    const complianceRate = totalRequested > 0 ? Math.round((totalAwarded / totalRequested) * 100) : 0;
-    
-    // Find nearest renewal
-    const upcomingDeadlines = grantData
-      .filter(g => g.deadline)
-      .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
-    const nextRenewal = upcomingDeadlines[0];
-    const daysToRenewal = nextRenewal 
-      ? Math.ceil((new Date(nextRenewal.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-      : 0;
-
-    // Chart data
-    const chartData = grantData.slice(0, 5).map(g => ({
-      name: g.source?.substring(0, 15) || g.name.substring(0, 15),
-      allocated: g.amountRequested,
-      used: g.amountApproved,
-    }));
-
-    return renderDashboard('Grants', 'indigo', (
-      <div className="space-y-6">
-        {/* KPI Cards */}
-        <div className="grid grid-cols-4 gap-4">
-          <div className="bg-white p-6 rounded-2xl border border-slate-100">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center">
-                <i className="fas fa-file-contract text-indigo-600"></i>
-              </div>
-              <div>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Grants</p>
-                <p className="text-2xl font-black text-slate-800">{activeGrants}</p>
-                <p className="text-[9px] font-bold text-indigo-500">FY 2025</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-2xl border border-slate-100">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center">
-                <i className="fas fa-trophy text-amber-600"></i>
-              </div>
-              <div>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Awarded</p>
-                <p className="text-2xl font-black text-slate-800">${(totalAwarded / 1000).toFixed(0)}k</p>
-                <p className="text-[9px] font-bold text-emerald-500">+12% vs LY</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-2xl border border-slate-100">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center">
-                <i className="fas fa-check-circle text-emerald-600"></i>
-              </div>
-              <div>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Compliance</p>
-                <p className="text-2xl font-black text-slate-800">{complianceRate}%</p>
-                <p className="text-[9px] font-bold text-emerald-500">Audit Ready</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-2xl border border-slate-100">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center">
-                <i className="fas fa-hourglass-half text-rose-600"></i>
-              </div>
-              <div>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Renews In</p>
-                <p className="text-2xl font-black text-slate-800">{daysToRenewal}d</p>
-                <p className="text-[9px] font-bold text-rose-500">{nextRenewal?.name || 'N/A'}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Chart and Action Items */}
-        <div className="grid grid-cols-2 gap-6">
-          {/* Bar Chart */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-100">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Funding Usage Analysis</p>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={chartData}>
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '1rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}
-                  formatter={(value: number) => ['$' + value.toLocaleString()]}
-                />
-                <Bar dataKey="allocated" fill="#CBD5E1" radius={[8, 8, 0, 0]} name="Allocated" />
-                <Bar dataKey="used" fill="#4F46E5" radius={[8, 8, 0, 0]} name="Used" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Action Items */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-100">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Action Items</p>
-            <div className="space-y-3">
-              {[
-                { task: 'Submit Q1 LCTF Report', status: 'pending' },
-                { task: 'Update Board Resolutions', status: 'pending' },
-                { task: 'Audit Employee Manuals', status: 'pending' },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                  <span className="text-sm font-bold text-slate-700">{item.task}</span>
-                  <span className="text-[9px] font-black text-amber-600 uppercase">Pending</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    ));
-  };
 
   // ===========================================
   // RENDER: Financial Dashboard
