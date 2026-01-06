@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { TrackerViewState, Father } from '../types';
 import {
   LayoutDashboard, Users, CheckSquare, ShieldCheck, Menu, X, Upload,
-  UserX, FileDown, Briefcase, Calendar, ChevronRight, ArrowLeft, RefreshCw
+  UserX, FileDown, Briefcase, Calendar, ChevronRight, ArrowLeft, RefreshCw, QrCode
 } from 'lucide-react';
 
 // Import API service
 import { fatherhoodApi, Module, Stats } from '../services/fatherhoodApi';
 
-// Sub-component Imports (Simplified for single-file integration)
+// Sub-component Imports
 import { Dashboard } from './tracking/Dashboard';
 import { Roster } from './tracking/Roster';
 import { CheckIn } from './tracking/CheckIn';
@@ -18,6 +18,7 @@ import { LostManagement } from './tracking/LostManagement';
 import { FatherIDCard } from './tracking/FatherIDCard';
 import { ExportData } from './tracking/ExportData';
 import { Financials } from './tracking/Financials';
+import { QRCheckIn } from './tracking/QRCheckIn';
 
 interface FatherhoodTrackingProps {
   onBack: () => void;
@@ -82,6 +83,7 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'roster', label: 'Father Roster', icon: Users },
     { id: 'checkin', label: 'Class Check-In', icon: CheckSquare },
+    { id: 'qrcheckin', label: 'QR Check-In', icon: QrCode },
     { id: 'portal', label: 'Father Portal', icon: ShieldCheck },
     { id: 'import', label: 'Import Data', icon: Upload },
     { id: 'lost', label: 'Lost to Follow-up', icon: UserX },
@@ -290,6 +292,9 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
             }}
             onRefresh={refreshData}
           />
+        )}
+        {currentView === 'qrcheckin' && (
+          <QRCheckIn modules={modules} />
         )}
         {currentView === 'portal' && (
           <FatherPortal 
