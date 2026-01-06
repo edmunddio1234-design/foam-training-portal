@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TrackerViewState, Father } from '../types';
 import {
   LayoutDashboard, Users, CheckSquare, ShieldCheck, Menu, X, Upload,
-  UserX, FileDown, Briefcase, Calendar, ChevronRight, ArrowLeft, RefreshCw, QrCode
+  UserX, FileDown, BookOpen, Calendar, ChevronRight, ArrowLeft, RefreshCw, QrCode
 } from 'lucide-react';
 
 // Import API service
@@ -88,7 +88,7 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
     { id: 'import', label: 'Import Data', icon: Upload },
     { id: 'lost', label: 'Lost to Follow-up', icon: UserX },
     { id: 'export', label: 'Export Data', icon: FileDown },
-    { id: 'financials', label: 'Financials', icon: Briefcase },
+    { id: 'financials', label: 'Resources', icon: BookOpen },
   ];
 
   // Loading state
@@ -318,9 +318,10 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
         )}
         {currentView === 'lost' && (
           <LostManagement 
-            fathers={fathers.filter(f => f.status === 'At Risk')}
+            fathers={fathers.filter(f => f.status === 'At Risk' || f.completedModules.length < 2)}
             modules={modules}
             onUpdateFather={updateFatherInState}
+            onRefresh={refreshData}
           />
         )}
         {currentView === 'idcard' && selectedFather && (
@@ -334,7 +335,7 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
           />
         )}
         {currentView === 'financials' && (
-          <Financials />
+          <Financials onBack={() => setCurrentView('dashboard')} />
         )}
       </main>
     </div>
