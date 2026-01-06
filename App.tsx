@@ -92,7 +92,7 @@ const App: React.FC = () => {
   }
 
   if (currentView === 'casemanager') {
-    return <div className="h-screen animate-in fade-in duration-500 relative z-0 overflow-y-auto"><CaseManagerPortal /></div>;
+    return <div className="h-screen animate-in fade-in duration-500 relative z-0 overflow-y-auto"><CaseManagerPortal onClose={() => setCurrentView('hub')} /></div>;
   }
 
   if (currentView === 'admin') {
