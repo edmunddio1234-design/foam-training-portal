@@ -2,7 +2,7 @@
 import React from 'react';
 
 interface HubProps {
-  onNavigate: (view: 'training' | 'tracking' | 'admin' | 'db' | 'finance') => void;
+  onNavigate: (view: 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance') => void;
   onLogout: () => void;
 }
 
@@ -33,12 +33,12 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
       shadow: 'shadow-amber-200'
     },
     {
-      id: 'db',
-      title: 'Database Access',
-      description: 'AI-powered access to all organization files, folders, and records on Google Drive.',
-      icon: 'fa-database',
-      color: 'bg-slate-800',
-      shadow: 'shadow-slate-300'
+      id: 'casemanager',
+      title: 'Case Manager Portal',
+      description: 'Monthly reports, procedures & resources, forms and documents for case managers.',
+      icon: 'fa-clipboard-list',
+      color: 'bg-teal-600',
+      shadow: 'shadow-teal-200'
     },
     {
       id: 'finance',
@@ -110,6 +110,12 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
                       <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-emerald-500"></i> Analyze reports</li>
                       <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-emerald-500"></i> Invoicing</li>
                       <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-emerald-500"></i> Grant tracking of budgets</li>
+                    </ul>
+                  ) : portal.id === 'casemanager' ? (
+                    <ul className="space-y-1">
+                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-teal-500"></i> Monthly reports</li>
+                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-teal-500"></i> Procedures & resources</li>
+                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-teal-500"></i> Forms & documents</li>
                     </ul>
                   ) : (
                     portal.description
