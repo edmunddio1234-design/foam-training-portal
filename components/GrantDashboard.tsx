@@ -3,6 +3,7 @@
 // ============================================
 // Matches FOAM Command color scheme (navy blue/white)
 // Shows Top 15 sources sorted by requested amount
+// FIXED: Column names match Google Sheet
 // ============================================
 
 import React, { useState, useEffect } from 'react';
@@ -20,7 +21,7 @@ import {
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
 
 interface Grant {
-  id: number;
+  _rowIndex: number;
   Grant_name: string;
   Grant_source: string;
   Purpose: string;
@@ -28,12 +29,15 @@ interface Grant {
   Contact_email: string;
   Application_deadline: string;
   Submission_date: string;
-  Amount_requested: number;
-  Amount_approved: number;
+  Amount_requested: string | number;
+  Amount_approved: string | number;
   Date_decision_made: string;
   Grant_cycle: string;
-  Grant_reporting_scheduled: string;
-  Grant_Awarded: string;
+  Grant_reporting_schedule: string;
+  Grant_status: string;  // This is the actual column name in your sheet
+  Notification: string;
+  Submission_year: string;
+  Funder_Type: string;
 }
 
 interface Summary {
@@ -44,6 +48,21 @@ interface Summary {
   totalRequested: number;
   totalApproved: number;
 }
+
+// Helper function to parse currency strings like "$200,000" to numbers
+const parseCurrency = (value: string | number | undefined): number => {
+  if (value === undefined || value === null || value === '') return 0;
+  if (typeof value === 'number') return value;
+  // Remove $, commas, and any whitespace, then parse
+  const cleaned = value.toString().replace(/[$,\s]/g, '');
+  const parsed = parseFloat(cleaned);
+  return isNaN(parsed) ? 0 : parsed;
+};
+
+// Helper to get status - checks both Grant_status and Grant_Awarded for compatibility
+const getGrantStatus = (grant: any): string => {
+  return grant.Grant_status || grant.Grant_Awarded || 'Unknown';
+};
 
 const GrantDashboard: React.FC = () => {
   const [grants, setGrants] = useState<Grant[]>([]);
@@ -61,7 +80,7 @@ const GrantDashboard: React.FC = () => {
     Grant_name: '', Grant_source: '', Purpose: '', Contact_person: '',
     Contact_email: '', Application_deadline: '', Submission_date: '',
     Amount_requested: '', Amount_approved: '', Date_decision_made: '',
-    Grant_cycle: 'FY2025', Grant_reporting_scheduled: '', Grant_Awarded: 'Pending'
+    Grant_cycle: 'FY2025', Grant_reporting_schedule: '', Grant_status: 'Pending'
   });
 
   const fetchGrants = async () => {
@@ -71,6 +90,7 @@ const GrantDashboard: React.FC = () => {
       const response = await fetch(`${API_BASE_URL}/api/grants`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
+      console.log('Grants data:', data); // Debug log
       setGrants(data.grants || []);
       setSummary(data.summary || null);
     } catch (err) {
@@ -89,7 +109,7 @@ const GrantDashboard: React.FC = () => {
         Amount_requested: parseFloat(newGrant.Amount_requested) || 0,
         Amount_approved: parseFloat(newGrant.Amount_approved) || 0,
       };
-      const response = await fetch(`${API_BASE_URL}/api/grants/add`, {
+      const response = await fetch(`${API_BASE_URL}/api/grants`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(grantToAdd)
       });
@@ -97,7 +117,7 @@ const GrantDashboard: React.FC = () => {
       setNewGrant({ Grant_name: '', Grant_source: '', Purpose: '', Contact_person: '',
         Contact_email: '', Application_deadline: '', Submission_date: '',
         Amount_requested: '', Amount_approved: '', Date_decision_made: '',
-        Grant_cycle: 'FY2025', Grant_reporting_scheduled: '', Grant_Awarded: 'Pending' });
+        Grant_cycle: 'FY2025', Grant_reporting_schedule: '', Grant_status: 'Pending' });
       setShowAddForm(false);
       fetchGrants();
     } catch (err) {
@@ -111,7 +131,7 @@ const GrantDashboard: React.FC = () => {
     if (!editingGrant) return;
     setSaving(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/grants/update/${editingGrant.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/grants/${editingGrant._rowIndex}`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingGrant)
       });
@@ -128,7 +148,7 @@ const GrantDashboard: React.FC = () => {
   const handleDeleteGrant = async (grant: Grant) => {
     if (!confirm(`Are you sure you want to delete "${grant.Grant_name}"?`)) return;
     try {
-      const response = await fetch(`${API_BASE_URL}/api/grants/delete/${grant.id}`, { method: 'DELETE' });
+      const response = await fetch(`${API_BASE_URL}/api/grants/${grant._rowIndex}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Failed to delete grant');
       fetchGrants();
     } catch (err) {
@@ -136,17 +156,33 @@ const GrantDashboard: React.FC = () => {
     }
   };
 
+  // Calculate stats with proper currency parsing
   const stats = summary || {
     totalGrants: grants.length,
-    awarded: grants.filter(g => g.Grant_Awarded === 'Yes' || g.Grant_Awarded === 'Awarded').length,
-    pending: grants.filter(g => g.Grant_Awarded === 'Pending').length,
-    denied: grants.filter(g => g.Grant_Awarded === 'Denied' || g.Grant_Awarded === 'No').length,
-    totalRequested: grants.reduce((sum, g) => sum + (g.Amount_requested || 0), 0),
-    totalApproved: grants.reduce((sum, g) => sum + (g.Amount_approved || 0), 0),
+    awarded: grants.filter(g => {
+      const status = getGrantStatus(g);
+      return status === 'Awarded' || status === 'Approved' || status === 'Yes';
+    }).length,
+    pending: grants.filter(g => {
+      const status = getGrantStatus(g);
+      return status === 'Pending' || status === '';
+    }).length,
+    denied: grants.filter(g => {
+      const status = getGrantStatus(g);
+      return status === 'Denied' || status === 'No' || status === 'Rejected';
+    }).length,
+    totalRequested: grants.reduce((sum, g) => sum + parseCurrency(g.Amount_requested), 0),
+    totalApproved: grants.reduce((sum, g) => sum + parseCurrency(g.Amount_approved), 0),
   };
 
-  const notSubmitted = grants.filter(g => g.Grant_Awarded === 'Not Submitted' || !g.Submission_date).length;
-  const successRate = stats.awarded / (stats.awarded + stats.denied) * 100 || 0;
+  const notSubmitted = grants.filter(g => {
+    const status = getGrantStatus(g);
+    return status === 'Not Submitted' || status === '' || !g.Submission_date;
+  }).length;
+  
+  const successRate = (stats.awarded + stats.denied) > 0 
+    ? (stats.awarded / (stats.awarded + stats.denied) * 100) 
+    : 0;
 
   const statusData = [
     { name: 'Awarded', value: stats.awarded, color: '#10B981' },
@@ -155,11 +191,12 @@ const GrantDashboard: React.FC = () => {
     { name: 'Not Submitted', value: notSubmitted, color: '#6B7280' },
   ].filter(d => d.value > 0);
 
+  // Calculate funding by source with proper currency parsing
   const fundingBySource = grants.reduce((acc, grant) => {
     const source = grant.Grant_source || 'Unknown';
     if (!acc[source]) acc[source] = { name: source, requested: 0, approved: 0, count: 0 };
-    acc[source].requested += grant.Amount_requested || 0;
-    acc[source].approved += grant.Amount_approved || 0;
+    acc[source].requested += parseCurrency(grant.Amount_requested);
+    acc[source].approved += parseCurrency(grant.Amount_approved);
     acc[source].count += 1;
     return acc;
   }, {} as Record<string, { name: string; requested: number; approved: number; count: number }>);
@@ -171,16 +208,18 @@ const GrantDashboard: React.FC = () => {
     .filter(g => {
       if (!g.Application_deadline) return false;
       const deadline = new Date(g.Application_deadline);
-      return deadline > new Date() && (g.Grant_Awarded === 'Pending' || g.Grant_Awarded === 'Not Submitted' || !g.Submission_date);
+      const status = getGrantStatus(g);
+      return deadline > new Date() && (status === 'Pending' || status === 'Not Submitted' || status === '' || !g.Submission_date);
     })
     .sort((a, b) => new Date(a.Application_deadline).getTime() - new Date(b.Application_deadline).getTime())
     .slice(0, 5);
 
   const filteredGrants = grants.filter(g => {
+    const status = getGrantStatus(g);
     if (activeFilter !== 'all') {
-      if (activeFilter === 'awarded' && g.Grant_Awarded !== 'Yes' && g.Grant_Awarded !== 'Awarded') return false;
-      if (activeFilter === 'pending' && g.Grant_Awarded !== 'Pending') return false;
-      if (activeFilter === 'denied' && g.Grant_Awarded !== 'Denied' && g.Grant_Awarded !== 'No') return false;
+      if (activeFilter === 'awarded' && status !== 'Awarded' && status !== 'Approved' && status !== 'Yes') return false;
+      if (activeFilter === 'pending' && status !== 'Pending' && status !== '') return false;
+      if (activeFilter === 'denied' && status !== 'Denied' && status !== 'No' && status !== 'Rejected') return false;
     }
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
@@ -193,23 +232,24 @@ const GrantDashboard: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch(status) {
-      case 'Yes': case 'Awarded': return 'bg-emerald-100 text-emerald-700 border-emerald-300';
-      case 'Pending': return 'bg-amber-100 text-amber-700 border-amber-300';
-      case 'Denied': case 'No': return 'bg-red-100 text-red-700 border-red-300';
+      case 'Yes': case 'Awarded': case 'Approved': return 'bg-emerald-100 text-emerald-700 border-emerald-300';
+      case 'Pending': case '': return 'bg-amber-100 text-amber-700 border-amber-300';
+      case 'Denied': case 'No': case 'Rejected': return 'bg-red-100 text-red-700 border-red-300';
       default: return 'bg-slate-100 text-slate-700 border-slate-300';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch(status) {
-      case 'Yes': case 'Awarded': return <CheckCircle className="w-4 h-4" />;
-      case 'Pending': return <Clock className="w-4 h-4" />;
-      case 'Denied': case 'No': return <XCircle className="w-4 h-4" />;
+      case 'Yes': case 'Awarded': case 'Approved': return <CheckCircle className="w-4 h-4" />;
+      case 'Pending': case '': return <Clock className="w-4 h-4" />;
+      case 'Denied': case 'No': case 'Rejected': return <XCircle className="w-4 h-4" />;
       default: return <FileText className="w-4 h-4" />;
     }
   };
 
   const getDaysUntil = (dateStr: string) => {
+    if (!dateStr) return 999;
     const date = new Date(dateStr);
     return Math.ceil((date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
   };
@@ -269,7 +309,7 @@ const GrantDashboard: React.FC = () => {
             <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center"><Target className="w-6 h-6 text-amber-600" /></div>
             <div>
               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Requested</p>
-              <p className="text-2xl font-black text-slate-800">${(stats.totalRequested / 1000).toFixed(0)}k</p>
+              <p className="text-2xl font-black text-slate-800">{formatCurrency(stats.totalRequested)}</p>
             </div>
           </div>
         </div>
@@ -278,7 +318,7 @@ const GrantDashboard: React.FC = () => {
             <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center"><DollarSign className="w-6 h-6 text-emerald-600" /></div>
             <div>
               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Approved</p>
-              <p className="text-2xl font-black text-emerald-600">${(stats.totalApproved / 1000).toFixed(0)}k</p>
+              <p className="text-2xl font-black text-emerald-600">{formatCurrency(stats.totalApproved)}</p>
             </div>
           </div>
         </div>
@@ -349,7 +389,7 @@ const GrantDashboard: React.FC = () => {
           <div className="relative z-10">
             <p className="text-[9px] font-black text-indigo-300 uppercase tracking-[0.3em] mb-4">Grant AI Narrative</p>
             <p className="text-sm font-medium leading-relaxed opacity-90 italic">
-              "You have {stats.totalGrants} grants in your pipeline with ${(stats.totalRequested / 1000).toFixed(0)}k requested.
+              "You have {stats.totalGrants} grants in your pipeline with {formatCurrency(stats.totalRequested)} requested.
               {stats.pending > 0 && ` ${stats.pending} grants are pending decision.`}
               {upcomingDeadlines.length > 0 && ` Next deadline: ${upcomingDeadlines[0]?.Grant_name} in ${getDaysUntil(upcomingDeadlines[0]?.Application_deadline)} days.`}
               {successRate > 50 ? ' Your success rate is strong!' : ' Consider strengthening your application narratives.'}"
@@ -379,39 +419,44 @@ const GrantDashboard: React.FC = () => {
         </div>
         <div className="space-y-2 max-h-[500px] overflow-y-auto">
           {filteredGrants.length === 0 ? <div className="text-center py-12 text-slate-400">No grants found</div> :
-            filteredGrants.map((grant) => (
-              <div key={grant.id} className="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden hover:border-slate-300">
-                <div className="p-4 cursor-pointer" onClick={() => setExpandedGrant(expandedGrant === grant.id ? null : grant.id)}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg border ${getStatusColor(grant.Grant_Awarded)}`}>{getStatusIcon(grant.Grant_Awarded)}</div>
-                      <div><p className="font-bold text-slate-800">{grant.Grant_name}</p><p className="text-sm text-slate-500">{grant.Grant_source}</p></div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <p className="font-black text-emerald-600">{formatCurrency(grant.Amount_approved || 0)}</p>
-                        <p className="text-xs text-slate-400">of {formatCurrency(grant.Amount_requested)}</p>
+            filteredGrants.map((grant, index) => {
+              const status = getGrantStatus(grant);
+              const requested = parseCurrency(grant.Amount_requested);
+              const approved = parseCurrency(grant.Amount_approved);
+              return (
+                <div key={grant._rowIndex || index} className="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden hover:border-slate-300">
+                  <div className="p-4 cursor-pointer" onClick={() => setExpandedGrant(expandedGrant === (grant._rowIndex || index) ? null : (grant._rowIndex || index))}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg border ${getStatusColor(status)}`}>{getStatusIcon(status)}</div>
+                        <div><p className="font-bold text-slate-800">{grant.Grant_name}</p><p className="text-sm text-slate-500">{grant.Grant_source}</p></div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button onClick={(e) => { e.stopPropagation(); setEditingGrant(grant); }} className="p-2 hover:bg-slate-200 rounded-lg"><Edit2 className="w-4 h-4 text-slate-400" /></button>
-                        <button onClick={(e) => { e.stopPropagation(); handleDeleteGrant(grant); }} className="p-2 hover:bg-rose-100 rounded-lg"><Trash2 className="w-4 h-4 text-rose-400" /></button>
-                        {expandedGrant === grant.id ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="font-black text-emerald-600">{formatCurrency(approved)}</p>
+                          <p className="text-xs text-slate-400">of {formatCurrency(requested)}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button onClick={(e) => { e.stopPropagation(); setEditingGrant(grant); }} className="p-2 hover:bg-slate-200 rounded-lg"><Edit2 className="w-4 h-4 text-slate-400" /></button>
+                          <button onClick={(e) => { e.stopPropagation(); handleDeleteGrant(grant); }} className="p-2 hover:bg-rose-100 rounded-lg"><Trash2 className="w-4 h-4 text-rose-400" /></button>
+                          {expandedGrant === (grant._rowIndex || index) ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                        </div>
                       </div>
                     </div>
                   </div>
+                  {expandedGrant === (grant._rowIndex || index) && (
+                    <div className="px-4 pb-4 pt-2 border-t border-slate-200 bg-white">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-slate-500">
+                        <div className="flex items-center gap-2"><Target className="w-4 h-4" /><span className="truncate">{grant.Purpose || 'N/A'}</span></div>
+                        <div className="flex items-center gap-2"><User className="w-4 h-4" /><span>{grant.Contact_person || 'N/A'}</span></div>
+                        <div className="flex items-center gap-2"><Mail className="w-4 h-4" /><span className="truncate">{grant.Contact_email || 'N/A'}</span></div>
+                        <div className="flex items-center gap-2"><Calendar className="w-4 h-4" /><span>Deadline: {grant.Application_deadline || 'N/A'}</span></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                {expandedGrant === grant.id && (
-                  <div className="px-4 pb-4 pt-2 border-t border-slate-200 bg-white">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-slate-500">
-                      <div className="flex items-center gap-2"><Target className="w-4 h-4" /><span className="truncate">{grant.Purpose || 'N/A'}</span></div>
-                      <div className="flex items-center gap-2"><User className="w-4 h-4" /><span>{grant.Contact_person || 'N/A'}</span></div>
-                      <div className="flex items-center gap-2"><Mail className="w-4 h-4" /><span className="truncate">{grant.Contact_email || 'N/A'}</span></div>
-                      <div className="flex items-center gap-2"><Calendar className="w-4 h-4" /><span>Deadline: {grant.Application_deadline || 'N/A'}</span></div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))
+              );
+            })
           }
         </div>
       </div>
@@ -453,9 +498,9 @@ const GrantDashboard: React.FC = () => {
                 <input type="text" value={newGrant.Grant_cycle} onChange={(e) => setNewGrant({...newGrant, Grant_cycle: e.target.value})}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" placeholder="FY2025" /></div>
                 <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Status</label>
-                <select value={newGrant.Grant_Awarded} onChange={(e) => setNewGrant({...newGrant, Grant_Awarded: e.target.value})}
+                <select value={newGrant.Grant_status} onChange={(e) => setNewGrant({...newGrant, Grant_status: e.target.value})}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500">
-                  <option value="Pending">Pending</option><option value="Yes">Awarded</option><option value="Denied">Denied</option><option value="Not Submitted">Not Submitted</option>
+                  <option value="Pending">Pending</option><option value="Awarded">Awarded</option><option value="Denied">Denied</option><option value="Not Submitted">Not Submitted</option>
                 </select></div>
               </div>
             </div>
@@ -484,16 +529,16 @@ const GrantDashboard: React.FC = () => {
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" /></div>
               <div className="grid grid-cols-2 gap-4">
                 <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Amount Requested</label>
-                <input type="number" value={editingGrant.Amount_requested} onChange={(e) => setEditingGrant({...editingGrant, Amount_requested: parseFloat(e.target.value) || 0})}
+                <input type="number" value={parseCurrency(editingGrant.Amount_requested)} onChange={(e) => setEditingGrant({...editingGrant, Amount_requested: parseFloat(e.target.value) || 0})}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" /></div>
                 <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Amount Approved</label>
-                <input type="number" value={editingGrant.Amount_approved} onChange={(e) => setEditingGrant({...editingGrant, Amount_approved: parseFloat(e.target.value) || 0})}
+                <input type="number" value={parseCurrency(editingGrant.Amount_approved)} onChange={(e) => setEditingGrant({...editingGrant, Amount_approved: parseFloat(e.target.value) || 0})}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" /></div>
               </div>
               <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Status</label>
-              <select value={editingGrant.Grant_Awarded} onChange={(e) => setEditingGrant({...editingGrant, Grant_Awarded: e.target.value})}
+              <select value={getGrantStatus(editingGrant)} onChange={(e) => setEditingGrant({...editingGrant, Grant_status: e.target.value})}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500">
-                <option value="Pending">Pending</option><option value="Yes">Awarded</option><option value="Denied">Denied</option><option value="Not Submitted">Not Submitted</option>
+                <option value="Pending">Pending</option><option value="Awarded">Awarded</option><option value="Approved">Approved</option><option value="Denied">Denied</option><option value="Not Submitted">Not Submitted</option>
               </select></div>
             </div>
             <div className="p-6 border-t border-slate-200 flex gap-3 justify-end">
