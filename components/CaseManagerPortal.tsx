@@ -11,7 +11,9 @@ import {
   CheckCircle, AlertCircle, ChevronDown, ChevronUp, ChevronRight,
   Download, ExternalLink, Clipboard, Heart, Briefcase, Home,
   Clock, Target, Shield, Eye, EyeOff, X, Search, Filter,
-  RefreshCw, MapPin, Globe, UserCheck, Package, ArrowLeft
+  RefreshCw, MapPin, Globe, UserCheck, Package, ArrowLeft,
+  BarChart3, TrendingUp, TrendingDown, PieChart, Activity,
+  UserPlus, Building, GraduationCap, Wrench
 } from 'lucide-react';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
@@ -102,6 +104,384 @@ const REPORT_CATEGORIES = [
 const MONTHS = ["January", "February", "March", "April", "May", "June", 
                 "July", "August", "September", "October", "November", "December"];
 
+const MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// ============================================
+// DASHBOARD TAB COMPONENT
+// ============================================
+
+interface DashboardTabProps {
+  monthlySummary: any[];
+  onRefresh: () => void;
+}
+
+const DashboardTab: React.FC<DashboardTabProps> = ({ monthlySummary, onRefresh }) => {
+  const [viewMode, setViewMode] = useState<'monthly' | 'quarterly' | 'yearly'>('monthly');
+  const [selectedQuarter, setSelectedQuarter] = useState<1 | 2 | 3 | 4>(1);
+  
+  // Calculate totals
+  const calculateTotals = () => {
+    if (!monthlySummary || monthlySummary.length === 0) return { total: 0, byProgram: {}, byMonth: [] };
+    
+    let total = 0;
+    const byMonth: number[] = Array(12).fill(0);
+    
+    // Sum up all YTD totals for total fathers
+    const projectFamilyBuild = monthlySummary.find(s => s.category?.includes('Project Family Build'));
+    const fatherhoodClass = monthlySummary.find(s => s.category?.includes('Fatherhood Class'));
+    const workforceDev = monthlySummary.find(s => s.category?.includes('Workforce Development') && !s.category?.includes('Activity'));
+    
+    // Calculate monthly intake from Project Family Build
+    if (projectFamilyBuild) {
+      byMonth[0] = projectFamilyBuild.jan2026 || 0;
+      byMonth[1] = projectFamilyBuild.feb2026 || 0;
+      byMonth[2] = projectFamilyBuild.mar2026 || 0;
+      byMonth[3] = projectFamilyBuild.apr2026 || 0;
+      byMonth[4] = projectFamilyBuild.may2026 || 0;
+      byMonth[5] = projectFamilyBuild.jun2026 || 0;
+      byMonth[6] = projectFamilyBuild.jul2026 || 0;
+      byMonth[7] = projectFamilyBuild.aug2026 || 0;
+      byMonth[8] = projectFamilyBuild.sep2026 || 0;
+      byMonth[9] = projectFamilyBuild.oct2026 || 0;
+      byMonth[10] = projectFamilyBuild.nov2026 || 0;
+      byMonth[11] = projectFamilyBuild.dec2026 || 0;
+      total = projectFamilyBuild.ytdTotal || 0;
+    }
+    
+    return {
+      total,
+      byProgram: {
+        projectFamilyBuild: projectFamilyBuild?.ytdTotal || 0,
+        fatherhoodClass: fatherhoodClass?.ytdTotal || 0,
+        workforceDev: workforceDev?.ytdTotal || 0,
+      },
+      byMonth
+    };
+  };
+  
+  const totals = calculateTotals();
+  
+  // Calculate quarter totals
+  const getQuarterTotal = (quarter: number) => {
+    const startMonth = (quarter - 1) * 3;
+    return totals.byMonth.slice(startMonth, startMonth + 3).reduce((a, b) => a + b, 0);
+  };
+  
+  // Calculate growth/trend
+  const calculateGrowth = () => {
+    const currentMonth = new Date().getMonth();
+    const prevMonth = currentMonth > 0 ? currentMonth - 1 : 0;
+    const current = totals.byMonth[currentMonth] || 0;
+    const previous = totals.byMonth[prevMonth] || 0;
+    if (previous === 0) return { percent: 0, direction: 'neutral' };
+    const percent = ((current - previous) / previous) * 100;
+    return { 
+      percent: Math.abs(percent).toFixed(1), 
+      direction: percent > 0 ? 'up' : percent < 0 ? 'down' : 'neutral' 
+    };
+  };
+  
+  const growth = calculateGrowth();
+  
+  // Get max value for chart scaling
+  const maxMonthly = Math.max(...totals.byMonth, 1);
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-black text-slate-800">Analytics Dashboard</h2>
+          <p className="text-slate-500 text-sm mt-1">Track program performance and father engagement</p>
+        </div>
+        <div className="flex items-center gap-3">
+          {/* View Mode Toggle */}
+          <div className="bg-slate-100 p-1 rounded-xl flex">
+            {(['monthly', 'quarterly', 'yearly'] as const).map(mode => (
+              <button key={mode} onClick={() => setViewMode(mode)}
+                className={`px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all ${
+                  viewMode === mode ? 'bg-white text-teal-700 shadow' : 'text-slate-500 hover:text-slate-700'}`}>
+                {mode}
+              </button>
+            ))}
+          </div>
+          <button onClick={onRefresh} className="p-2 hover:bg-slate-100 rounded-lg">
+            <RefreshCw className="w-5 h-5 text-slate-400" />
+          </button>
+        </div>
+      </div>
+
+      {/* KPI Cards Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Active Fathers */}
+        <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl p-5 text-white shadow-lg">
+          <div className="flex items-center justify-between">
+            <Users className="w-8 h-8 text-teal-200" />
+            <span className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full ${
+              growth.direction === 'up' ? 'bg-emerald-400/30 text-emerald-100' : 
+              growth.direction === 'down' ? 'bg-red-400/30 text-red-100' : 'bg-white/20'}`}>
+              {growth.direction === 'up' ? <TrendingUp className="w-3 h-3" /> : 
+               growth.direction === 'down' ? <TrendingDown className="w-3 h-3" /> : null}
+              {growth.percent}%
+            </span>
+          </div>
+          <p className="text-3xl font-black mt-3">{totals.total}</p>
+          <p className="text-teal-100 text-sm">Total Fathers YTD</p>
+        </div>
+
+        {/* Project Family Build */}
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 text-white shadow-lg">
+          <Building className="w-8 h-8 text-blue-200" />
+          <p className="text-3xl font-black mt-3">{totals.byProgram.projectFamilyBuild}</p>
+          <p className="text-blue-100 text-sm">Project Family Build</p>
+        </div>
+
+        {/* Responsible Fatherhood */}
+        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg">
+          <GraduationCap className="w-8 h-8 text-purple-200" />
+          <p className="text-3xl font-black mt-3">{totals.byProgram.fatherhoodClass}</p>
+          <p className="text-purple-100 text-sm">Fatherhood Class</p>
+        </div>
+
+        {/* Workforce Development */}
+        <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl p-5 text-white shadow-lg">
+          <Wrench className="w-8 h-8 text-amber-200" />
+          <p className="text-3xl font-black mt-3">{totals.byProgram.workforceDev}</p>
+          <p className="text-amber-100 text-sm">Workforce Development</p>
+        </div>
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Monthly Intake Chart */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="font-bold text-slate-800">Intake Volume</h3>
+              <p className="text-slate-500 text-sm">Father enrollments per month</p>
+            </div>
+            <Activity className="w-5 h-5 text-slate-400" />
+          </div>
+          
+          {viewMode === 'monthly' && (
+            <div className="flex items-end gap-2 h-48">
+              {totals.byMonth.map((count, idx) => {
+                const height = maxMonthly > 0 ? (count / maxMonthly) * 100 : 0;
+                const isCurrentMonth = idx === new Date().getMonth();
+                return (
+                  <div key={idx} className="flex-1 flex flex-col items-center">
+                    <span className="text-xs font-bold text-slate-600 mb-1">{count}</span>
+                    <div 
+                      className={`w-full rounded-t-lg transition-all ${
+                        isCurrentMonth ? 'bg-teal-500' : 'bg-slate-200 hover:bg-slate-300'}`}
+                      style={{ height: `${Math.max(height, 5)}%` }}
+                    />
+                    <span className="text-xs text-slate-400 mt-2">{MONTH_ABBR[idx]}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {viewMode === 'quarterly' && (
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map(q => {
+                const qTotal = getQuarterTotal(q);
+                const qPercent = totals.total > 0 ? (qTotal / totals.total) * 100 : 0;
+                return (
+                  <div key={q}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium text-slate-600">Q{q} 2026</span>
+                      <span className="text-sm font-bold text-slate-800">{qTotal} fathers</span>
+                    </div>
+                    <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-teal-500 to-teal-400 rounded-full transition-all"
+                        style={{ width: `${qPercent}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {viewMode === 'yearly' && (
+            <div className="flex items-center justify-center h-48">
+              <div className="text-center">
+                <p className="text-6xl font-black text-teal-600">{totals.total}</p>
+                <p className="text-slate-500 mt-2">Total Fathers in 2026</p>
+                <p className="text-slate-400 text-sm">Year-to-date enrollment</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Program Distribution */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="font-bold text-slate-800">Program Distribution</h3>
+              <p className="text-slate-500 text-sm">Fathers by program type</p>
+            </div>
+            <PieChart className="w-5 h-5 text-slate-400" />
+          </div>
+          
+          <div className="space-y-4">
+            {/* Project Family Build */}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <Building className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-slate-700">Project Family Build</span>
+                  <span className="font-bold text-slate-800">{totals.byProgram.projectFamilyBuild}</span>
+                </div>
+                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-blue-500 rounded-full" 
+                    style={{ width: `${totals.total > 0 ? (totals.byProgram.projectFamilyBuild / totals.total) * 100 : 0}%` }} />
+                </div>
+              </div>
+            </div>
+
+            {/* Responsible Fatherhood Class */}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                <GraduationCap className="w-6 h-6 text-purple-600" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-slate-700">Responsible Fatherhood Class</span>
+                  <span className="font-bold text-slate-800">{totals.byProgram.fatherhoodClass}</span>
+                </div>
+                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-purple-500 rounded-full" 
+                    style={{ width: `${totals.total > 0 ? (totals.byProgram.fatherhoodClass / totals.total) * 100 : 0}%` }} />
+                </div>
+              </div>
+            </div>
+
+            {/* Workforce Development */}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                <Wrench className="w-6 h-6 text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-slate-700">Workforce Development</span>
+                  <span className="font-bold text-slate-800">{totals.byProgram.workforceDev}</span>
+                </div>
+                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-amber-500 rounded-full" 
+                    style={{ width: `${totals.total > 0 ? (totals.byProgram.workforceDev / totals.total) * 100 : 0}%` }} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Legend */}
+          <div className="mt-6 pt-4 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
+            <div>
+              <div className="w-3 h-3 bg-blue-500 rounded-full mx-auto mb-1" />
+              <span className="text-xs text-slate-500">Family Build</span>
+            </div>
+            <div>
+              <div className="w-3 h-3 bg-purple-500 rounded-full mx-auto mb-1" />
+              <span className="text-xs text-slate-500">Fatherhood</span>
+            </div>
+            <div>
+              <div className="w-3 h-3 bg-amber-500 rounded-full mx-auto mb-1" />
+              <span className="text-xs text-slate-500">Workforce</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Trend Analysis */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="font-bold text-slate-800">Trend Analysis</h3>
+            <p className="text-slate-500 text-sm">Month-over-month growth comparison</p>
+          </div>
+          <TrendingUp className="w-5 h-5 text-slate-400" />
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {MONTH_ABBR.slice(0, 6).map((month, idx) => {
+            const current = totals.byMonth[idx] || 0;
+            const previous = idx > 0 ? totals.byMonth[idx - 1] || 0 : 0;
+            const change = idx > 0 ? current - previous : 0;
+            const percentChange = previous > 0 ? ((change / previous) * 100).toFixed(0) : 0;
+            
+            return (
+              <div key={month} className="bg-slate-50 rounded-xl p-4 text-center">
+                <p className="text-xs text-slate-500 font-medium">{month} 2026</p>
+                <p className="text-2xl font-black text-slate-800 my-2">{current}</p>
+                {idx > 0 && (
+                  <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${
+                    change > 0 ? 'bg-emerald-100 text-emerald-700' : 
+                    change < 0 ? 'bg-red-100 text-red-700' : 'bg-slate-200 text-slate-600'}`}>
+                    {change > 0 ? <TrendingUp className="w-3 h-3" /> : 
+                     change < 0 ? <TrendingDown className="w-3 h-3" /> : null}
+                    {change > 0 ? '+' : ''}{change} ({percentChange}%)
+                  </div>
+                )}
+                {idx === 0 && (
+                  <span className="text-xs text-slate-400">Baseline</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Detailed Metrics Table */}
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h3 className="font-bold text-slate-800">All Metrics</h3>
+            <p className="text-slate-500 text-sm">Complete breakdown by category</p>
+          </div>
+          <a href="https://docs.google.com/spreadsheets/d/11c8UM8C7kc6D_UV0BmckW26UTloz8F2XnHd-h26VpD8" 
+            target="_blank" rel="noopener noreferrer"
+            className="text-teal-600 text-sm font-medium flex items-center gap-1 hover:underline">
+            <ExternalLink className="w-4 h-4" /> Open Full Report
+          </a>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="text-left p-3 font-bold text-slate-600 sticky left-0 bg-slate-50">Category</th>
+                {MONTH_ABBR.slice(0, 6).map(m => (
+                  <th key={m} className="text-center p-3 font-bold text-slate-600 min-w-[60px]">{m}</th>
+                ))}
+                <th className="text-center p-3 font-bold text-teal-600 bg-teal-50">YTD</th>
+              </tr>
+            </thead>
+            <tbody>
+              {monthlySummary.slice(0, 15).map((row, idx) => (
+                <tr key={idx} className="border-t border-slate-100 hover:bg-slate-50">
+                  <td className="p-3 text-slate-700 font-medium sticky left-0 bg-white">{row.category}</td>
+                  <td className="p-3 text-center">{row.jan2026 || 0}</td>
+                  <td className="p-3 text-center">{row.feb2026 || 0}</td>
+                  <td className="p-3 text-center">{row.mar2026 || 0}</td>
+                  <td className="p-3 text-center">{row.apr2026 || 0}</td>
+                  <td className="p-3 text-center">{row.may2026 || 0}</td>
+                  <td className="p-3 text-center">{row.jun2026 || 0}</td>
+                  <td className="p-3 text-center font-bold text-teal-600 bg-teal-50">{row.ytdTotal || 0}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ============================================
 // MAIN COMPONENT
 // ============================================
@@ -123,7 +503,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
   const [authLoading, setAuthLoading] = useState(false);
 
   // Tab state
-  const [activeTab, setActiveTab] = useState<'reports' | 'resources' | 'forms'>('reports');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'reports' | 'resources' | 'forms'>('dashboard');
 
   // Resources state
   const [resources, setResources] = useState<Resource[]>([]);
@@ -186,7 +566,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
         loadFiles();
         loadEmployment();
         loadDiapers();
-      } else if (activeTab === 'reports') {
+      } else if (activeTab === 'reports' || activeTab === 'dashboard') {
         loadMonthlySummary();
       }
     }
@@ -554,14 +934,15 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
           </button>
         </div>
         {/* Tabs */}
-        <div className="flex gap-1 mt-4">
+        <div className="flex gap-1 mt-4 overflow-x-auto pb-1">
           {[
+            { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
             { id: 'reports', label: 'Monthly Reports', icon: FileText },
             { id: 'resources', label: 'Resources', icon: BookOpen },
             { id: 'forms', label: 'Forms & Trackers', icon: FolderOpen },
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
                 activeTab === tab.id ? 'bg-white text-teal-700 shadow-lg' : 'text-teal-100 hover:bg-white/10'}`}>
               <tab.icon className="w-4 h-4" />
               <span className="hidden sm:inline">{tab.label}</span>
@@ -571,6 +952,13 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       </header>
 
       <main className="p-6 max-w-7xl mx-auto">
+        {/* ============================================ */}
+        {/* ANALYTICS DASHBOARD TAB */}
+        {/* ============================================ */}
+        {activeTab === 'dashboard' && (
+          <DashboardTab monthlySummary={monthlySummary} onRefresh={loadMonthlySummary} />
+        )}
+
         {/* ============================================ */}
         {/* MONTHLY REPORTS TAB */}
         {/* ============================================ */}
