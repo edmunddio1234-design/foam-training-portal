@@ -90,7 +90,13 @@ const GrantDashboard: React.FC = () => {
       const response = await fetch(`${API_BASE_URL}/api/grants`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
-      console.log('Grants data:', data); // Debug log
+      console.log('Grants data:', data);
+      // Debug: Log all deadlines to see what formats exist
+      console.log('All deadlines:', data.grants?.map((g: any) => ({
+        name: g.Grant_name,
+        deadline: g.Application_deadline,
+        status: g.Grant_status
+      })).filter((g: any) => g.deadline));
       setGrants(data.grants || []);
       setSummary(data.summary || null);
     } catch (err) {
@@ -206,10 +212,40 @@ const GrantDashboard: React.FC = () => {
 
   const upcomingDeadlines = grants
     .filter(g => {
+      // Check if deadline exists
       if (!g.Application_deadline) return false;
-      const deadline = new Date(g.Application_deadline);
+      
+      const deadlineStr = String(g.Application_deadline).trim();
+      
+      // Skip invalid values
+      if (!deadlineStr || deadlineStr === 'N/A' || deadlineStr === 'TBD' || 
+          deadlineStr === 'Rolling' || deadlineStr === 'Ongoing' || 
+          deadlineStr === 'null' || deadlineStr === 'undefined') return false;
+      
+      // Parse the deadline
+      const deadline = new Date(deadlineStr);
+      
+      // Check if valid date
+      if (isNaN(deadline.getTime())) return false;
+      
+      // Check if deadline is in the future
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (deadline <= today) return false;
+      
+      // Get status and check if grant needs attention
       const status = getGrantStatus(g);
-      return deadline > new Date() && (status === 'Pending' || status === 'Not Submitted' || status === '' || !g.Submission_date);
+      const needsAttention = 
+        !status || 
+        status === '' || 
+        status === 'Pending' || 
+        status === 'Not Submitted' ||
+        status === 'In Progress' ||
+        status === 'Draft' ||
+        status === 'Unknown' ||
+        !g.Submission_date;
+      
+      return needsAttention;
     })
     .sort((a, b) => new Date(a.Application_deadline).getTime() - new Date(b.Application_deadline).getTime())
     .slice(0, 5);
