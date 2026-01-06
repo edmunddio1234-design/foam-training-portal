@@ -535,8 +535,9 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {onClose && (
-              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <ArrowLeft className="w-5 h-5" />
+              <button onClick={onClose} className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-xl transition-colors">
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-sm font-medium hidden sm:inline">Back to Hub</span>
               </button>
             )}
             <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
