@@ -210,45 +210,74 @@ const GrantDashboard: React.FC = () => {
   // TOP 15, SORTED BY REQUESTED
   const fundingData = Object.values(fundingBySource).sort((a, b) => b.requested - a.requested).slice(0, 15);
 
+  // Helper function to parse various date formats
+  const parseDeadlineDate = (dateStr: string): Date | null => {
+    if (!dateStr) return null;
+    
+    const cleaned = String(dateStr).trim();
+    if (!cleaned || cleaned === 'N/A' || cleaned === 'TBD' || 
+        cleaned === 'Rolling' || cleaned === 'Ongoing' || 
+        cleaned === 'null' || cleaned === 'undefined') return null;
+    
+    // Try standard parsing first
+    let date = new Date(cleaned);
+    if (!isNaN(date.getTime())) return date;
+    
+    // Try MM/DD/YYYY format
+    const mmddyyyy = cleaned.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (mmddyyyy) {
+      date = new Date(parseInt(mmddyyyy[3]), parseInt(mmddyyyy[1]) - 1, parseInt(mmddyyyy[2]));
+      if (!isNaN(date.getTime())) return date;
+    }
+    
+    // Try DD/MM/YYYY format
+    const ddmmyyyy = cleaned.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+    if (ddmmyyyy) {
+      date = new Date(parseInt(ddmmyyyy[3]), parseInt(ddmmyyyy[2]) - 1, parseInt(ddmmyyyy[1]));
+      if (!isNaN(date.getTime())) return date;
+    }
+    
+    return null;
+  };
+
+  // Get ALL grants with future deadlines (regardless of status)
   const upcomingDeadlines = grants
     .filter(g => {
       // Check if deadline exists
       if (!g.Application_deadline) return false;
       
-      const deadlineStr = String(g.Application_deadline).trim();
+      const deadline = parseDeadlineDate(g.Application_deadline);
+      if (!deadline) return false;
       
-      // Skip invalid values
-      if (!deadlineStr || deadlineStr === 'N/A' || deadlineStr === 'TBD' || 
-          deadlineStr === 'Rolling' || deadlineStr === 'Ongoing' || 
-          deadlineStr === 'null' || deadlineStr === 'undefined') return false;
-      
-      // Parse the deadline
-      const deadline = new Date(deadlineStr);
-      
-      // Check if valid date
-      if (isNaN(deadline.getTime())) return false;
-      
-      // Check if deadline is in the future
+      // Check if deadline is in the future (or today)
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      if (deadline <= today) return false;
+      deadline.setHours(0, 0, 0, 0);
       
-      // Get status and check if grant needs attention
+      // Include today and future dates
+      if (deadline < today) return false;
+      
+      // Get status - exclude already completed/denied grants
       const status = getGrantStatus(g);
-      const needsAttention = 
-        !status || 
-        status === '' || 
-        status === 'Pending' || 
-        status === 'Not Submitted' ||
-        status === 'In Progress' ||
-        status === 'Draft' ||
-        status === 'Unknown' ||
-        !g.Submission_date;
+      const excludeStatuses = ['Denied', 'No', 'Rejected', 'Closed', 'Completed'];
+      if (excludeStatuses.includes(status)) return false;
       
-      return needsAttention;
+      return true;
     })
-    .sort((a, b) => new Date(a.Application_deadline).getTime() - new Date(b.Application_deadline).getTime())
+    .sort((a, b) => {
+      const dateA = parseDeadlineDate(a.Application_deadline);
+      const dateB = parseDeadlineDate(b.Application_deadline);
+      return (dateA?.getTime() || 0) - (dateB?.getTime() || 0);
+    })
     .slice(0, 5);
+  
+  // Debug logging
+  console.log('Upcoming deadlines found:', upcomingDeadlines.length);
+  console.log('Deadline details:', upcomingDeadlines.map(g => ({
+    name: g.Grant_name,
+    deadline: g.Application_deadline,
+    status: getGrantStatus(g)
+  })));
 
   const filteredGrants = grants.filter(g => {
     const status = getGrantStatus(g);
