@@ -152,6 +152,285 @@ const ProgressRing: React.FC<{ percent: number; size?: number; color: string }> 
   );
 };
 
+// Document Library Component with AI Chat
+const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Document[] }> = ({ onLoadDocuments, documents }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Document[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string; documents?: Document[] }>>([
+    { role: 'assistant', content: "Hi! I'm your Document Assistant. Ask me to find any file - try things like 'Find grant applications' or 'Show me budget reports'." }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [filterType, setFilterType] = useState<string>('all');
+
+  const searchDocuments = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    setIsSearching(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/documents/search/${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (data.success) {
+        setSearchResults(data.data || []);
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleChatSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim() || isChatLoading) return;
+
+    const userMessage = chatInput.trim();
+    setChatInput('');
+    setChatMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setIsChatLoading(true);
+
+    try {
+      // Extract search terms from natural language
+      const searchTerms = userMessage.toLowerCase()
+        .replace(/find|show|get|search|look for|where is|locate|i need|can you find/gi, '')
+        .replace(/the|a|an|my|our|me|please/gi, '')
+        .trim();
+
+      const res = await fetch(`${API_BASE_URL}/api/documents/search/${encodeURIComponent(searchTerms || userMessage)}`);
+      const data = await res.json();
+
+      if (data.success && data.data && data.data.length > 0) {
+        const docs = data.data.slice(0, 10);
+        setChatMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `I found ${data.count} document${data.count !== 1 ? 's' : ''} matching "${searchTerms || userMessage}". Here are the top results:`,
+          documents: docs
+        }]);
+        setSearchResults(data.data);
+      } else {
+        setChatMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `I couldn't find any documents matching "${searchTerms || userMessage}". Try different keywords or check the spelling.`
+        }]);
+      }
+    } catch (err) {
+      setChatMessages(prev => [...prev, {
+        role: 'assistant',
+        content: "Sorry, I had trouble searching. Please try again."
+      }]);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
+  const getFileIcon = (type: string, isFolder: boolean) => {
+    if (isFolder) return <FolderOpen className="text-amber-500" size={20} />;
+    if (type?.includes('spreadsheet') || type?.includes('excel')) return <FileText className="text-emerald-500" size={20} />;
+    if (type?.includes('document') || type?.includes('word')) return <FileText className="text-blue-500" size={20} />;
+    if (type?.includes('presentation') || type?.includes('powerpoint')) return <FileText className="text-orange-500" size={20} />;
+    if (type?.includes('pdf')) return <FileText className="text-red-500" size={20} />;
+    if (type?.includes('image')) return <FileText className="text-purple-500" size={20} />;
+    return <File className="text-slate-400" size={20} />;
+  };
+
+  const getFileTypeName = (type: string) => {
+    if (type?.includes('folder')) return 'Folder';
+    if (type?.includes('spreadsheet')) return 'Spreadsheet';
+    if (type?.includes('document')) return 'Document';
+    if (type?.includes('presentation')) return 'Presentation';
+    if (type?.includes('pdf')) return 'PDF';
+    if (type?.includes('image')) return 'Image';
+    return 'File';
+  };
+
+  const displayDocs = searchQuery ? searchResults : documents;
+  const filteredDocs = filterType === 'all' ? displayDocs : displayDocs.filter(d => {
+    if (filterType === 'folders') return d.isFolder;
+    if (filterType === 'docs') return d.type?.includes('document');
+    if (filterType === 'sheets') return d.type?.includes('spreadsheet');
+    if (filterType === 'pdfs') return d.type?.includes('pdf');
+    return true;
+  });
+
+  return (
+    <div className="max-w-7xl mx-auto p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* AI Chat Panel */}
+        <div className="lg:col-span-1">
+          <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl shadow-xl overflow-hidden h-[600px] flex flex-col">
+            <div className="p-4 border-b border-white/10">
+              <h3 className="text-white font-bold flex items-center gap-2">
+                <Zap size={20} className="text-amber-300" />
+                AI Document Assistant
+              </h3>
+              <p className="text-indigo-200 text-xs mt-1">Ask me to find any document</p>
+            </div>
+            
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {chatMessages.map((msg, i) => (
+                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[85%] rounded-2xl p-3 ${
+                    msg.role === 'user' 
+                      ? 'bg-white text-slate-800' 
+                      : 'bg-white/10 text-white'
+                  }`}>
+                    <p className="text-sm">{msg.content}</p>
+                    {msg.documents && msg.documents.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {msg.documents.map((doc, j) => (
+                          <a
+                            key={j}
+                            href={doc.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all"
+                          >
+                            {getFileIcon(doc.type, doc.isFolder)}
+                            <span className="text-xs truncate flex-1">{doc.name}</span>
+                            <ExternalLink size={12} />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {isChatLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white/10 rounded-2xl p-3">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Chat Input */}
+            <form onSubmit={handleChatSubmit} className="p-4 border-t border-white/10">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Ask me to find documents..."
+                  className="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 text-sm"
+                />
+                <button
+                  type="submit"
+                  disabled={isChatLoading}
+                  className="px-4 py-2 bg-white text-indigo-600 rounded-xl font-medium hover:bg-indigo-50 transition-all disabled:opacity-50"
+                >
+                  <Search size={18} />
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {/* Document Browser */}
+        <div className="lg:col-span-2">
+          {/* Search & Filters */}
+          <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    searchDocuments(e.target.value);
+                  }}
+                  placeholder="Search all documents..."
+                  className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="flex gap-2">
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className="px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">All Types</option>
+                  <option value="folders">Folders</option>
+                  <option value="docs">Documents</option>
+                  <option value="sheets">Spreadsheets</option>
+                  <option value="pdfs">PDFs</option>
+                </select>
+                <button
+                  onClick={onLoadDocuments}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
+                >
+                  <RefreshCw size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Results Count */}
+          <p className="text-slate-500 mb-4 font-medium">
+            {isSearching ? 'Searching...' : `${filteredDocs.length} documents`}
+            {searchQuery && ` matching "${searchQuery}"`}
+          </p>
+
+          {/* Documents Grid */}
+          {filteredDocs.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto">
+              {filteredDocs.map((doc) => (
+                <a
+                  key={doc.id}
+                  href={doc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white rounded-2xl p-4 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all group"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-all shrink-0">
+                      {getFileIcon(doc.type, doc.isFolder)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-slate-800 truncate group-hover:text-blue-600 transition-all">
+                        {doc.name}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full">
+                          {getFileTypeName(doc.type)}
+                        </span>
+                        <span className="text-xs text-slate-400">
+                          {doc.modified ? new Date(doc.modified).toLocaleDateString() : ''}
+                        </span>
+                      </div>
+                    </div>
+                    <ExternalLink className="text-slate-300 group-hover:text-blue-500 shrink-0" size={16} />
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
+              <FolderOpen className="mx-auto text-slate-300 mb-4" size={48} />
+              <p className="text-slate-500 font-medium">
+                {searchQuery ? 'No documents match your search' : 'No documents found'}
+              </p>
+              <p className="text-slate-400 text-sm mt-2">
+                {searchQuery ? 'Try different keywords' : 'Click Refresh to load documents from Google Drive'}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
   const [mainTab, setMainTab] = useState<MainTab>('grants');
   const [grantTab, setGrantTab] = useState<GrantTab>('dashboard');
@@ -669,40 +948,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
       {/* DOCUMENT LIBRARY */}
       {mainTab === 'documents' && (
-        <div className="max-w-7xl mx-auto p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-slate-800">Document Library</h2>
-            <button onClick={loadDocuments} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl hover:shadow-md transition-all">
-              <RefreshCw size={16} /> Refresh
-            </button>
-          </div>
-
-          {documents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {documents.map((doc) => (
-                <a key={doc.id} href={doc.url} target="_blank" rel="noopener noreferrer"
-                  className="bg-white rounded-2xl p-4 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all group">
-                  <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-all">
-                      {doc.isFolder ? <FolderOpen className="text-amber-500" size={24} /> : <File className="text-blue-500" size={24} />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-slate-800 truncate group-hover:text-blue-600">{doc.name}</p>
-                      <p className="text-xs text-slate-400 mt-1">{doc.modified ? new Date(doc.modified).toLocaleDateString() : ''}</p>
-                    </div>
-                    <ExternalLink className="text-slate-300 group-hover:text-blue-500" size={16} />
-                  </div>
-                </a>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
-              <FolderOpen className="mx-auto text-slate-300 mb-4" size={48} />
-              <p className="text-slate-500 font-medium">No documents found</p>
-              <p className="text-slate-400 text-sm mt-2">Connect Google Drive to see files</p>
-            </div>
-          )}
-        </div>
+        <DocumentLibrary onLoadDocuments={loadDocuments} documents={documents} />
       )}
 
       {/* Grant Detail Modal */}
