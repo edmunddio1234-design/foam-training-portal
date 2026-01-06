@@ -58,12 +58,13 @@ const DocumentLibrary: React.FC = () => {
   const [chatLoading, setChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch documents
+  // Fetch documents (including subfolders)
   const fetchDocuments = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/documents`);
+      // Include subfolders to get ALL documents
+      const response = await fetch(`${API_BASE_URL}/api/documents?includeSubfolders=true`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       setDocuments(data.files || []);
