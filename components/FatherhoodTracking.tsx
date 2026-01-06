@@ -1,11 +1,12 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrackerViewState, Father } from '../types';
-import { INITIAL_FATHERS, TRACKER_MODULES } from '../constants';
-import { 
-  LayoutDashboard, Users, CheckSquare, ShieldCheck, Menu, X, Upload, 
-  UserX, FileDown, Briefcase, Calendar, ChevronRight, ArrowLeft 
+import {
+  LayoutDashboard, Users, CheckSquare, ShieldCheck, Menu, X, Upload,
+  UserX, FileDown, Briefcase, Calendar, ChevronRight, ArrowLeft, RefreshCw
 } from 'lucide-react';
+
+// Import API service
+import { fatherhoodApi, Module, Stats } from '../services/fatherhoodApi';
 
 // Sub-component Imports (Simplified for single-file integration)
 import { Dashboard } from './tracking/Dashboard';
@@ -18,153 +19,318 @@ import { FatherIDCard } from './tracking/FatherIDCard';
 import { ExportData } from './tracking/ExportData';
 import { Financials } from './tracking/Financials';
 
-const GOOGLE_SCRIPT_URL = ''; // Placeholder for deployment
-
 interface FatherhoodTrackingProps {
   onBack: () => void;
 }
 
 const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavigateBack }) => {
   const [currentView, setCurrentView] = useState<TrackerViewState>('dashboard');
-  const [fathers, setFathers] = useState<Father[]>(INITIAL_FATHERS);
+  const [fathers, setFathers] = useState<Father[]>([]);
+  const [modules, setModules] = useState<Module[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [selectedFatherId, setSelectedFatherId] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleAttendanceUpdate = async (fatherId: string, moduleId: number, date: string) => {
-    setFathers(prev => prev.map(f => {
-      if (f.id === fatherId) {
-        if (!f.completedModules.includes(moduleId)) {
-          const newModules = [...f.completedModules, moduleId];
-          return {
-            ...f,
-            completedModules: newModules,
-            status: newModules.length === 14 ? 'Graduated' : newModules.length < 2 ? 'At Risk' : 'Active'
-          };
-        }
-      }
-      return f;
-    }));
+  // Load data from API on mount
+  useEffect(() => {
+    loadData();
+  }, []);
 
-    if (GOOGLE_SCRIPT_URL) {
-      try {
-          const payload = {
-              fatherId,
-              moduleId,
-              classDate: date,
-              fatherName: fathers.find(f => f.id === fatherId)?.lastName || 'Unknown',
-              moduleTitle: TRACKER_MODULES.find(m => m.id === moduleId)?.title || 'Unknown'
-          };
-          await fetch(GOOGLE_SCRIPT_URL, {
-              method: 'POST',
-              body: JSON.stringify(payload),
-          });
-      } catch (error) {
-          console.error("Write-back failed:", error);
-      }
+  const loadData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Load all data in parallel
+      const [fathersData, modulesData, statsData] = await Promise.all([
+        fatherhoodApi.getFathers(),
+        fatherhoodApi.getModules(),
+        fatherhoodApi.getStats()
+      ]);
+      
+      setFathers(fathersData);
+      setModules(modulesData);
+      setStats(statsData);
+      console.log(`✅ Loaded ${fathersData.length} fathers from API`);
+    } catch (err) {
+      console.error('❌ Error loading data:', err);
+      setError('Failed to load data. Please check your connection.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleOpenFatherDetail = (id: string) => {
-    setSelectedFatherId(id);
-    setCurrentView('father-detail');
+  // Refresh data
+  const refreshData = async () => {
+    await loadData();
   };
 
-  const handleNavigateHome = () => {
-    setCurrentView('dashboard');
+  // Update a father in the local state (after API call succeeds)
+  const updateFatherInState = (updatedFather: Father) => {
+    setFathers(prev => prev.map(f => f.id === updatedFather.id ? updatedFather : f));
   };
 
-  const NavItem = ({ view, label, icon: Icon }: { view: TrackerViewState, label: string, icon: any }) => (
-    <button
-      onClick={() => {
-        if (view === 'dashboard') handleNavigateHome();
-        else setCurrentView(view);
-        setIsMobileMenuOpen(false);
-      }}
-      className={`flex items-center space-x-3 w-full p-3 rounded-xl transition-all ${
-        currentView === view 
-          ? 'bg-blue-50 text-blue-600 font-bold shadow-sm' 
-          : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
-      }`}
-    >
-      <Icon size={18} />
-      <span className="text-sm">{label}</span>
-    </button>
-  );
+  // Add a father to the local state
+  const addFatherToState = (newFather: Father) => {
+    setFathers(prev => [...prev, newFather]);
+  };
 
-  const selectedFather = fathers.find(f => f.id === selectedFatherId);
+  const selectedFather = fathers.find(f => f.id === selectedFatherId) || null;
+
+  const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'roster', label: 'Father Roster', icon: Users },
+    { id: 'checkin', label: 'Class Check-In', icon: CheckSquare },
+    { id: 'portal', label: 'Father Portal', icon: ShieldCheck },
+    { id: 'import', label: 'Import Data', icon: Upload },
+    { id: 'lost', label: 'Lost to Follow-up', icon: UserX },
+    { id: 'export', label: 'Export Data', icon: FileDown },
+    { id: 'financials', label: 'Financials', icon: Briefcase },
+  ];
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="animate-spin mx-auto text-blue-600 mb-4" size={48} />
+          <p className="text-slate-600 text-lg">Loading Fatherhood Tracker...</p>
+          <p className="text-slate-400 text-sm mt-2">Connecting to database</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+        <div className="text-center bg-white p-8 rounded-xl shadow-lg max-w-md">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <X className="text-red-600" size={32} />
+          </div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Connection Error</h2>
+          <p className="text-slate-600 mb-6">{error}</p>
+          <button
+            onClick={loadData}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all flex items-center gap-2 mx-auto"
+          >
+            <RefreshCw size={18} />
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex h-screen bg-white text-slate-800 overflow-hidden font-sans border border-slate-200 rounded-[2rem] shadow-2xl m-4">
-      {/* Tracker Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 border-r border-slate-100 bg-slate-50 z-20">
-        <div 
-            className="p-8 border-b border-slate-100 bg-white cursor-pointer hover:bg-slate-50 transition-colors group"
-            onClick={handleNavigateHome}
-        >
-          <h1 className="text-lg font-black tracking-tight text-slate-800 leading-tight group-hover:text-blue-600 transition-colors">
-            FOAM Tracker<br/>
-            <span className="text-blue-600 group-hover:text-slate-800">Class Registry</span>
-          </h1>
-          <p className="text-[9px] font-black uppercase text-slate-400 mt-2 tracking-widest">Command Center</p>
+    <div className="min-h-screen bg-slate-100 flex">
+      {/* Sidebar - Desktop */}
+      <aside className="hidden lg:flex flex-col w-64 bg-gradient-to-b from-slate-800 to-slate-900 text-white">
+        {/* Header */}
+        <div className="p-6 border-b border-slate-700">
+          <button 
+            onClick={onNavigateBack}
+            className="flex items-center gap-2 text-slate-400 hover:text-white mb-4 transition-colors"
+          >
+            <ArrowLeft size={18} />
+            <span className="text-sm">Back to Portal</span>
+          </button>
+          <h1 className="text-xl font-bold">Fatherhood Tracker</h1>
+          <p className="text-slate-400 text-sm mt-1">Class Management System</p>
         </div>
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          <p className="px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 mt-4">Admin Suite</p>
-          <NavItem view="dashboard" label="Dashboard" icon={LayoutDashboard} />
-          <NavItem view="roster" label="Roster" icon={Users} />
-          <NavItem view="lost" label="At Risk" icon={UserX} />
-          <NavItem view="checkin" label="Smart Check-In" icon={CheckSquare} />
-          <NavItem view="import" label="Import Data" icon={Upload} />
-          <NavItem view="export" label="Export Data" icon={FileDown} />
-          <NavItem view="financials" label="Resources" icon={Briefcase} />
-          
-          <div className="my-6 border-t border-slate-200"></div>
-          
-          <p className="px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Participant</p>
-          <NavItem view="portal" label="Father Portal" icon={ShieldCheck} />
-          
-          <div className="mt-auto pt-6">
-            <button 
-              onClick={onNavigateBack}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-all border border-slate-200"
-            >
-              <ArrowLeft size={14} /> Back to Hub
-            </button>
-          </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 p-4">
+          <ul className="space-y-1">
+            {menuItems.map(item => {
+              const Icon = item.icon;
+              const isActive = currentView === item.id;
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() => setCurrentView(item.id as TrackerViewState)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                      isActive 
+                        ? 'bg-blue-600 text-white' 
+                        : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                    }`}
+                  >
+                    <Icon size={20} />
+                    <span>{item.label}</span>
+                    {isActive && <ChevronRight size={16} className="ml-auto" />}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </nav>
+
+        {/* Stats Footer */}
+        {stats && (
+          <div className="p-4 border-t border-slate-700">
+            <div className="bg-slate-700/50 rounded-lg p-4">
+              <p className="text-slate-400 text-xs uppercase tracking-wider mb-2">Quick Stats</p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <p className="text-slate-400">Total</p>
+                  <p className="font-bold text-white">{stats.totalFathers}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400">Graduated</p>
+                  <p className="font-bold text-emerald-400">{stats.graduated}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400">Active</p>
+                  <p className="font-bold text-blue-400">{stats.active}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400">At Risk</p>
+                  <p className="font-bold text-amber-400">{stats.atRisk}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Refresh Button */}
+        <div className="p-4 border-t border-slate-700">
+          <button
+            onClick={refreshData}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-all text-sm"
+          >
+            <RefreshCw size={16} />
+            Refresh Data
+          </button>
+        </div>
       </aside>
 
-      {/* Main Tracker Area */}
-      <main className="flex-1 overflow-auto relative bg-white">
-        <div className="p-6 md:p-10 max-w-7xl mx-auto">
-          {currentView === 'dashboard' && (
-            <Dashboard 
-              fathers={fathers} 
-              onSelectFather={handleOpenFatherDetail}
-              onNavigateToPortal={() => setCurrentView('portal')}
-            />
-          )}
-          {currentView === 'roster' && <Roster fathers={fathers} onSelectFather={handleOpenFatherDetail} />}
-          {currentView === 'lost' && <LostManagement fathers={fathers} onSelectFather={handleOpenFatherDetail} />}
-          {currentView === 'checkin' && <CheckIn fathers={fathers} onCheckIn={handleAttendanceUpdate} />}
-          {currentView === 'import' && <ImportCSV onImport={(newFathers) => {
-            setFathers(newFathers);
-            handleNavigateHome();
-          }} />}
-          {currentView === 'export' && <ExportData fathers={fathers} />}
-          {currentView === 'financials' && <Financials onBack={handleNavigateHome} />}
-          {currentView === 'portal' && (
-            <FatherPortal 
-              fathers={fathers} 
-              onBack={handleNavigateHome}
-            />
-          )}
-          {currentView === 'father-detail' && selectedFather && (
-            <FatherIDCard 
-              father={selectedFather} 
-              onBack={handleNavigateHome} 
-            />
-          )}
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-slate-800 text-white p-4 flex items-center justify-between z-50">
+        <div className="flex items-center gap-3">
+          <button onClick={onNavigateBack} className="text-slate-400 hover:text-white">
+            <ArrowLeft size={20} />
+          </button>
+          <h1 className="font-bold">Fatherhood Tracker</h1>
         </div>
+        <button 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2 hover:bg-slate-700 rounded-lg"
+        >
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 bg-slate-800 text-white z-40 pt-16">
+          <nav className="p-4">
+            <ul className="space-y-2">
+              {menuItems.map(item => {
+                const Icon = item.icon;
+                const isActive = currentView === item.id;
+                return (
+                  <li key={item.id}>
+                    <button
+                      onClick={() => {
+                        setCurrentView(item.id as TrackerViewState);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                        isActive 
+                          ? 'bg-blue-600 text-white' 
+                          : 'text-slate-300 hover:bg-slate-700'
+                      }`}
+                    >
+                      <Icon size={20} />
+                      <span>{item.label}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <main className="flex-1 lg:p-8 p-4 pt-20 lg:pt-8 overflow-auto">
+        {currentView === 'dashboard' && (
+          <Dashboard 
+            fathers={fathers} 
+            stats={stats}
+            modules={modules}
+            onRefresh={refreshData}
+          />
+        )}
+        {currentView === 'roster' && (
+          <Roster 
+            fathers={fathers} 
+            modules={modules}
+            onSelectFather={(id) => {
+              setSelectedFatherId(id);
+              setCurrentView('portal');
+            }}
+            onAddFather={addFatherToState}
+            onUpdateFather={updateFatherInState}
+            onRefresh={refreshData}
+          />
+        )}
+        {currentView === 'checkin' && (
+          <CheckIn 
+            fathers={fathers} 
+            modules={modules}
+            onCheckIn={async (fatherId, moduleId) => {
+              const result = await fatherhoodApi.checkIn(fatherId, moduleId);
+              if (result.success && result.data) {
+                updateFatherInState(result.data);
+              }
+              return result;
+            }}
+            onRefresh={refreshData}
+          />
+        )}
+        {currentView === 'portal' && (
+          <FatherPortal 
+            father={selectedFather}
+            fathers={fathers}
+            modules={modules}
+            onSelectFather={setSelectedFatherId}
+            onUpdateFather={updateFatherInState}
+          />
+        )}
+        {currentView === 'import' && (
+          <ImportCSV 
+            onImport={async (newFathers) => {
+              const result = await fatherhoodApi.importFathers(newFathers);
+              if (result.success) {
+                await refreshData();
+              }
+              return result;
+            }}
+          />
+        )}
+        {currentView === 'lost' && (
+          <LostManagement 
+            fathers={fathers.filter(f => f.status === 'At Risk')}
+            modules={modules}
+            onUpdateFather={updateFatherInState}
+          />
+        )}
+        {currentView === 'idcard' && selectedFather && (
+          <FatherIDCard father={selectedFather} modules={modules} />
+        )}
+        {currentView === 'export' && (
+          <ExportData 
+            fathers={fathers}
+            modules={modules}
+            onExport={fatherhoodApi.exportData}
+          />
+        )}
+        {currentView === 'financials' && (
+          <Financials />
+        )}
       </main>
     </div>
   );
