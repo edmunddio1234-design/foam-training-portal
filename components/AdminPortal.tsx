@@ -7,6 +7,7 @@ import {
 } from 'recharts';
 import GrantDashboard from './GrantDashboard';
 import DocumentLibrary from './DocumentLibrary';
+import FinanceDashboard from './FinanceDashboard';
 
 // ===========================================
 // CONFIGURATION - EDIT AUTHORIZED USERS HERE
@@ -82,6 +83,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
   }, [messages]);
 
   const handleCardClick = (view: 'grants' | 'finance' | 'monthly' | 'documents') => {
+    // Finance has its own login, so go directly
+    if (view === 'finance') {
+      setSubView(view);
+      return;
+    }
+    
     if (userEmail) {
       setSubView(view);
       if (view !== 'grants' && view !== 'documents') {
@@ -110,7 +117,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     setLoginEmail('');
     if (pendingView) {
       setSubView(pendingView);
-      if (pendingView !== 'grants' && pendingView !== 'documents') {
+      if (pendingView !== 'grants' && pendingView !== 'documents' && pendingView !== 'finance') {
         loadDashboardData(pendingView);
       }
       setPendingView(null);
@@ -281,7 +288,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
             </div>
           </button>
 
-          {/* Documents - NEW */}
+          {/* Documents */}
           <button onClick={() => handleCardClick('documents')} className="group bg-white p-8 rounded-[2rem] shadow-lg hover:shadow-2xl transition-all text-left border border-slate-100 hover:border-purple-200">
             <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <i className="fas fa-folder-open text-white text-lg"></i>
@@ -333,44 +340,10 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     </div>
   );
 
-  // Finance Dashboard
-  const renderFinanceDashboard = () => {
-    const totalBudget = financeData.reduce((s, f) => s + f.budget, 0);
-    const totalSpent = financeData.reduce((s, f) => s + f.spent, 0);
-    const pieData = financeData.map((f, i) => ({ name: f.category, value: f.spent, color: COLORS[i] }));
-
-    return (
-      <div className="min-h-screen bg-slate-50 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <button onClick={() => setSubView('landing')} className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg text-slate-600 text-sm border">
-            <i className="fas fa-arrow-left"></i>Back
-          </button>
-          <span className="text-emerald-600 font-bold uppercase">Financial Reports</span>
-          <button onClick={onClose} className="p-2 text-slate-400"><i className="fas fa-times"></i></button>
-        </div>
-        
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-6 rounded-2xl border"><p className="text-[9px] font-black text-slate-400 uppercase">Budget</p><p className="text-2xl font-black">${Math.round(totalBudget/1000)}k</p></div>
-          <div className="bg-white p-6 rounded-2xl border"><p className="text-[9px] font-black text-slate-400 uppercase">Spent</p><p className="text-2xl font-black text-emerald-600">${Math.round(totalSpent/1000)}k</p></div>
-          <div className="bg-white p-6 rounded-2xl border"><p className="text-[9px] font-black text-slate-400 uppercase">Balance</p><p className="text-2xl font-black">${Math.round((totalBudget-totalSpent)/1000)}k</p></div>
-          <div className="bg-white p-6 rounded-2xl border"><p className="text-[9px] font-black text-slate-400 uppercase">Burn</p><p className="text-2xl font-black text-rose-600">{Math.round(totalSpent/totalBudget*100)}%</p></div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-2xl border">
-            <p className="text-[9px] font-black text-slate-400 uppercase mb-4">Spending by Category</p>
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart><Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} dataKey="value">{pieData.map((e, i) => <Cell key={i} fill={e.color} />)}</Pie><Tooltip /></PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="bg-[#0F2C5C] p-6 rounded-2xl text-white">
-            <p className="text-[9px] font-black text-indigo-300 uppercase mb-4">AI Narrative</p>
-            <p className="text-sm italic opacity-90">"Budget utilization at {Math.round(totalSpent/totalBudget*100)}%. Personnel costs largest category. Reserve funds healthy."</p>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  // Finance Dashboard - Uses new FinanceDashboard component with its own login
+  const renderFinanceDashboard = () => (
+    <FinanceDashboard />
+  );
 
   // Monthly Dashboard
   const renderMonthlyDashboard = () => {
