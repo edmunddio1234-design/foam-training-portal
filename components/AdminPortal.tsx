@@ -342,7 +342,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
   // Finance Dashboard - Uses new FinanceDashboard component with its own login
   const renderFinanceDashboard = () => (
-    <FinanceDashboard />
+    <FinanceDashboard onClose={() => setSubView('landing')} />
   );
 
   // Monthly Dashboard
