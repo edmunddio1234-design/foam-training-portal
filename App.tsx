@@ -18,8 +18,9 @@ import FinanceDashboard from './components/FinanceDashboard';
 import DatabasePortal from './components/DatabasePortal';
 import AdminPortal from './components/AdminPortal';
 import FatherhoodTracking from './components/FatherhoodTracking';
+import CaseManagerPortal from './components/CaseManagerPortal';
 
-type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'db' | 'finance' | 'manual';
+type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual';
 type FinanceSubView = 'dashboard' | 'exchange' | 'bills';
 
 const App: React.FC = () => {
@@ -90,8 +91,8 @@ const App: React.FC = () => {
     return <Hub onNavigate={(view) => setCurrentView(view)} onLogout={handleLogout} />;
   }
 
-  if (currentView === 'db') {
-    return <div className="h-screen animate-in fade-in duration-500 relative z-0"><DatabasePortal onClose={() => setCurrentView('hub')} /></div>;
+  if (currentView === 'casemanager') {
+    return <div className="h-screen animate-in fade-in duration-500 relative z-0 overflow-y-auto"><CaseManagerPortal /></div>;
   }
 
   if (currentView === 'admin') {
