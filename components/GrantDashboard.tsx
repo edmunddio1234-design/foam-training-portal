@@ -1,617 +1,567 @@
-// ============================================
-// FOAM GRANT DASHBOARD - COMPLETE VERSION
-// ============================================
-// Matches FOAM Command color scheme (navy blue/white)
-// Shows Top 15 sources sorted by requested amount
-// FIXED: Column names match Google Sheet
-// ============================================
-
 import React, { useState, useEffect } from 'react';
 import {
-  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Legend, AreaChart, Area
-} from 'recharts';
-import {
-  Plus, TrendingUp, DollarSign, FileText, Clock, CheckCircle,
-  XCircle, AlertTriangle, Calendar, Mail, User, Target,
-  ChevronDown, ChevronUp, Download, RefreshCw, Search,
-  Edit2, Trash2, Save, X, Building2, Filter
+  ArrowLeft, FileText, DollarSign, Calendar, Search, RefreshCw,
+  AlertTriangle, CheckCircle2, Clock, TrendingUp, X, Filter,
+  PieChart, Building2, ChevronRight, ExternalLink, XCircle,
+  Award, Send, Eye
 } from 'lucide-react';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
 
 interface Grant {
-  _rowIndex: number;
-  Grant_name: string;
-  Grant_source: string;
-  Purpose: string;
-  Contact_person: string;
-  Contact_email: string;
-  Application_deadline: string;
-  Submission_date: string;
-  Amount_requested: string | number;
-  Amount_approved: string | number;
-  Date_decision_made: string;
-  Grant_cycle: string;
-  Grant_reporting_schedule: string;
-  Grant_status: string;  // This is the actual column name in your sheet
-  Notification: string;
-  Submission_year: string;
-  Funder_Type: string;
+  id: number;
+  grantname: string;
+  grantsource: string;
+  purpose: string;
+  contactperson: string;
+  contactemail: string;
+  applicationdeadline: string;
+  submissiondate: string;
+  amountrequested: string;
+  amountapproved: string;
+  grantstatus: string;
+  fundertype: string;
+  submissionyear: string;
+  [key: string]: any;
 }
 
-interface Summary {
-  totalGrants: number;
-  awarded: number;
-  pending: number;
-  denied: number;
+interface ActionItem {
+  id: number;
+  priority: string;
+  action: string;
+  deadline: string;
+  status: string;
+}
+
+interface GrantStats {
+  total: number;
   totalRequested: number;
   totalApproved: number;
+  statusCounts: Record<string, number>;
+  funderTypes: Record<string, number>;
+  upcomingDeadlines: any[];
+  actionItems: ActionItem[];
 }
 
-// Helper function to parse currency strings like "$200,000" to numbers
-const parseCurrency = (value: string | number | undefined): number => {
-  if (value === undefined || value === null || value === '') return 0;
-  if (typeof value === 'number') return value;
-  // Remove $, commas, and any whitespace, then parse
-  const cleaned = value.toString().replace(/[$,\s]/g, '');
-  const parsed = parseFloat(cleaned);
-  return isNaN(parsed) ? 0 : parsed;
-};
+interface GrantDashboardProps {
+  onBack: () => void;
+}
 
-// Helper to get status - checks both Grant_status and Grant_Awarded for compatibility
-const getGrantStatus = (grant: any): string => {
-  return grant.Grant_status || grant.Grant_Awarded || 'Unknown';
-};
+type TabType = 'dashboard' | 'all' | 'approved' | 'pending' | 'denied';
 
-const GrantDashboard: React.FC = () => {
+const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [grants, setGrants] = useState<Grant[]>([]);
-  const [summary, setSummary] = useState<Summary | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<GrantStats | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [editingGrant, setEditingGrant] = useState<Grant | null>(null);
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [expandedGrant, setExpandedGrant] = useState<number | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedGrant, setSelectedGrant] = useState<Grant | null>(null);
 
-  const [newGrant, setNewGrant] = useState({
-    Grant_name: '', Grant_source: '', Purpose: '', Contact_person: '',
-    Contact_email: '', Application_deadline: '', Submission_date: '',
-    Amount_requested: '', Amount_approved: '', Date_decision_made: '',
-    Grant_cycle: 'FY2025', Grant_reporting_schedule: '', Grant_status: 'Pending'
-  });
+  // Load data on mount
+  useEffect(() => {
+    loadData();
+  }, []);
 
-  const fetchGrants = async () => {
-    setLoading(true);
+  const loadData = async () => {
+    setIsLoading(true);
     setError(null);
+
     try {
-      const response = await fetch(`${API_BASE_URL}/api/grants`);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const data = await response.json();
-      console.log('Grants data:', data);
-      // Debug: Log all deadlines to see what formats exist
-      console.log('All deadlines:', data.grants?.map((g: any) => ({
-        name: g.Grant_name,
-        deadline: g.Application_deadline,
-        status: g.Grant_status
-      })).filter((g: any) => g.deadline));
-      setGrants(data.grants || []);
-      setSummary(data.summary || null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load grants');
+      const [grantsRes, statsRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/grants`),
+        fetch(`${API_BASE_URL}/api/grants/stats`)
+      ]);
+
+      if (!grantsRes.ok || !statsRes.ok) {
+        throw new Error(`HTTP error! status: ${grantsRes.status}`);
+      }
+
+      const grantsData = await grantsRes.json();
+      const statsData = await statsRes.json();
+
+      console.log('Grants data:', grantsData);
+      console.log('Stats data:', statsData);
+
+      if (grantsData.success) {
+        setGrants(grantsData.data);
+      }
+      if (statsData.success) {
+        setStats(statsData.data);
+      }
+    } catch (err: any) {
+      console.error('Error loading data:', err);
+      setError(err.message || 'Failed to load grant data');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  useEffect(() => { fetchGrants(); }, []);
-
-  const handleAddGrant = async () => {
-    setSaving(true);
-    try {
-      const grantToAdd = { ...newGrant,
-        Amount_requested: parseFloat(newGrant.Amount_requested) || 0,
-        Amount_approved: parseFloat(newGrant.Amount_approved) || 0,
-      };
-      const response = await fetch(`${API_BASE_URL}/api/grants`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(grantToAdd)
-      });
-      if (!response.ok) throw new Error('Failed to add grant');
-      setNewGrant({ Grant_name: '', Grant_source: '', Purpose: '', Contact_person: '',
-        Contact_email: '', Application_deadline: '', Submission_date: '',
-        Amount_requested: '', Amount_approved: '', Date_decision_made: '',
-        Grant_cycle: 'FY2025', Grant_reporting_schedule: '', Grant_status: 'Pending' });
-      setShowAddForm(false);
-      fetchGrants();
-    } catch (err) {
-      alert('Failed to add grant. Please try again.');
-    } finally {
-      setSaving(false);
-    }
+  const formatCurrency = (value: string | number | undefined) => {
+    if (!value) return '$0';
+    const num = typeof value === 'string' 
+      ? parseFloat(value.replace(/[$,]/g, '')) 
+      : value;
+    if (isNaN(num)) return '$0';
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
   };
-
-  const handleUpdateGrant = async () => {
-    if (!editingGrant) return;
-    setSaving(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/grants/${editingGrant._rowIndex}`, {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingGrant)
-      });
-      if (!response.ok) throw new Error('Failed to update grant');
-      setEditingGrant(null);
-      fetchGrants();
-    } catch (err) {
-      alert('Failed to update grant. Please try again.');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDeleteGrant = async (grant: Grant) => {
-    if (!confirm(`Are you sure you want to delete "${grant.Grant_name}"?`)) return;
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/grants/${grant._rowIndex}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete grant');
-      fetchGrants();
-    } catch (err) {
-      alert('Failed to delete grant. Please try again.');
-    }
-  };
-
-  // Calculate stats with proper currency parsing
-  const stats = summary || {
-    totalGrants: grants.length,
-    awarded: grants.filter(g => {
-      const status = getGrantStatus(g);
-      return status === 'Awarded' || status === 'Approved' || status === 'Yes';
-    }).length,
-    pending: grants.filter(g => {
-      const status = getGrantStatus(g);
-      return status === 'Pending' || status === '';
-    }).length,
-    denied: grants.filter(g => {
-      const status = getGrantStatus(g);
-      return status === 'Denied' || status === 'No' || status === 'Rejected';
-    }).length,
-    totalRequested: grants.reduce((sum, g) => sum + parseCurrency(g.Amount_requested), 0),
-    totalApproved: grants.reduce((sum, g) => sum + parseCurrency(g.Amount_approved), 0),
-  };
-
-  const notSubmitted = grants.filter(g => {
-    const status = getGrantStatus(g);
-    return status === 'Not Submitted' || status === '' || !g.Submission_date;
-  }).length;
-  
-  const successRate = (stats.awarded + stats.denied) > 0 
-    ? (stats.awarded / (stats.awarded + stats.denied) * 100) 
-    : 0;
-
-  const statusData = [
-    { name: 'Awarded', value: stats.awarded, color: '#10B981' },
-    { name: 'Pending', value: stats.pending, color: '#F59E0B' },
-    { name: 'Denied', value: stats.denied, color: '#EF4444' },
-    { name: 'Not Submitted', value: notSubmitted, color: '#6B7280' },
-  ].filter(d => d.value > 0);
-
-  // Calculate funding by source with proper currency parsing
-  const fundingBySource = grants.reduce((acc, grant) => {
-    const source = grant.Grant_source || 'Unknown';
-    if (!acc[source]) acc[source] = { name: source, requested: 0, approved: 0, count: 0 };
-    acc[source].requested += parseCurrency(grant.Amount_requested);
-    acc[source].approved += parseCurrency(grant.Amount_approved);
-    acc[source].count += 1;
-    return acc;
-  }, {} as Record<string, { name: string; requested: number; approved: number; count: number }>);
-
-  // TOP 15, SORTED BY REQUESTED
-  const fundingData = Object.values(fundingBySource).sort((a, b) => b.requested - a.requested).slice(0, 15);
-
-  // Helper function to parse various date formats
-  const parseDeadlineDate = (dateStr: string): Date | null => {
-    if (!dateStr) return null;
-    
-    const cleaned = String(dateStr).trim();
-    if (!cleaned || cleaned === 'N/A' || cleaned === 'TBD' || 
-        cleaned === 'Rolling' || cleaned === 'Ongoing' || 
-        cleaned === 'null' || cleaned === 'undefined') return null;
-    
-    // Try standard parsing first
-    let date = new Date(cleaned);
-    if (!isNaN(date.getTime())) return date;
-    
-    // Try MM/DD/YYYY format
-    const mmddyyyy = cleaned.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-    if (mmddyyyy) {
-      date = new Date(parseInt(mmddyyyy[3]), parseInt(mmddyyyy[1]) - 1, parseInt(mmddyyyy[2]));
-      if (!isNaN(date.getTime())) return date;
-    }
-    
-    // Try DD/MM/YYYY format
-    const ddmmyyyy = cleaned.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
-    if (ddmmyyyy) {
-      date = new Date(parseInt(ddmmyyyy[3]), parseInt(ddmmyyyy[2]) - 1, parseInt(ddmmyyyy[1]));
-      if (!isNaN(date.getTime())) return date;
-    }
-    
-    return null;
-  };
-
-  // Get ALL grants with future deadlines (regardless of status)
-  const upcomingDeadlines = grants
-    .filter(g => {
-      // Check if deadline exists
-      if (!g.Application_deadline) return false;
-      
-      const deadline = parseDeadlineDate(g.Application_deadline);
-      if (!deadline) return false;
-      
-      // Check if deadline is in the future (or today)
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      deadline.setHours(0, 0, 0, 0);
-      
-      // Include today and future dates
-      if (deadline < today) return false;
-      
-      // Get status - exclude already completed/denied grants
-      const status = getGrantStatus(g);
-      const excludeStatuses = ['Denied', 'No', 'Rejected', 'Closed', 'Completed'];
-      if (excludeStatuses.includes(status)) return false;
-      
-      return true;
-    })
-    .sort((a, b) => {
-      const dateA = parseDeadlineDate(a.Application_deadline);
-      const dateB = parseDeadlineDate(b.Application_deadline);
-      return (dateA?.getTime() || 0) - (dateB?.getTime() || 0);
-    })
-    .slice(0, 5);
-  
-  // Debug logging
-  console.log('Upcoming deadlines found:', upcomingDeadlines.length);
-  console.log('Deadline details:', upcomingDeadlines.map(g => ({
-    name: g.Grant_name,
-    deadline: g.Application_deadline,
-    status: getGrantStatus(g)
-  })));
-
-  const filteredGrants = grants.filter(g => {
-    const status = getGrantStatus(g);
-    if (activeFilter !== 'all') {
-      if (activeFilter === 'awarded' && status !== 'Awarded' && status !== 'Approved' && status !== 'Yes') return false;
-      if (activeFilter === 'pending' && status !== 'Pending' && status !== '') return false;
-      if (activeFilter === 'denied' && status !== 'Denied' && status !== 'No' && status !== 'Rejected') return false;
-    }
-    if (searchTerm) {
-      const search = searchTerm.toLowerCase();
-      return g.Grant_name?.toLowerCase().includes(search) || g.Grant_source?.toLowerCase().includes(search) || g.Purpose?.toLowerCase().includes(search);
-    }
-    return true;
-  });
-
-  const formatCurrency = (value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
 
   const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'Yes': case 'Awarded': case 'Approved': return 'bg-emerald-100 text-emerald-700 border-emerald-300';
-      case 'Pending': case '': return 'bg-amber-100 text-amber-700 border-amber-300';
-      case 'Denied': case 'No': case 'Rejected': return 'bg-red-100 text-red-700 border-red-300';
-      default: return 'bg-slate-100 text-slate-700 border-slate-300';
+    const s = status?.toLowerCase() || '';
+    if (s.includes('approved') || s.includes('awarded')) return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+    if (s.includes('pending') || s.includes('submitted')) return 'bg-amber-100 text-amber-700 border-amber-200';
+    if (s.includes('denied') || s.includes('rejected')) return 'bg-red-100 text-red-700 border-red-200';
+    return 'bg-slate-100 text-slate-700 border-slate-200';
+  };
+
+  const getPriorityColor = (priority: string) => {
+    const p = priority?.toUpperCase() || '';
+    if (p === 'HIGH') return 'bg-red-100 text-red-700';
+    if (p === 'MEDIUM') return 'bg-amber-100 text-amber-700';
+    return 'bg-blue-100 text-blue-700';
+  };
+
+  // Filter grants based on active tab
+  const getFilteredGrants = () => {
+    let filtered = grants;
+    
+    // Filter by tab
+    if (activeTab === 'approved') {
+      filtered = grants.filter(g => 
+        g.grantstatus?.toLowerCase().includes('approved') || 
+        g.grantstatus?.toLowerCase().includes('awarded')
+      );
+    } else if (activeTab === 'pending') {
+      filtered = grants.filter(g => 
+        g.grantstatus?.toLowerCase().includes('pending') || 
+        g.grantstatus?.toLowerCase().includes('submitted') ||
+        g.grantstatus?.toLowerCase().includes('to submit')
+      );
+    } else if (activeTab === 'denied') {
+      filtered = grants.filter(g => 
+        g.grantstatus?.toLowerCase().includes('denied') || 
+        g.grantstatus?.toLowerCase().includes('rejected')
+      );
     }
-  };
 
-  const getStatusIcon = (status: string) => {
-    switch(status) {
-      case 'Yes': case 'Awarded': case 'Approved': return <CheckCircle className="w-4 h-4" />;
-      case 'Pending': case '': return <Clock className="w-4 h-4" />;
-      case 'Denied': case 'No': case 'Rejected': return <XCircle className="w-4 h-4" />;
-      default: return <FileText className="w-4 h-4" />;
+    // Filter by search
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(g => 
+        g.grantname?.toLowerCase().includes(query) ||
+        g.grantsource?.toLowerCase().includes(query) ||
+        g.purpose?.toLowerCase().includes(query)
+      );
     }
+
+    return filtered;
   };
 
-  const getDaysUntil = (dateStr: string) => {
-    if (!dateStr) return 999;
-    const date = new Date(dateStr);
-    return Math.ceil((date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-  };
+  const filteredGrants = getFilteredGrants();
 
-  if (loading) return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin" />
-        <p className="text-slate-600 font-bold">Loading grant data...</p>
-      </div>
-    </div>
-  );
+  // Count grants by status for tabs
+  const approvedCount = grants.filter(g => 
+    g.grantstatus?.toLowerCase().includes('approved') || 
+    g.grantstatus?.toLowerCase().includes('awarded')
+  ).length;
+  
+  const pendingCount = grants.filter(g => 
+    g.grantstatus?.toLowerCase().includes('pending') || 
+    g.grantstatus?.toLowerCase().includes('submitted') ||
+    g.grantstatus?.toLowerCase().includes('to submit')
+  ).length;
+  
+  const deniedCount = grants.filter(g => 
+    g.grantstatus?.toLowerCase().includes('denied') || 
+    g.grantstatus?.toLowerCase().includes('rejected')
+  ).length;
 
-  if (error) return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <div className="bg-white border border-red-200 rounded-2xl p-8 max-w-md text-center shadow-lg">
-        <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <h2 className="text-xl font-black text-slate-800 mb-2">Failed to Load Data</h2>
-        <p className="text-slate-500 mb-4">{error}</p>
-        <button onClick={fetchGrants} className="px-6 py-3 bg-[#0F2C5C] hover:bg-slate-800 text-white rounded-xl font-bold">Try Again</button>
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="animate-spin mx-auto text-blue-600 mb-4" size={48} />
+          <p className="text-slate-600 text-lg">Loading Grant Dashboard...</p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+        <div className="text-center bg-white p-8 rounded-xl shadow-lg max-w-md">
+          <XCircle className="mx-auto text-red-500 mb-4" size={48} />
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Failed to Load Data</h2>
+          <p className="text-slate-600 mb-6">{error}</p>
+          <button
+            onClick={loadData}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center gap-2 mx-auto"
+          >
+            <RefreshCw size={18} />
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
+    <div className="min-h-screen bg-slate-100">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Grant Management Dashboard</h1>
-          <p className="text-slate-500 text-sm font-medium mt-1">Real-time data from Google Sheets • {grants.length} grants loaded</p>
-        </div>
-        <div className="flex gap-3">
-          <button onClick={fetchGrants} className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest">
-            <RefreshCw className="w-4 h-4" /> Refresh
-          </button>
-          <button onClick={() => setShowAddForm(true)} className="flex items-center gap-2 px-4 py-2 bg-[#0F2C5C] hover:bg-slate-800 text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg">
-            <Plus className="w-4 h-4" /> Add Grant
-          </button>
-        </div>
-      </div>
+      <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={onBack}
+                className="p-2 hover:bg-white/10 rounded-lg transition-all"
+              >
+                <ArrowLeft size={24} />
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold">Grant Management</h1>
+                <p className="text-slate-300">Real-time data from Google Sheets • {grants.length} grants loaded</p>
+              </div>
+            </div>
+            <button
+              onClick={loadData}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-all"
+            >
+              <RefreshCw size={18} />
+              Refresh
+            </button>
+          </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-2xl p-6 border border-slate-100">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center"><FileText className="w-6 h-6 text-indigo-600" /></div>
-            <div>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Grants</p>
-              <p className="text-2xl font-black text-slate-800">{stats.totalGrants}</p>
-              <p className="text-[9px] font-bold text-emerald-500">{stats.awarded} Awarded</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl p-6 border border-slate-100">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center"><Target className="w-6 h-6 text-amber-600" /></div>
-            <div>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Requested</p>
-              <p className="text-2xl font-black text-slate-800">{formatCurrency(stats.totalRequested)}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl p-6 border border-slate-100">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center"><DollarSign className="w-6 h-6 text-emerald-600" /></div>
-            <div>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Approved</p>
-              <p className="text-2xl font-black text-emerald-600">{formatCurrency(stats.totalApproved)}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl p-6 border border-slate-100">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center"><TrendingUp className="w-6 h-6 text-rose-600" /></div>
-            <div>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Success Rate</p>
-              <p className="text-2xl font-black text-slate-800">{successRate.toFixed(0)}%</p>
-              <p className="text-[9px] font-bold text-amber-500">{stats.pending} Pending</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-2xl p-6 border border-slate-100">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Status Distribution</p>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart><Pie data={statusData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={4} dataKey="value">
-              {statusData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
-            </Pie><Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} /></PieChart>
-          </ResponsiveContainer>
-          <div className="flex flex-wrap gap-3 justify-center mt-2">
-            {statusData.map((item, i) => <div key={i} className="flex items-center gap-2"><div className="w-3 h-3 rounded-full" style={{ background: item.color }}></div><span className="text-xs font-bold text-slate-600">{item.name}: {item.value}</span></div>)}
-          </div>
-        </div>
-        <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-100">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Funding by Source (Top 15)</p>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={fundingData} layout="vertical" barGap={4}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" horizontal={false} />
-              <XAxis type="number" tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} stroke="#94A3B8" tick={{ fontSize: 10 }} />
-              <YAxis type="category" dataKey="name" width={130} stroke="#94A3B8" tick={{ fontSize: 10 }} />
-              <Tooltip formatter={(value: number) => formatCurrency(value)} contentStyle={{ borderRadius: '12px', border: 'none' }} />
-              <Legend />
-              <Bar dataKey="approved" fill="#10B981" radius={[0, 4, 4, 0]} name="Approved" />
-              <Bar dataKey="requested" fill="#4F46E5" radius={[0, 4, 4, 0]} name="Requested" opacity={0.4} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Deadlines & AI Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-2xl p-6 border border-slate-100">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-4 flex items-center gap-2"><Calendar className="w-4 h-4 text-rose-500" />Upcoming Deadlines</p>
-          <div className="space-y-3">
-            {upcomingDeadlines.length === 0 ? <p className="text-slate-400 text-sm text-center py-8">No upcoming deadlines</p> :
-              upcomingDeadlines.map((grant, i) => {
-                const daysUntil = getDaysUntil(grant.Application_deadline);
-                const isUrgent = daysUntil <= 14;
-                return (
-                  <div key={i} className={`p-4 rounded-xl border ${isUrgent ? 'bg-rose-50 border-rose-200' : 'bg-slate-50 border-slate-200'}`}>
-                    <div className="flex items-start justify-between">
-                      <div><p className="font-bold text-sm text-slate-800">{grant.Grant_name}</p><p className="text-xs text-slate-500">{grant.Grant_source}</p></div>
-                      <span className={`text-xs font-black px-2 py-1 rounded-full ${isUrgent ? 'bg-rose-200 text-rose-700' : 'bg-slate-200 text-slate-600'}`}>{daysUntil}d</span>
-                    </div>
-                  </div>
-                );
-              })
-            }
-          </div>
-        </div>
-        <div className="lg:col-span-2 bg-[#0F2C5C] rounded-2xl p-6 text-white relative overflow-hidden">
-          <div className="absolute -right-10 -bottom-10 opacity-10"><TrendingUp className="w-48 h-48" /></div>
-          <div className="relative z-10">
-            <p className="text-[9px] font-black text-indigo-300 uppercase tracking-[0.3em] mb-4">Grant AI Narrative</p>
-            <p className="text-sm font-medium leading-relaxed opacity-90 italic">
-              "You have {stats.totalGrants} grants in your pipeline with {formatCurrency(stats.totalRequested)} requested.
-              {stats.pending > 0 && ` ${stats.pending} grants are pending decision.`}
-              {upcomingDeadlines.length > 0 && ` Next deadline: ${upcomingDeadlines[0]?.Grant_name} in ${getDaysUntil(upcomingDeadlines[0]?.Application_deadline)} days.`}
-              {successRate > 50 ? ' Your success rate is strong!' : ' Consider strengthening your application narratives.'}"
-            </p>
-            <div className="mt-4 flex items-center gap-2"><div className="w-2 h-2 bg-emerald-400 rounded-full"></div><span className="text-[9px] font-black uppercase tracking-widest">Strategy Engine Verified</span></div>
-          </div>
-        </div>
-      </div>
-
-      {/* Grants Table */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-100">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-2"><FileText className="w-4 h-4 text-indigo-600" />All Grants ({filteredGrants.length})</p>
-          <div className="flex flex-wrap gap-3">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-              <input type="text" placeholder="Search grants..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:border-indigo-500 w-48" />
-            </div>
-            <div className="flex gap-2">
-              {['all', 'awarded', 'pending', 'denied'].map(filter => (
-                <button key={filter} onClick={() => setActiveFilter(filter)}
-                  className={`px-3 py-2 text-xs font-black uppercase tracking-widest rounded-xl capitalize ${activeFilter === filter ? 'bg-[#0F2C5C] text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>{filter}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="space-y-2 max-h-[500px] overflow-y-auto">
-          {filteredGrants.length === 0 ? <div className="text-center py-12 text-slate-400">No grants found</div> :
-            filteredGrants.map((grant, index) => {
-              const status = getGrantStatus(grant);
-              const requested = parseCurrency(grant.Amount_requested);
-              const approved = parseCurrency(grant.Amount_approved);
+          {/* Tabs */}
+          <div className="flex gap-2 flex-wrap">
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: PieChart, count: null },
+              { id: 'all', label: 'All Grants', icon: FileText, count: grants.length },
+              { id: 'approved', label: 'Approved', icon: CheckCircle2, count: approvedCount },
+              { id: 'pending', label: 'Pending', icon: Clock, count: pendingCount },
+              { id: 'denied', label: 'Denied', icon: XCircle, count: deniedCount },
+            ].map(tab => {
+              const Icon = tab.icon;
               return (
-                <div key={grant._rowIndex || index} className="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden hover:border-slate-300">
-                  <div className="p-4 cursor-pointer" onClick={() => setExpandedGrant(expandedGrant === (grant._rowIndex || index) ? null : (grant._rowIndex || index))}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg border ${getStatusColor(status)}`}>{getStatusIcon(status)}</div>
-                        <div><p className="font-bold text-slate-800">{grant.Grant_name}</p><p className="text-sm text-slate-500">{grant.Grant_source}</p></div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className="font-black text-emerald-600">{formatCurrency(approved)}</p>
-                          <p className="text-xs text-slate-400">of {formatCurrency(requested)}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button onClick={(e) => { e.stopPropagation(); setEditingGrant(grant); }} className="p-2 hover:bg-slate-200 rounded-lg"><Edit2 className="w-4 h-4 text-slate-400" /></button>
-                          <button onClick={(e) => { e.stopPropagation(); handleDeleteGrant(grant); }} className="p-2 hover:bg-rose-100 rounded-lg"><Trash2 className="w-4 h-4 text-rose-400" /></button>
-                          {expandedGrant === (grant._rowIndex || index) ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {expandedGrant === (grant._rowIndex || index) && (
-                    <div className="px-4 pb-4 pt-2 border-t border-slate-200 bg-white">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-slate-500">
-                        <div className="flex items-center gap-2"><Target className="w-4 h-4" /><span className="truncate">{grant.Purpose || 'N/A'}</span></div>
-                        <div className="flex items-center gap-2"><User className="w-4 h-4" /><span>{grant.Contact_person || 'N/A'}</span></div>
-                        <div className="flex items-center gap-2"><Mail className="w-4 h-4" /><span className="truncate">{grant.Contact_email || 'N/A'}</span></div>
-                        <div className="flex items-center gap-2"><Calendar className="w-4 h-4" /><span>Deadline: {grant.Application_deadline || 'N/A'}</span></div>
-                      </div>
-                    </div>
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as TabType)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                    activeTab === tab.id
+                      ? 'bg-white text-slate-800'
+                      : 'bg-white/10 text-white hover:bg-white/20'
+                  }`}
+                >
+                  <Icon size={18} />
+                  {tab.label}
+                  {tab.count !== null && (
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${
+                      activeTab === tab.id ? 'bg-blue-100 text-blue-700' : 'bg-white/20'
+                    }`}>
+                      {tab.count}
+                    </span>
                   )}
-                </div>
+                </button>
               );
-            })
-          }
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Add Modal */}
-      {showAddForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="p-6 border-b border-slate-200 flex items-center justify-between">
-              <div><h2 className="text-xl font-black text-slate-800 flex items-center gap-2"><Plus className="w-5 h-5 text-indigo-600" />Add New Grant</h2>
-              <p className="text-slate-500 text-sm mt-1">Saves directly to Google Sheet</p></div>
-              <button onClick={() => setShowAddForm(false)} className="p-2 hover:bg-slate-100 rounded-lg"><X className="w-5 h-5 text-slate-400" /></button>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto p-6">
+        {/* DASHBOARD TAB */}
+        {activeTab === 'dashboard' && stats && (
+          <div className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <FileText className="text-blue-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-slate-500 text-sm">Total Grants</p>
+                    <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                    <DollarSign className="text-amber-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-slate-500 text-sm">Total Requested</p>
+                    <p className="text-2xl font-bold text-slate-800">{formatCurrency(stats.totalRequested)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <CheckCircle2 className="text-emerald-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-slate-500 text-sm">Total Approved</p>
+                    <p className="text-2xl font-bold text-emerald-600">{formatCurrency(stats.totalApproved)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <TrendingUp className="text-purple-600" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-slate-500 text-sm">Success Rate</p>
+                    <p className="text-2xl font-bold text-purple-600">
+                      {stats.totalRequested > 0 
+                        ? Math.round((stats.totalApproved / stats.totalRequested) * 100) 
+                        : 0}%
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Grant Name *</label>
-                <input type="text" value={newGrant.Grant_name} onChange={(e) => setNewGrant({...newGrant, Grant_name: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" placeholder="e.g., LCTF Grant" /></div>
-                <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Grant Source *</label>
-                <input type="text" value={newGrant.Grant_source} onChange={(e) => setNewGrant({...newGrant, Grant_source: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" placeholder="e.g., Louisiana DCFS" /></div>
+
+            {/* Status Breakdown & Action Items */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Status Breakdown */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                  <PieChart size={20} className="text-blue-600" />
+                  Grant Status Breakdown
+                </h3>
+                <div className="space-y-3">
+                  {Object.entries(stats.statusCounts).map(([status, count]) => (
+                    <div key={status} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(status)}`}>
+                        {status || 'Unknown'}
+                      </span>
+                      <span className="font-bold text-slate-800">{count}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Purpose</label>
-              <input type="text" value={newGrant.Purpose} onChange={(e) => setNewGrant({...newGrant, Purpose: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" placeholder="e.g., Fatherhood mentorship services" /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Amount Requested ($)</label>
-                <input type="number" value={newGrant.Amount_requested} onChange={(e) => setNewGrant({...newGrant, Amount_requested: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" placeholder="50000" /></div>
-                <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Amount Approved ($)</label>
-                <input type="number" value={newGrant.Amount_approved} onChange={(e) => setNewGrant({...newGrant, Amount_approved: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" placeholder="Leave blank if pending" /></div>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Deadline</label>
-                <input type="date" value={newGrant.Application_deadline} onChange={(e) => setNewGrant({...newGrant, Application_deadline: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" /></div>
-                <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Cycle</label>
-                <input type="text" value={newGrant.Grant_cycle} onChange={(e) => setNewGrant({...newGrant, Grant_cycle: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" placeholder="FY2025" /></div>
-                <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Status</label>
-                <select value={newGrant.Grant_status} onChange={(e) => setNewGrant({...newGrant, Grant_status: e.target.value})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500">
-                  <option value="Pending">Pending</option><option value="Awarded">Awarded</option><option value="Denied">Denied</option><option value="Not Submitted">Not Submitted</option>
-                </select></div>
+
+              {/* Action Items */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                  <AlertTriangle size={20} className="text-amber-500" />
+                  Action Items
+                </h3>
+                {stats.actionItems && stats.actionItems.length > 0 ? (
+                  <div className="space-y-3 max-h-72 overflow-y-auto">
+                    {stats.actionItems.map((item) => (
+                      <div key={item.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1">
+                            <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold mb-2 ${getPriorityColor(item.priority)}`}>
+                              {item.priority}
+                            </span>
+                            <p className="text-sm text-slate-800 font-medium">{item.action}</p>
+                            <p className="text-xs text-slate-500 mt-1">Due: {item.deadline}</p>
+                          </div>
+                          <span className={`text-xs px-2 py-1 rounded font-medium ${
+                            item.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
+                            item.status === 'Monitoring' ? 'bg-blue-100 text-blue-700' :
+                            'bg-slate-100 text-slate-600'
+                          }`}>
+                            {item.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-400 text-center py-8">No action items found</p>
+                )}
               </div>
             </div>
-            <div className="p-6 border-t border-slate-200 flex gap-3 justify-end">
-              <button onClick={() => setShowAddForm(false)} className="px-6 py-3 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-slate-600">Cancel</button>
-              <button onClick={handleAddGrant} disabled={!newGrant.Grant_name || !newGrant.Grant_source || saving}
-                className="px-6 py-3 bg-[#0F2C5C] hover:bg-slate-800 text-white rounded-xl font-bold disabled:opacity-50 flex items-center gap-2">
-                {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}{saving ? 'Saving...' : 'Add Grant'}
-              </button>
+
+            {/* Funder Types */}
+            {stats.funderTypes && Object.keys(stats.funderTypes).length > 0 && (
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                  <Building2 size={20} className="text-blue-600" />
+                  Grants by Funder Type
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {Object.entries(stats.funderTypes).map(([type, count]) => (
+                    <div key={type} className="bg-gradient-to-br from-blue-50 to-slate-50 rounded-xl p-4 text-center border border-slate-200">
+                      <p className="text-2xl font-bold text-blue-600">{count}</p>
+                      <p className="text-sm text-slate-600">{type || 'Other'}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* GRANTS LIST TABS (All, Approved, Pending, Denied) */}
+        {activeTab !== 'dashboard' && (
+          <div className="space-y-4">
+            {/* Search */}
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search grants by name, source, or purpose..."
+                  className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
+                />
+              </div>
+            </div>
+
+            {/* Results count */}
+            <p className="text-slate-500">
+              Showing {filteredGrants.length} grant{filteredGrants.length !== 1 ? 's' : ''}
+              {searchQuery && ` matching "${searchQuery}"`}
+            </p>
+
+            {/* Grants List */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              {filteredGrants.length > 0 ? (
+                <div className="divide-y divide-slate-100">
+                  {filteredGrants.map((grant) => (
+                    <div 
+                      key={grant.id} 
+                      className="p-4 hover:bg-slate-50 cursor-pointer transition-all"
+                      onClick={() => setSelectedGrant(grant)}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-bold text-slate-800 truncate">{grant.grantname || 'Unnamed Grant'}</h3>
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium border shrink-0 ${getStatusColor(grant.grantstatus)}`}>
+                              {grant.grantstatus || 'Unknown'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-slate-600 truncate">{grant.grantsource}</p>
+                          <p className="text-xs text-slate-400 mt-1">{grant.purpose}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-sm text-slate-500">Requested</p>
+                          <p className="font-bold text-slate-800">{formatCurrency(grant.amountrequested)}</p>
+                          {grant.amountapproved && parseFloat(grant.amountapproved.toString().replace(/[$,]/g, '')) > 0 && (
+                            <>
+                              <p className="text-xs text-slate-400 mt-1">Approved</p>
+                              <p className="font-bold text-emerald-600">{formatCurrency(grant.amountapproved)}</p>
+                            </>
+                          )}
+                        </div>
+                        <ChevronRight className="text-slate-300 shrink-0" size={20} />
+                      </div>
+                      {grant.applicationdeadline && (
+                        <div className="mt-2 flex items-center gap-2 text-xs text-slate-400">
+                          <Calendar size={12} />
+                          Deadline: {grant.applicationdeadline}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <FileText className="mx-auto text-slate-300 mb-4" size={48} />
+                  <p className="text-slate-500">No grants found</p>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Edit Modal */}
-      {editingGrant && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="p-6 border-b border-slate-200 flex items-center justify-between">
-              <h2 className="text-xl font-black text-slate-800 flex items-center gap-2"><Edit2 className="w-5 h-5 text-indigo-600" />Edit Grant</h2>
-              <button onClick={() => setEditingGrant(null)} className="p-2 hover:bg-slate-100 rounded-lg"><X className="w-5 h-5 text-slate-400" /></button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Grant Name</label>
-              <input type="text" value={editingGrant.Grant_name} onChange={(e) => setEditingGrant({...editingGrant, Grant_name: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Amount Requested</label>
-                <input type="number" value={parseCurrency(editingGrant.Amount_requested)} onChange={(e) => setEditingGrant({...editingGrant, Amount_requested: parseFloat(e.target.value) || 0})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" /></div>
-                <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Amount Approved</label>
-                <input type="number" value={parseCurrency(editingGrant.Amount_approved)} onChange={(e) => setEditingGrant({...editingGrant, Amount_approved: parseFloat(e.target.value) || 0})}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500" /></div>
-              </div>
-              <div><label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Status</label>
-              <select value={getGrantStatus(editingGrant)} onChange={(e) => setEditingGrant({...editingGrant, Grant_status: e.target.value})}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-medium focus:outline-none focus:border-indigo-500">
-                <option value="Pending">Pending</option><option value="Awarded">Awarded</option><option value="Approved">Approved</option><option value="Denied">Denied</option><option value="Not Submitted">Not Submitted</option>
-              </select></div>
-            </div>
-            <div className="p-6 border-t border-slate-200 flex gap-3 justify-end">
-              <button onClick={() => setEditingGrant(null)} className="px-6 py-3 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-slate-600">Cancel</button>
-              <button onClick={handleUpdateGrant} disabled={saving}
-                className="px-6 py-3 bg-[#0F2C5C] hover:bg-slate-800 text-white rounded-xl font-bold disabled:opacity-50 flex items-center gap-2">
-                {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}{saving ? 'Saving...' : 'Save'}
+      {/* Grant Detail Modal */}
+      {selectedGrant && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedGrant(null)}>
+          <div 
+            className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-t-2xl text-white relative">
+              <button 
+                onClick={() => setSelectedGrant(null)}
+                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full"
+              >
+                <X size={20} />
               </button>
+              <h2 className="text-xl font-bold pr-10">{selectedGrant.grantname}</h2>
+              <p className="text-blue-100">{selectedGrant.grantsource}</p>
+            </div>
+            
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              {/* Amounts */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500">Amount Requested</p>
+                  <p className="text-xl font-bold text-slate-800">{formatCurrency(selectedGrant.amountrequested)}</p>
+                </div>
+                <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+                  <p className="text-sm text-emerald-600">Amount Approved</p>
+                  <p className="text-xl font-bold text-emerald-700">{formatCurrency(selectedGrant.amountapproved)}</p>
+                </div>
+              </div>
+
+              {/* Status */}
+              <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                <p className="text-sm text-slate-500 mb-2">Status</p>
+                <span className={`px-3 py-1.5 rounded-full text-sm font-medium border ${getStatusColor(selectedGrant.grantstatus)}`}>
+                  {selectedGrant.grantstatus || 'Unknown'}
+                </span>
+              </div>
+
+              {/* Purpose */}
+              {selectedGrant.purpose && (
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500 mb-1">Purpose</p>
+                  <p className="text-slate-800">{selectedGrant.purpose}</p>
+                </div>
+              )}
+
+              {/* Dates */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500 mb-1">Application Deadline</p>
+                  <p className="text-slate-800 font-medium">{selectedGrant.applicationdeadline || 'N/A'}</p>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500 mb-1">Submission Date</p>
+                  <p className="text-slate-800 font-medium">{selectedGrant.submissiondate || 'N/A'}</p>
+                </div>
+              </div>
+
+              {/* Contact */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500 mb-1">Contact Person</p>
+                  <p className="text-slate-800">{selectedGrant.contactperson || 'N/A'}</p>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500 mb-1">Contact Email</p>
+                  <p className="text-slate-800 truncate">{selectedGrant.contactemail || 'N/A'}</p>
+                </div>
+              </div>
+
+              {/* Funder Type */}
+              {selectedGrant.fundertype && (
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500 mb-1">Funder Type</p>
+                  <p className="text-slate-800">{selectedGrant.fundertype}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
