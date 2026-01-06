@@ -377,4 +377,3 @@ export const Financials: React.FC = () => {
 };
 
 export default Financials;
-
