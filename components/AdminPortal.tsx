@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
   ArrowLeft, FileText, DollarSign, Calendar, Search, RefreshCw,
-  AlertTriangle, CheckCircle2, Clock, TrendingUp, FolderOpen,
-  File, Download, ExternalLink, X, ChevronRight, Filter,
-  PieChart, BarChart3, Users, Building2, Briefcase
+  AlertTriangle, CheckCircle2, Clock, TrendingUp, X, Filter,
+  PieChart, Building2, ChevronRight, ExternalLink, XCircle,
+  FolderOpen, File
 } from 'lucide-react';
-
-interface AdminPortalProps {
-  onClose: () => void;
-}
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
 
@@ -25,6 +21,7 @@ interface Grant {
   amountapproved: string;
   grantstatus: string;
   fundertype: string;
+  submissionyear: string;
   [key: string]: any;
 }
 
@@ -43,7 +40,6 @@ interface Document {
   size: number | null;
   modified: string;
   url: string;
-  icon: string;
   isFolder: boolean;
 }
 
@@ -57,10 +53,16 @@ interface GrantStats {
   actionItems: ActionItem[];
 }
 
-type ViewType = 'dashboard' | 'grants' | 'documents';
+interface AdminPortalProps {
+  onClose: () => void;
+}
+
+type MainTab = 'grants' | 'documents';
+type GrantTab = 'dashboard' | 'all' | 'approved' | 'pending' | 'denied';
 
 const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
-  const [currentView, setCurrentView] = useState<ViewType>('dashboard');
+  const [mainTab, setMainTab] = useState<MainTab>('grants');
+  const [grantTab, setGrantTab] = useState<GrantTab>('dashboard');
   const [grants, setGrants] = useState<Grant[]>([]);
   const [stats, setStats] = useState<GrantStats | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -68,132 +70,117 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGrant, setSelectedGrant] = useState<Grant | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
 
-  // Load data on mount
   useEffect(() => {
-    loadData();
+    loadGrantData();
   }, []);
 
-  const loadData = async () => {
+  const loadGrantData = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Load grants and stats in parallel
       const [grantsRes, statsRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/grants`),
         fetch(`${API_BASE_URL}/api/grants/stats`)
       ]);
 
       if (!grantsRes.ok || !statsRes.ok) {
-        throw new Error('Failed to load data');
+        throw new Error(`HTTP error! status: ${grantsRes.status}`);
       }
 
       const grantsData = await grantsRes.json();
       const statsData = await statsRes.json();
 
-      if (grantsData.success) {
-        setGrants(grantsData.data);
-      }
-      if (statsData.success) {
-        setStats(statsData.data);
-      }
-    } catch (err) {
+      if (grantsData.success) setGrants(grantsData.data);
+      if (statsData.success) setStats(statsData.data);
+    } catch (err: any) {
       console.error('Error loading data:', err);
-      setError('Failed to load grant data. Please try again.');
+      setError(err.message || 'Failed to load grant data');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const loadDocuments = async (folderId?: string) => {
+  const loadDocuments = async () => {
     try {
-      const url = folderId 
-        ? `${API_BASE_URL}/api/documents/folder/${folderId}`
-        : `${API_BASE_URL}/api/documents`;
-      
-      const res = await fetch(url);
+      const res = await fetch(`${API_BASE_URL}/api/documents`);
       const data = await res.json();
-      
-      if (data.success) {
-        setDocuments(data.data);
-      }
+      if (data.success) setDocuments(data.data);
     } catch (err) {
       console.error('Error loading documents:', err);
     }
   };
 
-  const searchGrants = async (query: string) => {
-    if (!query.trim()) {
-      loadData();
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/grants/search/${encodeURIComponent(query)}`);
-      const data = await res.json();
-      if (data.success) {
-        setGrants(data.data);
-      }
-    } catch (err) {
-      console.error('Error searching grants:', err);
-    }
-  };
-
-  const formatCurrency = (value: string | number) => {
-    const num = typeof value === 'string' 
-      ? parseFloat(value.replace(/[$,]/g, '')) 
-      : value;
+  const formatCurrency = (value: string | number | undefined) => {
+    if (!value) return '$0';
+    const num = typeof value === 'string' ? parseFloat(value.replace(/[$,]/g, '')) : value;
     if (isNaN(num)) return '$0';
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
   };
 
   const getStatusColor = (status: string) => {
     const s = status?.toLowerCase() || '';
-    if (s.includes('approved') || s.includes('awarded')) return 'bg-emerald-100 text-emerald-700';
-    if (s.includes('pending') || s.includes('submitted')) return 'bg-amber-100 text-amber-700';
-    if (s.includes('denied') || s.includes('rejected')) return 'bg-red-100 text-red-700';
-    return 'bg-slate-100 text-slate-700';
+    if (s.includes('approved') || s.includes('awarded')) return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+    if (s.includes('pending') || s.includes('submitted')) return 'bg-amber-100 text-amber-700 border-amber-200';
+    if (s.includes('denied') || s.includes('rejected')) return 'bg-red-100 text-red-700 border-red-200';
+    return 'bg-slate-100 text-slate-700 border-slate-200';
   };
 
   const getPriorityColor = (priority: string) => {
     const p = priority?.toUpperCase() || '';
-    if (p === 'HIGH') return 'bg-red-100 text-red-700 border-red-200';
-    if (p === 'MEDIUM') return 'bg-amber-100 text-amber-700 border-amber-200';
-    return 'bg-blue-100 text-blue-700 border-blue-200';
+    if (p === 'HIGH') return 'bg-red-100 text-red-700';
+    if (p === 'MEDIUM') return 'bg-amber-100 text-amber-700';
+    return 'bg-blue-100 text-blue-700';
   };
 
-  const filteredGrants = grants.filter(g => {
-    if (statusFilter === 'all') return true;
-    return g.grantstatus?.toLowerCase().includes(statusFilter.toLowerCase());
-  });
+  const getFilteredGrants = () => {
+    let filtered = grants;
+    
+    if (grantTab === 'approved') {
+      filtered = grants.filter(g => g.grantstatus?.toLowerCase().includes('approved') || g.grantstatus?.toLowerCase().includes('awarded'));
+    } else if (grantTab === 'pending') {
+      filtered = grants.filter(g => g.grantstatus?.toLowerCase().includes('pending') || g.grantstatus?.toLowerCase().includes('submitted') || g.grantstatus?.toLowerCase().includes('to submit'));
+    } else if (grantTab === 'denied') {
+      filtered = grants.filter(g => g.grantstatus?.toLowerCase().includes('denied') || g.grantstatus?.toLowerCase().includes('rejected'));
+    }
 
-  // Loading state
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(g => 
+        g.grantname?.toLowerCase().includes(query) ||
+        g.grantsource?.toLowerCase().includes(query) ||
+        g.purpose?.toLowerCase().includes(query)
+      );
+    }
+    return filtered;
+  };
+
+  const filteredGrants = getFilteredGrants();
+  const approvedCount = grants.filter(g => g.grantstatus?.toLowerCase().includes('approved') || g.grantstatus?.toLowerCase().includes('awarded')).length;
+  const pendingCount = grants.filter(g => g.grantstatus?.toLowerCase().includes('pending') || g.grantstatus?.toLowerCase().includes('submitted') || g.grantstatus?.toLowerCase().includes('to submit')).length;
+  const deniedCount = grants.filter(g => g.grantstatus?.toLowerCase().includes('denied') || g.grantstatus?.toLowerCase().includes('rejected')).length;
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="animate-spin mx-auto text-amber-500 mb-4" size={48} />
-          <p className="text-white text-lg">Loading Admin Command Center...</p>
+          <RefreshCw className="animate-spin mx-auto text-blue-600 mb-4" size={48} />
+          <p className="text-slate-600 text-lg">Loading Admin Command Center...</p>
         </div>
       </div>
     );
   }
 
-  // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-center bg-slate-800 p-8 rounded-xl max-w-md">
-          <AlertTriangle className="mx-auto text-red-500 mb-4" size={48} />
-          <h2 className="text-xl font-bold text-white mb-2">Connection Error</h2>
-          <p className="text-slate-400 mb-6">{error}</p>
-          <button
-            onClick={loadData}
-            className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium"
-          >
-            Try Again
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+        <div className="text-center bg-white p-8 rounded-xl shadow-lg max-w-md">
+          <XCircle className="mx-auto text-red-500 mb-4" size={48} />
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Failed to Load Data</h2>
+          <p className="text-slate-600 mb-6">{error}</p>
+          <button onClick={loadGrantData} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center gap-2 mx-auto">
+            <RefreshCw size={18} /> Try Again
           </button>
         </div>
       </div>
@@ -201,433 +188,368 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
+    <div className="min-h-screen bg-slate-100">
       {/* Header */}
-      <header className="bg-slate-800 border-b border-slate-700 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-slate-700 rounded-lg transition-all"
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <div>
-              <h1 className="text-xl font-bold text-amber-500">ADMIN COMMAND CENTER</h1>
-              <p className="text-slate-400 text-sm">Grant Management & Document Library</p>
-            </div>
-          </div>
-          <button
-            onClick={loadData}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-all"
-          >
-            <RefreshCw size={16} />
-            Refresh
-          </button>
-        </div>
-
-        {/* Navigation Tabs */}
-        <div className="flex gap-2 mt-4">
-          {[
-            { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-            { id: 'grants', label: 'Grant Management', icon: DollarSign },
-            { id: 'documents', label: 'Document Library', icon: FolderOpen }
-          ].map(tab => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setCurrentView(tab.id as ViewType);
-                  if (tab.id === 'documents' && documents.length === 0) {
-                    loadDocuments();
-                  }
-                }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                  currentView === tab.id
-                    ? 'bg-amber-500 text-white'
-                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                }`}
-              >
-                <Icon size={18} />
-                {tab.label}
+      <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-all">
+                <ArrowLeft size={24} />
               </button>
-            );
-          })}
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="p-6">
-        {/* DASHBOARD VIEW */}
-        {currentView === 'dashboard' && stats && (
-          <div className="space-y-6">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                    <FileText className="text-blue-400" size={24} />
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-sm">Total Grants</p>
-                    <p className="text-2xl font-bold">{stats.total}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center">
-                    <DollarSign className="text-amber-400" size={24} />
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-sm">Total Requested</p>
-                    <p className="text-2xl font-bold">{formatCurrency(stats.totalRequested)}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center">
-                    <CheckCircle2 className="text-emerald-400" size={24} />
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-sm">Total Approved</p>
-                    <p className="text-2xl font-bold">{formatCurrency(stats.totalApproved)}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                    <TrendingUp className="text-purple-400" size={24} />
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-sm">Success Rate</p>
-                    <p className="text-2xl font-bold">
-                      {stats.totalRequested > 0 
-                        ? Math.round((stats.totalApproved / stats.totalRequested) * 100) 
-                        : 0}%
-                    </p>
-                  </div>
-                </div>
+              <div>
+                <h1 className="text-2xl font-bold">Admin Command Center</h1>
+                <p className="text-slate-300">Grant Management & Document Library</p>
               </div>
             </div>
+            <button onClick={loadGrantData} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-all">
+              <RefreshCw size={18} /> Refresh
+            </button>
+          </div>
 
-            {/* Status Breakdown & Action Items */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Status Breakdown */}
-              <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <PieChart size={20} className="text-amber-500" />
-                  Grant Status Breakdown
-                </h3>
-                <div className="space-y-3">
-                  {Object.entries(stats.statusCounts).map(([status, count]) => (
-                    <div key={status} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(status)}`}>
+          {/* Main Tabs */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setMainTab('grants')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${mainTab === 'grants' ? 'bg-white text-slate-800' : 'bg-white/10 text-white hover:bg-white/20'}`}
+            >
+              <DollarSign size={20} /> Grant Management
+            </button>
+            <button
+              onClick={() => { setMainTab('documents'); if (documents.length === 0) loadDocuments(); }}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${mainTab === 'documents' ? 'bg-white text-slate-800' : 'bg-white/10 text-white hover:bg-white/20'}`}
+            >
+              <FolderOpen size={20} /> Document Library
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* GRANT MANAGEMENT */}
+      {mainTab === 'grants' && (
+        <div className="max-w-7xl mx-auto p-6">
+          {/* Grant Sub-Tabs */}
+          <div className="flex gap-2 mb-6 flex-wrap">
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: PieChart, count: null },
+              { id: 'all', label: 'All Grants', icon: FileText, count: grants.length },
+              { id: 'approved', label: 'Approved', icon: CheckCircle2, count: approvedCount },
+              { id: 'pending', label: 'Pending', icon: Clock, count: pendingCount },
+              { id: 'denied', label: 'Denied', icon: XCircle, count: deniedCount },
+            ].map(tab => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setGrantTab(tab.id as GrantTab)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all border ${
+                    grantTab === tab.id
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300'
+                  }`}
+                >
+                  <Icon size={18} />
+                  {tab.label}
+                  {tab.count !== null && (
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${grantTab === tab.id ? 'bg-white/20' : 'bg-slate-100'}`}>
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Dashboard View */}
+          {grantTab === 'dashboard' && stats && (
+            <div className="space-y-6">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <FileText className="text-blue-600" size={24} />
+                    </div>
+                    <div>
+                      <p className="text-slate-500 text-sm">Total Grants</p>
+                      <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                      <DollarSign className="text-amber-600" size={24} />
+                    </div>
+                    <div>
+                      <p className="text-slate-500 text-sm">Total Requested</p>
+                      <p className="text-2xl font-bold text-slate-800">{formatCurrency(stats.totalRequested)}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                      <CheckCircle2 className="text-emerald-600" size={24} />
+                    </div>
+                    <div>
+                      <p className="text-slate-500 text-sm">Total Approved</p>
+                      <p className="text-2xl font-bold text-emerald-600">{formatCurrency(stats.totalApproved)}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                      <TrendingUp className="text-purple-600" size={24} />
+                    </div>
+                    <div>
+                      <p className="text-slate-500 text-sm">Success Rate</p>
+                      <p className="text-2xl font-bold text-purple-600">
+                        {stats.totalRequested > 0 ? Math.round((stats.totalApproved / stats.totalRequested) * 100) : 0}%
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status & Actions */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <PieChart size={20} className="text-blue-600" /> Grant Status Breakdown
+                  </h3>
+                  <div className="space-y-3">
+                    {Object.entries(stats.statusCounts).map(([status, count]) => (
+                      <div key={status} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(status)}`}>
                           {status || 'Unknown'}
                         </span>
+                        <span className="font-bold text-slate-800">{count}</span>
                       </div>
-                      <span className="font-bold">{count}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <AlertTriangle size={20} className="text-amber-500" /> Action Items
+                  </h3>
+                  {stats.actionItems && stats.actionItems.length > 0 ? (
+                    <div className="space-y-3 max-h-72 overflow-y-auto">
+                      {stats.actionItems.map((item) => (
+                        <div key={item.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold mb-2 ${getPriorityColor(item.priority)}`}>
+                                {item.priority}
+                              </span>
+                              <p className="text-sm text-slate-800 font-medium">{item.action}</p>
+                              <p className="text-xs text-slate-500 mt-1">Due: {item.deadline}</p>
+                            </div>
+                            <span className={`text-xs px-2 py-1 rounded font-medium ${
+                              item.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
+                              item.status === 'Monitoring' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'
+                            }`}>{item.status}</span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  ) : (
+                    <p className="text-slate-400 text-center py-8">No action items found</p>
+                  )}
                 </div>
               </div>
 
-              {/* Action Items */}
-              <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <AlertTriangle size={20} className="text-amber-500" />
-                  Action Items
-                </h3>
-                {stats.actionItems && stats.actionItems.length > 0 ? (
-                  <div className="space-y-3 max-h-64 overflow-y-auto">
-                    {stats.actionItems.map((item) => (
-                      <div key={item.id} className="bg-slate-700/50 rounded-lg p-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1">
-                            <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium mb-1 ${getPriorityColor(item.priority)}`}>
-                              {item.priority}
-                            </span>
-                            <p className="text-sm text-slate-200">{item.action}</p>
-                            <p className="text-xs text-slate-400 mt-1">Due: {item.deadline}</p>
+              {/* Funder Types */}
+              {stats.funderTypes && Object.keys(stats.funderTypes).length > 0 && (
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <Building2 size={20} className="text-blue-600" /> Grants by Funder Type
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {Object.entries(stats.funderTypes).map(([type, count]) => (
+                      <div key={type} className="bg-gradient-to-br from-blue-50 to-slate-50 rounded-xl p-4 text-center border border-slate-200">
+                        <p className="text-2xl font-bold text-blue-600">{count}</p>
+                        <p className="text-sm text-slate-600">{type || 'Other'}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Grants List View */}
+          {grantTab !== 'dashboard' && (
+            <div className="space-y-4">
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search grants by name, source, or purpose..."
+                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <p className="text-slate-500">Showing {filteredGrants.length} grant{filteredGrants.length !== 1 ? 's' : ''}</p>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                {filteredGrants.length > 0 ? (
+                  <div className="divide-y divide-slate-100">
+                    {filteredGrants.map((grant) => (
+                      <div key={grant.id} className="p-4 hover:bg-slate-50 cursor-pointer transition-all" onClick={() => setSelectedGrant(grant)}>
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-bold text-slate-800 truncate">{grant.grantname || 'Unnamed Grant'}</h3>
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium border shrink-0 ${getStatusColor(grant.grantstatus)}`}>
+                                {grant.grantstatus || 'Unknown'}
+                              </span>
+                            </div>
+                            <p className="text-sm text-slate-600 truncate">{grant.grantsource}</p>
+                            <p className="text-xs text-slate-400 mt-1 truncate">{grant.purpose}</p>
                           </div>
-                          <span className={`text-xs px-2 py-1 rounded ${
-                            item.status === 'Pending' ? 'bg-amber-500/20 text-amber-400' :
-                            item.status === 'Monitoring' ? 'bg-blue-500/20 text-blue-400' :
-                            'bg-slate-600 text-slate-300'
-                          }`}>
-                            {item.status}
-                          </span>
+                          <div className="text-right shrink-0">
+                            <p className="text-sm text-slate-500">Requested</p>
+                            <p className="font-bold text-slate-800">{formatCurrency(grant.amountrequested)}</p>
+                            {grant.amountapproved && parseFloat(grant.amountapproved.toString().replace(/[$,]/g, '')) > 0 && (
+                              <>
+                                <p className="text-xs text-slate-400 mt-1">Approved</p>
+                                <p className="font-bold text-emerald-600">{formatCurrency(grant.amountapproved)}</p>
+                              </>
+                            )}
+                          </div>
+                          <ChevronRight className="text-slate-300 shrink-0" size={20} />
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-slate-400 text-center py-8">No action items found</p>
+                  <div className="text-center py-12">
+                    <FileText className="mx-auto text-slate-300 mb-4" size={48} />
+                    <p className="text-slate-500">No grants found</p>
+                  </div>
                 )}
               </div>
             </div>
+          )}
+        </div>
+      )}
 
-            {/* Upcoming Deadlines */}
-            <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <Calendar size={20} className="text-amber-500" />
-                Upcoming Deadlines
-              </h3>
-              {stats.upcomingDeadlines && stats.upcomingDeadlines.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {stats.upcomingDeadlines.map((deadline, i) => (
-                    <div key={i} className="bg-slate-700/50 rounded-lg p-4">
-                      <p className="font-medium text-white truncate">
-                        {deadline.grantname || deadline.grantsource || Object.values(deadline)[1]}
-                      </p>
-                      <p className="text-sm text-slate-400 mt-1">
-                        {deadline.applicationdeadline || deadline.deadline || Object.values(deadline)[2]}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-slate-400 text-center py-8">No upcoming deadlines</p>
-              )}
-            </div>
-
-            {/* Funder Types */}
-            {stats.funderTypes && Object.keys(stats.funderTypes).length > 0 && (
-              <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <Building2 size={20} className="text-amber-500" />
-                  Grants by Funder Type
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {Object.entries(stats.funderTypes).map(([type, count]) => (
-                    <div key={type} className="bg-slate-700/50 rounded-lg p-4 text-center">
-                      <p className="text-2xl font-bold text-amber-400">{count}</p>
-                      <p className="text-sm text-slate-400">{type || 'Other'}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+      {/* DOCUMENT LIBRARY */}
+      {mainTab === 'documents' && (
+        <div className="max-w-7xl mx-auto p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-slate-800">Document Library</h2>
+            <button onClick={loadDocuments} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+              <RefreshCw size={16} /> Refresh
+            </button>
           </div>
-        )}
 
-        {/* GRANTS VIEW */}
-        {currentView === 'grants' && (
-          <div className="space-y-6">
-            {/* Search & Filter */}
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && searchGrants(searchQuery)}
-                  placeholder="Search grants by name, source, or status..."
-                  className="w-full pl-10 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
-              </div>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-              >
-                <option value="all">All Statuses</option>
-                <option value="approved">Approved</option>
-                <option value="pending">Pending</option>
-                <option value="submitted">Submitted</option>
-                <option value="denied">Denied</option>
-              </select>
-              <button
-                onClick={() => searchGrants(searchQuery)}
-                className="px-6 py-3 bg-amber-500 hover:bg-amber-600 rounded-xl font-medium transition-all"
-              >
-                Search
-              </button>
-            </div>
-
-            {/* Grants Table */}
-            <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-slate-700/50">
-                    <tr>
-                      <th className="text-left px-4 py-3 text-sm font-medium text-slate-300">Grant Name</th>
-                      <th className="text-left px-4 py-3 text-sm font-medium text-slate-300">Source</th>
-                      <th className="text-left px-4 py-3 text-sm font-medium text-slate-300">Requested</th>
-                      <th className="text-left px-4 py-3 text-sm font-medium text-slate-300">Approved</th>
-                      <th className="text-left px-4 py-3 text-sm font-medium text-slate-300">Status</th>
-                      <th className="text-left px-4 py-3 text-sm font-medium text-slate-300">Deadline</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-700">
-                    {filteredGrants.slice(0, 50).map((grant) => (
-                      <tr 
-                        key={grant.id} 
-                        className="hover:bg-slate-700/50 cursor-pointer transition-all"
-                        onClick={() => setSelectedGrant(grant)}
-                      >
-                        <td className="px-4 py-3">
-                          <p className="font-medium text-white truncate max-w-xs">{grant.grantname}</p>
-                        </td>
-                        <td className="px-4 py-3 text-slate-300 truncate max-w-xs">{grant.grantsource}</td>
-                        <td className="px-4 py-3 text-slate-300">{formatCurrency(grant.amountrequested)}</td>
-                        <td className="px-4 py-3 text-emerald-400">{formatCurrency(grant.amountapproved)}</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(grant.grantstatus)}`}>
-                            {grant.grantstatus || 'Unknown'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-slate-300">{grant.applicationdeadline}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {filteredGrants.length === 0 && (
-                <div className="text-center py-12 text-slate-400">
-                  No grants found
-                </div>
-              )}
-              {filteredGrants.length > 50 && (
-                <div className="text-center py-4 text-slate-400 border-t border-slate-700">
-                  Showing 50 of {filteredGrants.length} grants
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* DOCUMENTS VIEW */}
-        {currentView === 'documents' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold">Document Library</h2>
-              <button
-                onClick={() => loadDocuments()}
-                className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-all"
-              >
-                <RefreshCw size={16} />
-                Refresh
-              </button>
-            </div>
-
-            {documents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {documents.map((doc) => (
-                  <a
-                    key={doc.id}
-                    href={doc.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-slate-800 rounded-xl p-4 border border-slate-700 hover:border-amber-500 transition-all group"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center shrink-0">
-                        {doc.isFolder ? (
-                          <FolderOpen className="text-amber-400" size={20} />
-                        ) : (
-                          <File className="text-blue-400" size={20} />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-white truncate group-hover:text-amber-400 transition-all">
-                          {doc.name}
-                        </p>
-                        <p className="text-xs text-slate-400 mt-1">
-                          {doc.modified ? new Date(doc.modified).toLocaleDateString() : 'Unknown date'}
-                        </p>
-                      </div>
-                      <ExternalLink className="text-slate-500 group-hover:text-amber-400 shrink-0" size={16} />
+          {documents.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {documents.map((doc) => (
+                <a
+                  key={doc.id}
+                  href={doc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white rounded-xl p-4 border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all group"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-blue-100">
+                      {doc.isFolder ? <FolderOpen className="text-amber-500" size={20} /> : <File className="text-blue-500" size={20} />}
                     </div>
-                  </a>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-slate-800 rounded-xl p-12 text-center border border-slate-700">
-                <FolderOpen className="mx-auto text-slate-500 mb-4" size={48} />
-                <p className="text-slate-400">No documents found</p>
-                <p className="text-slate-500 text-sm mt-2">Make sure Google Drive is connected and shared with the service account</p>
-              </div>
-            )}
-          </div>
-        )}
-      </main>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-slate-800 truncate group-hover:text-blue-600">{doc.name}</p>
+                      <p className="text-xs text-slate-400 mt-1">{doc.modified ? new Date(doc.modified).toLocaleDateString() : ''}</p>
+                    </div>
+                    <ExternalLink className="text-slate-300 group-hover:text-blue-500 shrink-0" size={16} />
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl p-12 text-center border border-slate-200">
+              <FolderOpen className="mx-auto text-slate-300 mb-4" size={48} />
+              <p className="text-slate-500">No documents found</p>
+              <p className="text-slate-400 text-sm mt-2">Make sure Google Drive is connected</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Grant Detail Modal */}
       {selectedGrant && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setSelectedGrant(null)}>
-          <div 
-            className="bg-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-700"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-6 border-b border-slate-700 flex items-start justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-white">{selectedGrant.grantname}</h2>
-                <p className="text-slate-400">{selectedGrant.grantsource}</p>
-              </div>
-              <button onClick={() => setSelectedGrant(null)} className="p-2 hover:bg-slate-700 rounded-lg">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedGrant(null)}>
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-t-2xl text-white relative">
+              <button onClick={() => setSelectedGrant(null)} className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full">
                 <X size={20} />
               </button>
+              <h2 className="text-xl font-bold pr-10">{selectedGrant.grantname}</h2>
+              <p className="text-blue-100">{selectedGrant.grantsource}</p>
             </div>
             
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-700/50 rounded-lg p-4">
-                  <p className="text-sm text-slate-400">Amount Requested</p>
-                  <p className="text-xl font-bold text-white">{formatCurrency(selectedGrant.amountrequested)}</p>
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500">Amount Requested</p>
+                  <p className="text-xl font-bold text-slate-800">{formatCurrency(selectedGrant.amountrequested)}</p>
                 </div>
-                <div className="bg-slate-700/50 rounded-lg p-4">
-                  <p className="text-sm text-slate-400">Amount Approved</p>
-                  <p className="text-xl font-bold text-emerald-400">{formatCurrency(selectedGrant.amountapproved)}</p>
+                <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+                  <p className="text-sm text-emerald-600">Amount Approved</p>
+                  <p className="text-xl font-bold text-emerald-700">{formatCurrency(selectedGrant.amountapproved)}</p>
                 </div>
               </div>
 
-              <div className="bg-slate-700/50 rounded-lg p-4">
-                <p className="text-sm text-slate-400 mb-1">Status</p>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedGrant.grantstatus)}`}>
+              <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                <p className="text-sm text-slate-500 mb-2">Status</p>
+                <span className={`px-3 py-1.5 rounded-full text-sm font-medium border ${getStatusColor(selectedGrant.grantstatus)}`}>
                   {selectedGrant.grantstatus || 'Unknown'}
                 </span>
               </div>
 
-              <div className="bg-slate-700/50 rounded-lg p-4">
-                <p className="text-sm text-slate-400 mb-1">Purpose</p>
-                <p className="text-white">{selectedGrant.purpose || 'Not specified'}</p>
+              {selectedGrant.purpose && (
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500 mb-1">Purpose</p>
+                  <p className="text-slate-800">{selectedGrant.purpose}</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500 mb-1">Deadline</p>
+                  <p className="text-slate-800 font-medium">{selectedGrant.applicationdeadline || 'N/A'}</p>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500 mb-1">Submitted</p>
+                  <p className="text-slate-800 font-medium">{selectedGrant.submissiondate || 'N/A'}</p>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-700/50 rounded-lg p-4">
-                  <p className="text-sm text-slate-400 mb-1">Application Deadline</p>
-                  <p className="text-white">{selectedGrant.applicationdeadline || 'N/A'}</p>
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500 mb-1">Contact</p>
+                  <p className="text-slate-800">{selectedGrant.contactperson || 'N/A'}</p>
                 </div>
-                <div className="bg-slate-700/50 rounded-lg p-4">
-                  <p className="text-sm text-slate-400 mb-1">Submission Date</p>
-                  <p className="text-white">{selectedGrant.submissiondate || 'N/A'}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-700/50 rounded-lg p-4">
-                  <p className="text-sm text-slate-400 mb-1">Contact Person</p>
-                  <p className="text-white">{selectedGrant.contactperson || 'N/A'}</p>
-                </div>
-                <div className="bg-slate-700/50 rounded-lg p-4">
-                  <p className="text-sm text-slate-400 mb-1">Contact Email</p>
-                  <p className="text-white truncate">{selectedGrant.contactemail || 'N/A'}</p>
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500 mb-1">Email</p>
+                  <p className="text-slate-800 truncate">{selectedGrant.contactemail || 'N/A'}</p>
                 </div>
               </div>
 
-              <div className="bg-slate-700/50 rounded-lg p-4">
-                <p className="text-sm text-slate-400 mb-1">Funder Type</p>
-                <p className="text-white">{selectedGrant.fundertype || 'Not specified'}</p>
-              </div>
+              {selectedGrant.fundertype && (
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <p className="text-sm text-slate-500 mb-1">Funder Type</p>
+                  <p className="text-slate-800">{selectedGrant.fundertype}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
