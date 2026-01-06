@@ -21,7 +21,7 @@ export interface Module {
   description: string;
 }
 
-export interface DashboardStats {
+export interface Stats {
   totalFathers: number;
   graduated: number;
   active: number;
@@ -163,7 +163,7 @@ export const fatherhoodApi = {
   },
 
   // Get dashboard stats
-  async getStats(): Promise<DashboardStats | null> {
+  async getStats(): Promise<Stats | null> {
     try {
       const response = await fetch(`${API_BASE_URL}/api/stats`);
       const data = await response.json();
