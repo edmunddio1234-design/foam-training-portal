@@ -131,6 +131,8 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
   const [resourceCategory, setResourceCategory] = useState('all');
   const [searchResources, setSearchResources] = useState('');
   const [expandedResource, setExpandedResource] = useState<string | null>(null);
+  const [showResourceForm, setShowResourceForm] = useState(false);
+  const [newResource, setNewResource] = useState<Partial<Resource>>({ category: 'Childcare' });
 
   // Employment state
   const [employmentClients, setEmploymentClients] = useState<EmploymentClient[]>([]);
@@ -333,6 +335,29 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       }
     } catch (err) {
       console.error('Error adding diaper entry:', err);
+    }
+  };
+
+  const submitResource = async () => {
+    if (!newResource.organization || !newResource.category) {
+      alert('Please enter organization name and select a category');
+      return;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/casemanager/resources`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newResource)
+      });
+      if (response.ok) {
+        setShowResourceForm(false);
+        setNewResource({ category: 'Childcare' });
+        loadResources();
+        alert('Resource added successfully!');
+      }
+    } catch (err) {
+      console.error('Error adding resource:', err);
+      alert('Error adding resource. Please try again.');
     }
   };
 
@@ -685,10 +710,94 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                 <h2 className="text-2xl font-black text-slate-800">Resource Directory</h2>
                 <p className="text-slate-500 text-sm mt-1">Community resources for client referrals</p>
               </div>
-              <button onClick={loadResources} className="p-2 hover:bg-slate-100 rounded-lg">
-                <RefreshCw className={`w-5 h-5 text-slate-400 ${resourcesLoading ? 'animate-spin' : ''}`} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowResourceForm(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-xl font-bold text-sm">
+                  <Plus className="w-4 h-4" /> Add Resource
+                </button>
+                <button onClick={loadResources} className="p-2 hover:bg-slate-100 rounded-lg">
+                  <RefreshCw className={`w-5 h-5 text-slate-400 ${resourcesLoading ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
             </div>
+
+            {/* Add Resource Form Modal */}
+            {showResourceForm && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-black text-slate-800">Add New Resource</h3>
+                    <button onClick={() => setShowResourceForm(false)} className="p-2 hover:bg-slate-100 rounded-lg">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 mb-1">Category *</label>
+                      <select value={newResource.category || 'Childcare'} onChange={(e) => setNewResource({...newResource, category: e.target.value})}
+                        className="w-full px-4 py-2 border border-slate-200 rounded-xl">
+                        <option value="Childcare">Childcare</option>
+                        <option value="Housing">Housing</option>
+                        <option value="Employment">Employment</option>
+                        <option value="Mental Health">Mental Health</option>
+                        <option value="Food Assistance">Food Assistance</option>
+                        <option value="Legal Services">Legal Services</option>
+                        <option value="Education">Education</option>
+                        <option value="Healthcare">Healthcare</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 mb-1">Organization Name *</label>
+                      <input type="text" value={newResource.organization || ''} onChange={(e) => setNewResource({...newResource, organization: e.target.value})}
+                        placeholder="e.g. Greater BR Food Bank"
+                        className="w-full px-4 py-2 border border-slate-200 rounded-xl" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 mb-1">Address</label>
+                      <input type="text" value={newResource.address || ''} onChange={(e) => setNewResource({...newResource, address: e.target.value})}
+                        placeholder="123 Main St, Baton Rouge, LA"
+                        className="w-full px-4 py-2 border border-slate-200 rounded-xl" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1">Phone</label>
+                        <input type="text" value={newResource.phone || ''} onChange={(e) => setNewResource({...newResource, phone: e.target.value})}
+                          placeholder="(225) 555-1234"
+                          className="w-full px-4 py-2 border border-slate-200 rounded-xl" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1">Website</label>
+                        <input type="text" value={newResource.website || ''} onChange={(e) => setNewResource({...newResource, website: e.target.value})}
+                          placeholder="www.example.org"
+                          className="w-full px-4 py-2 border border-slate-200 rounded-xl" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 mb-1">Contact Person</label>
+                      <input type="text" value={newResource.contact || ''} onChange={(e) => setNewResource({...newResource, contact: e.target.value})}
+                        placeholder="Ask for John Smith"
+                        className="w-full px-4 py-2 border border-slate-200 rounded-xl" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 mb-1">Description</label>
+                      <textarea value={newResource.description || ''} onChange={(e) => setNewResource({...newResource, description: e.target.value})}
+                        placeholder="What services do they provide?"
+                        className="w-full px-4 py-2 border border-slate-200 rounded-xl" rows={2} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 mb-1">Referral Process</label>
+                      <textarea value={newResource.referralProcess || ''} onChange={(e) => setNewResource({...newResource, referralProcess: e.target.value})}
+                        placeholder="How do clients get services? Walk-in, call, online form?"
+                        className="w-full px-4 py-2 border border-slate-200 rounded-xl" rows={2} />
+                    </div>
+                  </div>
+                  <div className="flex gap-3 mt-6">
+                    <button onClick={() => setShowResourceForm(false)} className="flex-1 py-3 bg-slate-100 rounded-xl font-bold">Cancel</button>
+                    <button onClick={submitResource} className="flex-1 py-3 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-xl font-bold">Save Resource</button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
