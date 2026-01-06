@@ -34,7 +34,7 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
     }
   }, []);
 
-  const checkInUrl = `https://foamportal.org/checkin?module=${selectedModule}`;
+  const checkInUrl = `https://foamportal.org/assessment?module=${selectedModule}`;
   const currentModule = modules.find(m => m.id === selectedModule) || modules[0];
 
   const handleCopy = async () => {
