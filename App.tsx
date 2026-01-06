@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ModuleType, TrainingTrack } from './types';
 import { CASE_MANAGER_MODULES, FACILITATOR_MODULES, BOARD_MODULES } from './constants';
 import ModuleView from './components/ModuleView';
@@ -19,8 +18,9 @@ import DatabasePortal from './components/DatabasePortal';
 import AdminPortal from './components/AdminPortal';
 import FatherhoodTracking from './components/FatherhoodTracking';
 import CaseManagerPortal from './components/CaseManagerPortal';
+import ClassAssessment from './components/tracking/ClassAssessment';
 
-type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual';
+type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment';
 type FinanceSubView = 'dashboard' | 'exchange' | 'bills';
 
 const App: React.FC = () => {
@@ -36,6 +36,14 @@ const App: React.FC = () => {
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   
   const [allFinanceEntries, setAllFinanceEntries] = useState<BillEntry[]>([]);
+
+  // Check URL for direct assessment access (for fathers on mobile)
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/assessment' || path === '/checkin') {
+      setCurrentView('assessment');
+    }
+  }, []);
 
   const getModulesForTrack = (track: TrainingTrack) => {
     switch(track) {
@@ -70,6 +78,11 @@ const App: React.FC = () => {
     setIsFinanceAuthenticated(false);
     setCurrentView('hub');
   };
+
+  // Assessment page - NO LOGIN REQUIRED (for fathers on mobile)
+  if (currentView === 'assessment') {
+    return <ClassAssessment />;
+  }
 
   if (!isLoggedIn) {
     return <LoginPage onLogin={() => setIsLoggedIn(true)} />;
