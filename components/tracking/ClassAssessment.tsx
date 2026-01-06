@@ -512,7 +512,7 @@ const ClassAssessment: React.FC = () => {
         <p className="text-emerald-100 mb-2">Your assessment has been submitted.</p>
         
         {selectedLesson && (
-          <div className="bg-white/20 rounded-xl px-6 py-3 mb-8">
+          <div className="bg-white/20 rounded-xl px-6 py-3 mb-6">
             <p className="text-sm text-emerald-100">Completed</p>
             <p className="font-semibold">{selectedLesson.title}</p>
           </div>
@@ -522,12 +522,25 @@ const ClassAssessment: React.FC = () => {
           We appreciate your feedback. If you shared any challenges, a FOAM staff member may reach out to assist you.
         </p>
 
-        <button
-          onClick={resetForm}
-          className="bg-white text-emerald-600 font-bold py-4 px-8 rounded-xl"
-        >
-          Done
-        </button>
+        <div className="space-y-3 w-full max-w-xs">
+          <button
+            onClick={resetForm}
+            className="w-full bg-white text-emerald-600 font-bold py-4 px-8 rounded-xl"
+          >
+            Submit Another Assessment
+          </button>
+          
+          <a
+            href="/progress"
+            className="block w-full bg-emerald-600 border-2 border-white text-white font-bold py-4 px-8 rounded-xl text-center"
+          >
+            Check My Progress
+          </a>
+        </div>
+        
+        <p className="text-emerald-200 text-sm mt-6">
+          Questions? Contact FOAM at (225) 590-1422
+        </p>
       </div>
     );
   }
