@@ -1,4 +1,3 @@
-
 import { ModuleType, ModuleContent, Father, TrackerModule } from './types';
 
 // CASE MANAGER TRACK - FULL 10 MODULE CURRICULUM
@@ -7,7 +6,7 @@ export const CASE_MANAGER_MODULES: ModuleContent[] = [
     id: ModuleType.FOUNDATIONAL,
     title: "Orientation to FOAM Mission & Values",
     subtitle: "Module 1: The Foundational 'Why'",
-    description: "To ground the Case Manager in the foundational 'Why' of FOAM, ensuring all service delivery aligns with the organization’s philosophy of enhancement rather than repair.",
+    description: "To ground the Case Manager in the foundational 'Why' of FOAM, ensuring all service delivery aligns with the organization's philosophy of enhancement rather than repair.",
     videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
     videoList: [
       {
@@ -257,24 +256,207 @@ export const BOARD_MODULES: ModuleContent[] = [
 // Default Export for backward compatibility
 export const FOAM_MODULES = CASE_MANAGER_MODULES;
 
-// --- FATHERHOOD TRACKER CONSTANTS ---
+// --- FATHERHOOD TRACKER: 14-CLASS CURRICULUM (NPCL) ---
 export const TRACKER_MODULES: TrackerModule[] = [
-  { id: 1, title: "Conflict Resolution/Anger Management", category: "Relationship" },
-  { id: 2, title: "Becoming Self-Sufficient", category: "Life Skills" },
-  { id: 3, title: "Building Your Child’s Self-Esteem", category: "Parenting" },
-  { id: 4, title: "Co-Parenting/Single Fatherhood", category: "Parenting" },
-  { id: 5, title: "Male/Female Relationship", category: "Relationship" },
-  { id: 6, title: "Manhood", category: "Foundation" },
-  { id: 7, title: "Values", category: "Foundation" },
-  { id: 8, title: "Communication/Active Listening", category: "Relationship" },
-  { id: 9, title: "Dealing with Stress", category: "Health" },
-  { id: 10, title: "Coping with Fatherhood Discrimination", category: "Social" },
-  { id: 11, title: "Fatherhood Today", category: "Foundation" },
-  { id: 12, title: "Understanding Children's Needs", category: "Parenting" },
-  { id: 13, title: "A Father’s Influence on His Child", category: "Parenting" },
-  { id: 14, title: "Relationships", category: "Relationship" },
+  { id: 1, title: "Manhood", category: "Foundation" },
+  { id: 2, title: "Values", category: "Foundation" },
+  { id: 3, title: "Communication/Active Listening", category: "Relationship" },
+  { id: 4, title: "Dealing with Stress", category: "Health" },
+  { id: 5, title: "Coping with Fatherhood Discrimination", category: "Social" },
+  { id: 6, title: "Fatherhood Today", category: "Foundation" },
+  { id: 7, title: "Understanding Children's Needs", category: "Parenting" },
+  { id: 8, title: "A Father's Influence on His Child", category: "Parenting" },
+  { id: 9, title: "Relationships", category: "Relationship" },
+  { id: 10, title: "Conflict Resolution/Anger Management", category: "Relationship" },
+  { id: 11, title: "Becoming Self-Sufficient", category: "Life Skills" },
+  { id: 12, title: "Building Your Child's Self-Esteem", category: "Parenting" },
+  { id: 13, title: "Co-Parenting/Single Fatherhood", category: "Parenting" },
+  { id: 14, title: "Male/Female Relationship", category: "Relationship" },
 ];
 
+// --- ALL 178 FATHERS FROM FOAM DATABASE (Imported from Excel) ---
+export const INITIAL_FATHERS: Father[] = [
+  { id: "1", firstName: "Aaron", lastName: "Banks", phone: "2259339855", email: "aaron.banks@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "2", firstName: "Adrian", lastName: "Churchill", phone: null, email: "adrian.churchill@example.org", completedModules: [7], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "3", firstName: "Albion", lastName: "Dawson", phone: null, email: "albion.dawson@example.org", completedModules: [1, 5, 6, 7, 8, 9, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "4", firstName: "Alfred", lastName: "(Al) Bergeron", phone: null, email: "alfred.albergeron@example.org", completedModules: [1, 2, 4, 5, 7, 8, 9, 10, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "5", firstName: "Andre", lastName: "Nettles", phone: null, email: "andre.nettles@example.org", completedModules: [1, 2, 3, 8], joinedDate: "2024-01-01", status: "Active" },
+  { id: "6", firstName: "Andre", lastName: "Williams", phone: null, email: "andre.williams@example.org", completedModules: [2, 4, 5, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "7", firstName: "Anthony", lastName: "(Tony) Morris", phone: null, email: "anthony.tonymorris@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "8", firstName: "Archie", lastName: "Lee", phone: "7576421664", email: "archie.lee@example.org", completedModules: [3, 6, 10, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" },
+  { id: "9", firstName: "Archie.j.lee", lastName: "", phone: "7576421664", email: null, completedModules: [5, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "10", firstName: "Arnest", lastName: "Porter", phone: "2252053346", email: "arnest.porter@example.org", completedModules: [14], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "11", firstName: "Bernard", lastName: "Dent", phone: null, email: "bernard.dent@example.org", completedModules: [1, 2, 5, 6, 7, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "12", firstName: "Brandon", lastName: "browder", phone: "2253781055", email: "brandon.browder@example.org", completedModules: [14], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "13", firstName: "Brandon", lastName: "Browder", phone: "2253781055", email: "brandon.browder@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "14", firstName: "Brandon", lastName: "Bruce", phone: null, email: "brandon.bruce@example.org", completedModules: [1, 2], joinedDate: "2024-01-01", status: "Active" },
+  { id: "15", firstName: "Brandon", lastName: "horton", phone: "2254841825", email: "brandon.horton@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "16", firstName: "Brandon", lastName: "lang", phone: "2259315405", email: "brandon.lang@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "17", firstName: "Bristen", lastName: "", phone: "2253644288", email: null, completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "18", firstName: "Bristen", lastName: "Tate", phone: null, email: "bristen.tate@example.org", completedModules: [6, 7, 8, 12], joinedDate: "2024-01-01", status: "Active" },
+  { id: "19", firstName: "Bryan", lastName: "Comeaux", phone: "2252763553", email: "bryan.comeaux@example.org", completedModules: [1, 3, 4, 7, 8, 9, 11, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" },
+  { id: "20", firstName: "Byron", lastName: "Washington", phone: null, email: "byron.washington@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "21", firstName: "Caleb", lastName: "", phone: "3865626828", email: null, completedModules: [9], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "22", firstName: "Carlese", lastName: "Baker", phone: "2259545645", email: "carlese.baker@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "23", firstName: "Carson", lastName: "Camarion", phone: null, email: "carson.camarion@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "24", firstName: "Cedrick", lastName: "Johnson", phone: null, email: "cedrick.johnson@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "25", firstName: "Charle", lastName: "Thompson", phone: "2252393869", email: "charle.thompson@example.org", completedModules: [12], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "26", firstName: "Charles", lastName: "", phone: "2252393869", email: null, completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "27", firstName: "Charles", lastName: "Guidry", phone: null, email: "charles.guidry@example.org", completedModules: [2, 5, 6, 7, 8, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "28", firstName: "Charles", lastName: "Thompson", phone: null, email: "charles.thompson@example.org", completedModules: [1, 5, 6, 7, 11, 12, 13], joinedDate: "2024-01-01", status: "Active" },
+  { id: "29", firstName: "Christopher", lastName: "Bennett", phone: "2255223162", email: "christopher.bennett@example.org", completedModules: [1, 2, 5, 6, 7, 8, 9, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "30", firstName: "Christopher", lastName: "hartley", phone: "2254596659", email: "christopher.hartley@example.org", completedModules: [12], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "31", firstName: "Christopher", lastName: "Lucas", phone: null, email: "christopher.lucas@example.org", completedModules: [1, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "32", firstName: "Cliff", lastName: "Lewis", phone: "2252058551", email: "cliff.lewis@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "33", firstName: "Cody", lastName: "Gordon", phone: null, email: "cody.gordon@example.org", completedModules: [1, 7, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "34", firstName: "Colby", lastName: "Davis", phone: null, email: "colby.davis@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "35", firstName: "Coldman", lastName: "Johnson", phone: "2258030531", email: "coldman.johnson@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "36", firstName: "Conial", lastName: "Caldwell", phone: null, email: "conial.caldwell@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "37", firstName: "Craig", lastName: "Morgan", phone: null, email: "craig.morgan@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "38", firstName: "Craig", lastName: "Oxley", phone: null, email: "craig.oxley@example.org", completedModules: [6, 8], joinedDate: "2024-01-01", status: "Active" },
+  { id: "39", firstName: "D'Qualyn", lastName: "Grant", phone: null, email: "dqualyn.grant@example.org", completedModules: [1, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "40", firstName: "DAngelo", lastName: "Christopher", phone: "2259542358", email: "dangelo.christopher@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "41", firstName: "DAngelo", lastName: "d Christopher", phone: null, email: "dangelo.dchristopher@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "42", firstName: "Darion", lastName: "Parker", phone: "2252245962", email: "darion.parker@example.org", completedModules: [1, 7, 9, 11, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" },
+  { id: "43", firstName: "Daron", lastName: "Franklin", phone: "5048580090", email: "daron.franklin@example.org", completedModules: [3, 6, 12], joinedDate: "2024-01-01", status: "Active" },
+  { id: "44", firstName: "Daronshel", lastName: "Blackman", phone: null, email: "daronshel.blackman@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "45", firstName: "David", lastName: "", phone: "2258922067", email: null, completedModules: [7], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "46", firstName: "David", lastName: "Anthony butler", phone: "2254939057", email: "david.anthonybutler@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "47", firstName: "David", lastName: "Butler", phone: "2254474440", email: "david.butler@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "48", firstName: "David", lastName: "butler", phone: "2254399057", email: "david.butler@example.org", completedModules: [9], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "49", firstName: "Demetric", lastName: "Henderson", phone: null, email: "demetric.henderson@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "50", firstName: "Deondric", lastName: "Chaney", phone: null, email: "deondric.chaney@example.org", completedModules: [6, 8, 10], joinedDate: "2024-01-01", status: "Active" },
+  { id: "51", firstName: "DeShawn", lastName: "Anderson", phone: "2255772676", email: "deshawn.anderson@example.org", completedModules: [3], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "52", firstName: "Dewayland", lastName: "Rolax", phone: "3372923502", email: "dewayland.rolax@example.org", completedModules: [6, 13], joinedDate: "2024-01-01", status: "Active" },
+  { id: "53", firstName: "Dewayne", lastName: "Ruffin L Jr.", phone: null, email: "dewayne.ruffinljr@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "54", firstName: "Dewitt", lastName: "Ward", phone: "5045594857", email: "dewitt.ward@example.org", completedModules: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], joinedDate: "2024-01-01", status: "Graduated" },
+  { id: "55", firstName: "Don", lastName: "Caffery", phone: "2259380564", email: "don.caffery@example.org", completedModules: [3], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "56", firstName: "Donovan", lastName: "Davis", phone: null, email: "donovan.davis@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "57", firstName: "Donte", lastName: "Jackson", phone: null, email: "donte.jackson@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "58", firstName: "Dwayne", lastName: "Ruffin", phone: "2254093637", email: "dwayne.ruffin@example.org", completedModules: [2, 8, 10], joinedDate: "2024-01-01", status: "Active" },
+  { id: "59", firstName: "Edward", lastName: "Scott", phone: null, email: "edward.scott@example.org", completedModules: [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12], joinedDate: "2024-01-01", status: "Active" },
+  { id: "60", firstName: "Eric", lastName: "", phone: "2253769692", email: null, completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "61", firstName: "Eric", lastName: "D Sander", phone: null, email: "eric.dsander@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "62", firstName: "Eric", lastName: "Patterson", phone: "4044921060", email: "eric.patterson@example.org", completedModules: [4, 8, 12], joinedDate: "2024-01-01", status: "Active" },
+  { id: "63", firstName: "Eric", lastName: "Sander", phone: "2258281513", email: "eric.sander@example.org", completedModules: [10], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "64", firstName: "Eric", lastName: "Sanders", phone: "2258281513", email: "eric.sanders@example.org", completedModules: [1, 3, 5, 9, 11, 12, 13], joinedDate: "2024-01-01", status: "Active" },
+  { id: "65", firstName: "Ernest", lastName: "porter", phone: "2252053346", email: "ernest.porter@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "66", firstName: "Ernest", lastName: "Jenkins", phone: null, email: "ernest.jenkins@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "67", firstName: "Ernest", lastName: "Jordan", phone: null, email: "ernest.jordan@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "68", firstName: "Ernest", lastName: "Porter", phone: "2252053346", email: "ernest.porter@example.org", completedModules: [1, 4, 13, 14], joinedDate: "2024-01-01", status: "Active" },
+  { id: "69", firstName: "Ernie", lastName: "Clark", phone: "2255731149", email: "ernie.clark@example.org", completedModules: [3, 5], joinedDate: "2024-01-01", status: "Active" },
+  { id: "70", firstName: "Ezekiel", lastName: "", phone: "2258770836", email: null, completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "71", firstName: "Garrey", lastName: "Johnson", phone: "2253549296", email: "garrey.johnson@example.org", completedModules: [4], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "72", firstName: "Gregory", lastName: "Johnson", phone: null, email: "gregory.johnson@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "73", firstName: "Henry", lastName: "king", phone: "2255092329", email: "henry.king@example.org", completedModules: [2, 3], joinedDate: "2024-01-01", status: "Active" },
+  { id: "74", firstName: "Irvin", lastName: "Williams", phone: null, email: "irvin.williams@example.org", completedModules: [1, 6, 9], joinedDate: "2024-01-01", status: "Active" },
+  { id: "75", firstName: "Ja\"Korius", lastName: "Montgomery", phone: null, email: "jakorius.montgomery@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "76", firstName: "Jabari", lastName: "Paul", phone: null, email: "jabari.paul@example.org", completedModules: [9], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "77", firstName: "Jalen", lastName: "", phone: "2252876828", email: null, completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "78", firstName: "Jalen", lastName: "Butler", phone: "2252876828", email: "jalen.butler@example.org", completedModules: [3], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "79", firstName: "James", lastName: "Polk", phone: "2257261603", email: "james.polk@example.org", completedModules: [4, 5, 6, 8, 12, 13], joinedDate: "2024-01-01", status: "Active" },
+  { id: "80", firstName: "James", lastName: "Williams", phone: "2256039519", email: "james.williams@example.org", completedModules: [2, 3, 6], joinedDate: "2024-01-01", status: "Active" },
+  { id: "81", firstName: "Jamie", lastName: "Polk", phone: "2257261603", email: "jamie.polk@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "82", firstName: "Jan", lastName: "Noble", phone: "2253630671", email: "jan.noble@example.org", completedModules: [1, 10], joinedDate: "2024-01-01", status: "Active" },
+  { id: "83", firstName: "JeCorey", lastName: "Collins", phone: null, email: "jecorey.collins@example.org", completedModules: [1, 2, 6, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "84", firstName: "Jeff", lastName: "Williams", phone: "2252685942", email: "jeff.williams@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "85", firstName: "Jeffery", lastName: "", phone: "2255065747", email: null, completedModules: [10], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "86", firstName: "Jeremiah", lastName: "Banks", phone: null, email: "jeremiah.banks@example.org", completedModules: [1, 5, 6, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "87", firstName: "Jermaine", lastName: "Taylor", phone: null, email: "jermaine.taylor@example.org", completedModules: [1, 2, 6, 7, 8, 9], joinedDate: "2024-01-01", status: "Active" },
+  { id: "88", firstName: "Jimmie", lastName: "Smith", phone: null, email: "jimmie.smith@example.org", completedModules: [1, 2, 5, 6, 7, 8, 9, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "89", firstName: "Jocobie", lastName: "James", phone: null, email: "jocobie.james@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "90", firstName: "John", lastName: "Neal", phone: "1225572281", email: "john.neal@example.org", completedModules: [3], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "91", firstName: "Johnathan", lastName: "Haney", phone: null, email: "johnathan.haney@example.org", completedModules: [1, 3, 7, 8, 9, 10, 12], joinedDate: "2024-01-01", status: "Active" },
+  { id: "92", firstName: "Jonathan", lastName: "Haney", phone: "2254254416", email: "jonathan.haney@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "93", firstName: "Jordan", lastName: "Harrison", phone: "5416755533", email: "jordan.harrison@example.org", completedModules: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" },
+  { id: "94", firstName: "Joseph", lastName: "Williams", phone: null, email: "joseph.williams@example.org", completedModules: [1, 4, 5, 7, 9], joinedDate: "2024-01-01", status: "Active" },
+  { id: "95", firstName: "Joyrie", lastName: "Knighton", phone: "2258022486", email: "joyrie.knighton@example.org", completedModules: [6, 8], joinedDate: "2024-01-01", status: "Active" },
+  { id: "96", firstName: "Keandre", lastName: "mack", phone: "2253847002", email: "keandre.mack@example.org", completedModules: [7], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "97", firstName: "Keandre", lastName: "mock", phone: null, email: "keandre.mock@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "98", firstName: "Kendale", lastName: "", phone: "2252764442", email: null, completedModules: [7, 13], joinedDate: "2024-01-01", status: "Active" },
+  { id: "99", firstName: "Kendale", lastName: "Cryer", phone: "2252764442", email: "kendale.cryer@example.org", completedModules: [10, 11, 12, 13], joinedDate: "2024-01-01", status: "Active" },
+  { id: "100", firstName: "Kenneth", lastName: "Davis", phone: null, email: "kenneth.davis@example.org", completedModules: [1, 2, 4], joinedDate: "2024-01-01", status: "Active" },
+  { id: "101", firstName: "Kenneth", lastName: "Rankin's Sr.", phone: null, email: "kenneth.rankinsssr@example.org", completedModules: [4], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "102", firstName: "Kenneth", lastName: "Rankins", phone: "2252391265", email: "kenneth.rankins@example.org", completedModules: [2, 4, 5, 7], joinedDate: "2024-01-01", status: "Active" },
+  { id: "103", firstName: "Keondric", lastName: "Chaney", phone: "2258310043", email: "keondric.chaney@example.org", completedModules: [1, 2, 3, 4, 5, 6, 8, 10, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "104", firstName: "Keontrae", lastName: "Murray", phone: "5045101225", email: "keontrae.murray@example.org", completedModules: [2, 3, 4, 5, 6, 10, 12, 13], joinedDate: "2024-01-01", status: "Active" },
+  { id: "105", firstName: "Keyon", lastName: "Marshall", phone: "2255212147", email: "keyon.marshall@example.org", completedModules: [2, 3, 7], joinedDate: "2024-01-01", status: "Active" },
+  { id: "106", firstName: "Koby", lastName: "Jackson", phone: null, email: "koby.jackson@example.org", completedModules: [12], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "107", firstName: "Kornell", lastName: "Baloney", phone: null, email: "kornell.baloney@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "108", firstName: "Kornell", lastName: "baloney", phone: "2254768195", email: "kornell.baloney@example.org", completedModules: [10, 13], joinedDate: "2024-01-01", status: "Active" },
+  { id: "109", firstName: "Kourtney", lastName: "Marshall", phone: null, email: "kourtney.marshall@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "110", firstName: "Kyle", lastName: "Eames", phone: null, email: "kyle.eames@example.org", completedModules: [12], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "111", firstName: "Kyree", lastName: "Thorne", phone: null, email: "kyree.thorne@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "112", firstName: "Kywong", lastName: "Moore", phone: "2253268444", email: "kywong.moore@example.org", completedModules: [3, 4, 5, 7], joinedDate: "2024-01-01", status: "Active" },
+  { id: "113", firstName: "Lamord", lastName: "Jackson", phone: null, email: "lamord.jackson@example.org", completedModules: [12], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "114", firstName: "Larry", lastName: "Mike", phone: null, email: "larry.mike@example.org", completedModules: [1, 2, 4, 5, 6, 7, 8, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "115", firstName: "Larry", lastName: "Ross", phone: null, email: "larry.ross@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "116", firstName: "Laurent", lastName: "Randall", phone: null, email: "laurent.randall@example.org", completedModules: [5, 6], joinedDate: "2024-01-01", status: "Active" },
+  { id: "117", firstName: "Layne", lastName: "Jordan", phone: "2254595547", email: "layne.jordan@example.org", completedModules: [7], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "118", firstName: "Louis", lastName: "Shawl", phone: null, email: "louis.shawl@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "119", firstName: "Luke", lastName: "Freeman", phone: "2253664421", email: "luke.freeman@example.org", completedModules: [1, 2, 4, 5, 7, 8, 13, 14], joinedDate: "2024-01-01", status: "Active" },
+  { id: "120", firstName: "Madhav", lastName: "Saxena", phone: null, email: "madhav.saxena@example.org", completedModules: [5, 10], joinedDate: "2024-01-01", status: "Active" },
+  { id: "121", firstName: "Mark", lastName: "Powell", phone: null, email: "mark.powell@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "122", firstName: "Matthew", lastName: "Abrams", phone: null, email: "matthew.abrams@example.org", completedModules: [1, 4, 5, 6, 7, 8, 9, 10, 12, 13], joinedDate: "2024-01-01", status: "Active" },
+  { id: "123", firstName: "Michael", lastName: "", phone: "2252848213", email: null, completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "124", firstName: "Michael", lastName: "Buckner", phone: null, email: "michael.buckner@example.org", completedModules: [1, 2, 4, 5, 6, 7, 8, 9, 10], joinedDate: "2024-01-01", status: "Active" },
+  { id: "125", firstName: "Michael", lastName: "Butler", phone: "2254484485", email: "michael.butler@example.org", completedModules: [1, 2, 3, 4, 5, 6, 8, 12, 13], joinedDate: "2024-01-01", status: "Active" },
+  { id: "126", firstName: "Michael", lastName: "Colston", phone: null, email: "michael.colston@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "127", firstName: "Michael", lastName: "Dright", phone: "6015969899", email: "michael.dright@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "128", firstName: "Michael", lastName: "Harris", phone: "2256781883", email: "michael.harris@example.org", completedModules: [6, 7, 8, 11, 12, 13], joinedDate: "2024-01-01", status: "Active" },
+  { id: "129", firstName: "Michael", lastName: "Johnson", phone: null, email: "michael.johnson@example.org", completedModules: [4], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "130", firstName: "Mikyle", lastName: "Carter", phone: null, email: "mikyle.carter@example.org", completedModules: [2, 5, 14], joinedDate: "2024-01-01", status: "Active" },
+  { id: "131", firstName: "Mohamed", lastName: "Aly", phone: null, email: "mohamed.aly@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "132", firstName: "Moses", lastName: "Evans", phone: null, email: "moses.evans@example.org", completedModules: [12], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "133", firstName: "Nicholas", lastName: "Menina", phone: null, email: "nicholas.menina@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "134", firstName: "Onae", lastName: "Chatman", phone: "6623975781", email: "onae.chatman@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "135", firstName: "Onre", lastName: "Batiste", phone: null, email: "onre.batiste@example.org", completedModules: [1, 6], joinedDate: "2024-01-01", status: "Active" },
+  { id: "136", firstName: "Orland", lastName: "", phone: "2255015494", email: null, completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "137", firstName: "Orlando", lastName: "Alexander", phone: "2255015494", email: "orlando.alexander@example.org", completedModules: [1, 3, 6, 7, 9, 11, 13, 14], joinedDate: "2024-01-01", status: "Active" },
+  { id: "138", firstName: "Percy", lastName: "Heard", phone: null, email: "percy.heard@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "139", firstName: "Quentin", lastName: "Carter", phone: null, email: "quentin.carter@example.org", completedModules: [10], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "140", firstName: "Quentiss", lastName: "Jackson", phone: null, email: "quentiss.jackson@example.org", completedModules: [2, 4, 8], joinedDate: "2024-01-01", status: "Active" },
+  { id: "141", firstName: "Rafael", lastName: "Vega", phone: "2254910302", email: "rafael.vega@example.org", completedModules: [1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" },
+  { id: "142", firstName: "Ray", lastName: "Smith", phone: "2259755149", email: "ray.smith@example.org", completedModules: [1, 2, 3, 4, 5, 7, 8, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" },
+  { id: "143", firstName: "Reggie", lastName: "Randall", phone: null, email: "reggie.randall@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "144", firstName: "Reginald", lastName: "Maten", phone: null, email: "reginald.maten@example.org", completedModules: [1, 9], joinedDate: "2024-01-01", status: "Active" },
+  { id: "145", firstName: "Ricky", lastName: "Day", phone: null, email: "ricky.day@example.org", completedModules: [1, 2, 4, 5, 6, 7, 8, 9, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "146", firstName: "Rico", lastName: "McQuirter", phone: null, email: "rico.mcquirter@example.org", completedModules: [1, 2, 5, 10], joinedDate: "2024-01-01", status: "Active" },
+  { id: "147", firstName: "Robert", lastName: "Ayala", phone: "5124845182", email: "robert.ayala@example.org", completedModules: [8, 10], joinedDate: "2024-01-01", status: "Active" },
+  { id: "148", firstName: "Robert", lastName: "Williams", phone: "2254767158", email: "robert.williams@example.org", completedModules: [1, 2, 3, 5, 7, 10, 13, 14], joinedDate: "2024-01-01", status: "Active" },
+  { id: "149", firstName: "Ronald", lastName: "williams", phone: "2254334501", email: "ronald.williams@example.org", completedModules: [3], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "150", firstName: "Roy", lastName: "Thompson", phone: null, email: "roy.thompson@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "151", firstName: "Ruffin", lastName: "Dwayne L Jr", phone: null, email: "ruffin.dwayneljr@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "152", firstName: "Ryan", lastName: "Coleman", phone: null, email: "ryan.coleman@example.org", completedModules: [4, 6], joinedDate: "2024-01-01", status: "Active" },
+  { id: "153", firstName: "Sam", lastName: "Mason", phone: "2252707241", email: "sam.mason@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "154", firstName: "Samual", lastName: "Mason", phone: null, email: "samual.mason@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "155", firstName: "Samuel", lastName: "Mason", phone: "2252707241", email: "samuel.mason@example.org", completedModules: [4], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "156", firstName: "Samuel", lastName: "mason", phone: null, email: "samuel.mason@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "157", firstName: "Shomari", lastName: "Pugh", phone: null, email: "shomari.pugh@example.org", completedModules: [1, 2, 5, 6, 8, 9, 11, 14], joinedDate: "2024-01-01", status: "Active" },
+  { id: "158", firstName: "Steven", lastName: "Howard", phone: null, email: "steven.howard@example.org", completedModules: [1, 2, 6, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "159", firstName: "Taylor", lastName: "Gentile", phone: null, email: "taylor.gentile@example.org", completedModules: [7, 12], joinedDate: "2024-01-01", status: "Active" },
+  { id: "160", firstName: "Thaddeus", lastName: "Curtain", phone: "2252491791", email: "thaddeus.curtain@example.org", completedModules: [14], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "161", firstName: "Tim", lastName: "Carter", phone: null, email: "tim.carter@example.org", completedModules: [2, 3, 4, 5, 6, 7, 13], joinedDate: "2024-01-01", status: "Active" },
+  { id: "162", firstName: "Tim", lastName: "Leblanc", phone: null, email: "tim.leblanc@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "163", firstName: "Timothy", lastName: "Carr", phone: "2259376783", email: "timothy.carr@example.org", completedModules: [9, 10], joinedDate: "2024-01-01", status: "Active" },
+  { id: "164", firstName: "Timothy", lastName: "Carter", phone: "2252396158", email: "timothy.carter@example.org", completedModules: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], joinedDate: "2024-01-01", status: "Graduated" },
+  { id: "165", firstName: "Timothy", lastName: "Morgan", phone: "2254424312", email: "timothy.morgan@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "166", firstName: "Timthoy", lastName: "J Carter", phone: null, email: "timthoy.jcarter@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "167", firstName: "Tramel", lastName: "Tolliver", phone: null, email: "tramel.tolliver@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "168", firstName: "Travis", lastName: "London", phone: "2252640809", email: "travis.london@example.org", completedModules: [1, 2, 6, 7, 8, 12], joinedDate: "2024-01-01", status: "Active" },
+  { id: "169", firstName: "Travis", lastName: "Samuels", phone: null, email: "travis.samuels@example.org", completedModules: [2, 7, 8, 11], joinedDate: "2024-01-01", status: "Active" },
+  { id: "170", firstName: "Tray'von", lastName: "Davis", phone: null, email: "trayvon.davis@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "171", firstName: "Tre'", lastName: "Gramise", phone: null, email: "tre.gramise@example.org", completedModules: [7], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "172", firstName: "Trevion", lastName: "major", phone: "2254696389", email: "trevion.major@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "173", firstName: "Tshona", lastName: "Carter", phone: "2254189811", email: "tshona.carter@example.org", completedModules: [2, 3, 4, 6, 7, 9, 14], joinedDate: "2024-01-01", status: "Active" },
+  { id: "174", firstName: "Ty", lastName: "Harlan", phone: "9857895350", email: "ty.harlan@example.org", completedModules: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], joinedDate: "2024-01-01", status: "Graduated" },
+  { id: "175", firstName: "Tyrzell", lastName: "Simmons", phone: "2259608604", email: "tyrzell.simmons@example.org", completedModules: [5, 7], joinedDate: "2024-01-01", status: "Active" },
+  { id: "176", firstName: "Vic", lastName: "", phone: "2254139075", email: null, completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
+  { id: "177", firstName: "Vic", lastName: "Hollins Jr.", phone: null, email: "vic.hollinsjr@example.org", completedModules: [12, 13], joinedDate: "2024-01-01", status: "Active" },
+  { id: "178", firstName: "William", lastName: "Ruffin", phone: "9195918530", email: "william.ruffin@example.org", completedModules: [1, 3, 4, 5, 6, 8, 10, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" }
+];
+
+// Program dates and schedule
 const generateTuesdays = (startYear: number, endYear: number) => {
   const tuesdays: string[] = [];
   for (let year = startYear; year <= endYear; year++) {
@@ -298,58 +480,6 @@ export const FULL_SCHEDULE_LOG = PROGRAM_DATES.map((date, index) => ({
 }));
 
 export const FUTURE_THRESHOLD = "2026-01-06";
-
-// --- EXPANDED ROSTER DATA (235+ FATHERS) ---
-const FIRST_NAMES = ["Aaron", "Archie", "Bryan", "Rafael", "Ty", "James", "Robert", "John", "Michael", "David", "William", "Richard", "Joseph", "Thomas", "Christopher", "Charles", "Daniel", "Matthew", "Anthony", "Mark", "Donald", "Steven", "Paul", "Andrew", "Joshua", "Kenneth", "Kevin", "Brian", "George", "Timothy", "Ronald", "Edward", "Jason", "Jeffrey", "Gary", "Jacob", "Nicholas", "Eric", "Jonathan", "Stephen", "Larry", "Justin", "Scott", "Brandon", "Benjamin", "Samuel", "Gregory", "Alexander", "Patrick", "Frank", "Raymond", "Jack", "Dennis", "Jerry", "Tyler", "Aaron", "Jose", "Adam", "Nathan", "Henry", "Douglas", "Zachary", "Peter", "Kyle", "Ethan", "Walter", "Harold", "Jeremy", "Christian", "Keith", "Roger", "Noah", "Gerald", "Carl", "Terry", "Sean", "Lawrence", "Arthur", "Austin", "Jesse", "Jordan", "Bryan", "Billy", "Joe", "Bruce", "Gabriel", "Logan", "Louis", "Albert", "Willie", "Alan", "Juan", "Wayne", "Elijah", "Randy", "Roy", "Vincent", "Ralph", "Eugene", "Russell", "Bobby", "Mason", "Philip", "Louis"];
-const LAST_NAMES = ["Banks", "Lee", "Comeaux", "Vega", "Harlan", "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson", "Walker", "Young", "Allen", "King", "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores", "Green", "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell", "Carter", "Roberts", "Gomez", "Phillips", "Evans", "Turner", "Diaz", "Parker", "Cruz", "Edwards", "Collins", "Reyes", "Stewart", "Morris", "Morales", "Murphy", "Cook", "Rogers", "Gutierrez", "Ortiz", "Morgan", "Cooper", "Peterson", "Bailey", "Reed", "Kelly", "Howard", "Ramos", "Kim", "Foster", "Ward", "Richardson", "Watson", "Brooks", "Chavez", "Wood", "James", "Bennett", "Gray", "Mendoza", "Ruiz", "Hughes", "Price", "Alvarez", "Castillo", "Sanders", "Patel", "Myers", "Long", "Ross", "Foster"];
-
-export const generateFullRoster = (): Father[] => {
-  const roster: Father[] = [];
-  
-  // Seed with 235 unique fathers to match the user's expected "230-plus" roster
-  for (let i = 1; i <= 235; i++) {
-    const firstName = FIRST_NAMES[i % FIRST_NAMES.length];
-    const lastName = LAST_NAMES[i % LAST_NAMES.length];
-    
-    // Vary module completion counts for a realistic status mix
-    let modules: number[] = [];
-    if (i === 1) modules = [10, 13]; // Original Aaron
-    else if (i === 2) modules = [3, 6, 10, 12, 13, 14]; // Original Archie
-    else if (i === 3) modules = [1, 3, 4, 7, 8, 9, 11, 12, 13, 14]; // Original Bryan
-    else if (i === 4) modules = [1, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14]; // Original Rafael
-    else if (i === 5) modules = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]; // Original Ty
-    else {
-      // Logic for the other 230 fathers
-      const completionLevel = Math.random();
-      if (completionLevel > 0.9) {
-        // High completion (Graduated)
-        modules = Array.from({ length: 14 }, (_, i) => i + 1);
-      } else if (completionLevel > 0.3) {
-        // Active progress
-        const count = Math.floor(Math.random() * 11) + 2;
-        modules = Array.from({ length: count }, (_, i) => i + 1);
-      } else {
-        // At Risk (low completion)
-        const count = Math.floor(Math.random() * 2);
-        modules = count === 0 ? [] : [Math.floor(Math.random() * 14) + 1];
-      }
-    }
-
-    roster.push({
-      id: i.toString(),
-      firstName: firstName,
-      lastName: lastName,
-      phone: `225-${Math.floor(100+Math.random()*900)}-${Math.floor(1000+Math.random()*9000)}`,
-      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@example.org`,
-      completedModules: modules,
-      joinedDate: '2024-01-01',
-      status: modules.length === 14 ? 'Graduated' : modules.length < 2 ? 'At Risk' : 'Active',
-    });
-  }
-  return roster;
-};
-
-export const INITIAL_FATHERS = generateFullRoster();
 
 export const CLASS_LOCATION = {
   name: "FYSC Building",
