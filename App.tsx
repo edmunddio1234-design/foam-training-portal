@@ -19,8 +19,9 @@ import AdminPortal from './components/AdminPortal';
 import FatherhoodTracking from './components/FatherhoodTracking';
 import CaseManagerPortal from './components/CaseManagerPortal';
 import ClassAssessment from './components/tracking/ClassAssessment';
+import FatherProgress from './components/tracking/FatherProgress';
 
-type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment';
+type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment' | 'progress';
 type FinanceSubView = 'dashboard' | 'exchange' | 'bills';
 
 const App: React.FC = () => {
@@ -37,11 +38,13 @@ const App: React.FC = () => {
   
   const [allFinanceEntries, setAllFinanceEntries] = useState<BillEntry[]>([]);
 
-  // Check URL for direct assessment access (for fathers on mobile)
+  // Check URL for direct access (for fathers on mobile)
   useEffect(() => {
     const path = window.location.pathname;
     if (path === '/assessment' || path === '/checkin') {
       setCurrentView('assessment');
+    } else if (path === '/progress' || path === '/myprogress') {
+      setCurrentView('progress');
     }
   }, []);
 
@@ -82,6 +85,11 @@ const App: React.FC = () => {
   // Assessment page - NO LOGIN REQUIRED (for fathers on mobile)
   if (currentView === 'assessment') {
     return <ClassAssessment />;
+  }
+
+  // Progress page - NO LOGIN REQUIRED (for fathers to check their progress)
+  if (currentView === 'progress') {
+    return <FatherProgress />;
   }
 
   if (!isLoggedIn) {
