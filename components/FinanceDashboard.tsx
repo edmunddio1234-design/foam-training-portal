@@ -168,7 +168,11 @@ const getQuarterFromDate = (dateStr: string): string => {
   return 'Q4';
 };
 
-const FinanceDashboard: React.FC = () => {
+interface FinanceDashboardProps {
+  onClose?: () => void;
+}
+
+const FinanceDashboard: React.FC<FinanceDashboardProps> = ({ onClose }) => {
   // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ email: string; name: string; role: string } | null>(null);
@@ -625,6 +629,15 @@ const FinanceDashboard: React.FC = () => {
               <p className="text-sm text-indigo-200">Welcome back,</p>
               <p className="font-bold">{currentUser?.name}</p>
             </div>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-medium transition-all"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Back to Hub</span>
+              </button>
+            )}
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-medium transition-all"
