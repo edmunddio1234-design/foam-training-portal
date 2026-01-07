@@ -297,14 +297,60 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
     }
   }, [reportData, reportType, selectedMonth, selectedQuarter]);
 
+  const [generatedReport, setGeneratedReport] = useState<any>(null);
+
   const handleGenerateReport = async () => {
     setIsGenerating(true);
+    setGeneratedReport(null);
     
-    // Simulate report generation (in production, this would call a backend endpoint)
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/reports/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          year: selectedYear,
+          reportType: reportType,
+          period: reportType === 'monthly' ? selectedMonth : reportType === 'quarterly' ? selectedQuarter : 0
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setGeneratedReport(data.report);
+        setShowPreview(false); // Hide preview, show full report
+      } else {
+        alert('Failed to generate report: ' + data.error);
+      }
+    } catch (err: any) {
+      alert('Error generating report: ' + err.message);
+    } finally {
       setIsGenerating(false);
-      alert('Report generation feature coming soon! This will create a professional Word document with charts and analysis.');
-    }, 2000);
+    }
+  };
+
+  const handleDownloadReport = async () => {
+    if (!generatedReport) return;
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/reports/download`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ report: generatedReport })
+      });
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `FOAM_${generatedReport.metadata.reportType}_Report_${generatedReport.metadata.year}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert('Error downloading report: ' + err.message);
+    }
   };
 
   // Key metrics for preview
@@ -932,6 +978,216 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                 })}
               </div>
             </div>
+
+            {/* GENERATED INTERACTIVE REPORT */}
+            {generatedReport && (
+              <div className="space-y-6">
+                {/* Report Header */}
+                <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-slate-400 text-sm">Generated Report</p>
+                      <h2 className="text-2xl font-bold">Fathers On A Mission</h2>
+                      <p className="text-blue-400">{generatedReport.metadata.reportType.charAt(0).toUpperCase() + generatedReport.metadata.reportType.slice(1)} Outcomes Report • {generatedReport.metadata.periodLabel}</p>
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setGeneratedReport(null)}
+                        className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl flex items-center gap-2 transition-all"
+                      >
+                        <X size={18} /> Close
+                      </button>
+                      <button
+                        onClick={handleDownloadReport}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl flex items-center gap-2 transition-all"
+                      >
+                        <Download size={18} /> Download Report
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Key Metrics Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { label: 'Fathers Served', value: generatedReport.keyMetrics.activeFathers, icon: Users, color: 'blue', bg: 'from-blue-500 to-blue-600' },
+                    { label: 'Class Enrollment', value: generatedReport.keyMetrics.fatherhoodClassEnrollment, icon: ClipboardList, color: 'emerald', bg: 'from-emerald-500 to-emerald-600' },
+                    { label: 'Job Placements', value: generatedReport.keyMetrics.jobPlacements, icon: Briefcase, color: 'amber', bg: 'from-amber-500 to-amber-600' },
+                    { label: 'Retention Rate', value: `${generatedReport.successMetrics.retentionRate}%`, icon: TrendingUp, color: 'purple', bg: 'from-purple-500 to-purple-600' },
+                  ].map((metric, i) => {
+                    const Icon = metric.icon;
+                    return (
+                      <div key={i} className={`bg-gradient-to-br ${metric.bg} rounded-2xl p-5 text-white shadow-lg`}>
+                        <div className="flex items-center gap-2 mb-2 opacity-90">
+                          <Icon size={18} />
+                          <span className="text-sm font-medium">{metric.label}</span>
+                        </div>
+                        <p className="text-3xl font-bold">{metric.value}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Executive Summary / Narrative Insights */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <FileText className="text-blue-600" size={24} />
+                    Executive Summary
+                  </h3>
+                  <div className="space-y-3">
+                    {generatedReport.narrativeInsights.map((insight: string, i: number) => (
+                      <div key={i} className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                        <p className="text-slate-700">{insight}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Charts Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Program Breakdown Pie Chart */}
+                  <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <h3 className="text-lg font-bold text-slate-800 mb-4">Program Engagement</h3>
+                    <div className="flex items-center justify-center gap-8">
+                      <svg viewBox="-1 -1 2 2" className="w-40 h-40 transform -rotate-90">
+                        {(() => {
+                          const data = generatedReport.programBreakdown.filter((d: any) => d.value > 0);
+                          const total = data.reduce((sum: number, d: any) => sum + d.value, 0);
+                          if (total === 0) return <circle cx="0" cy="0" r="1" fill="#e2e8f0" />;
+                          let cumulative = 0;
+                          return data.map((d: any, i: number) => {
+                            const percent = d.value / total;
+                            const startX = Math.cos(2 * Math.PI * cumulative);
+                            const startY = Math.sin(2 * Math.PI * cumulative);
+                            cumulative += percent;
+                            const endX = Math.cos(2 * Math.PI * cumulative);
+                            const endY = Math.sin(2 * Math.PI * cumulative);
+                            const largeArc = percent > 0.5 ? 1 : 0;
+                            return (
+                              <path
+                                key={i}
+                                d={`M ${startX} ${startY} A 1 1 0 ${largeArc} 1 ${endX} ${endY} L 0 0`}
+                                fill={d.color}
+                              />
+                            );
+                          });
+                        })()}
+                      </svg>
+                      <div className="space-y-2">
+                        {generatedReport.programBreakdown.map((item: any, i: number) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                            <span className="text-sm text-slate-600">{item.name}</span>
+                            <span className="text-sm font-bold text-slate-800">{item.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Workforce Outcomes Bar Chart */}
+                  <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <h3 className="text-lg font-bold text-slate-800 mb-4">Workforce Pipeline</h3>
+                    <div className="space-y-4">
+                      {generatedReport.workforceOutcomes.map((item: any, i: number) => {
+                        const max = Math.max(...generatedReport.workforceOutcomes.map((o: any) => o.value), 1);
+                        const width = (item.value / max) * 100;
+                        const colors = ['#3b82f6', '#10b981', '#8b5cf6'];
+                        return (
+                          <div key={i}>
+                            <div className="flex justify-between text-sm mb-1">
+                              <span className="text-slate-600">{item.name}</span>
+                              <span className="font-bold text-slate-800">{item.value}</span>
+                            </div>
+                            <div className="h-8 bg-slate-100 rounded-lg overflow-hidden">
+                              <div 
+                                className="h-full rounded-lg transition-all duration-500"
+                                style={{ width: `${width}%`, backgroundColor: colors[i] }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Success Metrics */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <Target className="text-emerald-600" size={24} />
+                    Success Metrics
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { label: 'Workforce Participation', value: generatedReport.successMetrics.workforceParticipationRate, suffix: '%' },
+                      { label: 'Job Placement Rate', value: generatedReport.successMetrics.jobPlacementRate, suffix: '%' },
+                      { label: 'Job Retention Rate', value: generatedReport.successMetrics.retentionRate, suffix: '%' },
+                      { label: 'Mental Health Engagement', value: generatedReport.successMetrics.mentalHealthEngagement, suffix: '%' },
+                    ].map((metric, i) => (
+                      <div key={i} className="text-center p-4 bg-slate-50 rounded-xl">
+                        <div className="relative w-20 h-20 mx-auto mb-2">
+                          <svg className="w-20 h-20 transform -rotate-90">
+                            <circle cx="40" cy="40" r="35" fill="none" stroke="#e2e8f0" strokeWidth="6" />
+                            <circle 
+                              cx="40" cy="40" r="35" fill="none" 
+                              stroke={metric.value >= 50 ? '#10b981' : metric.value >= 25 ? '#f59e0b' : '#ef4444'}
+                              strokeWidth="6"
+                              strokeDasharray={`${(metric.value / 100) * 220} 220`}
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-lg font-bold text-slate-800">{metric.value}{metric.suffix}</span>
+                          </div>
+                        </div>
+                        <p className="text-sm text-slate-600">{metric.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Outcome Summary Table */}
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <ClipboardList className="text-blue-600" size={24} />
+                    Outcome Summary
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-slate-700 text-white">
+                          <th className="p-3 text-left font-medium rounded-tl-lg">Outcome Area</th>
+                          <th className="p-3 text-left font-medium">Results</th>
+                          <th className="p-3 text-left font-medium rounded-tr-lg">Clarification</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {generatedReport.outcomeSummary.map((row: any, i: number) => (
+                          <tr key={i} className={i % 2 === 0 ? 'bg-slate-50' : 'bg-white'}>
+                            <td className="p-3 font-medium text-slate-800">{row.area}</td>
+                            <td className="p-3 text-blue-600 font-bold">{row.result}</td>
+                            <td className="p-3 text-slate-500 text-sm">{row.clarification}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Footer with Download */}
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white text-center">
+                  <p className="text-blue-100 mb-2">Report ready for funder submission</p>
+                  <button
+                    onClick={handleDownloadReport}
+                    className="px-8 py-3 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition-all flex items-center gap-2 mx-auto"
+                  >
+                    <Download size={20} /> Download as Document
+                  </button>
+                  <p className="text-blue-200 text-sm mt-3">Fathers On A Mission • "Enhance Fathers, Strengthen Families"</p>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
