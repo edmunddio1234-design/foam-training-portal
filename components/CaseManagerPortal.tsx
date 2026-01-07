@@ -121,6 +121,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
 
   // Report Generator State
   const [reportType, setReportType] = useState<ReportType>('monthly');
+  const [selectedYear, setSelectedYear] = useState<'2024-2025' | '2026'>('2026');
   const [selectedMonth, setSelectedMonth] = useState<number>(0);
   const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
   const [showPreview, setShowPreview] = useState(false);
@@ -223,22 +224,36 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
     return <ClipboardList size={16} className="text-slate-400" />;
   };
 
-  // Report Data Calculations
+  // Report Data Calculations - now supports both years
   const reportData = useMemo(() => {
-    if (currentData.length === 0) return null;
+    const sourceData = selectedYear === '2026' ? currentData : historicalData;
+    const sourceMonths = selectedYear === '2026' ? currentMonths : historicalMonths;
+    
+    if (sourceData.length === 0) return null;
 
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = selectedYear === '2026' 
+      ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      : sourceMonths.slice(0, -1); // Remove "Total" column for historical
     
     const getMonthData = (monthIndex: number) => {
-      return currentData.map(row => ({
+      return sourceData.map(row => ({
         category: row.category,
         value: typeof row.values[monthIndex] === 'number' ? row.values[monthIndex] as number : 0
       }));
     };
 
     const getQuarterData = (quarter: number) => {
-      const startMonth = (quarter - 1) * 3;
-      return currentData.map(row => {
+      // For 2024-2025, quarters are based on fiscal year (Oct-Sep)
+      // For 2026, quarters are calendar year (Jan-Dec)
+      let startMonth: number;
+      if (selectedYear === '2026') {
+        startMonth = (quarter - 1) * 3;
+      } else {
+        // 2024-2025: Oct=0, Nov=1, Dec=2, Jan=3, etc.
+        startMonth = (quarter - 1) * 3;
+      }
+      
+      return sourceData.map(row => {
         const q1 = typeof row.values[startMonth] === 'number' ? row.values[startMonth] as number : 0;
         const q2 = typeof row.values[startMonth + 1] === 'number' ? row.values[startMonth + 1] as number : 0;
         const q3 = typeof row.values[startMonth + 2] === 'number' ? row.values[startMonth + 2] as number : 0;
@@ -251,12 +266,13 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
     };
 
     const getYearData = () => {
-      return currentData.map(row => {
-        const total = row.values.slice(0, 12).reduce((sum: number, v) => sum + (typeof v === 'number' ? v : 0), 0);
+      const monthCount = selectedYear === '2026' ? 12 : sourceMonths.length - 1;
+      return sourceData.map(row => {
+        const total = row.values.slice(0, monthCount).reduce((sum: number, v) => sum + (typeof v === 'number' ? v : 0), 0);
         return {
           category: row.category,
           value: total,
-          monthly: row.values.slice(0, 12).map(v => typeof v === 'number' ? v : 0)
+          monthly: row.values.slice(0, Math.min(monthCount, 12)).map(v => typeof v === 'number' ? v : 0)
         };
       });
     };
@@ -267,7 +283,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       getQuarterData,
       getYearData
     };
-  }, [currentData]);
+  }, [currentData, historicalData, currentMonths, historicalMonths, selectedYear]);
 
   const previewData = useMemo(() => {
     if (!reportData) return null;
@@ -641,6 +657,45 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                 Generate Funder Report
               </h3>
               
+              {/* Year Selection */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-slate-700 mb-3">Select Reporting Year</label>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setSelectedYear('2024-2025')}
+                    className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                      selectedYear === '2024-2025'
+                        ? 'border-slate-700 bg-slate-50'
+                        : 'border-slate-200 hover:border-slate-400'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <History size={20} className={selectedYear === '2024-2025' ? 'text-slate-700' : 'text-slate-400'} />
+                      <span className={`font-medium ${selectedYear === '2024-2025' ? 'text-slate-800' : 'text-slate-600'}`}>
+                        2024-2025
+                      </span>
+                      <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">Historical</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setSelectedYear('2026')}
+                    className={`flex-1 p-4 rounded-xl border-2 transition-all ${
+                      selectedYear === '2026'
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-slate-200 hover:border-blue-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <Calendar size={20} className={selectedYear === '2026' ? 'text-blue-600' : 'text-slate-400'} />
+                      <span className={`font-medium ${selectedYear === '2026' ? 'text-blue-700' : 'text-slate-600'}`}>
+                        2026
+                      </span>
+                      <span className="text-xs bg-blue-200 text-blue-700 px-2 py-0.5 rounded-full">Current</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 {[
                   { id: 'monthly', label: 'Monthly Report', desc: 'Single month data & analysis', icon: Calendar },
@@ -681,9 +736,16 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                       onChange={(e) => setSelectedMonth(Number(e.target.value))}
                       className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((month, i) => (
-                        <option key={i} value={i}>{month} 2026</option>
-                      ))}
+                      {selectedYear === '2026' ? (
+                        ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((month, i) => (
+                          <option key={i} value={i}>{month} 2026</option>
+                        ))
+                      ) : (
+                        // 2024-2025 fiscal year months
+                        historicalMonths.slice(0, -1).map((month, i) => (
+                          <option key={i} value={i}>{month}</option>
+                        ))
+                      )}
                     </select>
                   </div>
                 )}
@@ -696,10 +758,21 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                       onChange={(e) => setSelectedQuarter(Number(e.target.value))}
                       className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value={1}>Q1 (Jan - Mar) 2026</option>
-                      <option value={2}>Q2 (Apr - Jun) 2026</option>
-                      <option value={3}>Q3 (Jul - Sep) 2026</option>
-                      <option value={4}>Q4 (Oct - Dec) 2026</option>
+                      {selectedYear === '2026' ? (
+                        <>
+                          <option value={1}>Q1 (Jan - Mar) 2026</option>
+                          <option value={2}>Q2 (Apr - Jun) 2026</option>
+                          <option value={3}>Q3 (Jul - Sep) 2026</option>
+                          <option value={4}>Q4 (Oct - Dec) 2026</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value={1}>Q1 (Oct - Dec) 2024</option>
+                          <option value={2}>Q2 (Jan - Mar) 2025</option>
+                          <option value={3}>Q3 (Apr - Jun) 2025</option>
+                          <option value={4}>Q4 (Jul - Sep) 2025</option>
+                        </>
+                      )}
                     </select>
                   </div>
                 )}
@@ -707,8 +780,12 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                 {reportType === 'annual' && (
                   <div className="flex-1 min-w-[200px]">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Report Year</label>
-                    <div className="px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-700 font-medium">
-                      2026 Annual Report
+                    <div className={`px-4 py-3 border rounded-xl font-medium ${
+                      selectedYear === '2026' 
+                        ? 'bg-blue-50 border-blue-200 text-blue-700' 
+                        : 'bg-slate-100 border-slate-200 text-slate-700'
+                    }`}>
+                      {selectedYear === '2026' ? '2026 Annual Report' : '2024-2025 Annual Report (Oct 2024 - Sep 2025)'}
                     </div>
                   </div>
                 )}
@@ -742,10 +819,15 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
             {showPreview && previewData && (
               <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <Eye className="text-blue-600" size={24} />
-                    Report Preview
-                  </h3>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                      <Eye className="text-blue-600" size={24} />
+                      Report Preview
+                    </h3>
+                    <p className="text-sm text-slate-500 mt-1">
+                      {selectedYear} • {reportType === 'monthly' ? (selectedYear === '2026' ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][selectedMonth] : historicalMonths[selectedMonth]) : reportType === 'quarterly' ? `Q${selectedQuarter}` : 'Annual'} Report
+                    </p>
+                  </div>
                   <button onClick={() => setShowPreview(false)} className="p-2 hover:bg-slate-100 rounded-lg">
                     <X size={20} className="text-slate-400" />
                   </button>
