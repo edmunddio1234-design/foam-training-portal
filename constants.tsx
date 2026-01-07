@@ -683,14 +683,27 @@ export const MODULE_SUMMARIES = [
 export const INITIAL_FATHERS: Father[] = [];
 
 // ============================================================
-// PROGRAM DATES FOR TRACKING
+// PROGRAM DATES FOR TRACKING (FIXED - now an array for .map())
 // ============================================================
-export const PROGRAM_DATES = {
-  startDate: '2025-01-07',
-  endDate: '2025-12-31'
-};
+export const PROGRAM_DATES: string[] = [
+  '2025-01-14',
+  '2025-01-21',
+  '2025-01-28',
+  '2025-02-04',
+  '2025-02-11',
+  '2025-02-18',
+  '2025-02-25',
+  '2025-03-04',
+  '2025-03-11',
+  '2025-03-18',
+  '2025-03-25',
+  '2025-04-01',
+  '2025-04-08',
+  '2025-04-15'
+];
 
-export const FUTURE_THRESHOLD = 7; // days ahead to show upcoming classes
+// Future threshold date for planning mode
+export const FUTURE_THRESHOLD = '2025-04-16';
 
 // ============================================================
 // CLASS SCHEDULE AND LOCATION
