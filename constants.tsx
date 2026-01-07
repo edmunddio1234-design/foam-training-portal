@@ -681,3 +681,13 @@ export const MODULE_SUMMARIES = [
 // INITIAL FATHERS DATA (to be replaced with live data)
 // ============================================================
 export const INITIAL_FATHERS: Father[] = [];
+
+// ============================================================
+// PROGRAM DATES FOR TRACKING
+// ============================================================
+export const PROGRAM_DATES = {
+  startDate: '2025-01-07',
+  endDate: '2025-12-31'
+};
+
+export const FUTURE_THRESHOLD = 7; // days ahead to show upcoming classes
