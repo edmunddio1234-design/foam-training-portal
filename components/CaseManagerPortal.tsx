@@ -329,25 +329,40 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
     }
   };
 
-  const handleDownloadReport = async () => {
+  const handleDownloadReport = async (format: 'doc' | 'pdf' = 'doc') => {
     if (!generatedReport) return;
     
     try {
-      const response = await fetch(`${API_BASE_URL}/api/reports/download`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ report: generatedReport })
-      });
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `FOAM_${generatedReport.metadata.reportType}_Report_${generatedReport.metadata.year}.html`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      if (format === 'pdf') {
+        // Open in new window for print-to-PDF
+        const response = await fetch(`${API_BASE_URL}/api/reports/download`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ report: generatedReport, format: 'pdf' })
+        });
+        const html = await response.text();
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(html);
+          printWindow.document.close();
+        }
+      } else {
+        // Download as Word doc
+        const response = await fetch(`${API_BASE_URL}/api/reports/download`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ report: generatedReport, format: 'doc' })
+        });
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `FOAM_${generatedReport.metadata.reportType}_Report_${generatedReport.metadata.year}.doc`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }
     } catch (err: any) {
       alert('Error downloading report: ' + err.message);
     }
@@ -998,10 +1013,16 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                         <X size={18} /> Close
                       </button>
                       <button
-                        onClick={handleDownloadReport}
+                        onClick={() => handleDownloadReport('doc')}
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl flex items-center gap-2 transition-all"
+                      >
+                        <FileText size={18} /> Word Doc
+                      </button>
+                      <button
+                        onClick={() => handleDownloadReport('pdf')}
                         className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl flex items-center gap-2 transition-all"
                       >
-                        <Download size={18} /> Download Report
+                        <Download size={18} /> PDF
                       </button>
                     </div>
                   </div>
@@ -1175,16 +1196,24 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                   </div>
                 </div>
 
-                {/* Footer with Download */}
+                {/* Footer with Download Options */}
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white text-center">
-                  <p className="text-blue-100 mb-2">Report ready for funder submission</p>
-                  <button
-                    onClick={handleDownloadReport}
-                    className="px-8 py-3 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition-all flex items-center gap-2 mx-auto"
-                  >
-                    <Download size={20} /> Download as Document
-                  </button>
-                  <p className="text-blue-200 text-sm mt-3">Fathers On A Mission • "Enhance Fathers, Strengthen Families"</p>
+                  <p className="text-blue-100 mb-4">Report ready for funder submission</p>
+                  <div className="flex gap-4 justify-center flex-wrap">
+                    <button
+                      onClick={() => handleDownloadReport('doc')}
+                      className="px-6 py-3 bg-white text-emerald-600 rounded-xl font-bold hover:bg-emerald-50 transition-all flex items-center gap-2"
+                    >
+                      <FileText size={20} /> Download Word Doc
+                    </button>
+                    <button
+                      onClick={() => handleDownloadReport('pdf')}
+                      className="px-6 py-3 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition-all flex items-center gap-2"
+                    >
+                      <Download size={20} /> Save as PDF
+                    </button>
+                  </div>
+                  <p className="text-blue-200 text-sm mt-4">Fathers On A Mission • "Enhance Fathers, Strengthen Families"</p>
                 </div>
               </div>
             )}
