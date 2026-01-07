@@ -1,376 +1,282 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, CheckCircle2, Circle, Award, BookOpen, 
-  ArrowRight, User, Phone, RefreshCw, ChevronDown,
-  FileText, ClipboardList
-} from 'lucide-react';
-
-// API URL
-const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
-
-interface Father {
-  id: string;
-  firstName: string;
-  lastName: string;
-  phone: string | null;
-  email: string | null;
-  completedModules: number[];
-  joinedDate: string;
-  status: string;
-}
+import { QrCode, RefreshCw, Copy, ExternalLink, MapPin, Calendar, Users, Check, Printer } from 'lucide-react';
 
 interface Module {
   id: number;
   title: string;
-  description: string;
+  description?: string;
 }
 
-const MODULES: Module[] = [
-  { id: 1, title: "Conflict Resolution/Anger Management", description: "Managing emotions and resolving conflicts" },
-  { id: 2, title: "Becoming Self-Sufficient", description: "Building independence and self-reliance" },
-  { id: 3, title: "Building Your Child's Self-Esteem", description: "Nurturing confidence in children" },
-  { id: 4, title: "Co-Parenting/Single Fatherhood", description: "Navigating parenting relationships" },
-  { id: 5, title: "Male/Female Relationship", description: "Building healthy partnerships" },
-  { id: 6, title: "Manhood", description: "Understanding masculinity and leadership" },
-  { id: 7, title: "Values", description: "Living by core principles" },
-  { id: 8, title: "Communication/Active Listening", description: "Effective communication skills" },
-  { id: 9, title: "Dealing with Stress", description: "Healthy coping strategies" },
-  { id: 10, title: "Coping with Fatherhood Discrimination", description: "Addressing bias and advocacy" },
-  { id: 11, title: "Fatherhood Today", description: "Modern fatherhood challenges" },
-  { id: 12, title: "Understanding Children's Needs", description: "Child development insights" },
-  { id: 13, title: "A Father's Influence on His Child", description: "Your lasting impact" },
-  { id: 14, title: "Relationships", description: "Building strong connections" }
-];
+interface QRCheckInProps {
+  modules: Module[];
+}
 
-const FatherProgress: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Father[]>([]);
-  const [selectedFather, setSelectedFather] = useState<Father | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [view, setView] = useState<'search' | 'progress'>('search');
+// Generate QR Code URL using a free API
+const getQRCodeUrl = (data: string, size: number = 300) => {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;
+};
 
-  // Search for fathers
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
+  const [selectedModule, setSelectedModule] = useState<number>(1);
+  const [copied, setCopied] = useState(false);
+  
+  // Auto-detect today's module based on schedule (Tuesdays, rotating through 14 modules)
+  useEffect(() => {
+    const today = new Date();
+    const startDate = new Date('2025-01-07'); // First Tuesday of 2025
+    const daysDiff = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const weeksDiff = Math.floor(daysDiff / 7);
+    const calculatedModule = (weeksDiff % 14) + 1;
     
-    setIsSearching(true);
-    setHasSearched(true);
-    
+    // Only auto-set if it's Tuesday
+    if (today.getDay() === 2) {
+      setSelectedModule(calculatedModule);
+    }
+  }, []);
+
+  const checkInUrl = `https://foamportal.org/assessment?module=${selectedModule}`;
+  const currentModule = modules.find(m => m.id === selectedModule) || modules[0];
+
+  const handleCopy = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/fathers/search/${encodeURIComponent(searchQuery.trim())}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setSearchResults(data.data);
-      } else {
-        setSearchResults([]);
-      }
-    } catch (error) {
-      console.error('Search error:', error);
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
+      await navigator.clipboard.writeText(checkInUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
     }
   };
 
-  // Handle enter key
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
+  const handlePrint = () => {
+    window.print();
   };
 
-  // Select a father and show progress
-  const selectFather = (father: Father) => {
-    setSelectedFather(father);
-    setView('progress');
-  };
-
-  // Go back to search
-  const goBack = () => {
-    setView('search');
-    setSelectedFather(null);
-  };
-
-  // Calculate progress percentage
-  const getProgressPercent = (completed: number) => {
-    return Math.round((completed / 14) * 100);
-  };
-
-  // Get status color
-  const getStatusColor = (status: string, completed: number) => {
-    if (completed === 14) return 'bg-emerald-500';
-    if (completed >= 7) return 'bg-blue-500';
-    if (completed > 0) return 'bg-amber-500';
-    return 'bg-red-500';
-  };
-
-  const getStatusText = (completed: number) => {
-    if (completed === 14) return 'Graduated! 🎉';
-    if (completed >= 7) return 'Active - Great Progress!';
-    if (completed > 0) return 'In Progress';
-    return 'Just Getting Started';
-  };
-
-  // SEARCH VIEW
-  if (view === 'search') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white text-center">
-          <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <User size={32} />
-          </div>
-          <h1 className="text-2xl font-bold">Fatherhood Class Progress Portal</h1>
-          <p className="text-blue-100 mt-1">Check your class progress & complete assessments</p>
-        </div>
-
-        {/* Search Section */}
-        <div className="p-6 max-w-md mx-auto">
-          <div className="bg-white rounded-2xl p-6 shadow-xl">
-            <h2 className="text-lg font-bold text-slate-800 mb-4">Find Your Record</h2>
-            
-            <div className="relative mb-4">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Enter your name or phone number"
-                className="w-full pl-12 pr-4 py-4 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-lg"
-              />
-            </div>
-
-            <button
-              onClick={handleSearch}
-              disabled={isSearching || !searchQuery.trim()}
-              className={`w-full py-4 rounded-xl font-bold text-white transition-all flex items-center justify-center gap-2 ${
-                isSearching || !searchQuery.trim()
-                  ? 'bg-slate-300 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700'
-              }`}
-            >
-              {isSearching ? (
-                <>
-                  <RefreshCw className="animate-spin" size={20} />
-                  Searching...
-                </>
-              ) : (
-                <>
-                  <Search size={20} />
-                  Search
-                </>
-              )}
-            </button>
-
-            {/* Search Results */}
-            {hasSearched && (
-              <div className="mt-6">
-                {searchResults.length > 0 ? (
-                  <>
-                    <p className="text-sm text-slate-500 mb-3">
-                      Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
-                    </p>
-                    <div className="space-y-2">
-                      {searchResults.map((father) => (
-                        <button
-                          key={father.id}
-                          onClick={() => selectFather(father)}
-                          className="w-full p-4 bg-slate-50 hover:bg-blue-50 rounded-xl text-left transition-all border-2 border-transparent hover:border-blue-200 flex items-center justify-between"
-                        >
-                          <div>
-                            <p className="font-bold text-slate-800">
-                              {father.firstName} {father.lastName}
-                            </p>
-                            <p className="text-sm text-slate-500">
-                              {father.completedModules.length} of 14 modules completed
-                            </p>
-                          </div>
-                          <ArrowRight className="text-slate-400" size={20} />
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center py-6">
-                    <p className="text-slate-500">No results found for "{searchQuery}"</p>
-                    <p className="text-sm text-slate-400 mt-1">
-                      Try searching with a different name or phone number
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Quick Links */}
-          <div className="mt-6 space-y-3">
-            <a
-              href="/assessment"
-              className="block w-full p-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-center transition-all"
-            >
-              <div className="flex items-center justify-center gap-2">
-                <ClipboardList size={20} />
-                Complete Class Assessment
-              </div>
-            </a>
-            
-            <a
-              href="https://foamportal.org"
-              className="block w-full p-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium text-center transition-all border border-white/20"
-            >
-              Go to Main Portal
-            </a>
-          </div>
-
-          {/* Help Text */}
-          <p className="text-center text-slate-400 text-sm mt-6">
-            Need help? Contact FOAM at (225) 590-1422
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // PROGRESS VIEW
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200">
+    <div className="space-y-6">
+      {/* Print Styles - Hidden on screen, shown when printing */}
+      <style>{`
+        @media print {
+          body * { visibility: hidden; }
+          .print-area, .print-area * { visibility: visible; }
+          .print-area { 
+            position: absolute; 
+            left: 50%; 
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+          }
+          .no-print { display: none !important; }
+        }
+      `}</style>
+
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
-        <button 
-          onClick={goBack}
-          className="text-white/70 hover:text-white mb-4 flex items-center gap-2"
-        >
-          ← Back to Search
-        </button>
-        
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-2xl font-bold">
-            {selectedFather?.firstName.charAt(0)}{selectedFather?.lastName?.charAt(0) || ''}
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold">
-              {selectedFather?.firstName} {selectedFather?.lastName}
-            </h1>
-            <p className="text-blue-100">
-              {getStatusText(selectedFather?.completedModules.length || 0)}
-            </p>
-          </div>
+      <div className="flex items-center justify-between no-print">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">QR Code Check-In</h1>
+          <p className="text-slate-500">Display this QR code for fathers to scan and check in</p>
         </div>
-      </div>
-
-      {/* Progress Content */}
-      <div className="p-6 max-w-lg mx-auto space-y-6">
-        {/* Progress Card */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-slate-800">Your Progress</h2>
-            <span className="text-2xl font-black text-blue-600">
-              {selectedFather?.completedModules.length || 0}/14
-            </span>
-          </div>
-          
-          {/* Progress Bar */}
-          <div className="w-full bg-slate-100 rounded-full h-4 mb-2">
-            <div 
-              className={`h-4 rounded-full transition-all ${getStatusColor(selectedFather?.status || '', selectedFather?.completedModules.length || 0)}`}
-              style={{ width: `${getProgressPercent(selectedFather?.completedModules.length || 0)}%` }}
-            ></div>
-          </div>
-          <p className="text-right text-sm text-slate-500">
-            {getProgressPercent(selectedFather?.completedModules.length || 0)}% Complete
-          </p>
-
-          {/* Graduation Message */}
-          {selectedFather?.completedModules.length === 14 && (
-            <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center">
-              <Award className="mx-auto text-emerald-500 mb-2" size={32} />
-              <p className="font-bold text-emerald-700">Congratulations!</p>
-              <p className="text-sm text-emerald-600">You've completed all 14 modules!</p>
-            </div>
-          )}
-        </div>
-
-        {/* Module Checklist */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
-          <h2 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <BookOpen size={20} className="text-blue-600" />
-            Module Checklist
-          </h2>
-          
-          <div className="space-y-2">
-            {MODULES.map((module) => {
-              const isCompleted = selectedFather?.completedModules.includes(module.id) || false;
-              return (
-                <div 
-                  key={module.id}
-                  className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
-                    isCompleted 
-                      ? 'bg-emerald-50 border border-emerald-200' 
-                      : 'bg-slate-50 border border-slate-100'
-                  }`}
-                >
-                  {isCompleted ? (
-                    <CheckCircle2 className="text-emerald-500 shrink-0" size={24} />
-                  ) : (
-                    <Circle className="text-slate-300 shrink-0" size={24} />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className={`font-medium text-sm ${isCompleted ? 'text-emerald-700' : 'text-slate-600'}`}>
-                      {module.id}. {module.title}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="space-y-3">
-          <a
-            href="/assessment"
-            className="block w-full p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-center transition-all"
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-all"
           >
-            <div className="flex items-center justify-center gap-2">
-              <ClipboardList size={20} />
-              Complete Today's Assessment
-            </div>
-          </a>
-          
-          <button
-            onClick={goBack}
-            className="w-full p-4 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-medium text-center transition-all"
+            <Printer size={18} />
+            Print QR Code
+          </button>
+          <button 
+            onClick={() => window.location.reload()}
+            className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all"
           >
-            Search for Another Person
+            <RefreshCw size={18} />
+            Refresh
           </button>
         </div>
+      </div>
 
-        {/* Class Info */}
-        <div className="bg-slate-800 text-white rounded-2xl p-6">
-          <h3 className="font-bold mb-3">Class Information</h3>
-          <div className="space-y-2 text-sm">
-            <p className="text-slate-300">
-              <span className="text-slate-400">Schedule:</span> Every Tuesday at 6:30 PM
-            </p>
-            <p className="text-slate-300">
-              <span className="text-slate-400">Location:</span> FYSC Building
-            </p>
-            <p className="text-slate-300">
-              <span className="text-slate-400">Address:</span> 11120 Government Street, Baton Rouge, LA 70802
-            </p>
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Left Column - QR Code */}
+        <div className="space-y-6">
+          {/* Today's Class Banner */}
+          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl p-4 text-white no-print">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                <Calendar size={24} />
+              </div>
+              <div>
+                <p className="text-emerald-100 text-sm">Today's Class</p>
+                <p className="font-bold text-lg">{currentModule?.title || 'Select a module'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* QR Code Display - This is the print area */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 print-area">
+            <div className="flex flex-col items-center">
+              {/* Print Header - Only shows when printing */}
+              <div className="hidden print:block mb-4">
+                <h2 className="text-2xl font-bold text-slate-800">FOAM Fatherhood Class Check-In</h2>
+                <p className="text-slate-600">Module {selectedModule}: {currentModule?.title}</p>
+              </div>
+              
+              {/* QR Code Image */}
+              <div className="bg-white p-4 rounded-xl border-2 border-slate-100 shadow-inner">
+                <img 
+                  src={getQRCodeUrl(checkInUrl, 250)} 
+                  alt="Check-in QR Code"
+                  className="w-64 h-64"
+                />
+              </div>
+              
+              <p className="text-slate-500 mt-4 text-center">Scan with phone camera to check in</p>
+              
+              {/* Print Footer - Only shows when printing */}
+              <div className="hidden print:block mt-4 text-sm text-slate-500">
+                <p>Fathers On A Mission • Every Tuesday at 6:30 PM</p>
+                <p>FYSC Building • 11120 Government Street, Baton Rouge, LA</p>
+              </div>
+              
+              {/* Module Selector */}
+              <div className="w-full mt-6 no-print">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Select Class Module
+                </label>
+                <select
+                  value={selectedModule}
+                  onChange={(e) => setSelectedModule(parseInt(e.target.value))}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                >
+                  {modules.map(module => (
+                    <option key={module.id} value={module.id}>
+                      Module {module.id}: {module.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* URL Display */}
+              <div className="w-full mt-4 no-print">
+                <div className="flex items-center gap-2 bg-slate-50 rounded-lg p-3 border border-slate-200">
+                  <input
+                    type="text"
+                    readOnly
+                    value={checkInUrl}
+                    className="flex-1 bg-transparent text-sm text-slate-600 outline-none"
+                  />
+                  <button
+                    onClick={handleCopy}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                      copied 
+                        ? 'bg-emerald-100 text-emerald-700' 
+                        : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                    }`}
+                  >
+                    {copied ? <Check size={16} /> : <Copy size={16} />}
+                    {copied ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Open Link Button */}
+              <a
+                href={checkInUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 mt-4 text-blue-600 hover:text-blue-700 text-sm no-print"
+              >
+                <ExternalLink size={16} />
+                Open check-in page in new tab
+              </a>
+            </div>
           </div>
         </div>
 
-        {/* Contact */}
-        <p className="text-center text-slate-500 text-sm">
-          Questions? Call FOAM at (225) 590-1422
+        {/* Right Column - Info */}
+        <div className="space-y-6 no-print">
+          {/* Class Location */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
+                <MapPin className="text-blue-600" size={24} />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800">Class Location</h3>
+                <p className="text-slate-500">FYSC Building</p>
+                <p className="text-slate-600 mt-2">11120 Government Street</p>
+                <p className="text-slate-600">Baton Rouge, Louisiana 70802</p>
+              </div>
+            </div>
+          </div>
+
+          {/* How It Works */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                <Users className="text-emerald-600" size={20} />
+              </div>
+              <h3 className="font-bold text-slate-800">How Fathers Check In</h3>
+            </div>
+            
+            <ol className="space-y-3">
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">1</span>
+                <span className="text-slate-600">Father opens camera app on phone</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">2</span>
+                <span className="text-slate-600">Points camera at QR code</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">3</span>
+                <span className="text-slate-600">Taps the link that appears</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">4</span>
+                <span className="text-slate-600">Searches for their name or enters phone number</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">5</span>
+                <span className="text-slate-600">Confirms identity and gets checked in!</span>
+              </li>
+            </ol>
+          </div>
+
+          {/* Class Schedule */}
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 text-white">
+            <div className="flex items-center gap-3 mb-4">
+              <Calendar size={20} />
+              <h3 className="font-bold">Class Schedule</h3>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Day</span>
+                <span className="font-medium">Every Tuesday</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Time</span>
+                <span className="font-medium">6:30 PM</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Current Module</span>
+                <span className="font-medium">Module {selectedModule}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Total Classes</span>
+                <span className="font-medium">14 Modules</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Full Screen Tip */}
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <p className="text-blue-800 text-sm">
+          <strong>Tip:</strong> Press <kbd className="px-2 py-1 bg-blue-100 rounded text-xs font-mono">F11</kbd> for full screen mode when displaying the QR code on a TV or large monitor.
         </p>
       </div>
     </div>
   );
 };
 
-export default FatherProgress;
+export default QRCheckIn;
