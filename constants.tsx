@@ -1,7 +1,11 @@
 import { ModuleType, ModuleContent, Father, TrackerModule } from './types';
 
 // CASE MANAGER TRACK - FULL 10 MODULE CURRICULUM
+// VIDEO LINKS UPDATED: January 6, 2026
 export const CASE_MANAGER_MODULES: ModuleContent[] = [
+  // ============================================================
+  // MODULE 1: ORIENTATION TO FOAM MISSION & VALUES
+  // ============================================================
   {
     id: ModuleType.FOUNDATIONAL,
     title: "Orientation to FOAM Mission & Values",
@@ -10,7 +14,7 @@ export const CASE_MANAGER_MODULES: ModuleContent[] = [
     videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
     videoList: [
       {
-        title: "Welcome to FOAM orientation",
+        title: "Fathers On A Mission",
         url: "https://www.youtube.com/embed/lI1SYkYeCns",
         description: "An essential introduction to the mission, vision, and core values of Fathers On A Mission."
       }
@@ -42,11 +46,22 @@ export const CASE_MANAGER_MODULES: ModuleContent[] = [
           { label: "Identity development", deepDive: "Moving from 'Manhood' to 'Fatherhood'." }
         ],
         color: "bg-indigo-600"
+      },
+      {
+        title: "Pillar 3: Workforce Development",
+        description: "The 'Economic Empowerment' pillar—sustainable income through job readiness.",
+        graphic: "fa-briefcase",
+        details: [
+          { label: "Resume building", deepDive: "Highlighting transferable skills from non-traditional backgrounds." },
+          { label: "Interview prep", deepDive: "Mock interviews and professional attire support." }
+        ],
+        color: "bg-amber-500"
       }
     ],
     slides: [
       "Our Mission: To enhance Fathers and Father Figures which will ultimately strengthen families.",
-      "Philosophy: We do not view fathers as broken. We view them as individuals with potential."
+      "Philosophy: We do not view fathers as broken. We view them as individuals with potential.",
+      "The North Star: Enhancement over repair. Empowerment over dependency."
     ],
     quiz: [
       { 
@@ -54,454 +69,615 @@ export const CASE_MANAGER_MODULES: ModuleContent[] = [
         question: "What are the three pillars of FOAM?", 
         options: ["Housing, Jobs, Classes", "Project Family Build, Fatherhood Classes, Workforce Development", "Money, Support, Education", "None of the above"], 
         correctAnswer: 1 
+      },
+      { 
+        id: "q1_2", 
+        question: "What is FOAM's core philosophy?", 
+        options: ["Fixing broken families", "Enhancing fathers to strengthen families", "Providing financial aid", "Crisis intervention"], 
+        correctAnswer: 1 
       }
     ],
     fullText: "Module 1: Orientation. Mission: Enhance fathers to strengthen families. Pillars: Project Family Build, Fatherhood Classes, Workforce Development."
   },
+
+  // ============================================================
+  // MODULE 2: ROLE OF THE CASE MANAGER
+  // ============================================================
   {
     id: ModuleType.ROLE,
     title: "Role of the Case Manager",
     subtitle: "Module 2: The Strategic Quarterback",
     description: "To define the daily operational scope of the Case Manager, emphasizing prioritization and workflow management.",
     videoUrl: "https://www.youtube.com/embed/Nl-Mu7e25os",
+    videoList: [
+      {
+        title: "Mastering Your M365 Digital Tools",
+        url: "https://www.youtube.com/embed/ARU1RmhbR-Q",
+        description: "Learn to leverage Microsoft 365 tools for efficient case management."
+      },
+      {
+        title: "Starting Our Day",
+        url: "https://www.youtube.com/embed/QpIlA1YKdhE",
+        description: "The daily routine and priorities for effective case management."
+      },
+      {
+        title: "The Strategic Case Manager",
+        url: "https://www.youtube.com/embed/Nl-Mu7e25os",
+        description: "Mastering the art of strategic case management and client prioritization."
+      },
+      {
+        title: "The FOAM Outreach Funnel",
+        url: "https://www.youtube.com/embed/MvOi22RdtNQ",
+        description: "Understanding the client journey from outreach to engagement."
+      }
+    ],
+    videoSummary: "Your daily workflow begins with EmpowerDB. Check alerts, prioritize based on urgency, and never let tasks accumulate. You are the quarterback—coordinate, don't just execute.",
     learningObjectives: [
-      { title: "Understand the daily 'Start of Day' routine.", summary: "Logging into EmpowerDB first thing to review alerts." }
+      { title: "Understand the daily 'Start of Day' routine.", summary: "Logging into EmpowerDB first thing to review alerts." },
+      { title: "Master the prioritization framework.", summary: "Urgent vs. Important matrix for case management." },
+      { title: "Learn the FOAM Outreach Funnel.", summary: "From initial contact to engaged participant." }
     ],
     infographicType: 'workflow',
     infographicDetails: [
       {
         title: "The Prioritization Rule",
-        description: "You cannot do everything at once. Prioritize in this strict order:",
-        graphic: "fa-list-ol",
+        description: "You cannot do everything at once. Use this matrix.",
+        graphic: "fa-list-check",
         details: [
-          { label: "#1 Employed fathers at risk (Retention)", deepDive: "Always your first call." }
+          { label: "Urgent + Important", deepDive: "Crises, same-day deadlines, safety issues." },
+          { label: "Important, Not Urgent", deepDive: "POC updates, follow-ups, relationship building." },
+          { label: "Urgent, Not Important", deepDive: "Delegate or batch process." },
+          { label: "Neither", deepDive: "Eliminate or defer." }
         ],
-        color: "bg-amber-600"
+        color: "bg-[#0F2C5C]"
       }
     ],
-    slides: ["Rule: You cannot do everything at once. Prioritize!", "Start of Day: Log into EmpowerDB immediately."],
-    quiz: [{ id: "q2_1", question: "What is the #1 priority?", options: ["New Intakes", "Retention", "Meetings"], correctAnswer: 1 }],
-    fullText: "Module 2: Role of CM. Quarterback role. Prioritization Rule: 1. Retention."
+    slides: [
+      "Start your day in EmpowerDB. Alerts are your morning briefing.",
+      "Prioritization is power. Use the Urgent/Important matrix.",
+      "You are a strategic quarterback, not a task executor."
+    ],
+    quiz: [
+      { 
+        id: "q2_1", 
+        question: "What should you do first each morning?", 
+        options: ["Check email", "Review EmpowerDB alerts", "Make coffee", "Call clients"], 
+        correctAnswer: 1 
+      }
+    ],
+    fullText: "Module 2: Role of Case Manager. Daily routine: Start with EmpowerDB. Prioritize using Urgent/Important matrix."
   },
+
+  // ============================================================
+  // MODULE 3: ADULT FATHER ENGAGEMENT (OUTREACH)
+  // ============================================================
   {
     id: ModuleType.OUTREACH,
-    title: "Outreach & Engagement",
-    subtitle: "Module 3: Finding the Missing Father",
-    description: "Tactics for identifying and recruiting fathers in the community.",
-    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
+    title: "Adult Father Engagement",
+    subtitle: "Module 3: Outreach & Engagement",
+    description: "Street teams and community presence. Go where the fathers congregate (barbershops, community centers). Authenticity and consistency are the primary tools for building trust.",
+    videoUrl: "https://www.youtube.com/embed/3_JcSFpkz-E",
+    videoList: [
+      {
+        title: "Adult Father Engagement",
+        url: "https://www.youtube.com/embed/3_JcSFpkz-E",
+        description: "Strategies for reaching and engaging adult fathers in the community."
+      }
+    ],
+    videoSummary: "Community outreach is about presence and consistency. Be where fathers are—barbershops, gyms, community centers. Build trust through authentic engagement.",
     learningObjectives: [
-      { title: "Recruitment Strategies", summary: "Street outreach, barbershop talks, and community partnerships." }
+      { title: "Identify key outreach locations.", summary: "Barbershops, community centers, gyms, churches." },
+      { title: "Build authentic relationships.", summary: "Consistency and presence over sales pitches." },
+      { title: "Convert contacts to participants.", summary: "The warm handoff from outreach to intake." }
     ],
     infographicType: 'pathway',
     infographicDetails: [
-      { title: "Street Teams", description: "Engaging fathers where they congregate.", details: [{ label: "Presence", deepDive: "Consistency builds trust in neighborhoods." }], color: "bg-blue-600" }
+      {
+        title: "The Outreach Funnel",
+        description: "From stranger to engaged participant.",
+        graphic: "fa-filter",
+        details: [
+          { label: "Awareness", deepDive: "They know FOAM exists." },
+          { label: "Interest", deepDive: "They're curious about what we do." },
+          { label: "Contact", deepDive: "We have their info." },
+          { label: "Engagement", deepDive: "They've attended an event or meeting." },
+          { label: "Enrollment", deepDive: "They're officially in the program." }
+        ],
+        color: "bg-[#0F2C5C]"
+      }
     ],
-    slides: ["Go where the fathers are.", "Authenticity is your best tool."],
-    quiz: [{ id: "q3_1", question: "Where is the best place to find fathers?", options: ["Office", "Community", "Online"], correctAnswer: 1 }],
-    fullText: "Outreach and engagement strategies."
+    slides: [
+      "Go where the fathers are. Don't wait for them to come to you.",
+      "Authenticity beats marketing. Be real, be consistent.",
+      "Every contact is a potential life changed."
+    ],
+    quiz: [
+      { 
+        id: "q3_1", 
+        question: "What is the most effective outreach strategy?", 
+        options: ["Social media ads", "Cold calling", "Community presence and consistency", "Flyers"], 
+        correctAnswer: 2 
+      }
+    ],
+    fullText: "Module 3: Outreach & Engagement. Go where fathers are. Be authentic and consistent. Build trust through presence."
   },
+
+  // ============================================================
+  // MODULE 4: TRAUMA-INFORMED PRACTICE
+  // ============================================================
   {
     id: ModuleType.TRAUMA,
-    title: "Trauma-Informed Care",
-    subtitle: "Module 4: Healing the Hidden Wounds",
-    description: "Understanding the impact of trauma on fatherhood engagement.",
-    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
-    learningObjectives: [{ title: "Identify Trauma Triggers", summary: "Recognizing behavioral cues of past trauma." }],
-    infographicType: 'protocol',
-    infographicDetails: [{ title: "ACE Scores", description: "Adverse Childhood Experiences.", details: [{ label: "Empathy", deepDive: "Ask 'What happened to you?' not 'What's wrong?'" }], color: "bg-rose-500" }],
-    slides: ["Trauma affects decision making.", "Patience is a prerequisite."],
-    quiz: [{ id: "q4_1", question: "What is the key question in TIC?", options: ["Why are you late?", "What happened to you?", "Can you pay?"], correctAnswer: 1 }],
-    fullText: "Trauma-informed care principles."
+    title: "Trauma-Informed Practice",
+    subtitle: "Module 4: Understanding the 'Why' Behind Behavior",
+    description: "Shift mindset to 'What happened to you?' rather than 'What's wrong with you?'. Recognize that anger or withdrawal are often trauma responses.",
+    videoUrl: "https://www.youtube.com/embed/xtJdfLWpAYk",
+    videoList: [
+      {
+        title: "Trauma-Informed Practice",
+        url: "https://www.youtube.com/embed/xtJdfLWpAYk",
+        description: "Understanding trauma responses and creating safe spaces for fathers."
+      }
+    ],
+    videoSummary: "Trauma-informed care starts with 'What happened to you?' not 'What's wrong with you?'. Create safe harbor environments where fathers can process and heal.",
+    learningObjectives: [
+      { title: "Recognize trauma responses.", summary: "Anger, withdrawal, hypervigilance, distrust." },
+      { title: "Create safe harbor environments.", summary: "Physical and emotional safety in all interactions." },
+      { title: "Practice trauma-informed communication.", summary: "Validation before correction." }
+    ],
+    infographicType: 'tree',
+    infographicDetails: [
+      {
+        title: "Trauma Response Tree",
+        description: "Understanding how trauma manifests in behavior.",
+        graphic: "fa-tree",
+        details: [
+          { label: "Fight", deepDive: "Aggression, defensiveness, argumentative." },
+          { label: "Flight", deepDive: "Avoidance, no-shows, withdrawal." },
+          { label: "Freeze", deepDive: "Shutdown, non-responsive, dissociation." },
+          { label: "Fawn", deepDive: "People-pleasing, over-compliance, loss of self." }
+        ],
+        color: "bg-[#0F2C5C]"
+      }
+    ],
+    slides: [
+      "Ask 'What happened to you?' not 'What's wrong with you?'",
+      "Anger is often a secondary emotion masking fear or pain.",
+      "Create safe harbor: physical safety, emotional safety, predictability."
+    ],
+    quiz: [
+      { 
+        id: "q4_1", 
+        question: "What question should you ask instead of 'What's wrong with you?'", 
+        options: ["Why are you like this?", "What happened to you?", "What's your problem?", "Why can't you change?"], 
+        correctAnswer: 1 
+      }
+    ],
+    fullText: "Module 4: Trauma-Informed Care. Ask what happened, not what's wrong. Recognize fight/flight/freeze/fawn. Create safe harbor."
   },
+
+  // ============================================================
+  // MODULE 5: INTAKE, ASSESSMENT & PLAN OF CARE
+  // ============================================================
   {
     id: ModuleType.INTAKE,
-    title: "The Intake Process",
-    subtitle: "Module 5: The First Handshake",
-    description: "Standardized protocols for onboarding new fathers into FOAM.",
-    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
-    learningObjectives: [{ title: "Documentation Accuracy", summary: "Ensuring all state and grant requirements are met." }],
-    infographicType: 'tree',
-    infographicDetails: [{ title: "Paperwork Protocol", description: "ID, SSN, ROI.", details: [{ label: "ROI", deepDive: "Release of Information is mandatory." }], color: "bg-slate-700" }],
-    slides: ["Intake is the foundation of data.", "Build trust during the first hour."],
-    quiz: [{ id: "q5_1", question: "Which document is mandatory?", options: ["Resume", "ROI", "Gym Membership"], correctAnswer: 1 }],
-    fullText: "Standardized intake procedures."
+    title: "Intake, Assessment & Plan of Care",
+    subtitle: "Module 5: The Foundation of Service",
+    description: "Standardized onboarding protocol. Collect 'Big 3' Docs: ID, SS Card, Proof of Income. Sign the ROI immediately. Finalize POC within 7 days.",
+    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    videoList: [
+      {
+        title: "Intake Assessment Plan of Care",
+        url: "",
+        description: "Coming soon: The complete intake and assessment process."
+      }
+    ],
+    videoSummary: "Intake is your foundation. Collect the Big 3 documents, get the ROI signed, and create a personalized Plan of Care within 7 days.",
+    learningObjectives: [
+      { title: "Master the intake process.", summary: "Big 3 Docs, ROI, initial assessment." },
+      { title: "Create effective Plans of Care.", summary: "SMART goals, client-driven priorities." },
+      { title: "Document properly in EmpowerDB.", summary: "If it's not documented, it didn't happen." }
+    ],
+    infographicType: 'workflow',
+    infographicDetails: [
+      {
+        title: "The Intake Protocol",
+        description: "Step-by-step onboarding process.",
+        graphic: "fa-clipboard-check",
+        details: [
+          { label: "Big 3 Documents", deepDive: "ID, Social Security Card, Proof of Income." },
+          { label: "Release of Information", deepDive: "Must be signed before any external contact." },
+          { label: "Initial Assessment", deepDive: "Identify barriers, strengths, and immediate needs." },
+          { label: "Plan of Care", deepDive: "Finalize within 7 days with SMART goals." }
+        ],
+        color: "bg-[#0F2C5C]"
+      }
+    ],
+    slides: [
+      "Big 3 Documents: ID, SS Card, Proof of Income.",
+      "ROI must be signed before any external referrals.",
+      "Plan of Care: Due within 7 days, SMART goals required."
+    ],
+    quiz: [
+      { 
+        id: "q5_1", 
+        question: "What are the 'Big 3' documents?", 
+        options: ["Resume, Cover Letter, References", "ID, SS Card, Proof of Income", "Birth Certificate, Diploma, Lease", "Pay Stubs, Bank Statements, Tax Returns"], 
+        correctAnswer: 1 
+      }
+    ],
+    fullText: "Module 5: Intake Process. Big 3 Docs: ID, SS Card, Income. Sign ROI immediately. POC within 7 days."
   },
+
+  // ============================================================
+  // MODULE 6: WORKFORCE DEVELOPMENT
+  // ============================================================
   {
     id: ModuleType.WORKFORCE,
     title: "Workforce Development",
     subtitle: "Module 6: Economic Empowerment",
-    description: "Preparing fathers for sustainable career paths.",
-    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
-    learningObjectives: [{ title: "Resume Building", summary: "Highlighting transferable skills for fathers with gaps." }],
+    description: "Assess → Prepare → Connect → Retain. Conduct check-ins at 30, 60, and 90 days post-hire. The 48-Hour Fall-Off Rule: If a job is lost, contact within 48 hours.",
+    videoUrl: "https://www.youtube.com/embed/difdoolfLb0",
+    videoList: [
+      {
+        title: "The Employment Plan in Action",
+        url: "https://www.youtube.com/embed/P8-1BnIMNTo",
+        description: "Creating and executing effective employment plans for fathers."
+      },
+      {
+        title: "Workforce Support",
+        url: "https://www.youtube.com/embed/difdoolfLb0",
+        description: "Comprehensive workforce development strategies and support systems."
+      }
+    ],
+    videoSummary: "Workforce development follows APCR: Assess, Prepare, Connect, Retain. Check in at 30/60/90 days. If they lose a job, reach out within 48 hours.",
+    learningObjectives: [
+      { title: "Assess employment readiness.", summary: "Skills, barriers, goals, work history." },
+      { title: "Prepare for success.", summary: "Resume, interview skills, professional attire." },
+      { title: "Connect to opportunities.", summary: "Employer partnerships, job fairs, direct referrals." },
+      { title: "Retain through follow-up.", summary: "30/60/90 day check-ins, 48-hour fall-off rule." }
+    ],
     infographicType: 'pathway',
-    infographicDetails: [{ title: "Career Track", description: "From entry to management.", details: [{ label: "Retention", deepDive: "Check-ins at 30, 60, 90 days." }], color: "bg-emerald-600" }],
-    slides: ["Employment is a family stabilizer.", "Soft skills are as vital as hard skills."],
-    quiz: [{ id: "q6_1", question: "What are the retention milestones?", options: ["1 week", "30/60/90 days", "1 year"], correctAnswer: 1 }],
-    fullText: "Economic empowerment and jobs."
+    infographicDetails: [
+      {
+        title: "The APCR Model",
+        description: "Assess → Prepare → Connect → Retain",
+        graphic: "fa-briefcase",
+        details: [
+          { label: "Assess", deepDive: "Evaluate skills, barriers, and employment goals." },
+          { label: "Prepare", deepDive: "Resume, interview prep, soft skills, attire." },
+          { label: "Connect", deepDive: "Job matching, employer introductions, referrals." },
+          { label: "Retain", deepDive: "30/60/90 check-ins, ongoing support, crisis intervention." }
+        ],
+        color: "bg-[#0F2C5C]"
+      }
+    ],
+    slides: [
+      "APCR: Assess, Prepare, Connect, Retain.",
+      "30/60/90 Day Check-ins are mandatory.",
+      "48-Hour Fall-Off Rule: Contact immediately after job loss."
+    ],
+    quiz: [
+      { 
+        id: "q6_1", 
+        question: "What is the 48-Hour Fall-Off Rule?", 
+        options: ["Submit paperwork within 48 hours", "Contact father within 48 hours of job loss", "Schedule interview within 48 hours", "Complete assessment within 48 hours"], 
+        correctAnswer: 1 
+      }
+    ],
+    fullText: "Module 6: Workforce Development. APCR model. 30/60/90 check-ins. 48-hour fall-off rule."
   },
+
+  // ============================================================
+  // MODULE 7: RESOURCE NAVIGATION (PARTNERSHIPS)
+  // ============================================================
   {
     id: ModuleType.PARTNERSHIPS,
-    title: "Community Partnerships",
-    subtitle: "Module 7: The Resource Network",
-    description: "Leveraging external agencies to remove barriers.",
-    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
-    learningObjectives: [{ title: "Resource Mapping", summary: "Identifying local housing, legal, and food resources." }],
-    infographicType: 'pillars',
-    infographicDetails: [{ title: "EBR Housing", description: "Strategic partner for shelter.", details: [{ label: "Referral", deepDive: "Direct line for FOAM participants." }], color: "bg-amber-600" }],
-    slides: ["We don't work in a vacuum.", "Leverage partners for 211 support."],
-    quiz: [{ id: "q7_1", question: "Who is our primary housing partner?", options: ["HUD", "EBR Housing Authority", "Section 8"], correctAnswer: 1 }],
-    fullText: "Partnership and networking."
+    title: "Resource Navigation",
+    subtitle: "Module 7: Community Partnerships",
+    description: "Strategic networking to remove external barriers. Key partner: EBR Housing Authority. Leverage 211 and local legal aids. Never work in a vacuum.",
+    videoUrl: "https://www.youtube.com/embed/4BT51JrJJeE",
+    videoList: [
+      {
+        title: "Resource Navigation",
+        url: "https://www.youtube.com/embed/4BT51JrJJeE",
+        description: "Building and leveraging community partnerships for client success."
+      }
+    ],
+    videoSummary: "You can't do it alone. Build a resource network. Know your partners: Housing Authority, 211, legal aid, workforce agencies. The Resource Tree is your guide.",
+    learningObjectives: [
+      { title: "Build a resource network.", summary: "Identify and cultivate key community partners." },
+      { title: "Master the referral process.", summary: "Warm handoffs, ROI requirements, follow-up." },
+      { title: "Use the Resource Tree.", summary: "Navigate options for housing, legal, employment, and more." }
+    ],
+    infographicType: 'tree',
+    infographicDetails: [
+      {
+        title: "The Resource Tree",
+        description: "Key partnerships by category.",
+        graphic: "fa-sitemap",
+        details: [
+          { label: "Housing", deepDive: "EBR Housing Authority, shelters, rapid rehousing." },
+          { label: "Legal", deepDive: "Legal aid, family court resources, expungement." },
+          { label: "Employment", deepDive: "Workforce Commission, temp agencies, trades programs." },
+          { label: "Health", deepDive: "FQHC, mental health providers, substance abuse treatment." }
+        ],
+        color: "bg-[#0F2C5C]"
+      }
+    ],
+    slides: [
+      "Never work in a vacuum. Use your network.",
+      "211 is your first call for unknown resources.",
+      "Warm handoffs > Cold referrals."
+    ],
+    quiz: [
+      { 
+        id: "q7_1", 
+        question: "What is a 'warm handoff'?", 
+        options: ["Giving a phone number", "Personally introducing the client to the partner agency", "Sending an email", "Mailing paperwork"], 
+        correctAnswer: 1 
+      }
+    ],
+    fullText: "Module 7: Resource Navigation. Build partnerships. Use 211. Make warm handoffs. Never work alone."
   },
+
+  // ============================================================
+  // MODULE 8: PROTECTING OUR MISSION (DOCUMENTATION)
+  // ============================================================
   {
     id: ModuleType.DOCUMENTATION,
-    title: "Data & Documentation",
-    subtitle: "Module 8: EmpowerDB Integrity",
-    description: "The 'Golden Rule' of FOAM record keeping.",
-    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
-    learningObjectives: [{ title: "Case Notes Mastery", summary: "Using the FACT model (Facts, Actions, Client Response, Target)." }],
+    title: "FOAM: Protecting Our Mission",
+    subtitle: "Module 8: Data & Documentation",
+    description: "EmpowerDB Integrity: 'If it isn't in the system, it didn't happen.' 48-Hour Rule for all data entry. Use the FACT model.",
+    videoUrl: "https://www.youtube.com/embed/9WAq-mv7me4",
+    videoList: [
+      {
+        title: "FOAM: Protecting Our Mission",
+        url: "https://www.youtube.com/embed/9WAq-mv7me4",
+        description: "Documentation excellence and data integrity for program success."
+      }
+    ],
+    videoSummary: "Documentation is protection—for the client, for you, for FOAM. Use the FACT model. Enter data within 48 hours. If it's not in EmpowerDB, it didn't happen.",
+    learningObjectives: [
+      { title: "Master EmpowerDB.", summary: "Accurate, timely, complete data entry." },
+      { title: "Apply the FACT model.", summary: "Facts, Actions, Client Response, Target/Next Steps." },
+      { title: "Follow the 48-Hour Rule.", summary: "All interactions documented within 48 hours." }
+    ],
     infographicType: 'protocol',
-    infographicDetails: [{ title: "FACT Model", description: "Objective, actionable reporting.", details: [{ label: "Notes", deepDive: "Enter within 48 hours." }], color: "bg-indigo-700" }],
-    slides: ["If it isn't in the system, it didn't happen.", "Notes must be objective."],
-    quiz: [{ id: "q8_1", question: "What is the data entry deadline?", options: ["1 week", "48 hours", "Same day"], correctAnswer: 1 }],
-    fullText: "Record keeping excellence."
+    infographicDetails: [
+      {
+        title: "The FACT Model",
+        description: "Documentation framework for case notes.",
+        graphic: "fa-file-alt",
+        details: [
+          { label: "Facts", deepDive: "Objective observations. What happened?" },
+          { label: "Actions", deepDive: "What did you do in response?" },
+          { label: "Client Response", deepDive: "How did the client react or respond?" },
+          { label: "Target/Next Steps", deepDive: "What's the plan moving forward?" }
+        ],
+        color: "bg-[#0F2C5C]"
+      }
+    ],
+    slides: [
+      "If it isn't in EmpowerDB, it didn't happen.",
+      "FACT: Facts, Actions, Client Response, Target.",
+      "48-Hour Rule: Document all interactions within 48 hours."
+    ],
+    quiz: [
+      { 
+        id: "q8_1", 
+        question: "What does FACT stand for?", 
+        options: ["File, Archive, Complete, Transfer", "Facts, Actions, Client Response, Target", "Find, Assess, Connect, Track", "Follow, Assist, Counsel, Train"], 
+        correctAnswer: 1 
+      }
+    ],
+    fullText: "Module 8: Documentation. FACT model. 48-hour rule. EmpowerDB is the source of truth."
   },
+
+  // ============================================================
+  // MODULE 9: CRISIS & BOUNDARIES
+  // ============================================================
   {
     id: ModuleType.CRISIS,
-    title: "Crisis Management",
-    subtitle: "Module 9: Stability in the Storm",
-    description: "De-escalation and emergency intervention protocols.",
-    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
-    learningObjectives: [{ title: "De-escalation", summary: "Safely managing acute situational stress." }],
-    infographicType: 'workflow',
-    infographicDetails: [{ title: "Crisis Flow", description: "Identify, Stabilize, Refer.", details: [{ label: "911", deepDive: "When to call first responders." }], color: "bg-rose-700" }],
-    slides: ["Safety is the first priority.", "Listen more than you speak in a crisis."],
-    quiz: [{ id: "q9_1", question: "What is the first step in crisis?", options: ["Give money", "Stabilize", "Take a photo"], correctAnswer: 1 }],
-    fullText: "Crisis and emergency protocols."
+    title: "Crisis & Boundaries",
+    subtitle: "Module 9: Crisis Management",
+    description: "Stabilize first. Safety is the priority. Mandatory professional boundaries: NO personal money, NO personal rides, NO rescue mindset.",
+    videoUrl: "https://www.youtube.com/embed/W5lSZJvMh1o",
+    videoList: [
+      {
+        title: "Crisis & Boundaries",
+        url: "https://www.youtube.com/embed/W5lSZJvMh1o",
+        description: "Managing crises while maintaining professional boundaries."
+      }
+    ],
+    videoSummary: "In crisis, stabilize first. Safety always comes first. Maintain professional boundaries: no personal money, no personal rides, no rescue mindset. You're a guide, not a savior.",
+    learningObjectives: [
+      { title: "Recognize crisis situations.", summary: "Safety threats, mental health emergencies, immediate needs." },
+      { title: "Apply the stabilization protocol.", summary: "Assess, secure, connect to resources." },
+      { title: "Maintain professional boundaries.", summary: "No personal money, rides, or rescue behavior." }
+    ],
+    infographicType: 'protocol',
+    infographicDetails: [
+      {
+        title: "Crisis Response Protocol",
+        description: "Step-by-step crisis management.",
+        graphic: "fa-exclamation-triangle",
+        details: [
+          { label: "Assess", deepDive: "Is there immediate danger to self or others?" },
+          { label: "Secure", deepDive: "Ensure physical safety. Call 911 if needed." },
+          { label: "Connect", deepDive: "Link to appropriate crisis resources." },
+          { label: "Document", deepDive: "Record everything within 24 hours." }
+        ],
+        color: "bg-red-600"
+      },
+      {
+        title: "Professional Boundaries",
+        description: "Non-negotiable limits.",
+        graphic: "fa-ban",
+        details: [
+          { label: "NO personal money", deepDive: "Never give or lend personal funds." },
+          { label: "NO personal rides", deepDive: "Use agency vehicles or referrals only." },
+          { label: "NO rescue mindset", deepDive: "You're a guide, not a savior." }
+        ],
+        color: "bg-[#0F2C5C]"
+      }
+    ],
+    slides: [
+      "Stabilize first. Safety is always the priority.",
+      "Professional boundaries protect everyone.",
+      "You're a guide, not a savior. Empower, don't rescue."
+    ],
+    quiz: [
+      { 
+        id: "q9_1", 
+        question: "Which is NOT a professional boundary?", 
+        options: ["No personal money", "No personal rides", "No personal time", "No rescue mindset"], 
+        correctAnswer: 2 
+      }
+    ],
+    fullText: "Module 9: Crisis Management. Stabilize, secure, connect. Maintain boundaries: no personal money, rides, or rescue."
   },
+
+  // ============================================================
+  // MODULE 10: CASE CLOSURE & IMPACT (SUSTAINABILITY)
+  // ============================================================
   {
     id: ModuleType.SUSTAINABILITY,
-    title: "Sustainability & Graduation",
-    subtitle: "Module 10: Launching the Father",
-    description: "Defining success and planning for long-term independence.",
-    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
-    learningObjectives: [{ title: "Exit Strategy", summary: "Planning for the father's life post-FOAM enrollment." }],
-    infographicType: 'tree',
-    infographicDetails: [{ title: "Graduation", description: "The final certification.", details: [{ label: "Alumni", deepDive: "Continued mentorship opportunities." }], color: "bg-emerald-800" }],
-    slides: ["Success is when they don't need us.", "Alumni fathers are our best recruiters."],
-    quiz: [{ id: "q10_1", question: "What defines a graduate?", options: ["Paid dues", "Completed POC goals", "Attended 1 meeting"], correctAnswer: 1 }],
-    fullText: "Graduation and long term success."
-  }
-];
-
-// FACILITATOR TRACK
-export const FACILITATOR_MODULES: ModuleContent[] = [
-  {
-    id: ModuleType.FOUNDATIONAL,
-    title: "The Art of Facilitation",
-    subtitle: "Facilitator Module 1: Core Competencies",
-    description: "Understanding the role of the facilitator in creating a transformative experience for fathers.",
-    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
-    learningObjectives: [{ title: "Define 'Facilitation' vs 'Teaching'", summary: "Shifting from expert to guide." }],
-    infographicType: 'protocol',
-    infographicDetails: [{ title: "The Circle", description: "Symbol of equality and trust.", details: [{ label: "Safe Space", deepDive: "Maintaining group confidentiality." }], color: "bg-blue-600" }],
-    slides: ["Facilitators ask, they don't tell.", "The room is the expert."],
-    quiz: [{ id: "f1", question: "What is the primary role of a facilitator?", options: ["Lecturer", "Guide", "Judge"], correctAnswer: 1 }],
-    fullText: "Facilitation fundamentals."
-  },
-  {
-    id: ModuleType.ROLE,
-    title: "Group Dynamics & Conflict",
-    subtitle: "Facilitator Module 2: Managing the Energy",
-    description: "Techniques for navigating challenging conversations and group pushback.",
-    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
-    learningObjectives: [{ title: "Handle Disruptions", summary: "De-escalating tension within the group circle." }],
-    infographicType: 'workflow',
-    infographicDetails: [{ title: "Resolution Loop", description: "Listen, Validate, Refocus.", details: [{ label: "Validate", deepDive: "Acknowledging emotions without judgment." }], color: "bg-amber-600" }],
-    slides: ["Conflict is an opportunity for growth.", "Address the behavior, not the person."],
-    quiz: [{ id: "f2", question: "Should a facilitator ignore conflict?", options: ["Yes", "No"], correctAnswer: 1 }],
-    fullText: "Managing group energy."
-  }
-];
-
-// BOARD TRACK
-export const BOARD_MODULES: ModuleContent[] = [
-  {
-    id: ModuleType.FOUNDATIONAL,
-    title: "Governance & Fiduciary Duty",
-    subtitle: "Board Module 1: Legal Stewardship",
-    description: "The legal and ethical responsibilities of serving on the FOAM Board of Directors.",
-    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
-    learningObjectives: [{ title: "Understand Duty of Care", summary: "Exercising prudent decision-making." }],
-    infographicType: 'pillars',
-    infographicDetails: [{ title: "Board Pillars", description: "Care, Loyalty, Obedience.", details: [{ label: "Loyalty", deepDive: "Putting FOAM interests above personal gain." }], color: "bg-slate-900" }],
-    slides: ["Board members protect the mission.", "Fiduciary duty is a legal mandate."],
-    quiz: [{ id: "b1", question: "Which duty involves putting FOAM first?", options: ["Duty of Care", "Duty of Loyalty", "Duty of Speed"], correctAnswer: 1 }],
-    fullText: "Board governance overview."
-  },
-  {
-    id: ModuleType.ROLE,
-    title: "Strategic Oversight",
-    subtitle: "Board Module 2: Guiding the Vision",
-    description: "How the Board supports organizational growth without micro-managing operations.",
-    videoUrl: "https://www.youtube.com/embed/lI1SYkYeCns",
-    learningObjectives: [{ title: "Oversight vs. Operations", summary: "Respecting the CEO's operational boundary." }],
-    infographicType: 'tree',
-    infographicDetails: [{ title: "Strategic Tree", description: "Vision at the top, Support at the roots.", details: [{ label: "Sustainability", deepDive: "Long-term fiscal planning." }], color: "bg-emerald-600" }],
-    slides: ["The Board sets the 'Where', Staff handles the 'How'.", "Fundraising is a collective duty."],
-    quiz: [{ id: "b2", question: "Does the Board manage daily staffing?", options: ["Yes", "No"], correctAnswer: 1 }],
-    fullText: "Strategic growth oversight."
-  }
-];
-
-// Default Export for backward compatibility
-export const FOAM_MODULES = CASE_MANAGER_MODULES;
-
-// --- FATHERHOOD TRACKER: 14-CLASS CURRICULUM (NPCL) ---
-export const TRACKER_MODULES: TrackerModule[] = [
-  { id: 1, title: "Manhood", category: "Foundation" },
-  { id: 2, title: "Values", category: "Foundation" },
-  { id: 3, title: "Communication/Active Listening", category: "Relationship" },
-  { id: 4, title: "Dealing with Stress", category: "Health" },
-  { id: 5, title: "Coping with Fatherhood Discrimination", category: "Social" },
-  { id: 6, title: "Fatherhood Today", category: "Foundation" },
-  { id: 7, title: "Understanding Children's Needs", category: "Parenting" },
-  { id: 8, title: "A Father's Influence on His Child", category: "Parenting" },
-  { id: 9, title: "Relationships", category: "Relationship" },
-  { id: 10, title: "Conflict Resolution/Anger Management", category: "Relationship" },
-  { id: 11, title: "Becoming Self-Sufficient", category: "Life Skills" },
-  { id: 12, title: "Building Your Child's Self-Esteem", category: "Parenting" },
-  { id: 13, title: "Co-Parenting/Single Fatherhood", category: "Parenting" },
-  { id: 14, title: "Male/Female Relationship", category: "Relationship" },
-];
-
-// --- ALL 178 FATHERS FROM FOAM DATABASE (Imported from Excel) ---
-export const INITIAL_FATHERS: Father[] = [
-  { id: "1", firstName: "Aaron", lastName: "Banks", phone: "2259339855", email: "aaron.banks@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "2", firstName: "Adrian", lastName: "Churchill", phone: null, email: "adrian.churchill@example.org", completedModules: [7], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "3", firstName: "Albion", lastName: "Dawson", phone: null, email: "albion.dawson@example.org", completedModules: [1, 5, 6, 7, 8, 9, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "4", firstName: "Alfred", lastName: "(Al) Bergeron", phone: null, email: "alfred.albergeron@example.org", completedModules: [1, 2, 4, 5, 7, 8, 9, 10, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "5", firstName: "Andre", lastName: "Nettles", phone: null, email: "andre.nettles@example.org", completedModules: [1, 2, 3, 8], joinedDate: "2024-01-01", status: "Active" },
-  { id: "6", firstName: "Andre", lastName: "Williams", phone: null, email: "andre.williams@example.org", completedModules: [2, 4, 5, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "7", firstName: "Anthony", lastName: "(Tony) Morris", phone: null, email: "anthony.tonymorris@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "8", firstName: "Archie", lastName: "Lee", phone: "7576421664", email: "archie.lee@example.org", completedModules: [3, 6, 10, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" },
-  { id: "9", firstName: "Archie.j.lee", lastName: "", phone: "7576421664", email: null, completedModules: [5, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "10", firstName: "Arnest", lastName: "Porter", phone: "2252053346", email: "arnest.porter@example.org", completedModules: [14], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "11", firstName: "Bernard", lastName: "Dent", phone: null, email: "bernard.dent@example.org", completedModules: [1, 2, 5, 6, 7, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "12", firstName: "Brandon", lastName: "browder", phone: "2253781055", email: "brandon.browder@example.org", completedModules: [14], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "13", firstName: "Brandon", lastName: "Browder", phone: "2253781055", email: "brandon.browder@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "14", firstName: "Brandon", lastName: "Bruce", phone: null, email: "brandon.bruce@example.org", completedModules: [1, 2], joinedDate: "2024-01-01", status: "Active" },
-  { id: "15", firstName: "Brandon", lastName: "horton", phone: "2254841825", email: "brandon.horton@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "16", firstName: "Brandon", lastName: "lang", phone: "2259315405", email: "brandon.lang@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "17", firstName: "Bristen", lastName: "", phone: "2253644288", email: null, completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "18", firstName: "Bristen", lastName: "Tate", phone: null, email: "bristen.tate@example.org", completedModules: [6, 7, 8, 12], joinedDate: "2024-01-01", status: "Active" },
-  { id: "19", firstName: "Bryan", lastName: "Comeaux", phone: "2252763553", email: "bryan.comeaux@example.org", completedModules: [1, 3, 4, 7, 8, 9, 11, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" },
-  { id: "20", firstName: "Byron", lastName: "Washington", phone: null, email: "byron.washington@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "21", firstName: "Caleb", lastName: "", phone: "3865626828", email: null, completedModules: [9], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "22", firstName: "Carlese", lastName: "Baker", phone: "2259545645", email: "carlese.baker@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "23", firstName: "Carson", lastName: "Camarion", phone: null, email: "carson.camarion@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "24", firstName: "Cedrick", lastName: "Johnson", phone: null, email: "cedrick.johnson@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "25", firstName: "Charle", lastName: "Thompson", phone: "2252393869", email: "charle.thompson@example.org", completedModules: [12], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "26", firstName: "Charles", lastName: "", phone: "2252393869", email: null, completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "27", firstName: "Charles", lastName: "Guidry", phone: null, email: "charles.guidry@example.org", completedModules: [2, 5, 6, 7, 8, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "28", firstName: "Charles", lastName: "Thompson", phone: null, email: "charles.thompson@example.org", completedModules: [1, 5, 6, 7, 11, 12, 13], joinedDate: "2024-01-01", status: "Active" },
-  { id: "29", firstName: "Christopher", lastName: "Bennett", phone: "2255223162", email: "christopher.bennett@example.org", completedModules: [1, 2, 5, 6, 7, 8, 9, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "30", firstName: "Christopher", lastName: "hartley", phone: "2254596659", email: "christopher.hartley@example.org", completedModules: [12], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "31", firstName: "Christopher", lastName: "Lucas", phone: null, email: "christopher.lucas@example.org", completedModules: [1, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "32", firstName: "Cliff", lastName: "Lewis", phone: "2252058551", email: "cliff.lewis@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "33", firstName: "Cody", lastName: "Gordon", phone: null, email: "cody.gordon@example.org", completedModules: [1, 7, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "34", firstName: "Colby", lastName: "Davis", phone: null, email: "colby.davis@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "35", firstName: "Coldman", lastName: "Johnson", phone: "2258030531", email: "coldman.johnson@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "36", firstName: "Conial", lastName: "Caldwell", phone: null, email: "conial.caldwell@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "37", firstName: "Craig", lastName: "Morgan", phone: null, email: "craig.morgan@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "38", firstName: "Craig", lastName: "Oxley", phone: null, email: "craig.oxley@example.org", completedModules: [6, 8], joinedDate: "2024-01-01", status: "Active" },
-  { id: "39", firstName: "D'Qualyn", lastName: "Grant", phone: null, email: "dqualyn.grant@example.org", completedModules: [1, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "40", firstName: "DAngelo", lastName: "Christopher", phone: "2259542358", email: "dangelo.christopher@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "41", firstName: "DAngelo", lastName: "d Christopher", phone: null, email: "dangelo.dchristopher@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "42", firstName: "Darion", lastName: "Parker", phone: "2252245962", email: "darion.parker@example.org", completedModules: [1, 7, 9, 11, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" },
-  { id: "43", firstName: "Daron", lastName: "Franklin", phone: "5048580090", email: "daron.franklin@example.org", completedModules: [3, 6, 12], joinedDate: "2024-01-01", status: "Active" },
-  { id: "44", firstName: "Daronshel", lastName: "Blackman", phone: null, email: "daronshel.blackman@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "45", firstName: "David", lastName: "", phone: "2258922067", email: null, completedModules: [7], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "46", firstName: "David", lastName: "Anthony butler", phone: "2254939057", email: "david.anthonybutler@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "47", firstName: "David", lastName: "Butler", phone: "2254474440", email: "david.butler@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "48", firstName: "David", lastName: "butler", phone: "2254399057", email: "david.butler@example.org", completedModules: [9], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "49", firstName: "Demetric", lastName: "Henderson", phone: null, email: "demetric.henderson@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "50", firstName: "Deondric", lastName: "Chaney", phone: null, email: "deondric.chaney@example.org", completedModules: [6, 8, 10], joinedDate: "2024-01-01", status: "Active" },
-  { id: "51", firstName: "DeShawn", lastName: "Anderson", phone: "2255772676", email: "deshawn.anderson@example.org", completedModules: [3], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "52", firstName: "Dewayland", lastName: "Rolax", phone: "3372923502", email: "dewayland.rolax@example.org", completedModules: [6, 13], joinedDate: "2024-01-01", status: "Active" },
-  { id: "53", firstName: "Dewayne", lastName: "Ruffin L Jr.", phone: null, email: "dewayne.ruffinljr@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "54", firstName: "Dewitt", lastName: "Ward", phone: "5045594857", email: "dewitt.ward@example.org", completedModules: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], joinedDate: "2024-01-01", status: "Graduated" },
-  { id: "55", firstName: "Don", lastName: "Caffery", phone: "2259380564", email: "don.caffery@example.org", completedModules: [3], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "56", firstName: "Donovan", lastName: "Davis", phone: null, email: "donovan.davis@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "57", firstName: "Donte", lastName: "Jackson", phone: null, email: "donte.jackson@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "58", firstName: "Dwayne", lastName: "Ruffin", phone: "2254093637", email: "dwayne.ruffin@example.org", completedModules: [2, 8, 10], joinedDate: "2024-01-01", status: "Active" },
-  { id: "59", firstName: "Edward", lastName: "Scott", phone: null, email: "edward.scott@example.org", completedModules: [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12], joinedDate: "2024-01-01", status: "Active" },
-  { id: "60", firstName: "Eric", lastName: "", phone: "2253769692", email: null, completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "61", firstName: "Eric", lastName: "D Sander", phone: null, email: "eric.dsander@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "62", firstName: "Eric", lastName: "Patterson", phone: "4044921060", email: "eric.patterson@example.org", completedModules: [4, 8, 12], joinedDate: "2024-01-01", status: "Active" },
-  { id: "63", firstName: "Eric", lastName: "Sander", phone: "2258281513", email: "eric.sander@example.org", completedModules: [10], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "64", firstName: "Eric", lastName: "Sanders", phone: "2258281513", email: "eric.sanders@example.org", completedModules: [1, 3, 5, 9, 11, 12, 13], joinedDate: "2024-01-01", status: "Active" },
-  { id: "65", firstName: "Ernest", lastName: "porter", phone: "2252053346", email: "ernest.porter@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "66", firstName: "Ernest", lastName: "Jenkins", phone: null, email: "ernest.jenkins@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "67", firstName: "Ernest", lastName: "Jordan", phone: null, email: "ernest.jordan@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "68", firstName: "Ernest", lastName: "Porter", phone: "2252053346", email: "ernest.porter@example.org", completedModules: [1, 4, 13, 14], joinedDate: "2024-01-01", status: "Active" },
-  { id: "69", firstName: "Ernie", lastName: "Clark", phone: "2255731149", email: "ernie.clark@example.org", completedModules: [3, 5], joinedDate: "2024-01-01", status: "Active" },
-  { id: "70", firstName: "Ezekiel", lastName: "", phone: "2258770836", email: null, completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "71", firstName: "Garrey", lastName: "Johnson", phone: "2253549296", email: "garrey.johnson@example.org", completedModules: [4], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "72", firstName: "Gregory", lastName: "Johnson", phone: null, email: "gregory.johnson@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "73", firstName: "Henry", lastName: "king", phone: "2255092329", email: "henry.king@example.org", completedModules: [2, 3], joinedDate: "2024-01-01", status: "Active" },
-  { id: "74", firstName: "Irvin", lastName: "Williams", phone: null, email: "irvin.williams@example.org", completedModules: [1, 6, 9], joinedDate: "2024-01-01", status: "Active" },
-  { id: "75", firstName: "Ja\"Korius", lastName: "Montgomery", phone: null, email: "jakorius.montgomery@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "76", firstName: "Jabari", lastName: "Paul", phone: null, email: "jabari.paul@example.org", completedModules: [9], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "77", firstName: "Jalen", lastName: "", phone: "2252876828", email: null, completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "78", firstName: "Jalen", lastName: "Butler", phone: "2252876828", email: "jalen.butler@example.org", completedModules: [3], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "79", firstName: "James", lastName: "Polk", phone: "2257261603", email: "james.polk@example.org", completedModules: [4, 5, 6, 8, 12, 13], joinedDate: "2024-01-01", status: "Active" },
-  { id: "80", firstName: "James", lastName: "Williams", phone: "2256039519", email: "james.williams@example.org", completedModules: [2, 3, 6], joinedDate: "2024-01-01", status: "Active" },
-  { id: "81", firstName: "Jamie", lastName: "Polk", phone: "2257261603", email: "jamie.polk@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "82", firstName: "Jan", lastName: "Noble", phone: "2253630671", email: "jan.noble@example.org", completedModules: [1, 10], joinedDate: "2024-01-01", status: "Active" },
-  { id: "83", firstName: "JeCorey", lastName: "Collins", phone: null, email: "jecorey.collins@example.org", completedModules: [1, 2, 6, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "84", firstName: "Jeff", lastName: "Williams", phone: "2252685942", email: "jeff.williams@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "85", firstName: "Jeffery", lastName: "", phone: "2255065747", email: null, completedModules: [10], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "86", firstName: "Jeremiah", lastName: "Banks", phone: null, email: "jeremiah.banks@example.org", completedModules: [1, 5, 6, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "87", firstName: "Jermaine", lastName: "Taylor", phone: null, email: "jermaine.taylor@example.org", completedModules: [1, 2, 6, 7, 8, 9], joinedDate: "2024-01-01", status: "Active" },
-  { id: "88", firstName: "Jimmie", lastName: "Smith", phone: null, email: "jimmie.smith@example.org", completedModules: [1, 2, 5, 6, 7, 8, 9, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "89", firstName: "Jocobie", lastName: "James", phone: null, email: "jocobie.james@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "90", firstName: "John", lastName: "Neal", phone: "1225572281", email: "john.neal@example.org", completedModules: [3], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "91", firstName: "Johnathan", lastName: "Haney", phone: null, email: "johnathan.haney@example.org", completedModules: [1, 3, 7, 8, 9, 10, 12], joinedDate: "2024-01-01", status: "Active" },
-  { id: "92", firstName: "Jonathan", lastName: "Haney", phone: "2254254416", email: "jonathan.haney@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "93", firstName: "Jordan", lastName: "Harrison", phone: "5416755533", email: "jordan.harrison@example.org", completedModules: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" },
-  { id: "94", firstName: "Joseph", lastName: "Williams", phone: null, email: "joseph.williams@example.org", completedModules: [1, 4, 5, 7, 9], joinedDate: "2024-01-01", status: "Active" },
-  { id: "95", firstName: "Joyrie", lastName: "Knighton", phone: "2258022486", email: "joyrie.knighton@example.org", completedModules: [6, 8], joinedDate: "2024-01-01", status: "Active" },
-  { id: "96", firstName: "Keandre", lastName: "mack", phone: "2253847002", email: "keandre.mack@example.org", completedModules: [7], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "97", firstName: "Keandre", lastName: "mock", phone: null, email: "keandre.mock@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "98", firstName: "Kendale", lastName: "", phone: "2252764442", email: null, completedModules: [7, 13], joinedDate: "2024-01-01", status: "Active" },
-  { id: "99", firstName: "Kendale", lastName: "Cryer", phone: "2252764442", email: "kendale.cryer@example.org", completedModules: [10, 11, 12, 13], joinedDate: "2024-01-01", status: "Active" },
-  { id: "100", firstName: "Kenneth", lastName: "Davis", phone: null, email: "kenneth.davis@example.org", completedModules: [1, 2, 4], joinedDate: "2024-01-01", status: "Active" },
-  { id: "101", firstName: "Kenneth", lastName: "Rankin's Sr.", phone: null, email: "kenneth.rankinsssr@example.org", completedModules: [4], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "102", firstName: "Kenneth", lastName: "Rankins", phone: "2252391265", email: "kenneth.rankins@example.org", completedModules: [2, 4, 5, 7], joinedDate: "2024-01-01", status: "Active" },
-  { id: "103", firstName: "Keondric", lastName: "Chaney", phone: "2258310043", email: "keondric.chaney@example.org", completedModules: [1, 2, 3, 4, 5, 6, 8, 10, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "104", firstName: "Keontrae", lastName: "Murray", phone: "5045101225", email: "keontrae.murray@example.org", completedModules: [2, 3, 4, 5, 6, 10, 12, 13], joinedDate: "2024-01-01", status: "Active" },
-  { id: "105", firstName: "Keyon", lastName: "Marshall", phone: "2255212147", email: "keyon.marshall@example.org", completedModules: [2, 3, 7], joinedDate: "2024-01-01", status: "Active" },
-  { id: "106", firstName: "Koby", lastName: "Jackson", phone: null, email: "koby.jackson@example.org", completedModules: [12], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "107", firstName: "Kornell", lastName: "Baloney", phone: null, email: "kornell.baloney@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "108", firstName: "Kornell", lastName: "baloney", phone: "2254768195", email: "kornell.baloney@example.org", completedModules: [10, 13], joinedDate: "2024-01-01", status: "Active" },
-  { id: "109", firstName: "Kourtney", lastName: "Marshall", phone: null, email: "kourtney.marshall@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "110", firstName: "Kyle", lastName: "Eames", phone: null, email: "kyle.eames@example.org", completedModules: [12], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "111", firstName: "Kyree", lastName: "Thorne", phone: null, email: "kyree.thorne@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "112", firstName: "Kywong", lastName: "Moore", phone: "2253268444", email: "kywong.moore@example.org", completedModules: [3, 4, 5, 7], joinedDate: "2024-01-01", status: "Active" },
-  { id: "113", firstName: "Lamord", lastName: "Jackson", phone: null, email: "lamord.jackson@example.org", completedModules: [12], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "114", firstName: "Larry", lastName: "Mike", phone: null, email: "larry.mike@example.org", completedModules: [1, 2, 4, 5, 6, 7, 8, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "115", firstName: "Larry", lastName: "Ross", phone: null, email: "larry.ross@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "116", firstName: "Laurent", lastName: "Randall", phone: null, email: "laurent.randall@example.org", completedModules: [5, 6], joinedDate: "2024-01-01", status: "Active" },
-  { id: "117", firstName: "Layne", lastName: "Jordan", phone: "2254595547", email: "layne.jordan@example.org", completedModules: [7], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "118", firstName: "Louis", lastName: "Shawl", phone: null, email: "louis.shawl@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "119", firstName: "Luke", lastName: "Freeman", phone: "2253664421", email: "luke.freeman@example.org", completedModules: [1, 2, 4, 5, 7, 8, 13, 14], joinedDate: "2024-01-01", status: "Active" },
-  { id: "120", firstName: "Madhav", lastName: "Saxena", phone: null, email: "madhav.saxena@example.org", completedModules: [5, 10], joinedDate: "2024-01-01", status: "Active" },
-  { id: "121", firstName: "Mark", lastName: "Powell", phone: null, email: "mark.powell@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "122", firstName: "Matthew", lastName: "Abrams", phone: null, email: "matthew.abrams@example.org", completedModules: [1, 4, 5, 6, 7, 8, 9, 10, 12, 13], joinedDate: "2024-01-01", status: "Active" },
-  { id: "123", firstName: "Michael", lastName: "", phone: "2252848213", email: null, completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "124", firstName: "Michael", lastName: "Buckner", phone: null, email: "michael.buckner@example.org", completedModules: [1, 2, 4, 5, 6, 7, 8, 9, 10], joinedDate: "2024-01-01", status: "Active" },
-  { id: "125", firstName: "Michael", lastName: "Butler", phone: "2254484485", email: "michael.butler@example.org", completedModules: [1, 2, 3, 4, 5, 6, 8, 12, 13], joinedDate: "2024-01-01", status: "Active" },
-  { id: "126", firstName: "Michael", lastName: "Colston", phone: null, email: "michael.colston@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "127", firstName: "Michael", lastName: "Dright", phone: "6015969899", email: "michael.dright@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "128", firstName: "Michael", lastName: "Harris", phone: "2256781883", email: "michael.harris@example.org", completedModules: [6, 7, 8, 11, 12, 13], joinedDate: "2024-01-01", status: "Active" },
-  { id: "129", firstName: "Michael", lastName: "Johnson", phone: null, email: "michael.johnson@example.org", completedModules: [4], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "130", firstName: "Mikyle", lastName: "Carter", phone: null, email: "mikyle.carter@example.org", completedModules: [2, 5, 14], joinedDate: "2024-01-01", status: "Active" },
-  { id: "131", firstName: "Mohamed", lastName: "Aly", phone: null, email: "mohamed.aly@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "132", firstName: "Moses", lastName: "Evans", phone: null, email: "moses.evans@example.org", completedModules: [12], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "133", firstName: "Nicholas", lastName: "Menina", phone: null, email: "nicholas.menina@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "134", firstName: "Onae", lastName: "Chatman", phone: "6623975781", email: "onae.chatman@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "135", firstName: "Onre", lastName: "Batiste", phone: null, email: "onre.batiste@example.org", completedModules: [1, 6], joinedDate: "2024-01-01", status: "Active" },
-  { id: "136", firstName: "Orland", lastName: "", phone: "2255015494", email: null, completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "137", firstName: "Orlando", lastName: "Alexander", phone: "2255015494", email: "orlando.alexander@example.org", completedModules: [1, 3, 6, 7, 9, 11, 13, 14], joinedDate: "2024-01-01", status: "Active" },
-  { id: "138", firstName: "Percy", lastName: "Heard", phone: null, email: "percy.heard@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "139", firstName: "Quentin", lastName: "Carter", phone: null, email: "quentin.carter@example.org", completedModules: [10], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "140", firstName: "Quentiss", lastName: "Jackson", phone: null, email: "quentiss.jackson@example.org", completedModules: [2, 4, 8], joinedDate: "2024-01-01", status: "Active" },
-  { id: "141", firstName: "Rafael", lastName: "Vega", phone: "2254910302", email: "rafael.vega@example.org", completedModules: [1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" },
-  { id: "142", firstName: "Ray", lastName: "Smith", phone: "2259755149", email: "ray.smith@example.org", completedModules: [1, 2, 3, 4, 5, 7, 8, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" },
-  { id: "143", firstName: "Reggie", lastName: "Randall", phone: null, email: "reggie.randall@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "144", firstName: "Reginald", lastName: "Maten", phone: null, email: "reginald.maten@example.org", completedModules: [1, 9], joinedDate: "2024-01-01", status: "Active" },
-  { id: "145", firstName: "Ricky", lastName: "Day", phone: null, email: "ricky.day@example.org", completedModules: [1, 2, 4, 5, 6, 7, 8, 9, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "146", firstName: "Rico", lastName: "McQuirter", phone: null, email: "rico.mcquirter@example.org", completedModules: [1, 2, 5, 10], joinedDate: "2024-01-01", status: "Active" },
-  { id: "147", firstName: "Robert", lastName: "Ayala", phone: "5124845182", email: "robert.ayala@example.org", completedModules: [8, 10], joinedDate: "2024-01-01", status: "Active" },
-  { id: "148", firstName: "Robert", lastName: "Williams", phone: "2254767158", email: "robert.williams@example.org", completedModules: [1, 2, 3, 5, 7, 10, 13, 14], joinedDate: "2024-01-01", status: "Active" },
-  { id: "149", firstName: "Ronald", lastName: "williams", phone: "2254334501", email: "ronald.williams@example.org", completedModules: [3], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "150", firstName: "Roy", lastName: "Thompson", phone: null, email: "roy.thompson@example.org", completedModules: [5], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "151", firstName: "Ruffin", lastName: "Dwayne L Jr", phone: null, email: "ruffin.dwayneljr@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "152", firstName: "Ryan", lastName: "Coleman", phone: null, email: "ryan.coleman@example.org", completedModules: [4, 6], joinedDate: "2024-01-01", status: "Active" },
-  { id: "153", firstName: "Sam", lastName: "Mason", phone: "2252707241", email: "sam.mason@example.org", completedModules: [2], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "154", firstName: "Samual", lastName: "Mason", phone: null, email: "samual.mason@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "155", firstName: "Samuel", lastName: "Mason", phone: "2252707241", email: "samuel.mason@example.org", completedModules: [4], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "156", firstName: "Samuel", lastName: "mason", phone: null, email: "samuel.mason@example.org", completedModules: [13], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "157", firstName: "Shomari", lastName: "Pugh", phone: null, email: "shomari.pugh@example.org", completedModules: [1, 2, 5, 6, 8, 9, 11, 14], joinedDate: "2024-01-01", status: "Active" },
-  { id: "158", firstName: "Steven", lastName: "Howard", phone: null, email: "steven.howard@example.org", completedModules: [1, 2, 6, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "159", firstName: "Taylor", lastName: "Gentile", phone: null, email: "taylor.gentile@example.org", completedModules: [7, 12], joinedDate: "2024-01-01", status: "Active" },
-  { id: "160", firstName: "Thaddeus", lastName: "Curtain", phone: "2252491791", email: "thaddeus.curtain@example.org", completedModules: [14], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "161", firstName: "Tim", lastName: "Carter", phone: null, email: "tim.carter@example.org", completedModules: [2, 3, 4, 5, 6, 7, 13], joinedDate: "2024-01-01", status: "Active" },
-  { id: "162", firstName: "Tim", lastName: "Leblanc", phone: null, email: "tim.leblanc@example.org", completedModules: [1], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "163", firstName: "Timothy", lastName: "Carr", phone: "2259376783", email: "timothy.carr@example.org", completedModules: [9, 10], joinedDate: "2024-01-01", status: "Active" },
-  { id: "164", firstName: "Timothy", lastName: "Carter", phone: "2252396158", email: "timothy.carter@example.org", completedModules: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], joinedDate: "2024-01-01", status: "Graduated" },
-  { id: "165", firstName: "Timothy", lastName: "Morgan", phone: "2254424312", email: "timothy.morgan@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "166", firstName: "Timthoy", lastName: "J Carter", phone: null, email: "timthoy.jcarter@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "167", firstName: "Tramel", lastName: "Tolliver", phone: null, email: "tramel.tolliver@example.org", completedModules: [8], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "168", firstName: "Travis", lastName: "London", phone: "2252640809", email: "travis.london@example.org", completedModules: [1, 2, 6, 7, 8, 12], joinedDate: "2024-01-01", status: "Active" },
-  { id: "169", firstName: "Travis", lastName: "Samuels", phone: null, email: "travis.samuels@example.org", completedModules: [2, 7, 8, 11], joinedDate: "2024-01-01", status: "Active" },
-  { id: "170", firstName: "Tray'von", lastName: "Davis", phone: null, email: "trayvon.davis@example.org", completedModules: [11], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "171", firstName: "Tre'", lastName: "Gramise", phone: null, email: "tre.gramise@example.org", completedModules: [7], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "172", firstName: "Trevion", lastName: "major", phone: "2254696389", email: "trevion.major@example.org", completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "173", firstName: "Tshona", lastName: "Carter", phone: "2254189811", email: "tshona.carter@example.org", completedModules: [2, 3, 4, 6, 7, 9, 14], joinedDate: "2024-01-01", status: "Active" },
-  { id: "174", firstName: "Ty", lastName: "Harlan", phone: "9857895350", email: "ty.harlan@example.org", completedModules: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], joinedDate: "2024-01-01", status: "Graduated" },
-  { id: "175", firstName: "Tyrzell", lastName: "Simmons", phone: "2259608604", email: "tyrzell.simmons@example.org", completedModules: [5, 7], joinedDate: "2024-01-01", status: "Active" },
-  { id: "176", firstName: "Vic", lastName: "", phone: "2254139075", email: null, completedModules: [6], joinedDate: "2024-01-01", status: "At Risk" },
-  { id: "177", firstName: "Vic", lastName: "Hollins Jr.", phone: null, email: "vic.hollinsjr@example.org", completedModules: [12, 13], joinedDate: "2024-01-01", status: "Active" },
-  { id: "178", firstName: "William", lastName: "Ruffin", phone: "9195918530", email: "william.ruffin@example.org", completedModules: [1, 3, 4, 5, 6, 8, 10, 12, 13, 14], joinedDate: "2024-01-01", status: "Active" }
-];
-
-// Program dates and schedule
-const generateTuesdays = (startYear: number, endYear: number) => {
-  const tuesdays: string[] = [];
-  for (let year = startYear; year <= endYear; year++) {
-    for (let month = 0; month < 12; month++) {
-      let d = new Date(year, month, 1);
-      while (d.getDay() !== 2) d.setDate(d.getDate() + 1);
-      while (d.getMonth() === month) {
-        tuesdays.push(d.toISOString().split('T')[0]);
-        d.setDate(d.getDate() + 7);
+    title: "Case Closure & Impact",
+    subtitle: "Module 10: Sustainability & Graduation",
+    description: "Criteria: Attend 12/14 classes and achieve 2 major POC goals. Perform exit interviews and update status to 'Graduated'. Empower alumni to become mentors.",
+    videoUrl: "https://www.youtube.com/embed/d_fCTyInTGc",
+    videoList: [
+      {
+        title: "Case Closure & Impact",
+        url: "https://www.youtube.com/embed/d_fCTyInTGc",
+        description: "Completing the journey: graduation criteria, exit interviews, and alumni engagement."
       }
-    }
+    ],
+    videoSummary: "Graduation is the goal. Criteria: 12/14 classes plus 2 major POC goals. Conduct exit interviews. Alumni become the next generation of mentors and recruiters.",
+    learningObjectives: [
+      { title: "Apply graduation criteria.", summary: "12/14 classes + 2 major POC goals." },
+      { title: "Conduct exit interviews.", summary: "Capture outcomes, testimonials, and feedback." },
+      { title: "Engage alumni.", summary: "Graduates become mentors, recruiters, and ambassadors." }
+    ],
+    infographicType: 'pathway',
+    infographicDetails: [
+      {
+        title: "The Graduation Path",
+        description: "From enrollment to alumni status.",
+        graphic: "fa-graduation-cap",
+        details: [
+          { label: "12/14 Classes", deepDive: "Minimum attendance requirement for graduation." },
+          { label: "2 POC Goals", deepDive: "Must achieve at least 2 major Plan of Care goals." },
+          { label: "Exit Interview", deepDive: "Document outcomes, gather testimonial, provide certificate." },
+          { label: "Alumni Status", deepDive: "Ongoing connection, mentorship opportunities." }
+        ],
+        color: "bg-green-600"
+      }
+    ],
+    slides: [
+      "Graduation: 12/14 classes + 2 major POC goals.",
+      "Exit interviews capture the impact story.",
+      "Alumni become the future of FOAM."
+    ],
+    quiz: [
+      { 
+        id: "q10_1", 
+        question: "What are the graduation criteria?", 
+        options: ["10 classes + 1 goal", "12/14 classes + 2 major POC goals", "14 classes + 3 goals", "Complete all modules"], 
+        correctAnswer: 1 
+      }
+    ],
+    fullText: "Module 10: Graduation. 12/14 classes + 2 POC goals. Exit interview. Alumni engagement."
   }
-  return tuesdays;
-};
+];
 
-export const PROGRAM_DATES = generateTuesdays(2025, 2026);
+// ============================================================
+// FACILITATOR TRACK MODULES (Placeholder)
+// ============================================================
+export const FACILITATOR_MODULES: ModuleContent[] = [];
 
-export const FULL_SCHEDULE_LOG = PROGRAM_DATES.map((date, index) => ({
-  date,
-  topic: TRACKER_MODULES[index % TRACKER_MODULES.length].title
-}));
+// ============================================================
+// BOARD TRACK MODULES (Placeholder)
+// ============================================================
+export const BOARD_MODULES: ModuleContent[] = [];
 
-export const FUTURE_THRESHOLD = "2026-01-06";
+// ============================================================
+// FATHERHOOD TRACKER - MODULE DEFINITIONS
+// ============================================================
+export const TRACKER_MODULES: TrackerModule[] = [
+  { id: 1, title: "Self-Awareness", category: "Identity" },
+  { id: 2, title: "Improving Me", category: "Identity" },
+  { id: 3, title: "Manhood & Fatherhood", category: "Identity" },
+  { id: 4, title: "Work & Family Balance", category: "Life Skills" },
+  { id: 5, title: "Dad Is Here", category: "Parenting" },
+  { id: 6, title: "Discipline vs Punishment", category: "Parenting" },
+  { id: 7, title: "Building Esteem", category: "Parenting" },
+  { id: 8, title: "Effective Communication", category: "Relationships" },
+  { id: 9, title: "Conflict Resolution", category: "Relationships" },
+  { id: 10, title: "Parenting Disagreements", category: "Relationships" },
+  { id: 11, title: "Workforce Readiness", category: "Career" },
+  { id: 12, title: "Financial Literacy", category: "Career" },
+  { id: 13, title: "Child Support", category: "Legal" },
+  { id: 14, title: "Graduation & Next Steps", category: "Completion" }
+];
 
-export const CLASS_LOCATION = {
-  name: "FYSC Building",
-  address: "11120 Government Street, Baton Rouge, Louisiana 70802",
-  fullName: "Family and Youth Service Center"
-};
+// ============================================================
+// SIDEBAR SUMMARY FOR AI ASSISTANT
+// ============================================================
+export const MODULE_SUMMARIES = [
+  { 
+    id: ModuleType.FOUNDATIONAL,
+    title: "FOAM Mission & Values", 
+    content: "North Star philosophy: Enhance, don't fix. Three pillars: Project Family Build (stability), Fatherhood Classes (education), Workforce Development (economic empowerment). Mission: Strengthen families by empowering fathers." 
+  },
+  { 
+    id: ModuleType.ROLE,
+    title: "Role of Case Manager", 
+    content: "You are the strategic quarterback. Start each day in EmpowerDB. Use Urgent/Important matrix to prioritize. The FOAM Outreach Funnel: Awareness → Interest → Contact → Engagement → Enrollment." 
+  },
+  { 
+    id: ModuleType.OUTREACH,
+    title: "Adult Father Engagement", 
+    content: "Go where fathers are: barbershops, gyms, community centers, churches. Authenticity > marketing. Consistency builds trust. Every contact is a potential life changed." 
+  },
+  { 
+    id: ModuleType.TRAUMA,
+    title: "Trauma-Informed Practice", 
+    content: "Ask 'What happened to you?' not 'What's wrong with you?'. Recognize trauma responses: Fight, Flight, Freeze, Fawn. Create safe harbor environments. Validation before correction." 
+  },
+  { 
+    id: ModuleType.INTAKE,
+    title: "Intake & Plan of Care", 
+    content: "Big 3 Docs: ID, SS Card, Proof of Income. Sign ROI immediately. Finalize POC within 7 days with SMART goals. If it's not documented, it didn't happen." 
+  },
+  { 
+    id: ModuleType.WORKFORCE,
+    title: "Workforce Development", 
+    content: "APCR Model: Assess → Prepare → Connect → Retain. 30/60/90 day check-ins are mandatory. 48-Hour Fall-Off Rule: Contact immediately after job loss." 
+  },
+  { 
+    id: ModuleType.PARTNERSHIPS,
+    title: "Resource Navigation", 
+    content: "Never work in a vacuum. Key partners: EBR Housing Authority, 211, legal aid, workforce agencies. Warm handoffs > cold referrals. The Resource Tree is your guide." 
+  },
+  { 
+    id: ModuleType.DOCUMENTATION,
+    title: "Protecting Our Mission", 
+    content: "EmpowerDB is the source of truth. FACT Model: Facts, Actions, Client Response, Target/Next Steps. 48-Hour Rule for all documentation. If it's not in the system, it didn't happen." 
+  },
+  { 
+    id: ModuleType.CRISIS,
+    title: "Crisis & Boundaries", 
+    content: "Stabilize first, safety always. Crisis protocol: Assess → Secure → Connect → Document. Professional boundaries: NO personal money, NO personal rides, NO rescue mindset. You're a guide, not a savior." 
+  },
+  { 
+    id: ModuleType.SUSTAINABILITY,
+    title: "Case Closure & Impact", 
+    content: "Graduation criteria: 12/14 classes + 2 major POC goals. Conduct exit interviews. Alumni become mentors and recruiters. The cycle continues." 
+  }
+];
 
-export const parseCSV = (text: string): Father[] => {
-  const lines = text.trim().split('\n');
-  if (lines.length <= 1) return [];
-  return lines.slice(1).map(line => {
-    const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-    if (parts.length < 2) return null;
-    const id = parts[0].trim().replace(/"/g, '');
-    let fullName = parts[1].trim().replace(/"/g, '');
-    let firstName = fullName.split(' ')[0], lastName = fullName.split(' ').slice(1).join(' ');
-    const modulesCount = parseInt(parts[4] || '0', 10);
-    return {
-      id, firstName, lastName, phone: parts[2] || null, email: parts[3] || null,
-      completedModules: Array.from({ length: modulesCount }, (_, i) => i + 1),
-      joinedDate: '2024-01-01',
-      status: modulesCount === 14 ? 'Graduated' : modulesCount < 2 ? 'At Risk' : 'Active',
-    } as Father;
-  }).filter((f): f is Father => f !== null);
-};
+// ============================================================
+// INITIAL FATHERS DATA (to be replaced with live data)
+// ============================================================
+export const INITIAL_FATHERS: Father[] = [];
