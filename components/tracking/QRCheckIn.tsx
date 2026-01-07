@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { QrCode, RefreshCw, Copy, ExternalLink, MapPin, Calendar, Users, Check } from 'lucide-react';
+import { QrCode, RefreshCw, Copy, ExternalLink, MapPin, Calendar, Users, Check, Printer } from 'lucide-react';
 
 interface Module {
   id: number;
@@ -47,28 +47,57 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="space-y-6">
+      {/* Print Styles - Hidden on screen, shown when printing */}
+      <style>{`
+        @media print {
+          body * { visibility: hidden; }
+          .print-area, .print-area * { visibility: visible; }
+          .print-area { 
+            position: absolute; 
+            left: 50%; 
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+          }
+          .no-print { display: none !important; }
+        }
+      `}</style>
+
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between no-print">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">QR Code Check-In</h1>
           <p className="text-slate-500">Display this QR code for fathers to scan and check in</p>
         </div>
-        <button 
-          onClick={() => window.location.reload()}
-          className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all"
-        >
-          <RefreshCw size={18} />
-          Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-all"
+          >
+            <Printer size={18} />
+            Print QR Code
+          </button>
+          <button 
+            onClick={() => window.location.reload()}
+            className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all"
+          >
+            <RefreshCw size={18} />
+            Refresh
+          </button>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Left Column - QR Code */}
         <div className="space-y-6">
           {/* Today's Class Banner */}
-          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl p-4 text-white">
+          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl p-4 text-white no-print">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
                 <Calendar size={24} />
@@ -80,9 +109,15 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
             </div>
           </div>
 
-          {/* QR Code Display */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+          {/* QR Code Display - This is the print area */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 print-area">
             <div className="flex flex-col items-center">
+              {/* Print Header - Only shows when printing */}
+              <div className="hidden print:block mb-4">
+                <h2 className="text-2xl font-bold text-slate-800">FOAM Fatherhood Class Check-In</h2>
+                <p className="text-slate-600">Module {selectedModule}: {currentModule?.title}</p>
+              </div>
+              
               {/* QR Code Image */}
               <div className="bg-white p-4 rounded-xl border-2 border-slate-100 shadow-inner">
                 <img 
@@ -94,8 +129,14 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
               
               <p className="text-slate-500 mt-4 text-center">Scan with phone camera to check in</p>
               
+              {/* Print Footer - Only shows when printing */}
+              <div className="hidden print:block mt-4 text-sm text-slate-500">
+                <p>Fathers On A Mission • Every Tuesday at 6:30 PM</p>
+                <p>FYSC Building • 11120 Government Street, Baton Rouge, LA</p>
+              </div>
+              
               {/* Module Selector */}
-              <div className="w-full mt-6">
+              <div className="w-full mt-6 no-print">
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Select Class Module
                 </label>
@@ -113,7 +154,7 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
               </div>
 
               {/* URL Display */}
-              <div className="w-full mt-4">
+              <div className="w-full mt-4 no-print">
                 <div className="flex items-center gap-2 bg-slate-50 rounded-lg p-3 border border-slate-200">
                   <input
                     type="text"
@@ -140,7 +181,7 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
                 href={checkInUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 mt-4 text-blue-600 hover:text-blue-700 text-sm"
+                className="flex items-center gap-2 mt-4 text-blue-600 hover:text-blue-700 text-sm no-print"
               >
                 <ExternalLink size={16} />
                 Open check-in page in new tab
@@ -150,7 +191,7 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
         </div>
 
         {/* Right Column - Info */}
-        <div className="space-y-6">
+        <div className="space-y-6 no-print">
           {/* Class Location */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-start gap-4">
