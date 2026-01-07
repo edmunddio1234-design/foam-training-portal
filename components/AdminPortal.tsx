@@ -196,15 +196,16 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
     try {
       // Extract search terms from natural language
       const searchTerms = userMessage.toLowerCase()
-        .replace(/find|show|get|search|look for|where is|locate|i need|can you find/gi, '')
-        .replace(/the|a|an|my|our|me|please/gi, '')
+        .replace(/find|show|get|search|look for|where is|locate|i need|can you find|do we have|any|all/gi, '')
+        .replace(/the|a|an|my|our|me|please|about|related to|regarding|for/gi, '')
         .trim();
 
-      const res = await fetch(`${API_BASE_URL}/api/documents/search/${encodeURIComponent(searchTerms || userMessage)}`);
+      // Use type=both to search both name and fullText content
+      const res = await fetch(`${API_BASE_URL}/api/documents/search/${encodeURIComponent(searchTerms || userMessage)}?type=both`);
       const data = await res.json();
 
       if (data.success && data.data && data.data.length > 0) {
-        const docs = data.data.slice(0, 10);
+        const docs = data.data.slice(0, 15); // Show top 15 results
         setChatMessages(prev => [...prev, {
           role: 'assistant',
           content: `I found ${data.count} document${data.count !== 1 ? 's' : ''} matching "${searchTerms || userMessage}". Here are the top results:`,
@@ -214,7 +215,7 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
       } else {
         setChatMessages(prev => [...prev, {
           role: 'assistant',
-          content: `I couldn't find any documents matching "${searchTerms || userMessage}". Try different keywords or check the spelling.`
+          content: `I couldn't find any documents matching "${searchTerms || userMessage}". Try:\n• Different keywords\n• Shorter search terms\n• Check spelling\n• Search for file types (e.g., "budget spreadsheet")`
         }]);
       }
     } catch (err) {
@@ -469,9 +470,13 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
   const loadDocuments = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/documents`);
+      // Add ?all=true to fetch ALL files with pagination
+      const res = await fetch(`${API_BASE_URL}/api/documents?all=true`);
       const data = await res.json();
-      if (data.success) setDocuments(data.data || []);
+      if (data.success) {
+        setDocuments(data.data || []);
+        console.log(`Loaded ${data.count} documents from ${data.totalPages} pages`);
+      }
     } catch (err) {
       console.error('Error loading documents:', err);
     }
