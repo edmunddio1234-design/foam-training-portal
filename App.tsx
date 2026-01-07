@@ -18,6 +18,7 @@ import DatabasePortal from './components/DatabasePortal';
 import AdminPortal from './components/AdminPortal';
 import FatherhoodTracking from './components/FatherhoodTracking';
 import CaseManagerPortal from './components/CaseManagerPortal';
+import CaseManagerHub from './components/CaseManagerHub';
 import ClassAssessment from './components/tracking/ClassAssessment';
 import FatherProgress from './components/tracking/FatherProgress';
 
@@ -113,7 +114,7 @@ const App: React.FC = () => {
   }
 
   if (currentView === 'casemanager') {
-    return <div className="h-screen animate-in fade-in duration-500 relative z-0 overflow-y-auto"><CaseManagerPortal onClose={() => setCurrentView('hub')} /></div>;
+    return <div className="h-screen animate-in fade-in duration-500 relative z-0 overflow-y-auto"><CaseManagerHub onClose={() => setCurrentView('hub')} /></div>;
   }
 
   if (currentView === 'admin') {
