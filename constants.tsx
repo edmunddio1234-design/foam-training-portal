@@ -691,3 +691,29 @@ export const PROGRAM_DATES = {
 };
 
 export const FUTURE_THRESHOLD = 7; // days ahead to show upcoming classes
+
+// ============================================================
+// CLASS SCHEDULE AND LOCATION
+// ============================================================
+export const CLASS_LOCATION = {
+  name: "FOAM Community Center",
+  address: "123 Main Street, Baton Rouge, LA 70801",
+  room: "Room 101"
+};
+
+export const FULL_SCHEDULE_LOG: { date: string; moduleId: number; time: string }[] = [
+  { date: '2025-01-14', moduleId: 1, time: '6:00 PM' },
+  { date: '2025-01-21', moduleId: 2, time: '6:00 PM' },
+  { date: '2025-01-28', moduleId: 3, time: '6:00 PM' },
+  { date: '2025-02-04', moduleId: 4, time: '6:00 PM' },
+  { date: '2025-02-11', moduleId: 5, time: '6:00 PM' },
+  { date: '2025-02-18', moduleId: 6, time: '6:00 PM' },
+  { date: '2025-02-25', moduleId: 7, time: '6:00 PM' },
+  { date: '2025-03-04', moduleId: 8, time: '6:00 PM' },
+  { date: '2025-03-11', moduleId: 9, time: '6:00 PM' },
+  { date: '2025-03-18', moduleId: 10, time: '6:00 PM' },
+  { date: '2025-03-25', moduleId: 11, time: '6:00 PM' },
+  { date: '2025-04-01', moduleId: 12, time: '6:00 PM' },
+  { date: '2025-04-08', moduleId: 13, time: '6:00 PM' },
+  { date: '2025-04-15', moduleId: 14, time: '6:00 PM' }
+];
