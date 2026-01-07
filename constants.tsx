@@ -717,3 +717,32 @@ export const FULL_SCHEDULE_LOG: { date: string; moduleId: number; time: string }
   { date: '2025-04-08', moduleId: 13, time: '6:00 PM' },
   { date: '2025-04-15', moduleId: 14, time: '6:00 PM' }
 ];
+
+// ============================================================
+// CSV PARSER UTILITY
+// ============================================================
+export const parseCSV = (csvText: string): Father[] => {
+  const lines = csvText.trim().split('\n');
+  if (lines.length < 2) return [];
+  
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+  const fathers: Father[] = [];
+  
+  for (let i = 1; i < lines.length; i++) {
+    const values = lines[i].split(',').map(v => v.trim());
+    if (values.length < 2) continue;
+    
+    const father: Father = {
+      id: values[headers.indexOf('id')] || `imported-${i}`,
+      name: values[headers.indexOf('name')] || 'Unknown',
+      status: (values[headers.indexOf('status')] as 'active' | 'inactive' | 'graduated') || 'active',
+      enrollmentDate: values[headers.indexOf('enrollmentdate')] || values[headers.indexOf('enrollment_date')] || new Date().toISOString().split('T')[0],
+      completedModules: [],
+      attendance: []
+    };
+    
+    fathers.push(father);
+  }
+  
+  return fathers;
+};
