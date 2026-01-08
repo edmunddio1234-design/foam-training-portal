@@ -1,12 +1,33 @@
 import React, { useState, useMemo } from 'react';
 import { Father } from '../../types';
-import { TRACKER_MODULES } from '../../constants';
 import { Calendar, Search, Clock, ShieldCheck, UserCheck, Star } from 'lucide-react';
 
 interface CheckInProps {
   fathers: Father[];
-  onCheckIn: (fatherId: string, moduleId: number, date: string) => Promise<void>;
+  modules: { id: number; title: string; description?: string }[];
+  onCheckIn: (fatherId: string, moduleId: number, date?: string) => Promise<{ success: boolean; message?: string; alreadyCompleted?: boolean; data?: Father }>;
+  onRefresh: () => void;
 }
+
+// ============================================================
+// CORRECT FOAM FATHERHOOD CURRICULUM - 14 Classes
+// ============================================================
+const TRACKER_MODULES = [
+  { id: 1, title: "Self-Awareness", category: "Identity" },
+  { id: 2, title: "Improving Me", category: "Identity" },
+  { id: 3, title: "Manhood & Fatherhood", category: "Identity" },
+  { id: 4, title: "Work & Family Balance", category: "Life Skills" },
+  { id: 5, title: "Dad Is Here", category: "Parenting" },
+  { id: 6, title: "Discipline vs Punishment", category: "Parenting" },
+  { id: 7, title: "Conflict Resolution", category: "Relationships" },
+  { id: 8, title: "Building Esteem", category: "Parenting" },
+  { id: 9, title: "Effective Communication", category: "Relationships" },
+  { id: 10, title: "Parenting Disagreements", category: "Relationships" },
+  { id: 11, title: "Workforce Readiness", category: "Career" },
+  { id: 12, title: "Financial Literacy", category: "Career" },
+  { id: 13, title: "Child Support", category: "Legal" },
+  { id: 14, title: "Graduation & Next Steps", category: "Completion" }
+];
 
 // Generate all Tuesdays for 2026
 const generate2026Tuesdays = (): string[] => {
@@ -75,7 +96,7 @@ const findClosestTuesday = (tuesdays: string[]): string => {
   return tuesdays[tuesdays.length - 1] || tuesdays[0];
 };
 
-export const CheckIn: React.FC<CheckInProps> = ({ fathers, onCheckIn }) => {
+export const CheckIn: React.FC<CheckInProps> = ({ fathers, modules, onCheckIn, onRefresh }) => {
   // Generate 2026 Tuesdays
   const PROGRAM_DATES_2026 = useMemo(() => generate2026Tuesdays(), []);
   
@@ -95,6 +116,8 @@ export const CheckIn: React.FC<CheckInProps> = ({ fathers, onCheckIn }) => {
     setLoadingMap(prev => ({ ...prev, [father.id]: true }));
     try {
         await onCheckIn(father.id, selectedModuleId, selectedDate);
+        // Refresh data after check-in
+        onRefresh();
     } finally {
         setLoadingMap(prev => ({ ...prev, [father.id]: false }));
     }
@@ -114,7 +137,7 @@ export const CheckIn: React.FC<CheckInProps> = ({ fathers, onCheckIn }) => {
     `${f.firstName} ${f.lastName} ${f.id}`.toLowerCase().includes(searchTerm.toLowerCase())
   ).sort((a,b) => a.lastName.localeCompare(b.lastName));
 
-  // Get current module/class info for display
+  // Get current module/class info for display - USE LOCAL TRACKER_MODULES, not API modules
   const currentClass = isSpecialClass 
     ? SPECIAL_CLASSES.find(c => c.id === selectedModuleId)
     : TRACKER_MODULES.find(m => m.id === selectedModuleId);
@@ -163,7 +186,7 @@ export const CheckIn: React.FC<CheckInProps> = ({ fathers, onCheckIn }) => {
               }`}
             >
               <Star size={18} />
-              Special Event
+              Special Event / Other
             </button>
           </div>
         </div>
@@ -186,7 +209,7 @@ export const CheckIn: React.FC<CheckInProps> = ({ fathers, onCheckIn }) => {
             <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                   {isSpecialClass ? <Star size={12}/> : <Clock size={12}/>} 
-                  {isSpecialClass ? 'Special Event' : 'Curriculum Module'}
+                  {isSpecialClass ? 'Special Event / Other' : 'Curriculum Module'}
                 </label>
                 <select 
                   value={selectedModuleId} 
@@ -213,7 +236,7 @@ export const CheckIn: React.FC<CheckInProps> = ({ fathers, onCheckIn }) => {
         {isSpecialClass && (
             <div className="bg-purple-600 p-4 flex items-center justify-center gap-4 text-white">
                 <Star size={20} />
-                <span className="text-xs font-black uppercase tracking-widest">Special Event: Attendance will NOT count toward 14-class graduation requirement</span>
+                <span className="text-xs font-black uppercase tracking-widest">Special Event / Other: Attendance will NOT count toward 14-class graduation requirement</span>
             </div>
         )}
 
@@ -275,11 +298,11 @@ export const CheckIn: React.FC<CheckInProps> = ({ fathers, onCheckIn }) => {
         </div>
         <div>
           <p className={`font-bold ${isSpecialClass ? 'text-purple-800' : 'text-blue-800'}`}>
-            {isSpecialClass ? 'Special Event Mode' : '2026 Curriculum Schedule'}
+            {isSpecialClass ? 'Special Event / Other Mode' : '2026 Curriculum Schedule'}
           </p>
           <p className={`text-sm ${isSpecialClass ? 'text-purple-600' : 'text-blue-600'}`}>
             {isSpecialClass 
-              ? 'Special events are tracked separately and do not count toward the 14-class graduation requirement.'
+              ? 'Special events and "Other" classes are tracked separately and do not count toward the 14-class graduation requirement.'
               : 'All 52 Tuesdays of 2026 are available. Classes rotate through the 14-module curriculum.'
             }
           </p>
