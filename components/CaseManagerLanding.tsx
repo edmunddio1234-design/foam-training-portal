@@ -38,7 +38,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
   const loadDriveFiles = async () => {
     setIsLoadingFiles(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/documents?folderId=${FORMS_FOLDER_ID}`);
+      const response = await fetch(API_BASE_URL + '/api/documents?folderId=' + FORMS_FOLDER_ID);
       const data = await response.json();
       if (data.success && data.data) {
         const foamFiles = data.data.filter((f: DriveFile) => 
@@ -55,13 +55,13 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
 
   const getFileUrl = (file: DriveFile) => {
     if (file.mimeType.includes('spreadsheet')) {
-      return `https://docs.google.com/spreadsheets/d/${file.id}/edit`;
+      return 'https://docs.google.com/spreadsheets/d/' + file.id + '/edit';
     } else if (file.mimeType.includes('document') || file.mimeType.includes('word')) {
-      return `https://docs.google.com/document/d/${file.id}/edit`;
+      return 'https://docs.google.com/document/d/' + file.id + '/edit';
     } else if (file.mimeType.includes('pdf')) {
-      return `https://drive.google.com/file/d/${file.id}/view`;
+      return 'https://drive.google.com/file/d/' + file.id + '/view';
     }
-    return `https://drive.google.com/file/d/${file.id}/view`;
+    return 'https://drive.google.com/file/d/' + file.id + '/view';
   };
 
   const getFileIcon = (mimeType: string) => {
@@ -284,30 +284,33 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
   const renderHomeView = () => (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {portalCards.map((card) => (
-          <button
-            key={card.id}
-            onClick={card.action}
-            className="group relative bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-xl hover:border-slate-200 transition-all duration-300 text-left overflow-hidden"
-          >
-            <div className={`absolute -right-6 -top-6 w-24 h-24 ${card.color} opacity-5 rounded-full group-hover:scale-150 transition-transform duration-500`}></div>
-            <div className="relative z-10 space-y-4">
-              <div className={`w-14 h-14 ${card.color} text-white rounded-2xl flex items-center justify-center shadow-lg ${card.shadow} group-hover:scale-110 transition-transform`}>
-                <card.icon size={24} />
+        {portalCards.map((card) => {
+          const IconComponent = card.icon;
+          return (
+            <button
+              key={card.id}
+              onClick={card.action}
+              className="group relative bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:shadow-xl hover:border-slate-200 transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className={'absolute -right-6 -top-6 w-24 h-24 ' + card.color + ' opacity-5 rounded-full group-hover:scale-150 transition-transform duration-500'}></div>
+              <div className="relative z-10 space-y-4">
+                <div className={'w-14 h-14 ' + card.color + ' text-white rounded-2xl flex items-center justify-center shadow-lg ' + card.shadow + ' group-hover:scale-110 transition-transform'}>
+                  <IconComponent size={24} />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-slate-800">{card.title}</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">{card.description}</p>
+                </div>
               </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold text-slate-800">{card.title}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">{card.description}</p>
+              <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-teal-600 transition-colors">Access</span>
+                <div className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-teal-600 group-hover:text-white transition-all">
+                  <ChevronRight size={16} />
+                </div>
               </div>
-            </div>
-            <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-teal-600 transition-colors">Access</span>
-              <div className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-teal-600 group-hover:text-white transition-all">
-                <ChevronRight size={16} />
-              </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
 
       <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 text-white relative overflow-hidden">
@@ -366,28 +369,31 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filteredResources.map((resource) => (
-          <div
-            key={resource.id}
-            onClick={() => handleOpenLink(resource.url)}
-            className="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg hover:border-slate-200 transition-all cursor-pointer"
-          >
-            <div className="space-y-4">
-              <div className={`w-12 h-12 ${resource.color} text-white rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                <resource.icon size={24} />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold text-slate-800 group-hover:text-teal-600 transition-colors">{resource.title}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">{resource.description}</p>
-              </div>
-              <div className="flex items-center gap-2 text-teal-600 font-bold text-xs uppercase tracking-wider pt-2">
-                <FileSpreadsheet size={14} />
-                <span>Open in Google Sheets</span>
-                <ExternalLink size={12} className="ml-auto" />
+        {filteredResources.map((resource) => {
+          const IconComponent = resource.icon;
+          return (
+            <div
+              key={resource.id}
+              onClick={() => handleOpenLink(resource.url)}
+              className="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg hover:border-slate-200 transition-all cursor-pointer"
+            >
+              <div className="space-y-4">
+                <div className={'w-12 h-12 ' + resource.color + ' text-white rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform'}>
+                  <IconComponent size={24} />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-bold text-slate-800 group-hover:text-teal-600 transition-colors">{resource.title}</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">{resource.description}</p>
+                </div>
+                <div className="flex items-center gap-2 text-teal-600 font-bold text-xs uppercase tracking-wider pt-2">
+                  <FileSpreadsheet size={14} />
+                  <span>Open in Google Sheets</span>
+                  <ExternalLink size={12} className="ml-auto" />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -435,12 +441,12 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredProcedures.map((doc) => {
-              const Icon = doc.icon;
+              const IconComponent = doc.icon;
               return (
                 <div key={doc.id} className="relative group">
                   <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100 hover:shadow-lg hover:border-teal-200 transition-all flex items-start gap-4">
-                    <div className={`w-10 h-10 ${doc.color} text-white rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                      <Icon size={20} />
+                    <div className={'w-10 h-10 ' + doc.color + ' text-white rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform'}>
+                      <IconComponent size={20} />
                     </div>
                     
                     <div className="flex-1 min-w-0">
@@ -502,7 +508,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         ) : filteredDriveFiles.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {filteredDriveFiles.map((file) => {
-              const Icon = getFileIcon(file.mimeType);
+              const IconComponent = getFileIcon(file.mimeType);
               const color = getFileColor(file.mimeType);
               const displayName = cleanFileName(file.name);
               const description = getFileDescription(file.name);
@@ -515,8 +521,8 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
                   className="group bg-white rounded-xl p-4 shadow-sm border border-slate-100 hover:shadow-lg hover:border-teal-200 transition-all cursor-pointer"
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`w-10 h-10 ${color} text-white rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                      <Icon size={20} />
+                    <div className={'w-10 h-10 ' + color + ' text-white rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform'}>
+                      <IconComponent size={20} />
                     </div>
                     
                     <div className="flex-1 min-w-0">
@@ -556,7 +562,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
             These documents open in Google Drive. You can view, download, or print them as needed.
           </p>
           <p className="text-amber-700 text-sm mt-1">
-            💡 <strong>Tip:</strong> Hover over any procedure document for a quick summary, or click the ℹ️ icon for full details.
+            Tip: Click the info icon for full details about any procedure document.
           </p>
         </div>
       </div>
@@ -565,15 +571,15 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
 
   const renderDetailModal = () => {
     if (!selectedDoc) return null;
-    const Icon = selectedDoc.icon;
+    const IconComponent = selectedDoc.icon;
 
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedDoc(null)}>
         <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
           <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 ${selectedDoc.color} text-white rounded-xl flex items-center justify-center`}>
-                <Icon size={24} />
+              <div className={'w-12 h-12 ' + selectedDoc.color + ' text-white rounded-xl flex items-center justify-center'}>
+                <IconComponent size={24} />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-slate-800">{selectedDoc.title}</h2>
@@ -597,7 +603,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
             <div>
               <h3 className="text-sm font-bold text-teal-600 uppercase tracking-wide mb-2">Key Topics</h3>
               <div className="flex flex-wrap gap-2">
-                {selectedDoc.keyTopics?.map((topic: string, i: number) => (
+                {selectedDoc.keyTopics && selectedDoc.keyTopics.map((topic: string, i: number) => (
                   <span key={i} className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-sm">{topic}</span>
                 ))}
               </div>
