@@ -1,161 +1,63 @@
 import React from 'react';
+import { ModuleContent } from '../types';
 
-interface HubProps {
-  onNavigate: (view: 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance') => void;
-  onLogout: () => void;
+interface HeaderProps {
+  activeModule: ModuleContent;
+  view: 'module' | 'manual';
+  onToggleAssistant: () => void;
 }
 
-const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
-  const portals = [
-    {
-      id: 'training',
-      title: 'Training Academy',
-      description: 'Access certification modules, case study deep dives, and program orientation.',
-      icon: 'fa-graduation-cap',
-      color: 'bg-indigo-600',
-      shadow: 'shadow-indigo-200'
-    },
-    {
-      id: 'tracking',
-      title: 'Fatherhood Tracking',
-      description: 'Monitor client progress through Fatherhood Classes and workforce placement.',
-      icon: 'fa-chart-line',
-      color: 'bg-emerald-600',
-      shadow: 'shadow-emerald-200'
-    },
-    {
-      id: 'admin',
-      title: 'Administrative Tools',
-      description: 'Manage caseload summaries, staff protocols, and agency communications.',
-      icon: 'fa-user-shield',
-      color: 'bg-amber-600',
-      shadow: 'shadow-amber-200'
-    },
-    {
-      id: 'casemanager',
-      title: 'Case Manager Portal',
-      description: 'Monthly reports, procedures & resources, forms and documents for case managers.',
-      icon: 'fa-clipboard-list',
-      color: 'bg-teal-600',
-      shadow: 'shadow-teal-200'
-    },
-    {
-      id: 'finance',
-      title: 'Financial Tools',
-      description: 'Analyze budgets • Analyze reports • Invoicing • Grant tracking of budgets',
-      icon: 'fa-file-invoice-dollar',
-      color: 'bg-[#1A4D2E]',
-      shadow: 'shadow-emerald-100'
-    }
-  ];
-
+const Header: React.FC<HeaderProps> = ({ activeModule, view, onToggleAssistant }) => {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col p-6 md:p-12 animate-in fade-in duration-700">
-      {/* Brand Header */}
-      <div className="max-w-7xl mx-auto w-full flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
-        <div className="flex items-center gap-6">
-          <div className="w-20 h-20 bg-[#0F2C5C] text-white rounded-3xl flex items-center justify-center shadow-xl">
-             <span className="font-black text-4xl italic tracking-tighter">F</span>
-          </div>
-          <div>
-            <h1 className="text-5xl font-black text-slate-900 tracking-tight leading-none mb-3">Command Center</h1>
-            <div className="space-y-1">
-              <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-xs">Fathers On A Mission</p>
-              <p className="text-blue-600 font-black uppercase tracking-[0.3em] text-[10px]">FOAM ECOSYSTEM</p>
+    <header className="bg-white border-b border-slate-100 px-6 py-4 sticky top-0 z-40 shadow-sm">
+      <div className="flex items-center justify-between">
+        {/* Left Section - Module/View Info */}
+        <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#0F2C5C] text-white rounded-xl flex items-center justify-center shadow-md">
+              <i className={`fas ${view === 'manual' ? 'fa-book-open' : 'fa-graduation-cap'} text-sm`}></i>
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">
+                {view === 'manual' ? 'Reference Manual' : 'Training Module'}
+              </p>
+              <h1 className="text-lg font-bold text-slate-800 leading-tight truncate max-w-md">
+                {view === 'manual' ? 'Full Documentation' : activeModule?.title || 'Loading...'}
+              </h1>
             </div>
           </div>
+          
+          {/* Mobile Title */}
+          <div className="md:hidden">
+            <p className="text-sm font-bold text-slate-800 truncate max-w-[200px]">
+              {view === 'manual' ? 'Manual' : activeModule?.title || 'Loading...'}
+            </p>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-           <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
-              <i className="fas fa-user-circle text-xl"></i>
-           </div>
-           <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Active Staff</p>
-              <p className="text-sm font-bold text-slate-800">Administrator</p>
-           </div>
-           <button 
-             onClick={onLogout}
-             className="ml-4 p-2 text-slate-300 hover:text-rose-500 transition-colors"
-             title="Logout of Command Center"
-           >
-              <i className="fas fa-sign-out-alt"></i>
-           </button>
-        </div>
-      </div>
 
-      {/* Portal Selection Grid */}
-      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-        {portals.map((portal) => (
+        {/* Right Section - Actions */}
+        <div className="flex items-center gap-3">
+          {/* Progress Indicator (optional visual) */}
+          <div className="hidden lg:flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+              {view === 'manual' ? 'Reference Mode' : 'Learning Active'}
+            </span>
+          </div>
+
+          {/* AI Assistant Toggle */}
           <button
-            key={portal.id}
-            onClick={() => onNavigate(portal.id as any)}
-            className="group relative bg-white rounded-[3rem] p-10 shadow-sm border border-slate-100 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 text-left overflow-hidden flex flex-col justify-between"
+            onClick={onToggleAssistant}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl font-bold text-xs uppercase tracking-widest transition-all border border-indigo-100 hover:border-indigo-200"
+            title="Toggle AI Assistant"
           >
-            {/* Visual Flare */}
-            <div className={`absolute -right-8 -top-8 w-32 h-32 ${portal.color} opacity-5 rounded-full group-hover:scale-150 transition-transform duration-700`}></div>
-            
-            <div className="space-y-6 relative z-10">
-              <div className={`w-16 h-16 ${portal.color} text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg ${portal.shadow} group-hover:rotate-6 transition-transform`}>
-                <i className={`fas ${portal.icon}`}></i>
-              </div>
-              
-              <div className="space-y-3">
-                <h2 className="text-2xl font-black text-slate-800 tracking-tight">{portal.title}</h2>
-                <div className="text-slate-500 font-medium leading-relaxed">
-                  {portal.id === 'finance' ? (
-                    <ul className="space-y-1">
-                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-emerald-500"></i> Analyze budgets</li>
-                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-emerald-500"></i> Analyze reports</li>
-                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-emerald-500"></i> Invoicing</li>
-                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-emerald-500"></i> Grant tracking of budgets</li>
-                    </ul>
-                  ) : portal.id === 'casemanager' ? (
-                    <ul className="space-y-1">
-                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-teal-500"></i> Monthly reports</li>
-                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-teal-500"></i> Procedures & resources</li>
-                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-teal-500"></i> Forms & documents</li>
-                    </ul>
-                  ) : (
-                    portal.description
-                  )}
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-8 pt-8 border-t border-slate-50 flex items-center justify-between">
-              <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-indigo-600 transition-colors">Access Portal</span>
-              <div className="w-8 h-8 rounded-full bg-slate-50 text-slate-300 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                <i className="fas fa-chevron-right text-xs"></i>
-              </div>
-            </div>
+            <i className="fas fa-robot"></i>
+            <span className="hidden sm:inline">AI Help</span>
           </button>
-        ))}
-
-        {/* Support Card - UPDATED MISSION STATEMENT */}
-        <div className="bg-[#0F2C5C] rounded-[3rem] p-10 text-white flex flex-col justify-between relative overflow-hidden group">
-           <i className="fas fa-shield-heart absolute -right-6 -bottom-6 text-[10rem] opacity-5 group-hover:scale-110 transition-transform duration-1000"></i>
-           <div className="space-y-4 relative z-10">
-              <h3 className="text-xl font-bold uppercase tracking-widest text-indigo-300">FOAM Mission</h3>
-              <p className="text-xl font-medium leading-relaxed italic">"To enhance Fathers and Father Figures which will ultimately strengthen families."</p>
-           </div>
-           <div className="pt-8">
-              <p className="text-xs font-black uppercase tracking-widest text-indigo-400 mb-2">Need Assistance?</p>
-              <button className="flex items-center gap-2 text-white font-bold group-hover:gap-4 transition-all">
-                 Contact IT Support <i className="fas fa-arrow-right text-xs"></i>
-              </button>
-           </div>
         </div>
       </div>
-      
-      <div className="max-w-7xl mx-auto w-full flex justify-center pb-12">
-         <p className="text-slate-400 font-bold text-xs uppercase tracking-widest flex items-center gap-3">
-           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-           Secure Network Access Verified
-         </p>
-      </div>
-    </div>
+    </header>
   );
 };
 
-export default Hub;
+export default Header;
