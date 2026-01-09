@@ -22,6 +22,8 @@ interface DriveFile {
   type: string;
   url?: string;
   isFolder?: boolean;
+  modifiedTime?: string;
+  size?: string;
 }
 
 const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpenReports }) => {
@@ -30,6 +32,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
   const [driveFiles, setDriveFiles] = useState<DriveFile[]>([]);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [hoveredFileId, setHoveredFileId] = useState<string | null>(null);
 
   useEffect(() => {
     if (activeTab === 'documents' && driveFiles.length === 0) {
@@ -80,6 +83,15 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     return 'bg-slate-500';
   };
 
+  const getFileTypeName = (type: string) => {
+    if (type.includes('spreadsheet')) return 'Google Sheets';
+    if (type.includes('document')) return 'Google Docs';
+    if (type.includes('word')) return 'Word Document';
+    if (type.includes('pdf')) return 'PDF Document';
+    if (type.includes('excel')) return 'Excel Spreadsheet';
+    return 'Document';
+  };
+
   const cleanFileName = (name: string) => {
     return name
       .replace(/^Copy of /, '')
@@ -109,6 +121,31 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     if (cleanName.includes('sign') || cleanName.includes('office')) return 'Office sign-in and visitor logs';
     if (cleanName.includes('packet')) return 'Support packet documentation';
     return 'FOAM organizational document';
+  };
+
+  const getFileUsageGuide = (name: string) => {
+    const cleanName = name.toLowerCase();
+    if (cleanName.includes('referral')) return 'Use when receiving new client referrals. Complete all required fields and follow up within 48 hours.';
+    if (cleanName.includes('attendance') || cleanName.includes('checklist')) return 'Mark attendance at each class session. Update completion status after each module.';
+    if (cleanName.includes('timesheet') || cleanName.includes('employee')) return 'Submit weekly by Friday EOD. Include all hours worked and project codes.';
+    if (cleanName.includes('financial') || cleanName.includes('support request')) return 'Complete for all financial assistance requests. Requires supervisor approval.';
+    if (cleanName.includes('diaper')) return 'Log every distribution. Required for JLBR grant compliance reporting.';
+    if (cleanName.includes('donation') || cleanName.includes('kind')) return 'Record all in-kind donations received. Include donor information and item values.';
+    if (cleanName.includes('intern')) return 'Interns complete daily. Supervisors review and approve weekly.';
+    if (cleanName.includes('enrollment')) return 'Complete during initial client intake. Verify all contact information.';
+    if (cleanName.includes('evaluation') || cleanName.includes('report')) return 'Complete post-program for outcome tracking and grant reporting.';
+    if (cleanName.includes('consent') || cleanName.includes('parental')) return 'Required before minors participate. Keep signed copies on file.';
+    return 'Follow standard procedures. Contact supervisor with questions.';
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Unknown';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch {
+      return 'Unknown';
+    }
   };
 
   const resourceSheets = [
@@ -277,6 +314,28 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
 
   const handleOpenDetails = (doc: any) => {
     setSelectedDoc(doc);
+  };
+
+  const handleOpenDriveFileDetails = (file: DriveFile) => {
+    const displayName = cleanFileName(file.name);
+    const description = getFileDescription(file.name);
+    const usageGuide = getFileUsageGuide(file.name);
+    const fileType = getFileTypeName(file.type);
+    const IconComponent = getFileIcon(file.type);
+    const color = getFileColor(file.type);
+
+    setSelectedDoc({
+      id: file.id,
+      title: displayName,
+      description: description,
+      icon: IconComponent,
+      color: color,
+      url: getFileUrl(file),
+      purpose: description + '. This ' + fileType + ' helps case managers track and document client services.',
+      howToUse: usageGuide,
+      keyTopics: [fileType, 'Client Documentation', 'Grant Compliance', 'Data Entry'],
+      modifiedTime: file.modifiedTime
+    });
   };
 
   const handleOpenLink = (url: string) => {
@@ -515,12 +574,15 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
               const displayName = cleanFileName(file.name);
               const description = getFileDescription(file.name);
               const url = getFileUrl(file);
+              const fileTypeName = getFileTypeName(file.type);
+              const isHovered = hoveredFileId === file.id;
 
               return (
                 <div
                   key={file.id}
-                  onClick={() => handleOpenLink(url)}
-                  className="group bg-white rounded-xl p-4 shadow-sm border border-slate-100 hover:shadow-lg hover:border-teal-200 transition-all cursor-pointer"
+                  className="group bg-white rounded-xl p-4 shadow-sm border border-slate-100 hover:shadow-lg hover:border-teal-200 transition-all relative"
+                  onMouseEnter={() => setHoveredFileId(file.id)}
+                  onMouseLeave={() => setHoveredFileId(null)}
                 >
                   <div className="flex items-start gap-3">
                     <div className={'w-10 h-10 ' + color + ' text-white rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform'}>
@@ -534,8 +596,93 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
                       <p className="text-slate-500 text-xs mt-1 line-clamp-1">{description}</p>
                     </div>
                     
-                    <ExternalLink size={16} className="text-slate-400 group-hover:text-teal-600 flex-shrink-0 mt-1" />
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenDriveFileDetails(file);
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-teal-600 transition-colors"
+                        title="View Details"
+                      >
+                        <Info size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenLink(url);
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-teal-600 transition-colors"
+                        title="Open Document"
+                      >
+                        <ExternalLink size={16} />
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Hover Tooltip */}
+                  {isHovered && (
+                    <div className="absolute left-0 right-0 top-full mt-2 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <div className="bg-slate-900 text-white rounded-xl p-4 shadow-2xl mx-2">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <div className={'w-6 h-6 ' + color + ' rounded flex items-center justify-center'}>
+                              <IconComponent size={14} />
+                            </div>
+                            <span className="text-xs font-medium text-slate-300">{fileTypeName}</span>
+                          </div>
+                          
+                          <div>
+                            <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Description</p>
+                            <p className="text-sm text-white">{description}</p>
+                          </div>
+                          
+                          <div>
+                            <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">How to Use</p>
+                            <p className="text-xs text-slate-300">{getFileUsageGuide(file.name)}</p>
+                          </div>
+
+                          {file.modifiedTime && (
+                            <div className="pt-2 border-t border-slate-700">
+                              <p className="text-xs text-slate-400">
+                                Last modified: {formatDate(file.modifiedTime)}
+                              </p>
+                            </div>
+                          )}
+                          
+                          <div className="flex gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenDriveFileDetails(file);
+                              }}
+                              className="flex-1 text-xs py-2 px-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors flex items-center justify-center gap-1"
+                            >
+                              <Info size={12} />
+                              Full Details
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenLink(url);
+                              }}
+                              className="flex-1 text-xs py-2 px-3 bg-teal-600 hover:bg-teal-500 rounded-lg transition-colors flex items-center justify-center gap-1"
+                            >
+                              <ExternalLink size={12} />
+                              Open
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {/* Tooltip Arrow */}
+                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-slate-900 rotate-45"></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -564,7 +711,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
             These documents open in Google Drive. You can view, download, or print them as needed.
           </p>
           <p className="text-amber-700 text-sm mt-1">
-            Tip: Click the info icon for full details about any procedure document.
+            Tip: Hover over any form card for quick info, or click the info icon for full details.
           </p>
         </div>
       </div>
@@ -610,6 +757,13 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
                 ))}
               </div>
             </div>
+            {selectedDoc.modifiedTime && (
+              <div className="pt-4 border-t">
+                <p className="text-sm text-slate-500">
+                  Last modified: {formatDate(selectedDoc.modifiedTime)}
+                </p>
+              </div>
+            )}
             <div className="pt-4 border-t">
               <button
                 type="button"
