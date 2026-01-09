@@ -3,7 +3,9 @@ import {
   ArrowLeft, FileText, FolderOpen, BarChart3, ExternalLink,
   FileSpreadsheet, ClipboardList, Users, Baby, Briefcase,
   HeartHandshake, Phone, BookOpen, ChevronRight, Search, X, Info,
-  RefreshCw, File, FileImage
+  RefreshCw, File, FileImage, BookMarked, CheckSquare, CheckCircle,
+  Circle, ChevronDown, Clock, Target, Upload, Calendar, AlertCircle,
+  ArrowRight
 } from 'lucide-react';
 
 interface CaseManagerLandingProps {
@@ -11,7 +13,7 @@ interface CaseManagerLandingProps {
   onOpenReports: () => void;
 }
 
-type TabType = 'home' | 'resources' | 'documents';
+type TabType = 'home' | 'resources' | 'documents' | 'checklist';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
 const FORMS_FOLDER_ID = '1rPbAGgMVYYeJwMxFxLyfkW1rYRkxK-RL';
@@ -33,6 +35,139 @@ interface FileDetails {
   keyTopics: string[];
 }
 
+interface ChecklistStep {
+  id: string;
+  task: string;
+  protocol: string;
+  documents: { name: string; url: string }[];
+  tips: string;
+  highlight?: boolean;
+}
+
+interface ChecklistPhase {
+  id: string;
+  phase: string;
+  icon: any;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+  description: string;
+  steps: ChecklistStep[];
+}
+
+// ============================================
+// NEW CLIENT CHECKLIST DATA
+// ============================================
+const NEW_CLIENT_CHECKLIST: ChecklistPhase[] = [
+  {
+    id: 'phase-1',
+    phase: 'Phase 1: Initial Contact & Referral',
+    icon: Phone,
+    color: 'from-blue-500 to-blue-600',
+    bgColor: 'bg-blue-50',
+    borderColor: 'border-blue-200',
+    description: 'First 24-72 hours after receiving referral',
+    steps: [
+      { id: '1-1', task: 'Receive referral/sign-in sheet from Fatherhood Class or community event', protocol: 'Case Manager Procedures', documents: [], tips: 'Check email daily for new referrals' },
+      { id: '1-2', task: 'Contact client within 24-72 hours of referral', protocol: 'Customer Service Procedure', documents: [], tips: 'Introduce yourself and FOAM services' },
+      { id: '1-3', task: 'Verify if client is already enrolled in Empower DB', protocol: 'Referral & Intake Procedure', documents: [{ name: 'Empower DB', url: 'https://empowerdb.com' }], tips: 'Search by name and phone number' },
+      { id: '1-4', task: 'Input client email into WIX for communications', protocol: 'Case Manager Procedures', documents: [{ name: 'WIX', url: 'https://www.wix.com' }], tips: 'Ensure email is spelled correctly' }
+    ]
+  },
+  {
+    id: 'phase-2',
+    phase: 'Phase 2: Intake & Assessment (Empower DB)',
+    icon: ClipboardList,
+    color: 'from-emerald-500 to-emerald-600',
+    bgColor: 'bg-emerald-50',
+    borderColor: 'border-emerald-200',
+    description: 'Complete initial intake using Empower DB within 3-5 business days',
+    steps: [
+      { id: '2-1', task: 'Schedule and conduct in-person intake assessment', protocol: 'Referral & Intake Procedure', documents: [], tips: 'Can be done at office or fatherhood class' },
+      { id: '2-2', task: 'Complete Fatherhood Class Agreement form', protocol: 'Fatherhood Class Procedure', documents: [], tips: 'Ensure client signs all sections' },
+      { id: '2-3', task: 'Administer Pre-Assessment survey', protocol: 'Fatherhood Class Procedure', documents: [], tips: 'Complete before first class' },
+      { id: '2-4', task: 'Obtain signed confidentiality and consent forms', protocol: 'Referral & Intake Procedure', documents: [], tips: 'Explain client rights clearly' },
+      { id: '2-5', task: 'Complete comprehensive needs evaluation', protocol: 'Case Manager Procedures', documents: [], tips: 'Discuss housing, employment, parenting needs' },
+      { id: '2-6', task: 'CREATE CLIENT PROFILE IN EMPOWER DB', protocol: 'Referral & Intake Procedure', documents: [{ name: 'Empower DB', url: 'https://empowerdb.com' }], tips: 'This is the official intake record - enter all demographic and contact info', highlight: true }
+    ]
+  },
+  {
+    id: 'phase-3',
+    phase: 'Phase 3: Plan of Care Development',
+    icon: Target,
+    color: 'from-amber-500 to-amber-600',
+    bgColor: 'bg-amber-50',
+    borderColor: 'border-amber-200',
+    description: 'Generate Plan of Care with goals and activities within 3-5 business days',
+    steps: [
+      { id: '3-1', task: 'DEVELOP PLAN OF CARE (POC) WITH CLIENT', protocol: 'Case Manager Procedures', documents: [{ name: 'Empower DB', url: 'https://empowerdb.com' }], tips: 'Include at least 3 GOALS with 2 measurable ACTIVITIES/OBJECTIVES each', highlight: true },
+      { id: '3-2', task: 'Identify services needed (employment, housing, parenting)', protocol: 'Case Manager Procedures', documents: [{ name: 'Resource Guide', url: 'https://docs.google.com/spreadsheets/d/1Joq9gBwd6spIrbqCBgaicuOFv0jAaGYSRntWZRKQry8/edit' }], tips: 'Use Resource Guide for referrals' },
+      { id: '3-3', task: 'Set realistic timelines for each goal and activity', protocol: 'Case Manager Procedures', documents: [], tips: 'Goals should be SMART: Specific, Measurable, Achievable, Relevant, Time-bound' },
+      { id: '3-4', task: 'Obtain client signature on POC', protocol: 'Case Manager Procedures', documents: [], tips: 'Both client and case manager must sign' },
+      { id: '3-5', task: 'ENTER POC WITH GOALS & ACTIVITIES INTO EMPOWER DB', protocol: 'Case Manager Procedures', documents: [{ name: 'Empower DB', url: 'https://empowerdb.com' }], tips: 'Link goals to appropriate service categories in the system', highlight: true },
+      { id: '3-6', task: 'Upload signed POC to SharePoint', protocol: 'Case Manager Procedures', documents: [{ name: 'SharePoint', url: 'https://foamla.sharepoint.com' }], tips: 'Save in client folder with date in filename' }
+    ]
+  },
+  {
+    id: 'phase-4',
+    phase: 'Phase 4: Service Enrollment',
+    icon: Users,
+    color: 'from-purple-500 to-purple-600',
+    bgColor: 'bg-purple-50',
+    borderColor: 'border-purple-200',
+    description: 'Connect client to appropriate programs and services',
+    steps: [
+      { id: '4-1', task: 'Enroll client in Fatherhood Class (if not already attending)', protocol: 'Fatherhood Class Procedure', documents: [{ name: 'Class Procedure', url: 'https://docs.google.com/document/d/1hMCbn7Eja676OVDubX6UHFbAgrFer7kB/edit' }], tips: 'Provide class schedule and confirm commitment' },
+      { id: '4-2', task: 'Submit referrals through Unite Us (if applicable)', protocol: 'Case Manager Procedures', documents: [{ name: 'Unite Us', url: 'https://uniteus.com' }], tips: 'Track referral status, follow up within 5 days' },
+      { id: '4-3', task: 'Assess diaper needs and explain distribution process', protocol: 'Diaper Procedure', documents: [{ name: 'Diaper Tracker', url: 'https://docs.google.com/spreadsheets/d/1Fl7HSYwULP88C64rbbz6COAc5gpJH-SmRcWy5SLNIDU/edit' }], tips: '1 pack of 25 diapers per child per visit' },
+      { id: '4-4', task: 'Discuss workforce development opportunities', protocol: 'Workforce Engagement', documents: [{ name: 'Employment Tracker', url: 'https://docs.google.com/spreadsheets/d/1k5wRl9FOAD-GZZb8OHqhcKwmWl0PhIXAMdj7vFd6qFM/edit' }], tips: 'Assess job readiness and training needs' },
+      { id: '4-5', task: 'Review financial support services availability', protocol: 'Financial Support Services Procedure', documents: [{ name: 'Financial Procedure', url: 'https://docs.google.com/document/d/11CQvxG66h6xItxmNFqNDT7ffJAK3eI1y/edit' }], tips: 'Exhaust all other resources first' }
+    ]
+  },
+  {
+    id: 'phase-5',
+    phase: 'Phase 5: Documentation & Upload',
+    icon: Upload,
+    color: 'from-rose-500 to-rose-600',
+    bgColor: 'bg-rose-50',
+    borderColor: 'border-rose-200',
+    description: 'Complete within 48 hours of intake',
+    steps: [
+      { id: '5-1', task: 'Scan all signed documents', protocol: 'Case Manager Procedures', documents: [], tips: 'Use clear, high-quality scans; save as PDF' },
+      { id: '5-2', task: 'Upload all documents to SharePoint client folder', protocol: 'Case Manager Procedures', documents: [{ name: 'SharePoint', url: 'https://foamla.sharepoint.com' }], tips: 'Create folder with client name if not existing' },
+      { id: '5-3', task: 'Verify all Empower DB entries are complete', protocol: 'Case Manager Procedures', documents: [{ name: 'Empower DB', url: 'https://empowerdb.com' }], tips: 'Double-check contact info, demographics, enrollment status' },
+      { id: '5-4', task: 'Add case notes documenting intake meeting', protocol: 'Case Manager Procedures', documents: [], tips: 'Include date, topics discussed, and next steps' },
+      { id: '5-5', task: 'Schedule first follow-up contact (within 3-5 days)', protocol: 'Customer Service Procedure', documents: [], tips: 'Set calendar reminder for follow-up call' }
+    ]
+  },
+  {
+    id: 'phase-6',
+    phase: 'Phase 6: Ongoing Case Management',
+    icon: Calendar,
+    color: 'from-cyan-500 to-cyan-600',
+    bgColor: 'bg-cyan-50',
+    borderColor: 'border-cyan-200',
+    description: 'Continuous engagement throughout enrollment',
+    steps: [
+      { id: '6-1', task: 'Contact client weekly/bi-weekly per caseload assignment', protocol: 'Customer Service Procedure', documents: [], tips: 'Document all contact attempts in case notes' },
+      { id: '6-2', task: 'Track class attendance in Empower DB', protocol: 'Fatherhood Class Procedure', documents: [{ name: 'Empower DB', url: 'https://empowerdb.com' }], tips: 'Enter attendance within 48 hours of each class' },
+      { id: '6-3', task: 'Update POC progress monthly', protocol: 'Case Manager Procedures', documents: [{ name: 'Empower DB', url: 'https://empowerdb.com' }], tips: 'Review goals with client and adjust as needed' },
+      { id: '6-4', task: 'Complete monthly report with all client metrics', protocol: 'Case Manager Procedures', documents: [], tips: 'Submit by the 5th of each month for previous month' },
+      { id: '6-5', task: 'Prepare client for Post-Assessment at class completion', protocol: 'Fatherhood Class Procedure', documents: [], tips: 'Administer after completing 14-class curriculum' }
+    ]
+  }
+];
+
+const PROTOCOL_LINKS: Record<string, string> = {
+  'Case Manager Procedures': 'https://docs.google.com/document/d/11my4jGQL2JZ7m3KknRDDzILTAi47lsyp/edit',
+  'Customer Service Procedure': 'https://docs.google.com/document/d/1dONtEBhQO9KTBtm740AkWbU29GtbsSfX/edit',
+  'Referral & Intake Procedure': 'https://docs.google.com/document/d/1lFFvENAcwjzKOf01wATw2eLQz33IbAl-/edit',
+  'Fatherhood Class Procedure': 'https://docs.google.com/document/d/1hMCbn7Eja676OVDubX6UHFbAgrFer7kB/edit',
+  'Diaper Procedure': 'https://docs.google.com/document/d/1rikPH15RcFXVTIAwU92vYsp8wEKKmJeS/edit',
+  'Financial Support Services Procedure': 'https://docs.google.com/document/d/11CQvxG66h6xItxmNFqNDT7ffJAK3eI1y/edit',
+  'Workforce Engagement': 'https://docs.google.com/document/d/1_workforce_engagement/edit'
+};
+
 const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpenReports }) => {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,6 +176,29 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [hoveredFileId, setHoveredFileId] = useState<string | null>(null);
   const [hoveredProcedureId, setHoveredProcedureId] = useState<string | null>(null);
+  // NEW: Checklist state
+  const [expandedPhases, setExpandedPhases] = useState<Record<string, boolean>>({});
+  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  const [clientName, setClientName] = useState('');
+
+  // NEW: Load checklist progress from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('foam-client-checklist');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        setCheckedItems(data.checkedItems || {});
+        setClientName(data.clientName || '');
+      } catch (e) { console.error('Error loading checklist:', e); }
+    }
+  }, []);
+
+  // NEW: Save checklist progress
+  useEffect(() => {
+    if (Object.keys(checkedItems).length > 0 || clientName) {
+      localStorage.setItem('foam-client-checklist', JSON.stringify({ checkedItems, clientName, lastUpdated: new Date().toISOString() }));
+    }
+  }, [checkedItems, clientName]);
 
   useEffect(() => {
     if (activeTab === 'documents' && driveFiles.length === 0) {
@@ -63,6 +221,26 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       console.error('Failed to load files:', err);
     } finally {
       setIsLoadingFiles(false);
+    }
+  };
+
+  // NEW: Checklist functions
+  const togglePhase = (phaseId: string) => setExpandedPhases(prev => ({ ...prev, [phaseId]: !prev[phaseId] }));
+  const toggleItem = (itemId: string) => setCheckedItems(prev => ({ ...prev, [itemId]: !prev[itemId] }));
+  const getPhaseProgress = (phase: ChecklistPhase) => {
+    const completed = phase.steps.filter(step => checkedItems[step.id]).length;
+    return { completed, total: phase.steps.length };
+  };
+  const getTotalProgress = () => {
+    const allSteps = NEW_CLIENT_CHECKLIST.flatMap(phase => phase.steps);
+    const completed = allSteps.filter(step => checkedItems[step.id]).length;
+    return { completed, total: allSteps.length };
+  };
+  const resetChecklist = () => {
+    if (window.confirm('Reset all checklist progress? This cannot be undone.')) {
+      setCheckedItems({});
+      setClientName('');
+      localStorage.removeItem('foam-client-checklist');
     }
   };
 
@@ -110,6 +288,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       .trim();
   };
 
+  // KEEPING YOUR COMPLETE fileDetailsMap
   const fileDetailsMap: Record<string, FileDetails> = {
     'new referrals tracker': {
       description: 'Central database for tracking all incoming client referrals',
@@ -410,6 +589,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     resource.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // UPDATED: Added Training Manual card
   const portalCards = [
     {
       id: 'reports',
@@ -437,6 +617,16 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       color: 'bg-amber-600',
       shadow: 'shadow-amber-200',
       action: () => setActiveTab('documents')
+    },
+    {
+      id: 'training-manual',
+      title: 'Training Manual',
+      description: 'Interactive flipbook with complete case manager training guide and procedures.',
+      icon: BookMarked,
+      color: 'bg-purple-600',
+      shadow: 'shadow-purple-200',
+      action: () => window.open('https://heyzine.com/flip-book/fa09642bd5.html', '_blank', 'noopener,noreferrer'),
+      isExternal: true
     }
   ];
 
@@ -464,9 +654,10 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
 
   const handleOpenLink = (url: string) => window.open(url, '_blank', 'noopener,noreferrer');
 
+  // UPDATED: renderHomeView with 4 cards + checklist card
   const renderHomeView = () => (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {portalCards.map((card) => {
           const IconComponent = card.icon;
           return (
@@ -483,9 +674,9 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
                 </div>
               </div>
               <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-teal-600 transition-colors">Access</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-teal-600 transition-colors">{card.isExternal ? 'Open Flipbook' : 'Access'}</span>
                 <div className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-teal-600 group-hover:text-white transition-all">
-                  <ChevronRight size={16} />
+                  {card.isExternal ? <ExternalLink size={16} /> : <ChevronRight size={16} />}
                 </div>
               </div>
             </button>
@@ -504,6 +695,108 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
           </div>
         </div>
       </div>
+      {/* NEW: Interactive Checklist Card */}
+      <div onClick={() => setActiveTab('checklist')} className="group bg-gradient-to-br from-teal-50 to-cyan-50 border-2 border-teal-200 rounded-3xl p-8 hover:shadow-xl hover:border-teal-300 transition-all duration-300 cursor-pointer">
+        <div className="flex flex-col lg:flex-row items-start gap-6">
+          <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-lg shadow-teal-200"><CheckSquare className="w-10 h-10 text-white" /></div>
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h3 className="text-2xl font-bold text-slate-800">New Client Checklist</h3>
+              <span className="bg-teal-500 text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Interactive</span>
+            </div>
+            <p className="text-slate-600 mb-4">Step-by-step guide for onboarding new clients. Track your progress through intake, assessment, Plan of Care development, and ongoing case management.</p>
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2 text-slate-500"><Clock className="w-4 h-4" /><span className="text-sm">6 Phases</span></div>
+              <div className="flex items-center gap-2 text-slate-500"><CheckCircle className="w-4 h-4" /><span className="text-sm">{getTotalProgress().total} Checkpoints</span></div>
+              <div className="flex items-center gap-2 text-slate-500"><FileText className="w-4 h-4" /><span className="text-sm">15+ Documents Linked</span></div>
+            </div>
+            {getTotalProgress().completed > 0 && (
+              <div className="mt-4 flex items-center gap-3">
+                <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full transition-all duration-500" style={{ width: `${(getTotalProgress().completed / getTotalProgress().total) * 100}%` }} /></div>
+                <span className="text-teal-600 text-sm font-medium">{getTotalProgress().completed}/{getTotalProgress().total} complete</span>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center text-teal-600 font-bold group-hover:text-teal-700"><span className="mr-2">START CHECKLIST</span><ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // NEW: renderChecklistView
+  const renderChecklistView = () => (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4 mb-6">
+        <button onClick={() => setActiveTab('home')} className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs hover:bg-slate-200 transition-all uppercase tracking-wider"><ArrowLeft size={16} /> Back to Portal</button>
+        <div className="flex-1">
+          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3"><CheckSquare className="w-7 h-7 text-teal-600" />New Client Checklist</h2>
+          <p className="text-slate-500 text-sm">Complete guide for onboarding fathers into FOAM programs</p>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-sm">
+          <div className="text-xs text-slate-400 mb-1">Overall Progress</div>
+          <div className="flex items-center gap-3">
+            <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full transition-all duration-500" style={{ width: `${(getTotalProgress().completed / getTotalProgress().total) * 100}%` }} /></div>
+            <span className="text-slate-800 font-semibold text-sm">{getTotalProgress().completed}/{getTotalProgress().total}</span>
+          </div>
+        </div>
+        <button onClick={resetChecklist} className="text-slate-400 hover:text-rose-500 text-xs font-medium transition-colors">Reset</button>
+      </div>
+      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+        <label className="text-slate-500 text-sm mb-2 block">Client Name (optional)</label>
+        <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Enter client name..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+      </div>
+      <div className="space-y-4">
+        {NEW_CLIENT_CHECKLIST.map((phase) => {
+          const progress = getPhaseProgress(phase);
+          const isExpanded = expandedPhases[phase.id];
+          const PhaseIcon = phase.icon;
+          return (
+            <div key={phase.id} className={`bg-white border-2 ${phase.borderColor} rounded-2xl overflow-hidden shadow-sm`}>
+              <div onClick={() => togglePhase(phase.id)} className={`${phase.bgColor} p-5 cursor-pointer hover:opacity-90 transition-all`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 bg-gradient-to-br ${phase.color} rounded-xl flex items-center justify-center shadow-lg`}><PhaseIcon className="w-6 h-6 text-white" /></div>
+                    <div><h3 className="text-slate-800 font-semibold text-lg">{phase.phase}</h3><p className="text-slate-600 text-sm">{phase.description}</p></div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className="text-slate-800 font-semibold">{progress.completed}/{progress.total}</div>
+                      <div className="w-24 h-1.5 bg-white/50 rounded-full overflow-hidden mt-1"><div className={`h-full bg-gradient-to-r ${phase.color} rounded-full`} style={{ width: `${(progress.completed / progress.total) * 100}%` }} /></div>
+                    </div>
+                    <ChevronDown className={`w-6 h-6 text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  </div>
+                </div>
+              </div>
+              {isExpanded && (
+                <div className="p-4 space-y-3 bg-white">
+                  {phase.steps.map((step) => (
+                    <div key={step.id} className={`border rounded-xl p-4 transition-all ${checkedItems[step.id] ? 'bg-slate-50 border-slate-200 opacity-70' : step.highlight ? 'bg-teal-50 border-teal-300' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+                      <div className="flex items-start gap-4">
+                        <button onClick={() => toggleItem(step.id)} className="flex-shrink-0 mt-0.5">{checkedItems[step.id] ? <CheckCircle className="w-6 h-6 text-teal-500" /> : <Circle className="w-6 h-6 text-slate-300 hover:text-teal-500 transition-colors" />}</button>
+                        <div className="flex-1">
+                          <p className={`font-medium ${checkedItems[step.id] ? 'line-through text-slate-400' : step.highlight ? 'text-teal-800 font-bold' : 'text-slate-800'}`}>{step.task}</p>
+                          {step.tips && <p className="text-slate-500 text-sm mt-1 flex items-start gap-2"><AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-500" />{step.tips}</p>}
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            <a href={PROTOCOL_LINKS[step.protocol] || '#'} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 bg-purple-100 text-purple-700 text-xs px-3 py-1.5 rounded-full hover:bg-purple-200" onClick={(e) => e.stopPropagation()}><BookOpen className="w-3 h-3" />{step.protocol}</a>
+                            {step.documents.map((doc) => (<a key={doc.name} href={doc.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 bg-teal-100 text-teal-700 text-xs px-3 py-1.5 rounded-full hover:bg-teal-200" onClick={(e) => e.stopPropagation()}><FileText className="w-3 h-3" />{doc.name}</a>))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {getTotalProgress().completed === getTotalProgress().total && (
+        <div className="bg-gradient-to-r from-teal-100 to-cyan-100 border-2 border-teal-300 rounded-2xl p-6 text-center">
+          <CheckCircle className="w-16 h-16 text-teal-500 mx-auto mb-4" />
+          <h3 className="text-2xl font-bold text-slate-800 mb-2">Client Onboarding Complete! 🎉</h3>
+          <p className="text-slate-600">{clientName ? `${clientName} has been` : 'Client has been'} fully enrolled and documented.</p>
+        </div>
+      )}
     </div>
   );
 
@@ -766,6 +1059,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         {activeTab === 'home' && renderHomeView()}
         {activeTab === 'resources' && renderResourcesView()}
         {activeTab === 'documents' && renderDocumentsView()}
+        {activeTab === 'checklist' && renderChecklistView()}
       </div>
       {renderDetailModal()}
     </div>
