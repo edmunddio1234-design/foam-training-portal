@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   ArrowLeft, FileText, FolderOpen, BarChart3, ExternalLink,
   FileSpreadsheet, ClipboardList, Users, Baby, Briefcase,
-  HeartHandshake, Phone, BookOpen, Download, ChevronRight
+  HeartHandshake, Phone, BookOpen, ChevronRight, Search, X, Info
 } from 'lucide-react';
 
 interface CaseManagerLandingProps {
@@ -14,6 +14,8 @@ type TabType = 'home' | 'resources' | 'documents';
 
 const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpenReports }) => {
   const [activeTab, setActiveTab] = useState<TabType>('home');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDoc, setSelectedDoc] = useState<any>(null);
 
   // Resource Sheets - Google Sheets links
   const resourceSheets = [
@@ -25,7 +27,10 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       color: 'bg-blue-600',
       lightColor: 'bg-blue-50',
       textColor: 'text-blue-600',
-      url: 'https://docs.google.com/spreadsheets/d/1k5wRl9FOAD-GZZb8OHqhcKwmWl0PhIXAMdj7vFd6qFM/edit?gid=1060095539#gid=1060095539'
+      url: 'https://docs.google.com/spreadsheets/d/1k5wRl9FOAD-GZZb8OHqhcKwmWl0PhIXAMdj7vFd6qFM/edit?gid=1060095539#gid=1060095539',
+      purpose: 'Monitors all clients receiving employment services from initial assessment through job placement and retention check-ins.',
+      howToUse: 'Add new clients when they request job help. Update status weekly. Track resume completion, applications submitted, interviews, and placements.',
+      keyTopics: ['Client Status', 'Resume Status', 'Job Search Progress', 'Placement Date', 'Retention Milestones']
     },
     {
       id: 'resource-guide',
@@ -35,7 +40,10 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       color: 'bg-emerald-600',
       lightColor: 'bg-emerald-50',
       textColor: 'text-emerald-600',
-      url: 'https://docs.google.com/spreadsheets/d/1Joq9gBwd6spIrbqCBgaicuOFv0jAaGYSRntWZRKQry8/edit?gid=445884882#gid=445884882'
+      url: 'https://docs.google.com/spreadsheets/d/1Joq9gBwd6spIrbqCBgaicuOFv0jAaGYSRntWZRKQry8/edit?gid=445884882#gid=445884882',
+      purpose: 'Comprehensive directory of community partners and resources. Use to connect clients with housing, legal aid, food assistance, and other services.',
+      howToUse: 'Search by category or need. Verify contact information before referring. Document all referrals made in case notes.',
+      keyTopics: ['Housing Resources', 'Legal Aid', 'Food Assistance', 'Mental Health', 'Employment Services']
     },
     {
       id: 'diaper',
@@ -45,11 +53,14 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       color: 'bg-pink-600',
       lightColor: 'bg-pink-50',
       textColor: 'text-pink-600',
-      url: 'https://docs.google.com/spreadsheets/d/1Fl7HSYwULP88C64rbbz6COAc5gpJH-SmRcWy5SLNIDU/edit?gid=471191695#gid=471191695'
+      url: 'https://docs.google.com/spreadsheets/d/1Fl7HSYwULP88C64rbbz6COAc5gpJH-SmRcWy5SLNIDU/edit?gid=471191695#gid=471191695',
+      purpose: 'Official record of all diaper distributions. Required for JLBR grant reporting. Tracks quantities by size and funding source.',
+      howToUse: 'Complete for EVERY distribution. Include client signature. Distinguish between JLBR-funded and Walmart-donated diapers. Submit monthly totals.',
+      keyTopics: ['Client Information', 'Diaper Sizes', 'Quantity', 'Funding Source', 'Monthly Totals']
     }
   ];
 
-  // Procedure Documents - Google Drive links
+  // Procedure Documents - Google Drive links with detailed info
   const procedureDocuments = [
     {
       id: 'case-manager',
@@ -57,7 +68,10 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       description: 'Complete operational procedures for case management (Updated 7/22/24)',
       icon: ClipboardList,
       color: 'bg-slate-700',
-      url: 'https://docs.google.com/document/d/11my4jGQL2JZ7m3KknRDDzILTAi47lsyp/edit'
+      url: 'https://docs.google.com/document/d/11my4jGQL2JZ7m3KknRDDzILTAi47lsyp/edit',
+      purpose: 'This document outlines the daily workflows and responsibilities for case managers including client communication schedules, documentation requirements, and follow-up protocols.',
+      howToUse: 'Reference this document when onboarding new case managers, during weekly check-ins, or when questions arise about proper procedures. Follow the step-by-step checklists for each client interaction.',
+      keyTopics: ['Client Communication', 'Documentation', 'Follow-up Schedules', 'Empower DB Entry', 'SharePoint Uploads']
     },
     {
       id: 'customer-service',
@@ -65,7 +79,10 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       description: 'Guidelines for client interactions and service delivery standards',
       icon: HeartHandshake,
       color: 'bg-purple-600',
-      url: 'https://docs.google.com/document/d/1dONtEBhQO9KTBtm740AkWbU29GtbsSfX/edit'
+      url: 'https://docs.google.com/document/d/1dONtEBhQO9KTBtm740AkWbU29GtbsSfX/edit',
+      purpose: 'Establishes the standard for professional, compassionate client interactions. Covers phone etiquette, in-person meetings, email communication, and conflict resolution.',
+      howToUse: 'Review before client meetings. Use the scripts provided for difficult conversations. Reference the escalation procedures when issues arise.',
+      keyTopics: ['Phone Etiquette', 'Professional Communication', 'Conflict Resolution', 'Escalation Procedures']
     },
     {
       id: 'diaper-procedure',
@@ -73,7 +90,10 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       description: 'Protocol for diaper distribution and inventory management',
       icon: Baby,
       color: 'bg-pink-600',
-      url: 'https://docs.google.com/document/d/1rikPH15RcFXVTIAwU92vYsp8wEKKmJeS/edit'
+      url: 'https://docs.google.com/document/d/1rikPH15RcFXVTIAwU92vYsp8wEKKmJeS/edit',
+      purpose: 'Guides the diaper distribution process from intake to delivery. Includes eligibility requirements, inventory tracking, and reporting for JLBR grant compliance.',
+      howToUse: 'Follow this procedure for every diaper request. Complete the distribution log, verify eligibility, and submit monthly reports to JLBR using the provided template.',
+      keyTopics: ['Eligibility Requirements', 'Distribution Log', 'Inventory Management', 'JLBR Reporting', 'Size Guidelines']
     },
     {
       id: 'fatherhood-class',
@@ -81,7 +101,10 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       description: 'Guidelines for conducting and documenting fatherhood classes',
       icon: Users,
       color: 'bg-blue-600',
-      url: 'https://docs.google.com/document/d/1hMCbn7Eja676OVDubX6UHFbAgrFer7kB/edit'
+      url: 'https://docs.google.com/document/d/1hMCbn7Eja676OVDubX6UHFbAgrFer7kB/edit',
+      purpose: 'Comprehensive guide for facilitating the 14-module fatherhood curriculum. Covers class setup, attendance tracking, assessment administration, and graduation requirements.',
+      howToUse: 'Prepare for each class using the module guide. Take attendance using Google Forms or sign-in sheets. Enter data into Empower DB within 48 hours of each class.',
+      keyTopics: ['14-Module Curriculum', 'Attendance Tracking', 'Pre/Post Assessments', 'Empower DB Entry', 'Graduation Requirements']
     },
     {
       id: 'financial-support',
@@ -89,7 +112,10 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       description: 'Process for providing financial assistance to clients',
       icon: FileText,
       color: 'bg-emerald-600',
-      url: 'https://docs.google.com/document/d/11CQvxG66h6xItxmNFqNDT7ffJAK3eI1y/edit'
+      url: 'https://docs.google.com/document/d/11CQvxG66h6xItxmNFqNDT7ffJAK3eI1y/edit',
+      purpose: 'Details the approval process for emergency financial assistance including utilities, food, hotel stays, and transportation. Includes budget limits and documentation requirements.',
+      howToUse: 'Complete the Financial Request Form with the client. Gather required documentation (bills, ID). Submit for supervisor approval. Process payment within 48-72 hours of approval.',
+      keyTopics: ['Request Process', 'Approval Workflow', 'Budget Limits', 'Required Documentation', 'Payment Processing']
     },
     {
       id: 'referral-intake',
@@ -97,7 +123,10 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       description: 'Standard process for client referrals and intake documentation',
       icon: Phone,
       color: 'bg-amber-600',
-      url: 'https://docs.google.com/document/d/1lFFvENAcwjzKOf01wATw2eLQz33IbAl-/edit'
+      url: 'https://docs.google.com/document/d/1lFFvENAcwjzKOf01wATw2eLQz33IbAl-/edit',
+      purpose: 'Step-by-step guide for processing new client referrals and conducting intake assessments. Ensures consistent data collection and proper enrollment into services.',
+      howToUse: 'Use for every new client. Complete all intake forms within 24 hours of first contact. Enter into Empower DB and assign to appropriate case manager. Schedule initial assessment.',
+      keyTopics: ['Referral Sources', 'Intake Forms', 'Initial Assessment', 'Program Enrollment', 'Case Assignment']
     },
     {
       id: 'workforce',
@@ -105,9 +134,26 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       description: 'Procedures for workforce development and employment support',
       icon: Briefcase,
       color: 'bg-indigo-600',
-      url: 'https://drive.google.com/file/d/1_workforce_engagement/view' // You may need to update this URL
+      url: 'https://docs.google.com/document/d/1_workforce_engagement/edit',
+      purpose: 'Guides employment support services including job readiness assessment, resume building, job search assistance, and employer partnerships. Tracks placement and retention.',
+      howToUse: 'Assess client job readiness first. Create employment plan. Provide resume services. Connect with partner employers. Follow up at 30, 60, 90 days post-placement.',
+      keyTopics: ['Job Readiness Assessment', 'Resume Building', 'Job Search Support', 'Employer Partnerships', 'Retention Follow-up']
     }
   ];
+
+  // Filter documents based on search
+  const filteredDocuments = procedureDocuments.filter(doc =>
+    doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    doc.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    doc.keyTopics.some(topic => topic.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  // Filter resources based on search
+  const filteredResources = resourceSheets.filter(resource =>
+    resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    resource.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    resource.keyTopics.some(topic => topic.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   // Main portal cards for home view
   const portalCards = [
@@ -139,6 +185,201 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       action: () => setActiveTab('documents')
     }
   ];
+
+  // Document Card with Hover Tooltip
+  const DocumentCard: React.FC<{ doc: typeof procedureDocuments[0] }> = ({ doc }) => {
+    const [showTooltip, setShowTooltip] = useState(false);
+    const Icon = doc.icon;
+
+    return (
+      <div
+        className="relative group"
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+      >
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100 hover:shadow-lg hover:border-teal-200 transition-all flex items-start gap-4">
+          <div className={`w-10 h-10 ${doc.color} text-white rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
+            <Icon size={20} />
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-bold text-slate-800 group-hover:text-teal-600 transition-colors">
+              {doc.title}
+            </h3>
+            <p className="text-slate-500 text-sm mt-1 line-clamp-2">{doc.description}</p>
+          </div>
+          
+          <div className="flex items-center gap-1">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setSelectedDoc(doc);
+              }}
+              className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-teal-600 transition-colors"
+              title="View Details"
+            >
+              <Info size={18} />
+            </button>
+            <a
+              href={doc.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-teal-600 transition-colors"
+            >
+              <ExternalLink size={18} />
+            </a>
+          </div>
+        </div>
+
+        {/* Hover Tooltip */}
+        {showTooltip && (
+          <div 
+            className="absolute z-50 left-0 right-0 top-full mt-2 bg-slate-800 text-white p-4 rounded-xl shadow-xl text-sm"
+            style={{ animation: 'fadeIn 0.2s ease-out' }}
+          >
+            <div className="font-bold text-teal-300 mb-1 text-xs uppercase tracking-wide">📌 Purpose</div>
+            <p className="text-slate-200 mb-3 text-xs leading-relaxed">{doc.purpose}</p>
+            <div className="font-bold text-teal-300 mb-1 text-xs uppercase tracking-wide">📖 How to Use</div>
+            <p className="text-slate-200 text-xs leading-relaxed">{doc.howToUse}</p>
+            <div className="absolute -top-2 left-8 w-4 h-4 bg-slate-800 rotate-45"></div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Resource Card with Hover Tooltip
+  const ResourceCard: React.FC<{ resource: typeof resourceSheets[0] }> = ({ resource }) => {
+    const [showTooltip, setShowTooltip] = useState(false);
+    const Icon = resource.icon;
+
+    return (
+      <div
+        className="relative group"
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+      >
+        <a
+          href={resource.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg hover:border-slate-200 transition-all"
+        >
+          <div className="space-y-4">
+            <div className="flex items-start justify-between">
+              <div className={`w-12 h-12 ${resource.color} text-white rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                <Icon size={24} />
+              </div>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSelectedDoc(resource);
+                }}
+                className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-teal-600 transition-colors"
+                title="View Details"
+              >
+                <Info size={18} />
+              </button>
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-slate-800 group-hover:text-teal-600 transition-colors">
+                {resource.title}
+              </h3>
+              <p className="text-slate-500 text-sm leading-relaxed">{resource.description}</p>
+            </div>
+            
+            <div className="flex items-center gap-2 text-teal-600 font-bold text-xs uppercase tracking-wider pt-2">
+              <FileSpreadsheet size={14} />
+              <span>Open in Google Sheets</span>
+              <ExternalLink size={12} className="ml-auto" />
+            </div>
+          </div>
+        </a>
+
+        {/* Hover Tooltip */}
+        {showTooltip && (
+          <div 
+            className="absolute z-50 left-0 right-0 top-full mt-2 bg-slate-800 text-white p-4 rounded-xl shadow-xl text-sm"
+            style={{ animation: 'fadeIn 0.2s ease-out' }}
+          >
+            <div className="font-bold text-teal-300 mb-1 text-xs uppercase tracking-wide">📌 Purpose</div>
+            <p className="text-slate-200 mb-3 text-xs leading-relaxed">{resource.purpose}</p>
+            <div className="font-bold text-teal-300 mb-1 text-xs uppercase tracking-wide">📖 How to Use</div>
+            <p className="text-slate-200 text-xs leading-relaxed">{resource.howToUse}</p>
+            <div className="absolute -top-2 left-8 w-4 h-4 bg-slate-800 rotate-45"></div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Detail Modal
+  const DetailModal = () => {
+    if (!selectedDoc) return null;
+    const Icon = selectedDoc.icon;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedDoc(null)}>
+        <div 
+          className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`w-12 h-12 ${selectedDoc.color} text-white rounded-xl flex items-center justify-center`}>
+                <Icon size={24} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-slate-800">{selectedDoc.title}</h2>
+                <p className="text-slate-500 text-sm">{selectedDoc.description}</p>
+              </div>
+            </div>
+            <button onClick={() => setSelectedDoc(null)} className="p-2 hover:bg-slate-100 rounded-lg">
+              <X size={24} className="text-slate-400" />
+            </button>
+          </div>
+
+          <div className="p-6 space-y-6">
+            <div>
+              <h3 className="text-sm font-bold text-teal-600 uppercase tracking-wide mb-2">Purpose</h3>
+              <p className="text-slate-700">{selectedDoc.purpose}</p>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-bold text-teal-600 uppercase tracking-wide mb-2">How to Use</h3>
+              <p className="text-slate-700">{selectedDoc.howToUse}</p>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-bold text-teal-600 uppercase tracking-wide mb-2">Key Topics</h3>
+              <div className="flex flex-wrap gap-2">
+                {selectedDoc.keyTopics.map((topic: string, i: number) => (
+                  <span key={i} className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-sm">
+                    {topic}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t">
+              <a
+                href={selectedDoc.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors"
+              >
+                <ExternalLink size={18} />
+                Open Document
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderHomeView = () => (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -218,36 +459,41 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         </div>
       </div>
 
+      {/* Search Bar */}
+      <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+          <input
+            type="text"
+            placeholder="Search resources..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {resourceSheets.map((resource) => (
-          <a
-            key={resource.id}
-            href={resource.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg hover:border-slate-200 transition-all"
-          >
-            <div className="space-y-4">
-              <div className={`w-12 h-12 ${resource.color} text-white rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                <resource.icon size={24} />
-              </div>
-              
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold text-slate-800 group-hover:text-teal-600 transition-colors">
-                  {resource.title}
-                </h3>
-                <p className="text-slate-500 text-sm leading-relaxed">{resource.description}</p>
-              </div>
-              
-              <div className="flex items-center gap-2 text-teal-600 font-bold text-xs uppercase tracking-wider pt-2">
-                <FileSpreadsheet size={14} />
-                <span>Open in Google Sheets</span>
-                <ExternalLink size={12} className="ml-auto" />
-              </div>
-            </div>
-          </a>
+        {filteredResources.map((resource) => (
+          <ResourceCard key={resource.id} resource={resource} />
         ))}
       </div>
+
+      {filteredResources.length === 0 && (
+        <div className="text-center py-12">
+          <Search size={48} className="text-slate-300 mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-slate-600">No resources found</h3>
+          <p className="text-slate-500">Try different search terms</p>
+        </div>
+      )}
     </div>
   );
 
@@ -267,32 +513,46 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         </div>
       </div>
 
+      {/* Search Bar */}
+      <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+          <input
+            type="text"
+            placeholder="Search documents by name, description, or topic..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+        {searchQuery && (
+          <p className="text-sm text-slate-500 mt-2">
+            Found {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''} matching "{searchQuery}"
+          </p>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {procedureDocuments.map((doc) => (
-          <a
-            key={doc.id}
-            href={doc.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group bg-white rounded-xl p-5 shadow-sm border border-slate-100 hover:shadow-lg hover:border-slate-200 transition-all flex items-start gap-4"
-          >
-            <div className={`w-10 h-10 ${doc.color} text-white rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
-              <doc.icon size={20} />
-            </div>
-            
-            <div className="flex-1 min-w-0">
-              <h3 className="text-base font-bold text-slate-800 group-hover:text-teal-600 transition-colors">
-                {doc.title}
-              </h3>
-              <p className="text-slate-500 text-sm mt-1 line-clamp-2">{doc.description}</p>
-            </div>
-            
-            <div className="flex items-center gap-1 text-slate-400 group-hover:text-teal-600 transition-colors">
-              <ExternalLink size={16} />
-            </div>
-          </a>
+        {filteredDocuments.map((doc) => (
+          <DocumentCard key={doc.id} doc={doc} />
         ))}
       </div>
+
+      {filteredDocuments.length === 0 && (
+        <div className="text-center py-12">
+          <Search size={48} className="text-slate-300 mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-slate-600">No documents found</h3>
+          <p className="text-slate-500">Try different search terms</p>
+        </div>
+      )}
 
       {/* Info Box */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
@@ -302,6 +562,9 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         <div>
           <p className="text-amber-800 font-medium text-sm">
             These documents open in Google Drive. You can view, download, or print them as needed.
+          </p>
+          <p className="text-amber-700 text-sm mt-1">
+            💡 <strong>Tip:</strong> Hover over any document for a quick summary, or click the <Info size={14} className="inline" /> icon for full details.
           </p>
         </div>
       </div>
@@ -346,6 +609,17 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         {activeTab === 'resources' && renderResourcesView()}
         {activeTab === 'documents' && renderDocumentsView()}
       </div>
+
+      {/* Detail Modal */}
+      <DetailModal />
+
+      {/* Animation styles */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 };
