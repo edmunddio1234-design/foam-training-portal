@@ -19,7 +19,9 @@ const FORMS_FOLDER_ID = '1rPbAGgMVYYeJwMxFxLyfkW1rYRkxK-RL';
 interface DriveFile {
   id: string;
   name: string;
-  mimeType: string;
+  type: string;
+  url?: string;
+  isFolder?: boolean;
 }
 
 const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpenReports }) => {
@@ -41,8 +43,8 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       const response = await fetch(API_BASE_URL + '/api/documents?folderId=' + FORMS_FOLDER_ID);
       const data = await response.json();
       if (data.success && data.data) {
-        const foamFiles = data.data.filter((f: DriveFile) => 
-          f && f.name && f.mimeType && f.name.includes('FOAM') && !f.mimeType.includes('folder')
+        const foamFiles = data.data.filter((f: any) => 
+          f && f.name && f.name.includes('FOAM') && !f.isFolder
         );
         setDriveFiles(foamFiles);
       }
@@ -54,27 +56,27 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
   };
 
   const getFileUrl = (file: DriveFile) => {
-    if (file.mimeType.includes('spreadsheet')) {
+    if (file.type.includes('spreadsheet')) {
       return 'https://docs.google.com/spreadsheets/d/' + file.id + '/edit';
-    } else if (file.mimeType.includes('document') || file.mimeType.includes('word')) {
+    } else if (file.type.includes('document') || file.type.includes('word')) {
       return 'https://docs.google.com/document/d/' + file.id + '/edit';
-    } else if (file.mimeType.includes('pdf')) {
+    } else if (file.type.includes('pdf')) {
       return 'https://drive.google.com/file/d/' + file.id + '/view';
     }
     return 'https://drive.google.com/file/d/' + file.id + '/view';
   };
 
-  const getFileIcon = (mimeType: string) => {
-    if (mimeType.includes('spreadsheet')) return FileSpreadsheet;
-    if (mimeType.includes('document') || mimeType.includes('word')) return FileText;
-    if (mimeType.includes('pdf')) return FileImage;
+  const getFileIcon = (type: string) => {
+    if (type.includes('spreadsheet')) return FileSpreadsheet;
+    if (type.includes('document') || type.includes('word')) return FileText;
+    if (type.includes('pdf')) return FileImage;
     return File;
   };
 
-  const getFileColor = (mimeType: string) => {
-    if (mimeType.includes('spreadsheet')) return 'bg-emerald-500';
-    if (mimeType.includes('document') || mimeType.includes('word')) return 'bg-blue-500';
-    if (mimeType.includes('pdf')) return 'bg-red-500';
+  const getFileColor = (type: string) => {
+    if (type.includes('spreadsheet')) return 'bg-emerald-500';
+    if (type.includes('document') || type.includes('word')) return 'bg-blue-500';
+    if (type.includes('pdf')) return 'bg-red-500';
     return 'bg-slate-500';
   };
 
@@ -508,8 +510,8 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         ) : filteredDriveFiles.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {filteredDriveFiles.map((file) => {
-              const IconComponent = getFileIcon(file.mimeType);
-              const color = getFileColor(file.mimeType);
+              const IconComponent = getFileIcon(file.type);
+              const color = getFileColor(file.type);
               const displayName = cleanFileName(file.name);
               const description = getFileDescription(file.name);
               const url = getFileUrl(file);
