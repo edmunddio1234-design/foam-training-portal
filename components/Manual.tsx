@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ModuleType } from '../types';
 
@@ -9,6 +8,7 @@ interface ManualProps {
 const Manual: React.FC<ManualProps> = ({ onSelectModule }) => {
   const [searchTerm, setSearchTerm] = useState('');
  const PDF_MANUAL_URL = "https://heyzine.com/flip-book/fa09642bd5.html";
+ const INFOGRAPHICS_URL = "https://heyzine.com/flip-book/583dfd67fa.html";
   // Re-aligned sections to match the 10 Case Manager modules 1-to-1 for accurate navigation
   const sections = [
     { 
@@ -94,6 +94,15 @@ const Manual: React.FC<ManualProps> = ({ onSelectModule }) => {
           >
             <i className="fas fa-file-pdf"></i>
             Physical Manual
+          </a>
+          <a 
+            href={INFOGRAPHICS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-3 px-6 py-3 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 shadow-lg transition-all"
+          >
+            <i className="fas fa-images"></i>
+            Infographics
           </a>
         </div>
       </div>
