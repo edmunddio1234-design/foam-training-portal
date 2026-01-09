@@ -33,6 +33,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
   const [driveFiles, setDriveFiles] = useState<DriveFile[]>([]);
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [hoveredFileId, setHoveredFileId] = useState<string | null>(null);
+  const [hoveredProcedureId, setHoveredProcedureId] = useState<string | null>(null);
 
   useEffect(() => {
     if (activeTab === 'documents' && driveFiles.length === 0) {
@@ -503,8 +504,15 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredProcedures.map((doc) => {
               const IconComponent = doc.icon;
+              const isHovered = hoveredProcedureId === doc.id;
+
               return (
-                <div key={doc.id} className="relative group">
+                <div 
+                  key={doc.id} 
+                  className="relative group"
+                  onMouseEnter={() => setHoveredProcedureId(doc.id)}
+                  onMouseLeave={() => setHoveredProcedureId(null)}
+                >
                   <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100 hover:shadow-lg hover:border-teal-200 transition-all flex items-start gap-4">
                     <div className={'w-10 h-10 ' + doc.color + ' text-white rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform'}>
                       <IconComponent size={20} />
@@ -536,6 +544,69 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
                       </button>
                     </div>
                   </div>
+
+                  {/* Hover Tooltip for Procedures */}
+                  {isHovered && (
+                    <div className="absolute left-0 right-0 top-full mt-2 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <div className="bg-slate-900 text-white rounded-xl p-4 shadow-2xl mx-2">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <div className={'w-6 h-6 ' + doc.color + ' rounded flex items-center justify-center'}>
+                              <IconComponent size={14} />
+                            </div>
+                            <span className="text-xs font-medium text-slate-300">Procedure Document</span>
+                          </div>
+                          
+                          <div>
+                            <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Purpose</p>
+                            <p className="text-sm text-white">{doc.purpose}</p>
+                          </div>
+                          
+                          <div>
+                            <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">How to Use</p>
+                            <p className="text-xs text-slate-300">{doc.howToUse}</p>
+                          </div>
+
+                          <div>
+                            <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Key Topics</p>
+                            <div className="flex flex-wrap gap-1">
+                              {doc.keyTopics.map((topic, i) => (
+                                <span key={i} className="text-xs px-2 py-0.5 bg-slate-700 rounded-full text-slate-300">{topic}</span>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="flex gap-2 pt-1">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenDetails(doc);
+                              }}
+                              className="flex-1 text-xs py-2 px-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors flex items-center justify-center gap-1"
+                            >
+                              <Info size={12} />
+                              Full Details
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenLink(doc.url);
+                              }}
+                              className="flex-1 text-xs py-2 px-3 bg-teal-600 hover:bg-teal-500 rounded-lg transition-colors flex items-center justify-center gap-1"
+                            >
+                              <ExternalLink size={12} />
+                              Open
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {/* Tooltip Arrow */}
+                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-slate-900 rotate-45"></div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
