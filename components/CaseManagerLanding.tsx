@@ -42,7 +42,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       const data = await response.json();
       if (data.success && data.data) {
         const foamFiles = data.data.filter((f: DriveFile) => 
-          f.name.includes('FOAM') && !f.mimeType.includes('folder')
+          f && f.name && f.mimeType && f.name.includes('FOAM') && !f.mimeType.includes('folder')
         );
         setDriveFiles(foamFiles);
       }
@@ -232,8 +232,10 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
   );
 
   const filteredDriveFiles = driveFiles.filter(file =>
-    cleanFileName(file.name).toLowerCase().includes(searchQuery.toLowerCase()) ||
-    getFileDescription(file.name).toLowerCase().includes(searchQuery.toLowerCase())
+    file && file.name && (
+      cleanFileName(file.name).toLowerCase().includes(searchQuery.toLowerCase()) ||
+      getFileDescription(file.name).toLowerCase().includes(searchQuery.toLowerCase())
+    )
   );
 
   const filteredResources = resourceSheets.filter(resource =>
@@ -271,12 +273,10 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     }
   ];
 
-  // Handle opening document details
   const handleOpenDetails = (doc: any) => {
     setSelectedDoc(doc);
   };
 
-  // Handle opening external link
   const handleOpenLink = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
@@ -404,7 +404,6 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         </div>
       </div>
 
-      {/* Search Bar */}
       <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
@@ -428,7 +427,6 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         )}
       </div>
 
-      {/* Procedure Documents */}
       {filteredProcedures.length > 0 && (
         <div>
           <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
@@ -478,7 +476,6 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         </div>
       )}
 
-      {/* Forms & Trackers from Google Drive */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -550,7 +547,6 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         )}
       </div>
 
-      {/* Info Box */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
         <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
           <FileText size={16} className="text-amber-600" />
@@ -567,7 +563,6 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     </div>
   );
 
-  // Detail Modal
   const renderDetailModal = () => {
     if (!selectedDoc) return null;
     const Icon = selectedDoc.icon;
@@ -628,7 +623,6 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header */}
       <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -658,14 +652,12 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         </div>
       </div>
 
-      {/* Content */}
       <div className="max-w-6xl mx-auto p-6">
         {activeTab === 'home' && renderHomeView()}
         {activeTab === 'resources' && renderResourcesView()}
         {activeTab === 'documents' && renderDocumentsView()}
       </div>
 
-      {/* Detail Modal */}
       {renderDetailModal()}
     </div>
   );
