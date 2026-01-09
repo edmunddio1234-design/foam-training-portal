@@ -215,7 +215,11 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         const foamFiles = data.data.filter((f: any) => 
           f && f.name && f.name.includes('FOAM') && !f.isFolder
         );
-        setDriveFiles(foamFiles);
+        // Deduplicate by file ID (keeps first occurrence)
+        const uniqueFiles = foamFiles.filter((file: DriveFile, index: number, self: DriveFile[]) => 
+          index === self.findIndex((f: DriveFile) => f.id === file.id)
+        );
+        setDriveFiles(uniqueFiles);
       }
     } catch (err) {
       console.error('Failed to load files:', err);
