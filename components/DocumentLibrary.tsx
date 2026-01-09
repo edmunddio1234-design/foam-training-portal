@@ -4,7 +4,7 @@
 // Browse, search, and chat with AI about documents
 // ============================================
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Search, FileText, FileSpreadsheet, File, Image, Folder,
   RefreshCw, ExternalLink, Calendar, HardDrive, MessageSquare,
@@ -128,8 +128,15 @@ const DocumentLibrary: React.FC = () => {
     }
   };
 
-  // Filter documents
-  const filteredDocuments = documents.filter(doc => {
+  // Remove duplicates by ID (memoized for performance)
+  const uniqueDocuments = useMemo(() => {
+    return documents.filter((doc, index, self) =>
+      index === self.findIndex(d => d.id === doc.id)
+    );
+  }, [documents]);
+
+  // Filter documents (now using deduplicated list)
+  const filteredDocuments = uniqueDocuments.filter(doc => {
     if (typeFilter !== 'all' && doc.type !== typeFilter) return false;
     if (searchTerm) {
       return doc.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -184,7 +191,7 @@ const DocumentLibrary: React.FC = () => {
             <FolderOpen className="w-8 h-8 text-indigo-600" />
             Document Library
           </h1>
-          <p className="text-slate-500 text-sm font-medium mt-1">FOAM Portal Documents • {documents.length} files</p>
+          <p className="text-slate-500 text-sm font-medium mt-1">FOAM Portal Documents • {uniqueDocuments.length} files</p>
         </div>
         <div className="flex gap-3">
           <button onClick={fetchDocuments} className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest">
@@ -206,7 +213,7 @@ const DocumentLibrary: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
           <div className="bg-white rounded-xl p-4 border border-slate-100 text-center">
             <HardDrive className="w-5 h-5 text-indigo-600 mx-auto mb-1" />
-            <p className="text-xl font-black text-slate-800">{stats.total}</p>
+            <p className="text-xl font-black text-slate-800">{uniqueDocuments.length}</p>
             <p className="text-[9px] font-bold text-slate-400 uppercase">Total</p>
           </div>
           <div className="bg-white rounded-xl p-4 border border-slate-100 text-center">
