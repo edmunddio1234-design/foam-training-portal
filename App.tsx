@@ -23,7 +23,6 @@ import ClassAssessment from './components/tracking/ClassAssessment';
 import FatherProgress from './components/tracking/FatherProgress';
 
 type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment' | 'progress';
-type FinanceSubView = 'dashboard' | 'exchange' | 'bills';
 
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
@@ -32,12 +31,9 @@ const App: React.FC = () => {
   const [isFinanceAuthenticated, setIsFinanceAuthenticated] = useState(false);
   
   const [currentView, setCurrentView] = useState<AppView>('hub');
-  const [financeSubView, setFinanceSubView] = useState<FinanceSubView>('dashboard');
   const [activeModuleId, setActiveModuleId] = useState<ModuleType>(ModuleType.FOUNDATIONAL);
   const [activeTrack, setActiveTrack] = useState<TrainingTrack>('case_manager');
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
-  
-  const [allFinanceEntries, setAllFinanceEntries] = useState<BillEntry[]>([]);
 
   // Check URL for direct access (for fathers on mobile)
   useEffect(() => {
@@ -125,32 +121,11 @@ const App: React.FC = () => {
     return <div className="h-screen animate-in fade-in duration-500 relative z-0 overflow-y-auto"><FatherhoodTracking onBack={() => setCurrentView('hub')} /></div>;
   }
 
+  // NEW: Multi-Funder Finance Dashboard (standalone, fetches its own data)
   if (currentView === 'finance') {
     return (
-      <div className="min-h-screen bg-white flex flex-col p-6 md:p-12 animate-in fade-in duration-500 overflow-y-auto">
-        <div className="max-w-7xl mx-auto w-full flex flex-col md:flex-row md:items-center justify-between border-b pb-8 mb-12 gap-8">
-           <div className="flex items-center gap-6">
-              <div className="w-14 h-14 bg-[#0F2C5C] text-white rounded-2xl flex items-center justify-center shadow-xl ring-4 ring-indigo-50"><i className="fas fa-vault text-2xl"></i></div>
-              <div>
-                <h1 className="text-3xl font-black text-slate-800 tracking-tight">Financial Tools & Budgeting</h1>
-                <div className="flex items-center gap-3 mt-1">
-                  <p className="text-blue-600 font-black uppercase tracking-widest text-[10px] bg-blue-50 px-2 py-0.5 rounded">Restricted Access</p>
-                  <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Fiscal Analytics v3.0</p>
-                </div>
-              </div>
-           </div>
-           <div className="flex items-center gap-4">
-              <div className="bg-slate-50 p-1 rounded-xl flex border border-slate-100 overflow-x-auto hide-scrollbar">
-                <button onClick={() => setFinanceSubView('dashboard')} className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'dashboard' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Analysis Dashboard</button>
-                <button onClick={() => setFinanceSubView('bills')} className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'bills' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Ledger Registry</button>
-                <button onClick={() => setFinanceSubView('exchange')} className={`px-6 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'exchange' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Data Exchange</button>
-              </div>
-              <button onClick={() => { setCurrentView('hub'); setFinanceSubView('dashboard'); }} className="px-6 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 transition-all whitespace-nowrap">Exit Portal</button>
-           </div>
-        </div>
-        <div className="max-w-7xl mx-auto w-full">
-           {financeSubView === 'dashboard' ? <FinanceDashboard entries={allFinanceEntries} activeYear={2025} /> : financeSubView === 'exchange' ? <DataExchange entries={allFinanceEntries} onImport={setAllFinanceEntries} /> : <FinanceBills entries={allFinanceEntries} onDataUpdate={setAllFinanceEntries} />}
-        </div>
+      <div className="h-screen animate-in fade-in duration-500 relative z-0 overflow-y-auto">
+        <FinanceDashboard onClose={() => setCurrentView('hub')} />
       </div>
     );
   }
