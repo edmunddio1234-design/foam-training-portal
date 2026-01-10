@@ -1,5 +1,5 @@
-
-import React from 'react';
+import React, { useState } from 'react';
+import OrganizationalHandbook from './OrganizationalHandbook';
 
 interface HubProps {
   onNavigate: (view: 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance') => void;
@@ -7,6 +7,8 @@ interface HubProps {
 }
 
 const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
+  const [showHandbook, setShowHandbook] = useState(false);
+
   const portals = [
     {
       id: 'training',
@@ -133,20 +135,36 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
           </button>
         ))}
 
-        {/* Support Card */}
-        <div className="bg-[#0F2C5C] rounded-[3rem] p-10 text-white flex flex-col justify-between relative overflow-hidden group">
-           <i className="fas fa-shield-heart absolute -right-6 -bottom-6 text-[10rem] opacity-5 group-hover:scale-110 transition-transform duration-1000"></i>
-           <div className="space-y-4 relative z-10">
-              <h3 className="text-xl font-bold uppercase tracking-widest text-indigo-300">FOAM Mission</h3>
-              <p className="text-xl font-medium leading-relaxed italic">"Enhancing Fathers and Father Figures to ultimately strengthen families."</p>
+        {/* Handbook Card - Replaces Mission Card */}
+        <button
+          onClick={() => setShowHandbook(true)}
+          className="bg-[#0F2C5C] rounded-[3rem] p-10 text-white flex flex-col justify-between relative overflow-hidden group text-left hover:shadow-2xl transition-all duration-500"
+        >
+           <i className="fas fa-book-open absolute -right-6 -bottom-6 text-[10rem] opacity-5 group-hover:scale-110 transition-transform duration-1000"></i>
+           
+           <div className="space-y-6 relative z-10">
+              <div className="w-16 h-16 bg-indigo-500/30 text-indigo-300 rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:rotate-6 transition-transform">
+                <i className="fas fa-book-open"></i>
+              </div>
+              
+              <div className="space-y-3">
+                <h2 className="text-2xl font-black tracking-tight">Organizational Handbook</h2>
+                <ul className="space-y-1 text-indigo-200 font-medium">
+                  <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-indigo-400"></i> Policies & Procedures</li>
+                  <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-indigo-400"></i> 14-Module Curriculum</li>
+                  <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-indigo-400"></i> Staff Roles & SOPs</li>
+                  <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-indigo-400"></i> Compliance & Style Guide</li>
+                </ul>
+              </div>
            </div>
-           <div className="pt-8">
-              <p className="text-xs font-black uppercase tracking-widest text-indigo-400 mb-2">Need Assistance?</p>
-              <button className="flex items-center gap-2 text-white font-bold group-hover:gap-4 transition-all">
-                 Contact IT Support <i className="fas fa-arrow-right text-xs"></i>
-              </button>
+           
+           <div className="mt-8 pt-8 border-t border-white/10 flex items-center justify-between">
+              <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-300 group-hover:text-white transition-colors">Open Handbook</span>
+              <div className="w-8 h-8 rounded-full bg-white/10 text-indigo-300 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                <i className="fas fa-chevron-right text-xs"></i>
+              </div>
            </div>
-        </div>
+        </button>
       </div>
       
       <div className="max-w-7xl mx-auto w-full flex justify-center pb-12">
@@ -155,6 +173,11 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
            Secure Network Access Verified
          </p>
       </div>
+
+      {/* Handbook Modal */}
+      {showHandbook && (
+        <OrganizationalHandbook onClose={() => setShowHandbook(false)} />
+      )}
     </div>
   );
 };
