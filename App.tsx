@@ -41,7 +41,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-07-01',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-002',
@@ -55,7 +56,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-07-01',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-003',
@@ -69,7 +71,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-07-03',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-004',
@@ -83,7 +86,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-07-03',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-005',
@@ -97,7 +101,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-07-03',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-006',
@@ -111,7 +116,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-07-03',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-007',
@@ -125,7 +131,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-07-03',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-008',
@@ -139,7 +146,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-07-03',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-009',
@@ -153,7 +161,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-07-08',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-010',
@@ -167,7 +176,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-07-14',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-011',
@@ -181,7 +191,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Other',
     payDate: '2025-07-14',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-012',
@@ -195,7 +206,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-07-14',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-013',
@@ -209,7 +221,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-07-16',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-014',
@@ -223,7 +236,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-07-18',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-015',
@@ -237,7 +251,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-07-18',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-016',
@@ -251,7 +266,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-07-18',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-017',
@@ -265,7 +281,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-07-21',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-018',
@@ -279,7 +296,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-07-21',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-019',
@@ -293,7 +311,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-07-21',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-020',
@@ -307,7 +326,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-07-22',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-021',
@@ -321,7 +341,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-07-28',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-022',
@@ -335,7 +356,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-08-01',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-023',
@@ -349,7 +371,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-08-01',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-024',
@@ -363,7 +386,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-08-01',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-025',
@@ -377,7 +401,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-08-01',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-026',
@@ -391,7 +416,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-08-04',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-027',
@@ -405,7 +431,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-08-04',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-028',
@@ -419,7 +446,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-08-04',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-029',
@@ -433,7 +461,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-08-05',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-030',
@@ -447,7 +476,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-08-06',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-031',
@@ -461,7 +491,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-08-07',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-032',
@@ -475,7 +506,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-08-11',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-033',
@@ -489,7 +521,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-08-12',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-034',
@@ -503,7 +536,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-08-12',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-035',
@@ -517,7 +551,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-08-13',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-036',
@@ -531,7 +566,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-08-13',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-037',
@@ -545,7 +581,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-08-13',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-038',
@@ -559,7 +596,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-08-13',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-039',
@@ -573,7 +611,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-08-15',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-040',
@@ -587,7 +626,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-08-15',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-041',
@@ -601,7 +641,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-08-15',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-042',
@@ -615,7 +656,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-08-15',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-043',
@@ -629,7 +671,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-08-15',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-044',
@@ -643,7 +686,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-08-18',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-045',
@@ -657,7 +701,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-08-18',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-046',
@@ -671,7 +716,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-08-20',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-047',
@@ -685,7 +731,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-08-25',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-048',
@@ -699,7 +746,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-08-25',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-049',
@@ -713,7 +761,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-08-26',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-050',
@@ -727,7 +776,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-08-29',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-051',
@@ -741,7 +791,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-08-29',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-052',
@@ -755,7 +806,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-08-29',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-053',
@@ -769,7 +821,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-08-29',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-054',
@@ -783,7 +836,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-09-02',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-055',
@@ -797,7 +851,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-09-02',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-056',
@@ -811,7 +866,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-09-02',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-057',
@@ -825,7 +881,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-09-02',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-058',
@@ -839,7 +896,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-09-03',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-059',
@@ -853,7 +911,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-09-04',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-060',
@@ -867,7 +926,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-09-04',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-061',
@@ -881,7 +941,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-09-04',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-062',
@@ -895,7 +956,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-09-08',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-063',
@@ -909,7 +971,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-09-09',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-064',
@@ -923,7 +986,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-09-09',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-065',
@@ -937,7 +1001,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-09-10',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-066',
@@ -951,7 +1016,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-09-10',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-067',
@@ -965,7 +1031,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-09-12',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-068',
@@ -979,7 +1046,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-09-12',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-069',
@@ -993,7 +1061,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-09-12',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-070',
@@ -1007,7 +1076,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-09-15',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-071',
@@ -1021,7 +1091,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-09-15',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-072',
@@ -1035,7 +1106,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-09-18',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-073',
@@ -1049,7 +1121,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-09-22',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-074',
@@ -1063,7 +1136,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-09-22',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-075',
@@ -1077,7 +1151,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-09-26',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-076',
@@ -1091,7 +1166,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-09-26',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-077',
@@ -1105,7 +1181,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-09-26',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-078',
@@ -1119,7 +1196,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-09-26',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-079',
@@ -1133,7 +1211,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-09-29',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-080',
@@ -1147,7 +1226,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-09-29',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-081',
@@ -1161,7 +1241,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-09-29',
     quarter: 'Q3',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-082',
@@ -1175,7 +1256,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-10-01',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-083',
@@ -1189,7 +1271,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-10-03',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-084',
@@ -1203,7 +1286,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-10-06',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-085',
@@ -1217,7 +1301,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-10-07',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-086',
@@ -1231,7 +1316,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-10-10',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-087',
@@ -1245,7 +1331,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-10-10',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-088',
@@ -1259,7 +1346,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-10-10',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-089',
@@ -1273,7 +1361,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-10-21',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-090',
@@ -1287,7 +1376,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-10-22',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-091',
@@ -1301,7 +1391,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-10-22',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-092',
@@ -1315,7 +1406,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-10-22',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-093',
@@ -1329,7 +1421,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-10-23',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-094',
@@ -1343,7 +1436,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-10-24',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-095',
@@ -1357,7 +1451,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-10-27',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-096',
@@ -1371,7 +1466,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-10-27',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-097',
@@ -1385,7 +1481,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-10-28',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-098',
@@ -1399,7 +1496,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-10-28',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-099',
@@ -1413,7 +1511,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-11-04',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-100',
@@ -1427,7 +1526,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-11-06',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-101',
@@ -1441,7 +1541,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-11-07',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-102',
@@ -1455,7 +1556,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Debit Card',
     payDate: '2025-11-12',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-103',
@@ -1469,7 +1571,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-11-12',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-104',
@@ -1483,7 +1586,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-11-12',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-105',
@@ -1497,7 +1601,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-11-12',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-106',
@@ -1511,7 +1616,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-11-12',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-107',
@@ -1525,7 +1631,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Auto Draft',
     payDate: '2025-11-12',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-108',
@@ -1539,7 +1646,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-11-12',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-109',
@@ -1553,7 +1661,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-11-13',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   },
   {
     id: 'treasury-110',
@@ -1567,7 +1676,8 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
     paymentMethod: 'Check',
     payDate: '2025-11-13',
     quarter: 'Q4',
-    year: 2025
+    year: 2025,
+    funder: 'Act 461 Treasury'
   }
 ];
 
@@ -1709,7 +1819,7 @@ const App: React.FC = () => {
            {financeSubView === 'exchange' && <DataExchange entries={allFinanceEntries} onImport={setAllFinanceEntries} />}
            {financeSubView === 'bills' && <FinanceBills entries={allFinanceEntries} onDataUpdate={setAllFinanceEntries} />}
            {financeSubView === 'reports' && <FinanceReports entries={allFinanceEntries} />}
-           {financeSubView === 'multifunder' && <MultiFunderDashboard />}
+           {financeSubView === 'multifunder' && <MultiFunderDashboard entries={allFinanceEntries} />}
         </div>
       </div>
     );
