@@ -3,7 +3,7 @@ import {
   ArrowLeft, FileText, DollarSign, Calendar, Search, RefreshCw,
   AlertTriangle, CheckCircle2, Clock, TrendingUp, X, Filter,
   PieChart, Building2, ChevronRight, ExternalLink, XCircle,
-  Award, Send, Eye
+  Award, Send, Eye, Plus
 } from 'lucide-react';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
@@ -15,7 +15,8 @@ interface Grant {
   purpose: string;
   contactperson: string;
   contactemail: string;
-  applicationdeadline: string;
+  applicationdeadline?: string;
+  applicatriondeadline?: string; // Handle typo in sheet
   submissiondate: string;
   amountrequested: string;
   amountapproved: string;
@@ -47,6 +48,21 @@ interface GrantDashboardProps {
   onBack: () => void;
 }
 
+interface NewGrantForm {
+  grantname: string;
+  grantsource: string;
+  purpose: string;
+  contactperson: string;
+  contactemail: string;
+  applicationdeadline: string;
+  submissiondate: string;
+  amountrequested: string;
+  amountapproved: string;
+  grantstatus: string;
+  fundertype: string;
+  submissionyear: string;
+}
+
 type TabType = 'dashboard' | 'all' | 'approved' | 'pending' | 'denied';
 
 const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
@@ -57,6 +73,26 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGrant, setSelectedGrant] = useState<Grant | null>(null);
+  
+  // Add Grant Modal State
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [newGrant, setNewGrant] = useState<NewGrantForm>({
+    grantname: '',
+    grantsource: '',
+    purpose: '',
+    contactperson: '',
+    contactemail: '',
+    applicationdeadline: '',
+    submissiondate: '',
+    amountrequested: '',
+    amountapproved: '',
+    grantstatus: 'To Submit',
+    fundertype: '',
+    submissionyear: new Date().getFullYear().toString()
+  });
 
   // Load data on mount
   useEffect(() => {
@@ -66,7 +102,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
   const loadData = async () => {
     setIsLoading(true);
     setError(null);
-
     try {
       const [grantsRes, statsRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/grants`),
@@ -94,6 +129,60 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
       setError(err.message || 'Failed to load grant data');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleAddGrant = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/grants`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newGrant),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to create grant');
+      }
+
+      setSubmitSuccess(true);
+      
+      // Reset form
+      setNewGrant({
+        grantname: '',
+        grantsource: '',
+        purpose: '',
+        contactperson: '',
+        contactemail: '',
+        applicationdeadline: '',
+        submissiondate: '',
+        amountrequested: '',
+        amountapproved: '',
+        grantstatus: 'To Submit',
+        fundertype: '',
+        submissionyear: new Date().getFullYear().toString()
+      });
+
+      // Reload data after short delay
+      setTimeout(() => {
+        setShowAddModal(false);
+        setSubmitSuccess(false);
+        loadData();
+      }, 1500);
+
+    } catch (err: any) {
+      console.error('Error adding grant:', err);
+      setSubmitError(err.message || 'Failed to add grant');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -226,13 +315,22 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 <p className="text-slate-300">Real-time data from Google Sheets • {grants.length} grants loaded</p>
               </div>
             </div>
-            <button
-              onClick={loadData}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-all"
-            >
-              <RefreshCw size={18} />
-              Refresh
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-all font-medium"
+              >
+                <Plus size={18} />
+                Add Grant
+              </button>
+              <button
+                onClick={loadData}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-all"
+              >
+                <RefreshCw size={18} />
+                Refresh
+              </button>
+            </div>
           </div>
 
           {/* Tabs */}
@@ -462,10 +560,10 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                         </div>
                         <ChevronRight className="text-slate-300 shrink-0" size={20} />
                       </div>
-                      {grant.applicationdeadline && (
+                      {(grant.applicationdeadline || grant.applicatriondeadline) && (
                         <div className="mt-2 flex items-center gap-2 text-xs text-slate-400">
                           <Calendar size={12} />
-                          Deadline: {grant.applicationdeadline}
+                          Deadline: {grant.applicationdeadline || grant.applicatriondeadline}
                         </div>
                       )}
                     </div>
@@ -535,7 +633,7 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <p className="text-sm text-slate-500 mb-1">Application Deadline</p>
-                  <p className="text-slate-800 font-medium">{selectedGrant.applicationdeadline || 'N/A'}</p>
+                  <p className="text-slate-800 font-medium">{selectedGrant.applicationdeadline || selectedGrant.applicatriondeadline || 'N/A'}</p>
                 </div>
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <p className="text-sm text-slate-500 mb-1">Submission Date</p>
@@ -563,6 +661,261 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Grant Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => !isSubmitting && setShowAddModal(false)}>
+          <div 
+            className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-6 rounded-t-2xl text-white relative">
+              <button 
+                onClick={() => !isSubmitting && setShowAddModal(false)}
+                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full"
+                disabled={isSubmitting}
+              >
+                <X size={20} />
+              </button>
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Plus size={24} />
+                Add New Grant
+              </h2>
+              <p className="text-emerald-100">Enter the grant details below</p>
+            </div>
+            
+            {/* Modal Body - Form */}
+            <form onSubmit={handleAddGrant} className="p-6 space-y-4">
+              {/* Success Message */}
+              {submitSuccess && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
+                  <CheckCircle2 className="text-emerald-600" size={24} />
+                  <div>
+                    <p className="font-medium text-emerald-800">Grant Added Successfully!</p>
+                    <p className="text-sm text-emerald-600">Refreshing data...</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Message */}
+              {submitError && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+                  <XCircle className="text-red-600" size={24} />
+                  <div>
+                    <p className="font-medium text-red-800">Error Adding Grant</p>
+                    <p className="text-sm text-red-600">{submitError}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Grant Name & Source - Required */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Grant Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newGrant.grantname}
+                    onChange={(e) => setNewGrant({...newGrant, grantname: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                    placeholder="e.g., Youth Development Grant"
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Grant Source / Funder <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newGrant.grantsource}
+                    onChange={(e) => setNewGrant({...newGrant, grantsource: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                    placeholder="e.g., LA Children's Trust Fund"
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+
+              {/* Purpose */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Purpose</label>
+                <textarea
+                  value={newGrant.purpose}
+                  onChange={(e) => setNewGrant({...newGrant, purpose: e.target.value})}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                  rows={2}
+                  placeholder="Brief description of grant purpose..."
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Contact Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Contact Person</label>
+                  <input
+                    type="text"
+                    value={newGrant.contactperson}
+                    onChange={(e) => setNewGrant({...newGrant, contactperson: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                    placeholder="Contact name"
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Contact Email</label>
+                  <input
+                    type="email"
+                    value={newGrant.contactemail}
+                    onChange={(e) => setNewGrant({...newGrant, contactemail: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                    placeholder="contact@example.com"
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+
+              {/* Dates */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Application Deadline</label>
+                  <input
+                    type="date"
+                    value={newGrant.applicationdeadline}
+                    onChange={(e) => setNewGrant({...newGrant, applicationdeadline: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Submission Date</label>
+                  <input
+                    type="date"
+                    value={newGrant.submissiondate}
+                    onChange={(e) => setNewGrant({...newGrant, submissiondate: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+
+              {/* Amounts */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Amount Requested</label>
+                  <input
+                    type="text"
+                    value={newGrant.amountrequested}
+                    onChange={(e) => setNewGrant({...newGrant, amountrequested: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                    placeholder="e.g., 50000 or $50,000"
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Amount Approved</label>
+                  <input
+                    type="text"
+                    value={newGrant.amountapproved}
+                    onChange={(e) => setNewGrant({...newGrant, amountapproved: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                    placeholder="Leave empty if pending"
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+
+              {/* Status & Funder Type */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                  <select
+                    value={newGrant.grantstatus}
+                    onChange={(e) => setNewGrant({...newGrant, grantstatus: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                    disabled={isSubmitting}
+                  >
+                    <option value="To Submit">To Submit</option>
+                    <option value="Submitted">Submitted</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Awarded">Awarded</option>
+                    <option value="Denied">Denied</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Funder Type</label>
+                  <select
+                    value={newGrant.fundertype}
+                    onChange={(e) => setNewGrant({...newGrant, fundertype: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                    disabled={isSubmitting}
+                  >
+                    <option value="">Select Type...</option>
+                    <option value="Federal">Federal</option>
+                    <option value="State">State</option>
+                    <option value="Local">Local</option>
+                    <option value="Foundation">Foundation</option>
+                    <option value="Corporate">Corporate</option>
+                    <option value="Private">Private</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Submission Year */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Submission Year</label>
+                  <input
+                    type="text"
+                    value={newGrant.submissionyear}
+                    onChange={(e) => setNewGrant({...newGrant, submissionyear: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
+                    placeholder="e.g., 2026"
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="px-6 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium"
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || submitSuccess}
+                  className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white rounded-lg font-medium flex items-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <RefreshCw className="animate-spin" size={18} />
+                      Adding...
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={18} />
+                      Add Grant
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
