@@ -14,6 +14,7 @@ import Hub from './components/Hub';
 import DataExchange from './components/DataExchange';
 import FinanceBills, { BillEntry } from './components/FinanceBills';
 import FinanceDashboard from './components/FinanceDashboard';
+import FinanceReports from './components/FinanceReports';
 import MultiFunderDashboard from './components/MultiFunderDashboard';
 import DatabasePortal from './components/DatabasePortal';
 import AdminPortal from './components/AdminPortal';
@@ -1571,7 +1572,7 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
 ];
 
 type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment' | 'progress';
-type FinanceSubView = 'dashboard' | 'exchange' | 'bills' | 'multifunder';
+type FinanceSubView = 'dashboard' | 'exchange' | 'bills' | 'reports' | 'multifunder';
 
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
@@ -1692,6 +1693,9 @@ const App: React.FC = () => {
               <div className="bg-slate-50 p-1 rounded-xl flex border border-slate-100 overflow-x-auto hide-scrollbar">
                 <button onClick={() => setFinanceSubView('dashboard')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'dashboard' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Analysis</button>
                 <button onClick={() => setFinanceSubView('bills')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'bills' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Ledger</button>
+                <button onClick={() => setFinanceSubView('reports')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'reports' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>
+                  <i className="fas fa-file-invoice mr-1"></i>Reports
+                </button>
                 <button onClick={() => setFinanceSubView('exchange')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'exchange' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Exchange</button>
                 <button onClick={() => setFinanceSubView('multifunder')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'multifunder' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>
                   <i className="fas fa-hand-holding-usd mr-1"></i>Multi-Funder
@@ -1704,6 +1708,7 @@ const App: React.FC = () => {
            {financeSubView === 'dashboard' && <FinanceDashboard entries={allFinanceEntries} activeYear={2025} />}
            {financeSubView === 'exchange' && <DataExchange entries={allFinanceEntries} onImport={setAllFinanceEntries} />}
            {financeSubView === 'bills' && <FinanceBills entries={allFinanceEntries} onDataUpdate={setAllFinanceEntries} />}
+           {financeSubView === 'reports' && <FinanceReports entries={allFinanceEntries} />}
            {financeSubView === 'multifunder' && <MultiFunderDashboard />}
         </div>
       </div>
