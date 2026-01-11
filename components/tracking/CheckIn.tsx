@@ -33,8 +33,8 @@ const TRACKER_MODULES = [
 // Generate all Tuesdays for 2026
 const generate2026Tuesdays = (): string[] => {
   const tuesdays: string[] = [];
-  const startDate = new Date('2026-01-06'); // First Tuesday of 2026
-  const endDate = new Date('2026-12-31');
+  const startDate = new Date('2026-01-06T12:00:00'); // First Tuesday of 2026
+const endDate = new Date('2026-12-31T12:00:00');
   
   let current = new Date(startDate);
   
