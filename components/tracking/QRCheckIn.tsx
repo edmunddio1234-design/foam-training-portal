@@ -118,10 +118,10 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
     ? SPECIAL_CLASSES.find(c => c.id === selectedModule) 
     : modules.find(m => m.id === selectedModule) || modules[0];
   
-  // Build check-in URL
+  // Build check-in URL - CHANGED FROM /assessment TO /checkin
   const checkInUrl = isSpecialClass
-    ? `https://foamportal.org/assessment?special=${selectedModule}`
-    : `https://foamportal.org/assessment?module=${selectedModule}`;
+    ? `https://foamportal.org/checkin?special=${selectedModule}`
+    : `https://foamportal.org/checkin?module=${selectedModule}`;
 
   const handleCopy = async () => {
     try {
@@ -451,7 +451,7 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
             </div>
           </div>
 
-          {/* How It Works */}
+          {/* How It Works - UPDATED STEPS */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
@@ -467,19 +467,19 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
               </li>
               <li className="flex items-start gap-3">
                 <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">2</span>
-                <span className="text-slate-600">Points camera at QR code</span>
+                <span className="text-slate-600">Points camera at QR code & taps the link</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">3</span>
-                <span className="text-slate-600">Taps the link that appears</span>
+                <span className="text-slate-600">Searches for their name <strong>OR</strong> taps "I'm New" to register</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">4</span>
-                <span className="text-slate-600">Searches for their name or enters phone number</span>
+                <span className="text-slate-600">Confirms identity and gets checked in!</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="w-6 h-6 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">5</span>
-                <span className="text-slate-600">Confirms identity and gets checked in!</span>
+                <span className="text-slate-600">Optionally takes the class assessment</span>
               </li>
             </ol>
           </div>
