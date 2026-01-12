@@ -23,6 +23,7 @@ import CaseManagerPortal from './components/CaseManagerPortal';
 import CaseManagerHub from './components/CaseManagerHub';
 import ClassAssessment from './components/tracking/ClassAssessment';
 import FatherProgress from './components/tracking/FatherProgress';
+import FatherCheckIn from './components/tracking/FatherCheckIn';
 
 // Pre-loaded Treasury transactions from FOAM Financial Tracker v3
 // Total: 110 transactions, $101,578.82
@@ -1681,7 +1682,7 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
   }
 ];
 
-type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment' | 'progress';
+type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment' | 'progress' | 'checkin';
 type FinanceSubView = 'dashboard' | 'exchange' | 'bills' | 'reports' | 'multifunder';
 
 const App: React.FC = () => {
@@ -1702,7 +1703,9 @@ const App: React.FC = () => {
   // Check URL for direct access (for fathers on mobile)
   useEffect(() => {
     const path = window.location.pathname;
-    if (path === '/assessment' || path === '/checkin') {
+    if (path === '/checkin') {
+      setCurrentView('checkin');
+    } else if (path === '/assessment') {
       setCurrentView('assessment');
     } else if (path === '/progress' || path === '/myprogress') {
       setCurrentView('progress');
@@ -1742,6 +1745,11 @@ const App: React.FC = () => {
     setIsFinanceAuthenticated(false);
     setCurrentView('hub');
   };
+
+  // NEW: Check-in page - NO LOGIN REQUIRED (for fathers on mobile)
+  if (currentView === 'checkin') {
+    return <FatherCheckIn />;
+  }
 
   // Assessment page - NO LOGIN REQUIRED (for fathers on mobile)
   if (currentView === 'assessment') {
