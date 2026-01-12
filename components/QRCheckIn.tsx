@@ -17,26 +17,6 @@ interface QRCheckInProps {
   modules: Module[];
 }
 
-// ============================================================
-// CORRECT FOAM FATHERHOOD CURRICULUM - 14 Classes
-// ============================================================
-const TRACKER_MODULES = [
-  { id: 1, title: "Self-Awareness", description: "Identity development" },
-  { id: 2, title: "Improving Me", description: "Personal growth" },
-  { id: 3, title: "Manhood & Fatherhood", description: "Identity and roles" },
-  { id: 4, title: "Work & Family Balance", description: "Life skills" },
-  { id: 5, title: "Dad Is Here", description: "Being present" },
-  { id: 6, title: "Discipline vs Punishment", description: "Parenting techniques" },
-  { id: 7, title: "Conflict Resolution", description: "Managing disagreements" },
-  { id: 8, title: "Building Esteem", description: "Child development" },
-  { id: 9, title: "Effective Communication", description: "Relationship skills" },
-  { id: 10, title: "Parenting Disagreements", description: "Co-parenting" },
-  { id: 11, title: "Workforce Readiness", description: "Career development" },
-  { id: 12, title: "Financial Literacy", description: "Money management" },
-  { id: 13, title: "Child Support", description: "Legal responsibilities" },
-  { id: 14, title: "Graduation & Next Steps", description: "Program completion" }
-];
-
 // Generate QR Code URL using a free API
 const getQRCodeUrl = (data: string, size: number = 300) => {
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;
@@ -45,8 +25,8 @@ const getQRCodeUrl = (data: string, size: number = 300) => {
 // Generate all Tuesdays for 2026
 const generate2026Tuesdays = (): ScheduleItem[] => {
   const tuesdays: ScheduleItem[] = [];
-  const startDate = new Date('2026-01-06'); // First Tuesday of 2026
-  const endDate = new Date('2026-12-31');
+ const startDate = new Date('2026-01-06T12:00:00'); // First Tuesday of 2026
+ const endDate = new Date('2026-12-31T12:00:00');
   
   let current = new Date(startDate);
   let weekCount = 0;
@@ -70,7 +50,7 @@ const generate2026Tuesdays = (): ScheduleItem[] => {
   return tuesdays;
 };
 
-// Special classes (non-curriculum) - includes "Other" option
+// Special classes (non-curriculum)
 const SPECIAL_CLASSES = [
   { id: 101, title: "Orientation / Welcome Session", description: "Introduction to FOAM program" },
   { id: 102, title: "Guest Speaker Event", description: "Special guest presentation" },
@@ -82,13 +62,10 @@ const SPECIAL_CLASSES = [
   { id: 108, title: "Workshop: Resume Building", description: "Career development workshop" },
   { id: 109, title: "Workshop: Financial Planning", description: "Financial literacy workshop" },
   { id: 110, title: "Support Group Session", description: "Open discussion and support" },
-  { id: 111, title: "Other", description: "Custom event or make-up session" }
+  { id: 111, title: "Other Special Event", description: "Custom event" }
 ];
 
 export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
-  // Use local TRACKER_MODULES instead of API modules to ensure correct classes
-  const correctModules = TRACKER_MODULES;
-  
   const [selectedModule, setSelectedModule] = useState<number>(1);
   const [isSpecialClass, setIsSpecialClass] = useState<boolean>(false);
   const [copied, setCopied] = useState(false);
@@ -136,15 +113,15 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
     }
   }, []);
 
-  // Get the current module/class info - USE LOCAL correctModules
+  // Get the current module/class info
   const currentClass = isSpecialClass 
     ? SPECIAL_CLASSES.find(c => c.id === selectedModule) 
-    : correctModules.find(m => m.id === selectedModule) || correctModules[0];
+    : modules.find(m => m.id === selectedModule) || modules[0];
   
-  // Build check-in URL
+  // Build check-in URL - CHANGED FROM /assessment TO /checkin
   const checkInUrl = isSpecialClass
-    ? `https://foamportal.org/assessment?special=${selectedModule}`
-    : `https://foamportal.org/assessment?module=${selectedModule}`;
+    ? `https://foamportal.org/checkin?special=${selectedModule}`
+    : `https://foamportal.org/checkin?module=${selectedModule}`;
 
   const handleCopy = async () => {
     try {
@@ -227,7 +204,7 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
               </div>
               <div>
                 <p className={`text-sm ${isSpecialClass ? 'text-purple-100' : 'text-emerald-100'}`}>
-                  {isSpecialClass ? 'Special Event / Other' : "Today's Class"}
+                  {isSpecialClass ? 'Special Event' : "Today's Class"}
                 </p>
                 <p className="font-bold text-lg">{currentClass?.title || 'Select a class'}</p>
               </div>
@@ -258,7 +235,7 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
                 }`}
               >
                 <Star size={18} />
-                Special / Other
+                Special Event
               </button>
             </div>
           </div>
@@ -294,10 +271,10 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
                 <p>FYSC Building • 11120 Government Street, Baton Rouge, LA</p>
               </div>
               
-              {/* Class Selector - USE LOCAL correctModules */}
+              {/* Class Selector */}
               <div className="w-full mt-6 no-print">
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  {isSpecialClass ? 'Select Special Event / Other' : 'Select Class Module'}
+                  {isSpecialClass ? 'Select Special Event' : 'Select Class Module'}
                 </label>
                 <select
                   value={selectedModule}
@@ -310,7 +287,7 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
                           {cls.title}
                         </option>
                       ))
-                    : correctModules.map(module => (
+                    : modules.map(module => (
                         <option key={module.id} value={module.id}>
                           Module {module.id}: {module.title}
                         </option>
@@ -450,9 +427,9 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
                   <Star size={20} className="text-purple-600" />
                 </div>
                 <div>
-                  <p className="font-medium text-purple-800">Special Event / Other Selected</p>
+                  <p className="font-medium text-purple-800">Special Event Selected</p>
                   <p className="text-sm text-purple-600 mt-1">
-                    Special events and "Other" classes don't count toward the 14-class graduation requirement. Use for orientations, workshops, make-up sessions, or celebrations.
+                    Special events don't count toward the 14-class graduation requirement. Use for orientations, workshops, or celebrations.
                   </p>
                 </div>
               </div>
@@ -474,7 +451,7 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
             </div>
           </div>
 
-          {/* How It Works */}
+          {/* How It Works - UPDATED STEPS */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
@@ -490,19 +467,19 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
               </li>
               <li className="flex items-start gap-3">
                 <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">2</span>
-                <span className="text-slate-600">Points camera at QR code</span>
+                <span className="text-slate-600">Points camera at QR code & taps the link</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">3</span>
-                <span className="text-slate-600">Taps the link that appears</span>
+                <span className="text-slate-600">Searches for their name <strong>OR</strong> taps "I'm New" to register</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">4</span>
-                <span className="text-slate-600">Searches for their name or enters phone number</span>
+                <span className="text-slate-600">Confirms identity and gets checked in!</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="w-6 h-6 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">5</span>
-                <span className="text-slate-600">Confirms identity and gets checked in!</span>
+                <span className="text-slate-600">Optionally takes the class assessment</span>
               </li>
             </ol>
           </div>
@@ -526,7 +503,7 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
               <div className="flex justify-between">
                 <span className="text-slate-400">Current Selection</span>
                 <span className="font-medium">
-                  {isSpecialClass ? 'Special / Other' : `Module ${selectedModule}`}
+                  {isSpecialClass ? 'Special Event' : `Module ${selectedModule}`}
                 </span>
               </div>
               <div className="flex justify-between">
