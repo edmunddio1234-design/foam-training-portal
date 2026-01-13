@@ -541,7 +541,7 @@ export const CheckIn: React.FC<CheckInProps> = ({ fathers, modules, onCheckIn, o
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm ${isPresent ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-100 text-slate-400'}`}>#{father.id}</div>
                                 <div>
                                     <p className={`text-lg font-black ${isPresent ? 'text-blue-600' : 'text-slate-800'}`}>{father.lastName}, {father.firstName}</p>
-                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{father.phone || 'No phone'}</p>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{father.completedModules.length}/14 Classes Completed</p>
                                 </div>
                             </div>
                             <button 
