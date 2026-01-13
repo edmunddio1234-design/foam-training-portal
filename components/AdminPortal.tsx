@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   ArrowLeft, FileText, DollarSign, Calendar, Search, RefreshCw,
   AlertTriangle, CheckCircle2, Clock, TrendingUp, X, XCircle,
   PieChart, Building2, ChevronRight, ExternalLink, Bell,
   FolderOpen, File, BarChart3, Target, Lightbulb, ArrowUpRight,
-  ArrowDownRight, Activity, Zap, Plus
+  ArrowDownRight, Activity, Zap, Plus, Compass, Database, Users
 } from 'lucide-react';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
@@ -74,7 +75,7 @@ interface NewGrantForm {
   submissionyear: string;
 }
 
-type MainTab = 'grants' | 'documents';
+type MainTab = 'grants' | 'funding-research' | 'documents';
 type GrantTab = 'dashboard' | 'all' | 'approved' | 'pending' | 'denied';
 
 // Pie Chart Component
@@ -162,6 +163,148 @@ const ProgressRing: React.FC<{ percent: number; size?: number; color: string }> 
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <span className="text-lg font-bold" style={{ color }}>{percent}%</span>
+      </div>
+    </div>
+  );
+};
+
+// Funding Research Landing Page Component
+const FundingResearchLanding: React.FC = () => {
+  const tools = [
+    {
+      name: 'Seamless.AI',
+      url: 'https://www.seamless.ai',
+      icon: Database,
+      color: 'from-blue-600 to-cyan-600',
+      shadowColor: 'shadow-blue-200',
+      description: 'Powerful organizations database for finding potential funders and partners.',
+      features: [
+        'Access to millions of organization contacts',
+        'Real-time verified contact information',
+        'Search by industry, location, and company size',
+        'Find decision-makers at foundations and corporations',
+        'Build targeted outreach lists for grant opportunities'
+      ],
+      bestFor: 'Finding contact information for foundation program officers and corporate giving managers'
+    },
+    {
+      name: 'Cause IQ',
+      url: 'https://www.causeiq.com',
+      icon: Users,
+      color: 'from-emerald-600 to-teal-600',
+      shadowColor: 'shadow-emerald-200',
+      description: 'Research platform showing what other nonprofits are doing and how they\'re funded.',
+      features: [
+        'See detailed financials of other nonprofits',
+        'Discover which foundations fund similar organizations',
+        'Analyze competitor grant portfolios',
+        'Track nonprofit sector trends',
+        'Find new foundation prospects based on giving patterns'
+      ],
+      bestFor: 'Researching which foundations fund organizations similar to FOAM'
+    }
+  ];
+
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      {/* Header */}
+      <div className="text-center mb-10">
+        <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-purple-200">
+          <Compass className="text-white" size={40} />
+        </div>
+        <h2 className="text-3xl font-bold text-slate-800 mb-2">Funding Research Tools</h2>
+        <p className="text-slate-500 max-w-2xl mx-auto">
+          Use these powerful research platforms to discover new funding opportunities, 
+          find funder contacts, and see what grants similar nonprofits are receiving.
+        </p>
+      </div>
+
+      {/* Tools Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {tools.map((tool) => {
+          const Icon = tool.icon;
+          return (
+            <div key={tool.name} className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden hover:shadow-2xl transition-all duration-300">
+              {/* Tool Header */}
+              <div className={`bg-gradient-to-r ${tool.color} p-6 text-white`}>
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <Icon size={28} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold">{tool.name}</h3>
+                    <p className="text-white/80 text-sm">{tool.description}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tool Content */}
+              <div className="p-6">
+                {/* Features */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Key Features</h4>
+                  <ul className="space-y-2">
+                    {tool.features.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5" size={16} />
+                        <span className="text-slate-600 text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Best For */}
+                <div className="bg-slate-50 rounded-xl p-4 mb-6">
+                  <p className="text-sm">
+                    <span className="font-bold text-slate-700">Best for: </span>
+                    <span className="text-slate-600">{tool.bestFor}</span>
+                  </p>
+                </div>
+
+                {/* CTA Button */}
+                <a
+                  href={tool.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex items-center justify-center gap-2 w-full py-4 bg-gradient-to-r ${tool.color} text-white rounded-xl font-bold hover:opacity-90 transition-all ${tool.shadowColor} shadow-lg`}
+                >
+                  Open {tool.name}
+                  <ExternalLink size={18} />
+                </a>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Tips Section */}
+      <div className="mt-10 bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-8 border border-amber-200">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center shrink-0">
+            <Lightbulb className="text-white" size={24} />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-slate-800 mb-2">Pro Tips for Funding Research</h3>
+            <ul className="space-y-2 text-slate-600">
+              <li className="flex items-start gap-2">
+                <span className="text-amber-500 font-bold">1.</span>
+                <span>Start with <strong>Cause IQ</strong> to find foundations that fund similar fatherhood and family support programs.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-amber-500 font-bold">2.</span>
+                <span>Use <strong>Seamless.AI</strong> to find direct contact information for program officers at those foundations.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-amber-500 font-bold">3.</span>
+                <span>Look at the "similar organizations" feature in Cause IQ to discover new potential funders you might have missed.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-amber-500 font-bold">4.</span>
+                <span>Track your research in the Grant Management tab to keep all your prospects organized.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -727,7 +870,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
             </div>
           </div>
 
-          {/* Main Tabs */}
+          {/* Main Tabs - Now with 3 tabs */}
           <div className="flex gap-3">
             <button
               onClick={() => setMainTab('grants')}
@@ -738,6 +881,16 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
               }`}
             >
               <DollarSign size={20} /> Grant Management
+            </button>
+            <button
+              onClick={() => setMainTab('funding-research')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
+                mainTab === 'funding-research' 
+                  ? 'bg-white text-slate-800 shadow-lg' 
+                  : 'bg-white/10 text-white hover:bg-white/20'
+              }`}
+            >
+              <Compass size={20} /> Funding Research
             </button>
             <button
               onClick={() => { setMainTab('documents'); if (documents.length === 0) loadDocuments(); }}
@@ -1046,6 +1199,11 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
             </div>
           )}
         </div>
+      )}
+
+      {/* FUNDING RESEARCH */}
+      {mainTab === 'funding-research' && (
+        <FundingResearchLanding />
       )}
 
       {/* DOCUMENT LIBRARY */}
