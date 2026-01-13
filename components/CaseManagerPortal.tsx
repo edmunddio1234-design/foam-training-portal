@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   ArrowLeft, Calendar, RefreshCw, Save, Clock, TrendingUp,
@@ -329,35 +330,443 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
     }
   };
 
+  // ============================================
+  // COMPREHENSIVE WORD DOC GENERATION
+  // ============================================
+  const generateWordDocument = (report: any) => {
+    const periodLabel = report.metadata?.periodLabel || 'Report';
+    const generatedDate = new Date().toLocaleDateString('en-US', { 
+      year: 'numeric', month: 'long', day: 'numeric' 
+    });
+
+    // Build comprehensive HTML document
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>FOAM ${report.metadata?.reportType || 'Monthly'} Report - ${periodLabel}</title>
+  <style>
+    @page { margin: 1in; size: letter; }
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      padding: 40px;
+      color: #1e293b; 
+      line-height: 1.6;
+      font-size: 11pt;
+    }
+    
+    /* Header Styles */
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #1e40af;
+    }
+    .header h1 {
+      color: #1e40af;
+      margin: 0 0 5px 0;
+      font-size: 28pt;
+      font-weight: bold;
+    }
+    .header h2 {
+      color: #475569;
+      margin: 0 0 10px 0;
+      font-size: 16pt;
+      font-weight: normal;
+    }
+    .header .period {
+      color: #3b82f6;
+      font-size: 14pt;
+      font-weight: bold;
+    }
+    .header .date {
+      color: #94a3b8;
+      font-size: 10pt;
+      margin-top: 10px;
+    }
+    
+    /* KPI Cards */
+    .kpi-section {
+      margin: 30px 0;
+    }
+    .kpi-grid {
+      display: table;
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 10px;
+    }
+    .kpi-row {
+      display: table-row;
+    }
+    .kpi-card {
+      display: table-cell;
+      width: 25%;
+      padding: 20px;
+      text-align: center;
+      border-radius: 8px;
+      vertical-align: top;
+    }
+    .kpi-card.blue { background: #eff6ff; border: 2px solid #bfdbfe; }
+    .kpi-card.green { background: #ecfdf5; border: 2px solid #a7f3d0; }
+    .kpi-card.amber { background: #fffbeb; border: 2px solid #fde68a; }
+    .kpi-card.purple { background: #faf5ff; border: 2px solid #e9d5ff; }
+    .kpi-value {
+      font-size: 32pt;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .kpi-card.blue .kpi-value { color: #1d4ed8; }
+    .kpi-card.green .kpi-value { color: #059669; }
+    .kpi-card.amber .kpi-value { color: #d97706; }
+    .kpi-card.purple .kpi-value { color: #7c3aed; }
+    .kpi-label {
+      font-size: 10pt;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Section Styles */
+    .section {
+      margin: 30px 0;
+      page-break-inside: avoid;
+    }
+    .section-title {
+      color: #1e40af;
+      font-size: 14pt;
+      font-weight: bold;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    
+    /* Executive Summary */
+    .summary-item {
+      background: #f0f9ff;
+      border-left: 4px solid #3b82f6;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    
+    /* Two Column Layout for Charts */
+    .two-column {
+      display: table;
+      width: 100%;
+      margin: 20px 0;
+    }
+    .column {
+      display: table-cell;
+      width: 48%;
+      vertical-align: top;
+      padding: 15px;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+    .column:first-child {
+      margin-right: 4%;
+    }
+    .column h4 {
+      color: #334155;
+      margin: 0 0 15px 0;
+      font-size: 12pt;
+    }
+    
+    /* Program Breakdown */
+    .program-item {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .program-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    .program-name {
+      flex: 1;
+      font-size: 10pt;
+    }
+    .program-value {
+      font-weight: bold;
+      font-size: 11pt;
+    }
+    
+    /* Workforce Bar */
+    .workforce-item {
+      margin: 12px 0;
+    }
+    .workforce-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10pt;
+      margin-bottom: 5px;
+    }
+    .workforce-bar {
+      height: 24px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .workforce-fill {
+      height: 100%;
+      border-radius: 4px;
+    }
+    
+    /* Success Metrics */
+    .metrics-grid {
+      display: table;
+      width: 100%;
+      margin: 20px 0;
+    }
+    .metric-item {
+      display: table-cell;
+      width: 25%;
+      text-align: center;
+      padding: 15px;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+    .metric-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 6px solid #e2e8f0;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18pt;
+      font-weight: bold;
+    }
+    .metric-circle.green { border-color: #10b981; color: #059669; }
+    .metric-circle.amber { border-color: #f59e0b; color: #d97706; }
+    .metric-circle.red { border-color: #ef4444; color: #dc2626; }
+    .metric-label {
+      font-size: 9pt;
+      color: #64748b;
+    }
+    
+    /* Outcome Table */
+    table.outcomes {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 10pt;
+    }
+    table.outcomes th {
+      background: #1e40af;
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: bold;
+    }
+    table.outcomes th:first-child {
+      border-radius: 8px 0 0 0;
+    }
+    table.outcomes th:last-child {
+      border-radius: 0 8px 0 0;
+    }
+    table.outcomes td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    table.outcomes tr:nth-child(even) {
+      background: #f8fafc;
+    }
+    table.outcomes .result {
+      color: #1d4ed8;
+      font-weight: bold;
+      text-align: center;
+    }
+    table.outcomes .clarification {
+      color: #64748b;
+      font-size: 9pt;
+    }
+    
+    /* Footer */
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid #e2e8f0;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 9pt;
+    }
+    .footer .tagline {
+      color: #1e40af;
+      font-style: italic;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <h1>Fathers On A Mission</h1>
+    <h2>${report.metadata?.reportType?.charAt(0).toUpperCase() + report.metadata?.reportType?.slice(1) || 'Monthly'} Outcomes Report</h2>
+    <div class="period">${periodLabel}</div>
+    <div class="date">Generated: ${generatedDate}</div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-section">
+    <table style="width: 100%; border-collapse: separate; border-spacing: 10px;">
+      <tr>
+        <td class="kpi-card blue">
+          <div class="kpi-label">Fathers Served</div>
+          <div class="kpi-value">${report.keyMetrics?.activeFathers || 0}</div>
+        </td>
+        <td class="kpi-card green">
+          <div class="kpi-label">Class Enrollment</div>
+          <div class="kpi-value">${report.keyMetrics?.fatherhoodClassEnrollment || 0}</div>
+        </td>
+        <td class="kpi-card amber">
+          <div class="kpi-label">Job Placements</div>
+          <div class="kpi-value">${report.keyMetrics?.jobPlacements || 0}</div>
+        </td>
+        <td class="kpi-card purple">
+          <div class="kpi-label">Retention Rate</div>
+          <div class="kpi-value">${report.successMetrics?.retentionRate || 0}%</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="section">
+    <div class="section-title">📋 Executive Summary</div>
+    ${(report.narrativeInsights || []).map((insight: string) => `
+      <div class="summary-item">${insight}</div>
+    `).join('')}
+  </div>
+
+  <!-- Program Engagement & Workforce Pipeline -->
+  <div class="section">
+    <table style="width: 100%; border-collapse: separate; border-spacing: 15px;">
+      <tr>
+        <td style="width: 48%; vertical-align: top; background: #f8fafc; padding: 20px; border-radius: 8px;">
+          <h4 style="margin: 0 0 15px 0; color: #334155;">Program Engagement</h4>
+          ${(report.programBreakdown || []).map((item: any) => `
+            <div style="display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
+              <div style="width: 12px; height: 12px; border-radius: 50%; background: ${item.color}; margin-right: 10px;"></div>
+              <div style="flex: 1;">${item.name}</div>
+              <div style="font-weight: bold;">${item.value}</div>
+            </div>
+          `).join('')}
+        </td>
+        <td style="width: 48%; vertical-align: top; background: #f8fafc; padding: 20px; border-radius: 8px;">
+          <h4 style="margin: 0 0 15px 0; color: #334155;">Workforce Pipeline</h4>
+          ${(report.workforceOutcomes || []).map((item: any, i: number) => {
+            const colors = ['#3b82f6', '#10b981', '#8b5cf6'];
+            const max = Math.max(...(report.workforceOutcomes || []).map((o: any) => o.value), 1);
+            const width = (item.value / max) * 100;
+            return `
+              <div style="margin: 12px 0;">
+                <div style="display: flex; justify-content: space-between; font-size: 10pt; margin-bottom: 5px;">
+                  <span>${item.name}</span>
+                  <span style="font-weight: bold;">${item.value}</span>
+                </div>
+                <div style="height: 20px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                  <div style="height: 100%; width: ${width}%; background: ${colors[i]}; border-radius: 4px;"></div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Success Metrics -->
+  <div class="section">
+    <div class="section-title">🎯 Success Metrics</div>
+    <table style="width: 100%; border-collapse: separate; border-spacing: 10px;">
+      <tr>
+        ${[
+          { label: 'Workforce Participation', value: report.successMetrics?.workforceParticipationRate || 0 },
+          { label: 'Job Placement Rate', value: report.successMetrics?.jobPlacementRate || 0 },
+          { label: 'Job Retention Rate', value: report.successMetrics?.retentionRate || 0 },
+          { label: 'Mental Health Engagement', value: report.successMetrics?.mentalHealthEngagement || 0 }
+        ].map((metric) => {
+          const color = metric.value >= 50 ? '#10b981' : metric.value >= 25 ? '#f59e0b' : '#ef4444';
+          return `
+            <td style="width: 25%; text-align: center; padding: 15px; background: #f8fafc; border-radius: 8px;">
+              <div style="width: 70px; height: 70px; border-radius: 50%; border: 5px solid ${color}; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;">
+                <span style="font-size: 18pt; font-weight: bold; color: ${color};">${metric.value}%</span>
+              </div>
+              <div style="font-size: 9pt; color: #64748b;">${metric.label}</div>
+            </td>
+          `;
+        }).join('')}
+      </tr>
+    </table>
+  </div>
+
+  <!-- Outcome Summary Table -->
+  <div class="section">
+    <div class="section-title">📊 Outcome Summary</div>
+    <table class="outcomes">
+      <thead>
+        <tr>
+          <th style="width: 50%;">Outcome Area</th>
+          <th style="width: 15%; text-align: center;">Results</th>
+          <th style="width: 35%;">Clarification</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${(report.outcomeSummary || []).map((row: any) => `
+          <tr>
+            <td>${row.area}</td>
+            <td class="result">${row.result}</td>
+            <td class="clarification">${row.clarification}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div><strong>Fathers On A Mission (FOAM)</strong> | Baton Rouge, Louisiana</div>
+    <div class="tagline">"Enhance Fathers, Strengthen Families"</div>
+  </div>
+</body>
+</html>`;
+
+    return html;
+  };
+
   const handleDownloadReport = async (format: 'doc' | 'pdf' = 'doc') => {
     if (!generatedReport) return;
     
     try {
+      const html = generateWordDocument(generatedReport);
+      
       if (format === 'pdf') {
         // Open in new window for print-to-PDF
-        const response = await fetch(`${API_BASE_URL}/api/reports/download`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ report: generatedReport, format: 'pdf' })
-        });
-        const html = await response.text();
         const printWindow = window.open('', '_blank');
         if (printWindow) {
           printWindow.document.write(html);
           printWindow.document.close();
+          // Auto-trigger print dialog after a short delay
+          setTimeout(() => {
+            printWindow.print();
+          }, 500);
         }
       } else {
         // Download as Word doc
-        const response = await fetch(`${API_BASE_URL}/api/reports/download`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ report: generatedReport, format: 'doc' })
-        });
-        const blob = await response.blob();
+        const blob = new Blob([html], { type: 'application/msword' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `FOAM_${generatedReport.metadata.reportType}_Report_${generatedReport.metadata.year}.doc`;
+        const periodLabel = generatedReport.metadata?.periodLabel?.replace(/\s+/g, '_') || 'Report';
+        a.download = `FOAM_${generatedReport.metadata?.reportType || 'Monthly'}_Report_${periodLabel}.doc`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
