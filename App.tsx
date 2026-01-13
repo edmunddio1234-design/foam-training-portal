@@ -1682,7 +1682,7 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
   }
 ];
 
-type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment' | 'progress' | 'checkin';
+type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment' | 'progress' | 'checkin' | 'analytics';
 type FinanceSubView = 'dashboard' | 'exchange' | 'bills' | 'reports' | 'multifunder';
 
 const App: React.FC = () => {
