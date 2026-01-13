@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import OrganizationalHandbook from './OrganizationalHandbook';
 
 interface HubProps {
-  onNavigate: (view: 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance') => void;
+  onNavigate: (view: 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'analytics') => void;
   onLogout: () => void;
 }
 
@@ -49,6 +50,14 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
       icon: 'fa-file-invoice-dollar',
       color: 'bg-[#1A4D2E]',
       shadow: 'shadow-emerald-100'
+    },
+    {
+      id: 'analytics',
+      title: 'Assessment Analytics',
+      description: 'Post-class assessment insights, trends, and follow-up tracking.',
+      icon: 'fa-chart-pie',
+      color: 'bg-purple-600',
+      shadow: 'shadow-purple-200'
     }
   ];
 
@@ -118,6 +127,13 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
                       <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-teal-500"></i> Monthly reports</li>
                       <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-teal-500"></i> Procedures & resources</li>
                       <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-teal-500"></i> Forms & documents</li>
+                    </ul>
+                  ) : portal.id === 'analytics' ? (
+                    <ul className="space-y-1">
+                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-purple-500"></i> Class assessment trends</li>
+                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-purple-500"></i> Module performance reports</li>
+                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-purple-500"></i> Father follow-up tracking</li>
+                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-purple-500"></i> Export & reporting tools</li>
                     </ul>
                   ) : (
                     portal.description
