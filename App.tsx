@@ -24,7 +24,7 @@ import CaseManagerHub from './components/CaseManagerHub';
 import ClassAssessment from './components/tracking/ClassAssessment';
 import FatherProgress from './components/tracking/FatherProgress';
 import FatherCheckIn from './components/tracking/FatherCheckIn';
-
+import AssessmentAnalytics from './components/tracking/AssessmentAnalytics';
 // Pre-loaded Treasury transactions from FOAM Financial Tracker v3
 // Total: 110 transactions, $101,578.82
 // Q3 2025 (Jul-Sep): 81 transactions
