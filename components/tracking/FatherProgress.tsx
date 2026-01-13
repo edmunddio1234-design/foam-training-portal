@@ -227,7 +227,7 @@ const FatherProgress: React.FC = () => {
 
           {/* Help Text */}
           <p className="text-center text-slate-400 text-sm mt-6">
-            Need help? Contact FOAM at (225) 590-1422
+            Need help? Contact FOAM at (225) 239-7833
           </p>
         </div>
       </div>
@@ -366,7 +366,7 @@ const FatherProgress: React.FC = () => {
 
         {/* Contact */}
         <p className="text-center text-slate-500 text-sm">
-          Questions? Call FOAM at (225) 590-1422
+          Questions? Call FOAM at (225) 239-7833
         </p>
       </div>
     </div>
