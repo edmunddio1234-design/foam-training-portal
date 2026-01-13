@@ -1700,7 +1700,7 @@ const App: React.FC = () => {
   // Initialize with pre-loaded Treasury data
   const [allFinanceEntries, setAllFinanceEntries] = useState<BillEntry[]>(PRELOADED_FINANCE_DATA);
 
-  // Check URL for direct access (for fathers on mobile)
+// Check URL for direct access (for fathers on mobile)
   useEffect(() => {
     const path = window.location.pathname;
     if (path === '/checkin') {
@@ -1709,6 +1709,8 @@ const App: React.FC = () => {
       setCurrentView('assessment');
     } else if (path === '/progress' || path === '/myprogress') {
       setCurrentView('progress');
+    } else if (path === '/analytics' || path === '/assessment-analytics') {
+      setCurrentView('analytics');
     }
   }, []);
 
@@ -1756,15 +1758,22 @@ const App: React.FC = () => {
     return <ClassAssessment />;
   }
 
-  // Progress page - NO LOGIN REQUIRED (for fathers to check their progress)
+// Progress page - NO LOGIN REQUIRED (for fathers to check their progress)
   if (currentView === 'progress') {
     return <FatherProgress />;
+  }
+
+  // Assessment Analytics - requires login (for staff/admin)
+  if (currentView === 'analytics') {
+    if (!isLoggedIn) {
+      return <LoginPage onLogin={() => setIsLoggedIn(true)} />;
+    }
+    return <AssessmentAnalytics onBack={() => setCurrentView('hub')} />;
   }
 
   if (!isLoggedIn) {
     return <LoginPage onLogin={() => setIsLoggedIn(true)} />;
   }
-
   if (currentView === 'training' && !isTrainingAuthenticated) {
     return <TrainingLoginPage onLogin={() => setIsTrainingAuthenticated(true)} onBack={() => setCurrentView('hub')} />;
   }
