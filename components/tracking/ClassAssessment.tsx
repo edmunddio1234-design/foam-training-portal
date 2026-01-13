@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   CheckCircle2, XCircle, Send, User, Phone, MessageSquare, 
@@ -539,7 +540,7 @@ const ClassAssessment: React.FC = () => {
         </div>
         
         <p className="text-emerald-200 text-sm mt-6">
-          Questions? Contact FOAM at (225) 590-1422
+          Questions? Contact FOAM at (225) 239-7833
         </p>
       </div>
     );
