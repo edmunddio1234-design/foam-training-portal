@@ -11,6 +11,7 @@ interface ScheduleItem {
   date: string;
   displayDate: string;
   module: number;
+  title: string;
 }
 
 interface QRCheckInProps {
@@ -22,24 +23,51 @@ const getQRCodeUrl = (data: string, size: number = 300) => {
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;
 };
 
-// Generate all Tuesdays for 2026
+// FOAM 14-class curriculum in correct order
+const FOAM_CURRICULUM = [
+  { id: 1, title: "Conflict Resolution/Anger Management" },
+  { id: 2, title: "Becoming Self-Sufficient" },
+  { id: 3, title: "Building Your Child's Self-Esteem" },
+  { id: 4, title: "Co-Parenting/Single Fatherhood" },
+  { id: 5, title: "Male/Female Relationship" },
+  { id: 6, title: "Manhood" },
+  { id: 7, title: "Values" },
+  { id: 8, title: "Communication/Active Listening" },
+  { id: 9, title: "Dealing with Stress" },
+  { id: 10, title: "Coping with Fatherhood Discrimination" },
+  { id: 11, title: "Fatherhood Today" },
+  { id: 12, title: "Understanding Children's Needs" },
+  { id: 13, title: "A Father's Influence on His Child" },
+  { id: 14, title: "Relationships" }
+];
+
+// Generate all Tuesdays for 2026 with correct module sequence
+// January 13, 2026 = Module 9 (Dealing with Stress), then cycles through 14 modules
 const generate2026Tuesdays = (): ScheduleItem[] => {
   const tuesdays: ScheduleItem[] = [];
- const startDate = new Date('2026-01-06T12:00:00'); // First Tuesday of 2026
- const endDate = new Date('2026-12-31T12:00:00');
+  const startDate = new Date('2026-01-13T12:00:00'); // First class Tuesday of 2026 cycle
+  const endDate = new Date('2026-12-31T12:00:00');
+  
+  // Starting module index: January 13, 2026 = Module 9 (index 8 in 0-based array)
+  const startingModuleIndex = 8; // Module 9 = "Dealing with Stress"
   
   let current = new Date(startDate);
   let weekCount = 0;
   
   while (current <= endDate) {
-    const moduleNum = (weekCount % 14) + 1;
+    // Calculate which module based on starting point and weeks elapsed
+    const moduleIndex = (startingModuleIndex + weekCount) % 14;
+    const moduleNum = moduleIndex + 1; // Convert to 1-based module number
+    const moduleTitle = FOAM_CURRICULUM[moduleIndex].title;
+    
     const month = current.toLocaleString('en-US', { month: 'short' });
     const day = current.getDate();
     
     tuesdays.push({
       date: current.toISOString().split('T')[0],
       displayDate: `${month} ${day}, 2026`,
-      module: moduleNum
+      module: moduleNum,
+      title: moduleTitle
     });
     
     // Move to next Tuesday
@@ -66,7 +94,7 @@ const SPECIAL_CLASSES = [
 ];
 
 export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
-  const [selectedModule, setSelectedModule] = useState<number>(1);
+  const [selectedModule, setSelectedModule] = useState<number>(9); // Default to Module 9
   const [isSpecialClass, setIsSpecialClass] = useState<boolean>(false);
   const [copied, setCopied] = useState(false);
   const [showFullSchedule, setShowFullSchedule] = useState(false);
@@ -98,27 +126,30 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
     return schedule2026.filter(item => item.date.split('-')[1] === selectedMonth);
   }, [schedule2026, selectedMonth]);
   
-  // Auto-detect today's module based on schedule (Tuesdays, rotating through 14 modules)
+  // Auto-detect today's module based on schedule
   useEffect(() => {
     const today = new Date();
-    const startDate = new Date('2026-01-06'); // First Tuesday of 2026
-    const daysDiff = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const weeksDiff = Math.floor(daysDiff / 7);
-    const calculatedModule = (weeksDiff % 14) + 1;
+    const todayStr = today.toISOString().split('T')[0];
     
-    // Only auto-set if it's Tuesday and we're in 2026 or later
-    if (today.getDay() === 2 && today.getFullYear() >= 2026) {
-      setSelectedModule(calculatedModule);
+    // Find today's class or the next upcoming class
+    const todayClass = schedule2026.find(s => s.date === todayStr);
+    const nextClass = schedule2026.find(s => s.date >= todayStr);
+    
+    if (todayClass) {
+      setSelectedModule(todayClass.module);
+      setIsSpecialClass(false);
+    } else if (nextClass) {
+      setSelectedModule(nextClass.module);
       setIsSpecialClass(false);
     }
-  }, []);
+  }, [schedule2026]);
 
-  // Get the current module/class info
+  // Get the current module/class info - use FOAM_CURRICULUM for correct titles
   const currentClass = isSpecialClass 
     ? SPECIAL_CLASSES.find(c => c.id === selectedModule) 
-    : modules.find(m => m.id === selectedModule) || modules[0];
+    : FOAM_CURRICULUM.find(m => m.id === selectedModule) || FOAM_CURRICULUM[0];
   
-  // Build check-in URL - CHANGED FROM /assessment TO /checkin
+  // Build check-in URL
   const checkInUrl = isSpecialClass
     ? `https://foamportal.org/checkin?special=${selectedModule}`
     : `https://foamportal.org/checkin?module=${selectedModule}`;
@@ -143,13 +174,18 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
     if (isSpecial) {
       setSelectedModule(SPECIAL_CLASSES[0].id);
     } else {
-      setSelectedModule(1);
+      // Set to the next scheduled class
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+      const nextClass = schedule2026.find(s => s.date >= todayStr);
+      setSelectedModule(nextClass?.module || 9);
     }
   };
 
   // Find today's date in schedule
   const today = new Date().toISOString().split('T')[0];
   const todayInSchedule = schedule2026.find(item => item.date === today);
+  const nextInSchedule = schedule2026.find(item => item.date >= today);
 
   return (
     <div className="space-y-6">
@@ -204,7 +240,7 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
               </div>
               <div>
                 <p className={`text-sm ${isSpecialClass ? 'text-purple-100' : 'text-emerald-100'}`}>
-                  {isSpecialClass ? 'Special Event' : "Today's Class"}
+                  {isSpecialClass ? 'Special Event' : (todayInSchedule ? "Today's Class" : "Next Class")}
                 </p>
                 <p className="font-bold text-lg">{currentClass?.title || 'Select a class'}</p>
               </div>
@@ -287,7 +323,7 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
                           {cls.title}
                         </option>
                       ))
-                    : modules.map(module => (
+                    : FOAM_CURRICULUM.map(module => (
                         <option key={module.id} value={module.id}>
                           Module {module.id}: {module.title}
                         </option>
@@ -370,9 +406,9 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
             
             <p className="text-sm text-slate-500 mb-3">
               Classes rotate through 14 modules
-              {todayInSchedule && (
+              {nextInSchedule && (
                 <span className="block mt-1 text-emerald-600 font-medium">
-                  Today: Module {todayInSchedule.module}
+                  {todayInSchedule ? 'Today' : 'Next'}: {nextInSchedule.title}
                 </span>
               )}
             </p>
@@ -399,14 +435,14 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
                     )}
                     <span className="text-slate-600">{item.displayDate}</span>
                   </div>
-                  <span className={`font-medium ${
+                  <span className={`font-medium text-xs ${
                     item.module === selectedModule && !isSpecialClass
                       ? 'text-blue-600' 
                       : item.date === today
                         ? 'text-emerald-600'
                         : 'text-slate-800'
                   }`}>
-                    Module {item.module}
+                    {item.title}
                   </span>
                 </div>
               ))}
@@ -451,7 +487,7 @@ export const QRCheckIn: React.FC<QRCheckInProps> = ({ modules }) => {
             </div>
           </div>
 
-          {/* How It Works - UPDATED STEPS */}
+          {/* How It Works */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
