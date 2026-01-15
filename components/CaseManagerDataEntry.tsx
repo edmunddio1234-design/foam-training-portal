@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
-  ArrowLeft, Users, FileText, Send, Calendar, BarChart3,
-  Plus, Search, X, Edit2, Eye, Phone, Mail, MapPin,
+  ArrowLeft, Users, FileText, Send, BarChart3,
+  Plus, Search, X, Eye, Phone, Mail, MapPin,
   CheckCircle, Clock, AlertCircle, RefreshCw, ChevronRight,
-  User, Briefcase, Heart, Home, Filter, Download
+  User, Briefcase, Heart, Home, Filter, Download,
+  TrendingUp, PieChart
 } from 'lucide-react';
 
 interface CaseManagerDataEntryProps {
   onClose: () => void;
 }
 
-type TabType = 'dashboard' | 'clients' | 'notes' | 'referrals' | 'attendance';
+type TabType = 'dashboard' | 'clients' | 'notes' | 'referrals';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
 
@@ -57,16 +58,6 @@ interface Referral {
   outcome?: string;
 }
 
-interface AttendanceRecord {
-  id: string;
-  clientName: string;
-  className: string;
-  classDate: string;
-  hoursEarned: number;
-  attendanceStatus: string;
-  notes?: string;
-}
-
 interface DashboardStats {
   totalClients: number;
   activeClients: number;
@@ -76,8 +67,6 @@ interface DashboardStats {
   totalReferrals: number;
   pendingReferrals: number;
   completedReferrals: number;
-  totalAttendance: number;
-  totalHoursAttended: number;
   staffCount: number;
   clientsByStatus: Record<string, number>;
   clientsByCaseManager: Record<string, number>;
@@ -103,14 +92,12 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
   const [clients, setClients] = useState<Client[]>([]);
   const [caseNotes, setCaseNotes] = useState<CaseNote[]>([]);
   const [referrals, setReferrals] = useState<Referral[]>([]);
-  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
   
   // Modal states
   const [showAddClient, setShowAddClient] = useState(false);
   const [showAddNote, setShowAddNote] = useState(false);
   const [showAddReferral, setShowAddReferral] = useState(false);
-  const [showAddAttendance, setShowAddAttendance] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   
   // Form states
@@ -130,11 +117,6 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     clientName: '', providerName: '', serviceType: '', contactPerson: '',
     phone: '', email: '', status: 'Pending', referralDate: new Date().toISOString().split('T')[0], notes: ''
   });
-  
-  const [attendanceForm, setAttendanceForm] = useState({
-    clientName: '', className: 'Fatherhood Class', classDate: new Date().toISOString().split('T')[0],
-    hoursEarned: 2, attendanceStatus: 'Present', notes: '', clientStatus: ''
-  });
 
   // Load data on mount and tab change
   useEffect(() => {
@@ -146,7 +128,6 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     if (activeTab === 'clients' && clients.length === 0) loadClients();
     if (activeTab === 'notes' && caseNotes.length === 0) loadNotes();
     if (activeTab === 'referrals' && referrals.length === 0) loadReferrals();
-    if (activeTab === 'attendance' && attendance.length === 0) loadAttendance();
   }, [activeTab]);
 
   // API calls
@@ -197,19 +178,6 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
       if (data.success) setReferrals(data.data);
     } catch (err) {
       console.error('Failed to load referrals:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loadAttendance = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/cm/attendance`);
-      const data = await response.json();
-      if (data.success) setAttendance(data.data);
-    } catch (err) {
-      console.error('Failed to load attendance:', err);
     } finally {
       setIsLoading(false);
     }
@@ -326,39 +294,6 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     }
   };
 
-  const addAttendance = async () => {
-    if (!attendanceForm.clientName.trim() || !attendanceForm.className.trim()) {
-      alert('Client name and class name are required');
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/cm/attendance`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(attendanceForm)
-      });
-      const data = await response.json();
-      if (data.success) {
-        alert('Attendance logged successfully!');
-        setShowAddAttendance(false);
-        setAttendanceForm({
-          clientName: '', className: 'Fatherhood Class', classDate: new Date().toISOString().split('T')[0],
-          hoursEarned: 2, attendanceStatus: 'Present', notes: '', clientStatus: ''
-        });
-        loadAttendance();
-        loadDashboard();
-      } else {
-        alert('Failed to log attendance: ' + (data.error || 'Unknown error'));
-      }
-    } catch (err) {
-      console.error('Failed to log attendance:', err);
-      alert('Failed to log attendance');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Filter functions
   const filteredClients = clients.filter(c =>
     c.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -376,11 +311,6 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     r.providerName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredAttendance = attendance.filter(a =>
-    a.clientName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    a.className?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   // Status badge colors
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -390,9 +320,7 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
       case 'pending': return 'bg-amber-100 text-amber-700 border-amber-200';
       case 'approved': return 'bg-teal-100 text-teal-700 border-teal-200';
       case 'completed': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-      case 'present': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-      case 'absent': return 'bg-rose-100 text-rose-700 border-rose-200';
-      case 'excused': return 'bg-amber-100 text-amber-700 border-amber-200';
+      case 'in progress': return 'bg-blue-100 text-blue-700 border-blue-200';
       default: return 'bg-slate-100 text-slate-700 border-slate-200';
     }
   };
@@ -402,143 +330,246 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'clients', label: 'Clients', icon: Users },
     { id: 'notes', label: 'Case Notes', icon: FileText },
-    { id: 'referrals', label: 'Referrals', icon: Send },
-    { id: 'attendance', label: 'Attendance', icon: Calendar }
+    { id: 'referrals', label: 'Referrals', icon: Send }
   ];
 
-  // Render Dashboard
-  const renderDashboard = () => (
-    <div className="space-y-6">
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-              <Users className="w-5 h-5 text-emerald-600" />
-            </div>
-            <span className="text-slate-500 text-sm">Total Clients</span>
-          </div>
-          <p className="text-3xl font-bold text-slate-800">{dashboardStats?.totalClients || 0}</p>
-        </div>
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
-              <CheckCircle className="w-5 h-5 text-teal-600" />
-            </div>
-            <span className="text-slate-500 text-sm">Active</span>
-          </div>
-          <p className="text-3xl font-bold text-slate-800">{dashboardStats?.activeClients || 0}</p>
-        </div>
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-              <Award className="w-5 h-5 text-blue-600" />
-            </div>
-            <span className="text-slate-500 text-sm">Graduated</span>
-          </div>
-          <p className="text-3xl font-bold text-slate-800">{dashboardStats?.graduatedClients || 0}</p>
-        </div>
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
-              <Clock className="w-5 h-5 text-amber-600" />
-            </div>
-            <span className="text-slate-500 text-sm">Pending Referrals</span>
-          </div>
-          <p className="text-3xl font-bold text-slate-800">{dashboardStats?.pendingReferrals || 0}</p>
-        </div>
-      </div>
-
-      {/* Activity Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-teal-600" /> Case Notes
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center py-2 border-b border-slate-100">
-              <span className="text-slate-600">Total Notes</span>
-              <span className="font-bold text-slate-800">{dashboardStats?.totalNotes || 0}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <Send className="w-5 h-5 text-purple-600" /> Referrals
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center py-2 border-b border-slate-100">
-              <span className="text-slate-600">Total Referrals</span>
-              <span className="font-bold text-slate-800">{dashboardStats?.totalReferrals || 0}</span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b border-slate-100">
-              <span className="text-slate-600">Pending</span>
-              <span className="font-bold text-amber-600">{dashboardStats?.pendingReferrals || 0}</span>
-            </div>
-            <div className="flex justify-between items-center py-2">
-              <span className="text-slate-600">Completed</span>
-              <span className="font-bold text-emerald-600">{dashboardStats?.completedReferrals || 0}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Attendance Summary */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-        <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-indigo-600" /> Attendance Overview
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-slate-50 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-slate-800">{dashboardStats?.totalAttendance || 0}</p>
-            <p className="text-slate-500 text-sm">Total Records</p>
-          </div>
-          <div className="bg-slate-50 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-slate-800">{dashboardStats?.totalHoursAttended || 0}</p>
-            <p className="text-slate-500 text-sm">Total Hours</p>
-          </div>
-          <div className="bg-slate-50 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-slate-800">{dashboardStats?.staffCount || 0}</p>
-            <p className="text-slate-500 text-sm">Active Staff</p>
-          </div>
-          <div className="bg-slate-50 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-slate-800">
-              {dashboardStats?.totalClients ? Math.round((dashboardStats.activeClients / dashboardStats.totalClients) * 100) : 0}%
-            </p>
-            <p className="text-slate-500 text-sm">Active Rate</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-gradient-to-br from-teal-600 to-teal-700 rounded-2xl p-6 text-white">
-        <h3 className="text-lg font-bold mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <button onClick={() => { setActiveTab('clients'); setShowAddClient(true); }}
-            className="bg-white/20 hover:bg-white/30 rounded-xl p-4 text-center transition-all">
-            <Users className="w-6 h-6 mx-auto mb-2" />
-            <span className="text-sm font-medium">Add Client</span>
-          </button>
-          <button onClick={() => { setActiveTab('notes'); setShowAddNote(true); }}
-            className="bg-white/20 hover:bg-white/30 rounded-xl p-4 text-center transition-all">
-            <FileText className="w-6 h-6 mx-auto mb-2" />
-            <span className="text-sm font-medium">Add Note</span>
-          </button>
-          <button onClick={() => { setActiveTab('referrals'); setShowAddReferral(true); }}
-            className="bg-white/20 hover:bg-white/30 rounded-xl p-4 text-center transition-all">
-            <Send className="w-6 h-6 mx-auto mb-2" />
-            <span className="text-sm font-medium">Add Referral</span>
-          </button>
-          <button onClick={() => { setActiveTab('attendance'); setShowAddAttendance(true); }}
-            className="bg-white/20 hover:bg-white/30 rounded-xl p-4 text-center transition-all">
-            <Calendar className="w-6 h-6 mx-auto mb-2" />
-            <span className="text-sm font-medium">Log Attendance</span>
-          </button>
-        </div>
-      </div>
-    </div>
+  // Missing Award icon - add to imports
+  const Award = ({ className, size }: { className?: string; size?: number }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="12" cy="8" r="6"></circle>
+      <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
+    </svg>
   );
+
+  // Render Dashboard with Enhanced Charts
+  const renderDashboard = () => {
+    // Calculate percentages for visual charts
+    const activePercent = dashboardStats?.totalClients ? Math.round((dashboardStats.activeClients / dashboardStats.totalClients) * 100) : 0;
+    const graduatedPercent = dashboardStats?.totalClients ? Math.round((dashboardStats.graduatedClients / dashboardStats.totalClients) * 100) : 0;
+    const inactivePercent = dashboardStats?.totalClients ? Math.round((dashboardStats.inactiveClients / dashboardStats.totalClients) * 100) : 0;
+    
+    const pendingPercent = dashboardStats?.totalReferrals ? Math.round((dashboardStats.pendingReferrals / dashboardStats.totalReferrals) * 100) : 0;
+    const completedPercent = dashboardStats?.totalReferrals ? Math.round((dashboardStats.completedReferrals / dashboardStats.totalReferrals) * 100) : 0;
+
+    return (
+      <div className="space-y-6">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                <Users className="w-5 h-5 text-emerald-600" />
+              </div>
+              <span className="text-slate-500 text-sm">Total Clients</span>
+            </div>
+            <p className="text-3xl font-bold text-slate-800">{dashboardStats?.totalClients || 0}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-teal-600" />
+              </div>
+              <span className="text-slate-500 text-sm">Active</span>
+            </div>
+            <p className="text-3xl font-bold text-slate-800">{dashboardStats?.activeClients || 0}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <Award className="w-5 h-5 text-blue-600" />
+              </div>
+              <span className="text-slate-500 text-sm">Graduated</span>
+            </div>
+            <p className="text-3xl font-bold text-slate-800">{dashboardStats?.graduatedClients || 0}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+                <Clock className="w-5 h-5 text-amber-600" />
+              </div>
+              <span className="text-slate-500 text-sm">Pending Referrals</span>
+            </div>
+            <p className="text-3xl font-bold text-slate-800">{dashboardStats?.pendingReferrals || 0}</p>
+          </div>
+        </div>
+
+        {/* Enhanced Visual Charts Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Client Status Distribution - Visual Bar Chart */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <PieChart className="w-5 h-5 text-teal-600" /> Client Status Distribution
+            </h3>
+            <div className="space-y-4">
+              {/* Active Clients Bar */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-600 font-medium">Active</span>
+                  <span className="font-bold text-emerald-600">{dashboardStats?.activeClients || 0} ({activePercent}%)</span>
+                </div>
+                <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-1000 ease-out"
+                    style={{ width: `${activePercent}%` }}
+                  />
+                </div>
+              </div>
+              {/* Graduated Clients Bar */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-600 font-medium">Graduated</span>
+                  <span className="font-bold text-blue-600">{dashboardStats?.graduatedClients || 0} ({graduatedPercent}%)</span>
+                </div>
+                <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full transition-all duration-1000 ease-out"
+                    style={{ width: `${graduatedPercent}%` }}
+                  />
+                </div>
+              </div>
+              {/* Inactive Clients Bar */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-600 font-medium">Inactive</span>
+                  <span className="font-bold text-slate-500">{dashboardStats?.inactiveClients || 0} ({inactivePercent}%)</span>
+                </div>
+                <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-slate-300 to-slate-500 rounded-full transition-all duration-1000 ease-out"
+                    style={{ width: `${inactivePercent}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+            {/* Visual Legend */}
+            <div className="mt-4 pt-4 border-t border-slate-100 flex justify-center gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                <span className="text-xs text-slate-500">Active</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                <span className="text-xs text-slate-500">Graduated</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-slate-400"></div>
+                <span className="text-xs text-slate-500">Inactive</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Referral Status - Visual Chart */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <Send className="w-5 h-5 text-purple-600" /> Referral Pipeline
+            </h3>
+            <div className="space-y-4">
+              {/* Total Referrals */}
+              <div className="flex justify-between items-center py-3 px-4 bg-slate-50 rounded-xl">
+                <span className="text-slate-600 font-medium">Total Referrals</span>
+                <span className="text-2xl font-bold text-slate-800">{dashboardStats?.totalReferrals || 0}</span>
+              </div>
+              {/* Pending */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-600 font-medium flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-amber-500" /> Pending
+                  </span>
+                  <span className="font-bold text-amber-600">{dashboardStats?.pendingReferrals || 0}</span>
+                </div>
+                <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full transition-all duration-1000 ease-out"
+                    style={{ width: `${pendingPercent}%` }}
+                  />
+                </div>
+              </div>
+              {/* Completed */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-600 font-medium flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-emerald-500" /> Completed
+                  </span>
+                  <span className="font-bold text-emerald-600">{dashboardStats?.completedReferrals || 0}</span>
+                </div>
+                <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-1000 ease-out"
+                    style={{ width: `${completedPercent}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+            {/* Success Rate Indicator */}
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-500">Completion Rate</span>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-emerald-500" />
+                  <span className="text-lg font-bold text-emerald-600">{completedPercent}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Activity Summary Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-teal-600" /> Case Notes
+            </h3>
+            <div className="text-center py-4">
+              <p className="text-4xl font-bold text-slate-800">{dashboardStats?.totalNotes || 0}</p>
+              <p className="text-slate-500 text-sm mt-1">Total Documentation</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <Users className="w-5 h-5 text-indigo-600" /> Staff Members
+            </h3>
+            <div className="text-center py-4">
+              <p className="text-4xl font-bold text-slate-800">{dashboardStats?.staffCount || 0}</p>
+              <p className="text-slate-500 text-sm mt-1">Active Staff</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-emerald-600" /> Active Rate
+            </h3>
+            <div className="text-center py-4">
+              <p className="text-4xl font-bold text-emerald-600">{activePercent}%</p>
+              <p className="text-slate-500 text-sm mt-1">Client Engagement</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-gradient-to-br from-teal-600 to-teal-700 rounded-2xl p-6 text-white">
+          <h3 className="text-lg font-bold mb-4">Quick Actions</h3>
+          <div className="grid grid-cols-3 gap-3">
+            <button onClick={() => { setActiveTab('clients'); setShowAddClient(true); }}
+              className="bg-white/20 hover:bg-white/30 rounded-xl p-4 text-center transition-all">
+              <Users className="w-6 h-6 mx-auto mb-2" />
+              <span className="text-sm font-medium">Add Client</span>
+            </button>
+            <button onClick={() => { setActiveTab('notes'); setShowAddNote(true); }}
+              className="bg-white/20 hover:bg-white/30 rounded-xl p-4 text-center transition-all">
+              <FileText className="w-6 h-6 mx-auto mb-2" />
+              <span className="text-sm font-medium">Add Note</span>
+            </button>
+            <button onClick={() => { setActiveTab('referrals'); setShowAddReferral(true); }}
+              className="bg-white/20 hover:bg-white/30 rounded-xl p-4 text-center transition-all">
+              <Send className="w-6 h-6 mx-auto mb-2" />
+              <span className="text-sm font-medium">Add Referral</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // Render Clients Tab
   const renderClients = () => (
@@ -723,67 +754,6 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
                 <tr>
                   <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
                     {isLoading ? 'Loading...' : 'No referrals found'}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Render Attendance Tab
-  const renderAttendance = () => (
-    <div className="space-y-4">
-      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-          <input
-            type="text"
-            placeholder="Search attendance..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
-          />
-        </div>
-        <button
-          onClick={() => setShowAddAttendance(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 transition-colors"
-        >
-          <Plus size={18} /> Log Attendance
-        </button>
-      </div>
-
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Client</th>
-                <th className="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Class</th>
-                <th className="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
-                <th className="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Hours</th>
-                <th className="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredAttendance.length > 0 ? filteredAttendance.map((record) => (
-                <tr key={record.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-3 font-medium text-slate-800">{record.clientName}</td>
-                  <td className="px-4 py-3 text-slate-600">{record.className}</td>
-                  <td className="px-4 py-3 text-slate-600">{record.classDate}</td>
-                  <td className="px-4 py-3 text-slate-600">{record.hoursEarned}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2.5 py-1 text-xs font-medium rounded-full border ${getStatusColor(record.attendanceStatus)}`}>
-                      {record.attendanceStatus}
-                    </span>
-                  </td>
-                </tr>
-              )) : (
-                <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
-                    {isLoading ? 'Loading...' : 'No attendance records found'}
                   </td>
                 </tr>
               )}
@@ -1067,75 +1037,6 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     </div>
   );
 
-  // Add Attendance Modal
-  const renderAddAttendanceModal = () => (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowAddAttendance(false)}>
-      <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-800">Log Attendance</h2>
-          <button onClick={() => setShowAddAttendance(false)} className="p-2 hover:bg-slate-100 rounded-lg">
-            <X size={24} className="text-slate-400" />
-          </button>
-        </div>
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Client Name *</label>
-            <input type="text" value={attendanceForm.clientName} onChange={(e) => setAttendanceForm({ ...attendanceForm, clientName: e.target.value })} list="client-names-att"
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none" placeholder="Start typing client name..." />
-            <datalist id="client-names-att">
-              {clients.map(c => <option key={c.id} value={c.fullName} />)}
-            </datalist>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Class Name *</label>
-            <select value={attendanceForm.className} onChange={(e) => setAttendanceForm({ ...attendanceForm, className: e.target.value })}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none">
-              <option value="Fatherhood Class">Fatherhood Class</option>
-              <option value="Employment Workshop">Employment Workshop</option>
-              <option value="Parenting Skills">Parenting Skills</option>
-              <option value="Financial Literacy">Financial Literacy</option>
-              <option value="Anger Management">Anger Management</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Class Date</label>
-              <input type="date" value={attendanceForm.classDate} onChange={(e) => setAttendanceForm({ ...attendanceForm, classDate: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Hours Earned</label>
-              <input type="number" value={attendanceForm.hoursEarned} onChange={(e) => setAttendanceForm({ ...attendanceForm, hoursEarned: parseFloat(e.target.value) || 0 })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none" min="0" step="0.5" />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Attendance Status</label>
-            <select value={attendanceForm.attendanceStatus} onChange={(e) => setAttendanceForm({ ...attendanceForm, attendanceStatus: e.target.value })}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none">
-              <option value="Present">Present</option>
-              <option value="Absent">Absent</option>
-              <option value="Excused">Excused</option>
-              <option value="Late">Late</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Notes</label>
-            <textarea value={attendanceForm.notes} onChange={(e) => setAttendanceForm({ ...attendanceForm, notes: e.target.value })} rows={2}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none resize-none" placeholder="Any notes about attendance..." />
-          </div>
-          <div className="flex gap-3 pt-4 border-t">
-            <button onClick={() => setShowAddAttendance(false)} className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-xl font-medium hover:bg-slate-50 transition-colors">Cancel</button>
-            <button onClick={addAttendance} disabled={isLoading} className="flex-1 px-4 py-2.5 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 transition-colors disabled:opacity-50">
-              {isLoading ? 'Logging...' : 'Log Attendance'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   // Client Detail Modal
   const renderClientDetailModal = () => {
     if (!selectedClient) return null;
@@ -1234,14 +1135,6 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     );
   };
 
-  // Missing Award icon - add to imports
-  const Award = ({ className, size }: { className?: string; size?: number }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <circle cx="12" cy="8" r="6"></circle>
-      <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
-    </svg>
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
@@ -1253,12 +1146,12 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
             </button>
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-3">
-                <Users size={28} /> Data Entry System
+                <Send size={28} /> Referral Management
               </h1>
-              <p className="text-teal-200 text-sm">Manage clients, notes, referrals, and attendance</p>
+              <p className="text-teal-200 text-sm">Manage clients, case notes, and referrals</p>
             </div>
           </div>
-          <button onClick={() => { loadDashboard(); loadClients(); loadNotes(); loadReferrals(); loadAttendance(); }}
+          <button onClick={() => { loadDashboard(); loadClients(); loadNotes(); loadReferrals(); }}
             className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-colors">
             <RefreshCw size={18} className={isLoading ? 'animate-spin' : ''} />
             <span className="text-sm font-medium">Refresh</span>
@@ -1303,7 +1196,6 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
             {activeTab === 'clients' && renderClients()}
             {activeTab === 'notes' && renderNotes()}
             {activeTab === 'referrals' && renderReferrals()}
-            {activeTab === 'attendance' && renderAttendance()}
           </>
         )}
       </div>
@@ -1312,7 +1204,6 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
       {showAddClient && renderAddClientModal()}
       {showAddNote && renderAddNoteModal()}
       {showAddReferral && renderAddReferralModal()}
-      {showAddAttendance && renderAddAttendanceModal()}
       {selectedClient && renderClientDetailModal()}
     </div>
   );
