@@ -1682,7 +1682,7 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
   }
 ];
 
-type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment' | 'progress' | 'checkin' | 'analytics';
+type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment' | 'progress' | 'checkin' | 'analytics' | 'documents';
 type FinanceSubView = 'dashboard' | 'exchange' | 'bills' | 'reports' | 'multifunder';
 
 const App: React.FC = () => {
@@ -1796,6 +1796,11 @@ const App: React.FC = () => {
 
   if (currentView === 'admin') {
     return <div className="h-screen animate-in fade-in duration-500 relative z-0"><AdminPortal onClose={() => setCurrentView('hub')} /></div>;
+  }
+
+  // NEW: Document Library - opens AdminPortal with documents tab
+  if (currentView === 'documents') {
+    return <div className="h-screen animate-in fade-in duration-500 relative z-0"><AdminPortal onClose={() => setCurrentView('hub')} initialTab="documents" /></div>;
   }
 
   if (currentView === 'tracking') {
