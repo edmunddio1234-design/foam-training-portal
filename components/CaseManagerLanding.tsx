@@ -640,7 +640,15 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       icon: Users,
       color: 'bg-rose-600',
       shadow: 'shadow-rose-200',
-      action: () => onOpenDataEntry()
+      action: () => {
+        console.log('Referral Management clicked, onOpenDataEntry:', typeof onOpenDataEntry);
+        if (typeof onOpenDataEntry === 'function') {
+          onOpenDataEntry();
+        } else {
+          console.error('onOpenDataEntry is not a function!');
+          alert('Error: Data Entry function not available. Please refresh the page.');
+        }
+      }
     }
   ];
 
