@@ -11,6 +11,7 @@ import {
 interface CaseManagerLandingProps {
   onClose: () => void;
   onOpenReports: () => void;
+  onOpenDataEntry: () => void;
 }
 
 type TabType = 'home' | 'resources' | 'documents' | 'checklist';
@@ -168,7 +169,7 @@ const PROTOCOL_LINKS: Record<string, string> = {
   'Workforce Engagement': 'https://docs.google.com/document/d/1_workforce_engagement/edit'
 };
 
-const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpenReports }) => {
+const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpenReports, onOpenDataEntry }) => {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
@@ -593,7 +594,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     resource.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // UPDATED: Added Training Manual card
+  // UPDATED: Added Data Entry card
   const portalCards = [
     {
       id: 'reports',
@@ -631,6 +632,15 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       shadow: 'shadow-purple-200',
       action: () => window.open('https://heyzine.com/flip-book/fa09642bd5.html', '_blank', 'noopener,noreferrer'),
       isExternal: true
+    },
+    {
+      id: 'data-entry',
+      title: 'Data Entry',
+      description: 'Add clients, case notes, referrals, and log attendance. Connected to Google Sheets.',
+      icon: Users,
+      color: 'bg-rose-600',
+      shadow: 'shadow-rose-200',
+      action: () => onOpenDataEntry()
     }
   ];
 
@@ -658,10 +668,10 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
 
   const handleOpenLink = (url: string) => window.open(url, '_blank', 'noopener,noreferrer');
 
-  // UPDATED: renderHomeView with 4 cards + checklist card
+  // UPDATED: renderHomeView with 5 cards + checklist card
   const renderHomeView = () => (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {portalCards.map((card) => {
           const IconComponent = card.icon;
           return (
