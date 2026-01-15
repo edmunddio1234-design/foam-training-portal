@@ -25,6 +25,7 @@ import ClassAssessment from './components/tracking/ClassAssessment';
 import FatherProgress from './components/tracking/FatherProgress';
 import FatherCheckIn from './components/tracking/FatherCheckIn';
 import AssessmentAnalytics from './components/tracking/AssessmentAnalytics';
+import GrantLoginPage from './components/GrantLoginPage';
 // Pre-loaded Treasury transactions from FOAM Financial Tracker v3
 // Total: 110 transactions, $101,578.82
 // Q3 2025 (Jul-Sep): 81 transactions
@@ -1690,6 +1691,7 @@ const App: React.FC = () => {
   const [isTrainingAuthenticated, setIsTrainingAuthenticated] = useState(false);
   const [trainingTrackSelected, setTrainingTrackSelected] = useState<TrainingTrack | null>(null);
   const [isFinanceAuthenticated, setIsFinanceAuthenticated] = useState(false);
+  const [isGrantAuthenticated, setIsGrantAuthenticated] = useState(false);
   
   const [currentView, setCurrentView] = useState<AppView>('hub');
   const [financeSubView, setFinanceSubView] = useState<FinanceSubView>('dashboard');
@@ -1745,6 +1747,7 @@ const App: React.FC = () => {
     setIsTrainingAuthenticated(false);
     setTrainingTrackSelected(null);
     setIsFinanceAuthenticated(false);
+    setIsGrantAuthenticated(false);
     setCurrentView('hub');
   };
 
@@ -1795,11 +1798,17 @@ const App: React.FC = () => {
   }
 
   if (currentView === 'admin') {
+    if (!isGrantAuthenticated) {
+      return <GrantLoginPage onLogin={() => setIsGrantAuthenticated(true)} onBack={() => setCurrentView('hub')} />;
+    }
     return <div className="h-screen animate-in fade-in duration-500 relative z-0"><AdminPortal onClose={() => setCurrentView('hub')} /></div>;
   }
 
-  // NEW: Document Library - opens AdminPortal with documents tab
+  // NEW: Document Library - opens AdminPortal with documents tab (also requires grant auth)
   if (currentView === 'documents') {
+    if (!isGrantAuthenticated) {
+      return <GrantLoginPage onLogin={() => setIsGrantAuthenticated(true)} onBack={() => setCurrentView('hub')} />;
+    }
     return <div className="h-screen animate-in fade-in duration-500 relative z-0"><AdminPortal onClose={() => setCurrentView('hub')} initialTab="documents" /></div>;
   }
 
