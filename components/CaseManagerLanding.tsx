@@ -635,8 +635,8 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     },
     {
       id: 'data-entry',
-      title: 'Data Entry',
-      description: 'Add clients, case notes, referrals, and log attendance. Connected to Google Sheets.',
+      title: 'Referral Management',
+      description: 'Add clients, case notes, and referrals. Connected to Google Sheets.',
       icon: Users,
       color: 'bg-rose-600',
       shadow: 'shadow-rose-200',
