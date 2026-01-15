@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   ArrowLeft, FileText, DollarSign, Calendar, Search, RefreshCw,
@@ -58,6 +57,7 @@ interface GrantStats {
 
 interface AdminPortalProps {
   onClose: () => void;
+  initialTab?: 'grants' | 'funding-research' | 'documents';
 }
 
 interface NewGrantForm {
@@ -352,18 +352,16 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
     setIsChatLoading(true);
 
     try {
-      // Extract search terms from natural language
       const searchTerms = userMessage.toLowerCase()
         .replace(/find|show|get|search|look for|where is|locate|i need|can you find|do we have|any|all/gi, '')
         .replace(/the|a|an|my|our|me|please|about|related to|regarding|for/gi, '')
         .trim();
 
-      // Use type=both to search both name and fullText content
       const res = await fetch(`${API_BASE_URL}/api/documents/search/${encodeURIComponent(searchTerms || userMessage)}?type=both`);
       const data = await res.json();
 
       if (data.success && data.data && data.data.length > 0) {
-        const docs = data.data.slice(0, 15); // Show top 15 results
+        const docs = data.data.slice(0, 15);
         setChatMessages(prev => [...prev, {
           role: 'assistant',
           content: `I found ${data.count} document${data.count !== 1 ? 's' : ''} matching "${searchTerms || userMessage}". Here are the top results:`,
@@ -590,8 +588,8 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
   );
 };
 
-const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
-  const [mainTab, setMainTab] = useState<MainTab>('grants');
+const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants' }) => {
+  const [mainTab, setMainTab] = useState<MainTab>(initialTab);
   const [grantTab, setGrantTab] = useState<GrantTab>('dashboard');
   const [grants, setGrants] = useState<Grant[]>([]);
   const [stats, setStats] = useState<GrantStats | null>(null);
@@ -623,7 +621,11 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
   useEffect(() => {
     loadGrantData();
-  }, []);
+    // If opening directly to documents tab, load documents immediately
+    if (initialTab === 'documents') {
+      loadDocuments();
+    }
+  }, [initialTab]);
 
   const loadGrantData = async () => {
     setIsLoading(true);
@@ -648,7 +650,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
   const loadDocuments = async () => {
     try {
-      // Add ?all=true to fetch ALL files with pagination
       const res = await fetch(`${API_BASE_URL}/api/documents?all=true`);
       const data = await res.json();
       if (data.success) {
@@ -683,7 +684,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
       setSubmitSuccess(true);
       
-      // Reset form
       setNewGrant({
         grantname: '',
         grantsource: '',
@@ -699,7 +699,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
         submissionyear: new Date().getFullYear().toString()
       });
 
-      // Reload data after short delay
       setTimeout(() => {
         setShowAddModal(false);
         setSubmitSuccess(false);
@@ -742,12 +741,10 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     g.grantstatus?.toLowerCase().includes('denied')
   ), [grants]);
 
-  // Grants needing reporting attention (approved grants)
   const grantsNeedingAttention = useMemo(() => 
     approvedGrants.filter(g => g.amountapproved && parseFloat(g.amountapproved.toString().replace(/[$,]/g, '')) > 0)
   , [approvedGrants]);
 
-  // Recent grants (last 30 days based on submission date)
   const recentGrants = useMemo(() => {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -758,7 +755,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
     });
   }, [grants]);
 
-  // AI Analysis
   const analysis = useMemo(() => {
     if (!stats || grants.length === 0) return null;
     
@@ -804,7 +800,18 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
   const pieColors = ['#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4'];
   const funderColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-  if (isLoading) {
+  // Dynamic header based on tab
+  const getHeaderTitle = () => {
+    if (mainTab === 'documents') return 'Document Library';
+    return 'Grant Management Center';
+  };
+
+  const getHeaderSubtitle = () => {
+    if (mainTab === 'documents') return 'AI-Powered Document Search & Access';
+    return 'Real-time Grant Analytics & Funding Research';
+  };
+
+  if (isLoading && mainTab !== 'documents') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center">
@@ -812,14 +819,14 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
             <RefreshCw className="animate-spin mx-auto text-blue-600 mb-4" size={48} />
             <div className="absolute inset-0 blur-xl bg-blue-400/30 rounded-full"></div>
           </div>
-          <p className="text-slate-600 text-lg font-medium">Loading Command Center...</p>
+          <p className="text-slate-600 text-lg font-medium">Loading {mainTab === 'documents' ? 'Document Library' : 'Grant Management'}...</p>
           <p className="text-slate-400 text-sm">Connecting to live data</p>
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error && mainTab !== 'documents') {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
         <div className="text-center bg-white p-8 rounded-2xl shadow-xl max-w-md border border-slate-200">
@@ -837,7 +844,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-800 via-slate-800 to-slate-900 text-white p-6 shadow-xl">
+      <div className={`${mainTab === 'documents' ? 'bg-gradient-to-r from-blue-700 via-blue-800 to-blue-900' : 'bg-gradient-to-r from-slate-800 via-slate-800 to-slate-900'} text-white p-6 shadow-xl`}>
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
@@ -846,10 +853,14 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
               </button>
               <div>
                 <h1 className="text-2xl font-bold flex items-center gap-2">
-                  <Zap className="text-amber-400" size={24} />
-                  Admin Command Center
+                  {mainTab === 'documents' ? (
+                    <FolderOpen className="text-blue-300" size={24} />
+                  ) : (
+                    <Zap className="text-amber-400" size={24} />
+                  )}
+                  {getHeaderTitle()}
                 </h1>
-                <p className="text-slate-400">Real-time Grant Analytics & Document Library</p>
+                <p className="text-slate-400">{getHeaderSubtitle()}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -864,45 +875,37 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                   <Plus size={18} /> Add Grant
                 </button>
               )}
-              <button onClick={loadGrantData} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl transition-all font-medium">
+              <button onClick={mainTab === 'documents' ? loadDocuments : loadGrantData} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl transition-all font-medium">
                 <RefreshCw size={18} /> Refresh
               </button>
             </div>
           </div>
 
-          {/* Main Tabs - Now with 3 tabs */}
-          <div className="flex gap-3">
-            <button
-              onClick={() => setMainTab('grants')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
-                mainTab === 'grants' 
-                  ? 'bg-white text-slate-800 shadow-lg' 
-                  : 'bg-white/10 text-white hover:bg-white/20'
-              }`}
-            >
-              <DollarSign size={20} /> Grant Management
-            </button>
-            <button
-              onClick={() => setMainTab('funding-research')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
-                mainTab === 'funding-research' 
-                  ? 'bg-white text-slate-800 shadow-lg' 
-                  : 'bg-white/10 text-white hover:bg-white/20'
-              }`}
-            >
-              <Compass size={20} /> Funding Research
-            </button>
-            <button
-              onClick={() => { setMainTab('documents'); if (documents.length === 0) loadDocuments(); }}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
-                mainTab === 'documents' 
-                  ? 'bg-white text-slate-800 shadow-lg' 
-                  : 'bg-white/10 text-white hover:bg-white/20'
-              }`}
-            >
-              <FolderOpen size={20} /> Document Library
-            </button>
-          </div>
+          {/* Main Tabs - Only show when NOT in documents mode */}
+          {mainTab !== 'documents' && (
+            <div className="flex gap-3">
+              <button
+                onClick={() => setMainTab('grants')}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
+                  mainTab === 'grants' 
+                    ? 'bg-white text-slate-800 shadow-lg' 
+                    : 'bg-white/10 text-white hover:bg-white/20'
+                }`}
+              >
+                <DollarSign size={20} /> Grant Management
+              </button>
+              <button
+                onClick={() => setMainTab('funding-research')}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
+                  mainTab === 'funding-research' 
+                    ? 'bg-white text-slate-800 shadow-lg' 
+                    : 'bg-white/10 text-white hover:bg-white/20'
+                }`}
+              >
+                <Compass size={20} /> Funding Research
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1005,7 +1008,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
               {/* Charts Row */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Status Pie Chart */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                   <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                     <PieChart size={20} className="text-blue-600" />
@@ -1014,7 +1016,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                   <PieChartVisual data={stats.statusCounts || {}} colors={pieColors} />
                 </div>
 
-                {/* Funder Types */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                   <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                     <Building2 size={20} className="text-blue-600" />
@@ -1026,7 +1027,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
 
               {/* AI Insights & Action Items */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* AI Analysis */}
                 <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-xl">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Lightbulb size={20} className="text-amber-300" />
@@ -1049,7 +1049,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                   </div>
                 </div>
 
-                {/* Action Items */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                   <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                     <AlertTriangle size={20} className="text-amber-500" />
@@ -1252,7 +1251,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
             className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
             <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-6 rounded-t-2xl text-white relative">
               <button 
                 onClick={() => !isSubmitting && setShowAddModal(false)}
@@ -1268,9 +1266,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
               <p className="text-emerald-100">Enter the grant details below</p>
             </div>
             
-            {/* Modal Body - Form */}
             <form onSubmit={handleAddGrant} className="p-6 space-y-4">
-              {/* Success Message */}
               {submitSuccess && (
                 <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
                   <CheckCircle2 className="text-emerald-600" size={24} />
@@ -1281,7 +1277,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 </div>
               )}
 
-              {/* Error Message */}
               {submitError && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
                   <XCircle className="text-red-600" size={24} />
@@ -1292,7 +1287,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 </div>
               )}
 
-              {/* Grant Name & Source - Required */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -1324,7 +1318,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              {/* Purpose */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Purpose</label>
                 <textarea
@@ -1337,7 +1330,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 />
               </div>
 
-              {/* Contact Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Contact Person</label>
@@ -1363,7 +1355,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              {/* Dates */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Application Deadline</label>
@@ -1387,7 +1378,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              {/* Amounts */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Amount Requested</label>
@@ -1413,7 +1403,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              {/* Status & Funder Type */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
@@ -1452,7 +1441,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              {/* Submission Year */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Submission Year</label>
@@ -1467,7 +1455,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              {/* Submit Button */}
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
                 <button
                   type="button"
