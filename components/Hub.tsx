@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import OrganizationalHandbook from './OrganizationalHandbook';
 
 interface HubProps {
-  onNavigate: (view: 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'analytics') => void;
+  onNavigate: (view: 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'analytics' | 'documents') => void;
   onLogout: () => void;
 }
 
@@ -29,11 +29,19 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
     },
     {
       id: 'admin',
-      title: 'Administrative Tools',
-      description: 'Manage caseload summaries, staff protocols, and agency communications.',
-      icon: 'fa-user-shield',
+      title: 'Grant Management',
+      description: 'Track grants, manage applications, research funding opportunities.',
+      icon: 'fa-hand-holding-usd',
       color: 'bg-amber-600',
       shadow: 'shadow-amber-200'
+    },
+    {
+      id: 'documents',
+      title: 'Document Library',
+      description: 'Search and access all organizational documents from Google Drive.',
+      icon: 'fa-folder-open',
+      color: 'bg-blue-600',
+      shadow: 'shadow-blue-200'
     },
     {
       id: 'casemanager',
@@ -134,6 +142,18 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
                       <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-purple-500"></i> Module performance reports</li>
                       <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-purple-500"></i> Father follow-up tracking</li>
                       <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-purple-500"></i> Export & reporting tools</li>
+                    </ul>
+                  ) : portal.id === 'admin' ? (
+                    <ul className="space-y-1">
+                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-amber-500"></i> Grant tracking & management</li>
+                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-amber-500"></i> Application status dashboard</li>
+                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-amber-500"></i> Funding research tools</li>
+                    </ul>
+                  ) : portal.id === 'documents' ? (
+                    <ul className="space-y-1">
+                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-blue-500"></i> AI-powered document search</li>
+                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-blue-500"></i> Google Drive integration</li>
+                      <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-blue-500"></i> Quick file access</li>
                     </ul>
                   ) : (
                     portal.description
