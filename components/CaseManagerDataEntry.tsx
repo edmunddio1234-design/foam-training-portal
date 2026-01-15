@@ -1,40 +1,34 @@
-import React, { useState } from 'react';
-import CaseManagerLanding from './CaseManagerLanding';
-import CaseManagerPortal from './CaseManagerPortal';
-import CaseManagerDataEntry from './CaseManagerDataEntry';
+import React from 'react';
+import { ArrowLeft } from 'lucide-react';
 
-interface CaseManagerHubProps {
+interface CaseManagerDataEntryProps {
   onClose: () => void;
 }
 
-type ViewType = 'landing' | 'reports' | 'dataentry';
-
-const CaseManagerHub: React.FC<CaseManagerHubProps> = ({ onClose }) => {
-  const [currentView, setCurrentView] = useState<ViewType>('landing');
-
-  if (currentView === 'reports') {
-    return (
-      <CaseManagerPortal 
-        onClose={() => setCurrentView('landing')} 
-      />
-    );
-  }
-
-  if (currentView === 'dataentry') {
-    return (
-      <CaseManagerDataEntry 
-        onClose={() => setCurrentView('landing')} 
-      />
-    );
-  }
-
+const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) => {
   return (
-    <CaseManagerLanding
-      onClose={onClose}
-      onOpenReports={() => setCurrentView('reports')}
-      onOpenDataEntry={() => setCurrentView('dataentry')}
-    />
+    <div className="min-h-screen bg-slate-100 p-8">
+      <div className="max-w-4xl mx-auto">
+        <button 
+          onClick={onClose}
+          className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow mb-6 hover:bg-slate-50"
+        >
+          <ArrowLeft size={20} />
+          Back to Portal
+        </button>
+        
+        <div className="bg-white rounded-2xl p-8 shadow-lg">
+          <h1 className="text-3xl font-bold text-slate-800 mb-4">
+            🎉 Referral Management is Working!
+          </h1>
+          <p className="text-slate-600">
+            If you can see this page, the navigation is working correctly.
+            The full interactive dashboard will load here.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default CaseManagerHub;
+export default CaseManagerDataEntry;
