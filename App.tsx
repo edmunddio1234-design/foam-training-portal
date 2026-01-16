@@ -26,6 +26,8 @@ import FatherProgress from './components/tracking/FatherProgress';
 import FatherCheckIn from './components/tracking/FatherCheckIn';
 import AssessmentAnalytics from './components/tracking/AssessmentAnalytics';
 import GrantLoginPage from './components/GrantLoginPage';
+import DonationPortal from './components/DonationPortal';
+
 // Pre-loaded Treasury transactions from FOAM Financial Tracker v3
 // Total: 110 transactions, $101,578.82
 // Q3 2025 (Jul-Sep): 81 transactions
@@ -1683,7 +1685,7 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
   }
 ];
 
-type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment' | 'progress' | 'checkin' | 'analytics' | 'documents';
+type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment' | 'progress' | 'checkin' | 'analytics' | 'documents' | 'donations';
 type FinanceSubView = 'dashboard' | 'exchange' | 'bills' | 'reports' | 'multifunder';
 
 const App: React.FC = () => {
@@ -1702,7 +1704,7 @@ const App: React.FC = () => {
   // Initialize with pre-loaded Treasury data
   const [allFinanceEntries, setAllFinanceEntries] = useState<BillEntry[]>(PRELOADED_FINANCE_DATA);
 
-// Check URL for direct access (for fathers on mobile)
+  // Check URL for direct access (for fathers on mobile)
   useEffect(() => {
     const path = window.location.pathname;
     if (path === '/checkin') {
@@ -1761,7 +1763,7 @@ const App: React.FC = () => {
     return <ClassAssessment />;
   }
 
-// Progress page - NO LOGIN REQUIRED (for fathers to check their progress)
+  // Progress page - NO LOGIN REQUIRED (for fathers to check their progress)
   if (currentView === 'progress') {
     return <FatherProgress />;
   }
@@ -1777,6 +1779,7 @@ const App: React.FC = () => {
   if (!isLoggedIn) {
     return <LoginPage onLogin={() => setIsLoggedIn(true)} />;
   }
+
   if (currentView === 'training' && !isTrainingAuthenticated) {
     return <TrainingLoginPage onLogin={() => setIsTrainingAuthenticated(true)} onBack={() => setCurrentView('hub')} />;
   }
@@ -1814,6 +1817,11 @@ const App: React.FC = () => {
 
   if (currentView === 'tracking') {
     return <div className="h-screen animate-in fade-in duration-500 relative z-0 overflow-y-auto"><FatherhoodTracking onBack={() => setCurrentView('hub')} /></div>;
+  }
+
+  // NEW: Donation CRM Portal
+  if (currentView === 'donations') {
+    return <DonationPortal onBack={() => setCurrentView('hub')} />;
   }
 
   if (currentView === 'finance') {
