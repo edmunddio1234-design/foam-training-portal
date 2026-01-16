@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import OrganizationalHandbook from './OrganizationalHandbook';
 
 interface HubProps {
-  onNavigate: (view: 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'analytics' | 'documents') => void;
+  onNavigate: (view: 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'analytics' | 'documents' | 'donations') => void;
   onLogout: () => void;
 }
 
@@ -66,6 +66,14 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
       icon: 'fa-chart-pie',
       color: 'bg-purple-600',
       shadow: 'shadow-purple-200'
+    },
+    {
+            id: 'donations',
+            title: 'Donation CRM',
+            description: 'Track donors, donations, and fundraising campaigns.',
+            icon: 'fa-heart',
+            color: 'bg-rose-600',
+            shadow: 'shadow-rose-200'
     }
   ];
 
