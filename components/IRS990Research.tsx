@@ -233,10 +233,12 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
     setHasSearched(true);
 
     try {
-      // ProPublica Nonprofit Explorer API
-      const response = await fetch(
-        `https://projects.propublica.org/nonprofits/api/v2/search.json?q=${encodeURIComponent(query)}`
-      );
+      // ProPublica Nonprofit Explorer API - using CORS proxy
+      // Option 1: Use a public CORS proxy (for development)
+      const corsProxy = 'https://api.allorigins.win/raw?url=';
+      const apiUrl = `https://projects.propublica.org/nonprofits/api/v2/search.json?q=${encodeURIComponent(query)}`;
+      
+      const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
 
       if (!response.ok) {
         throw new Error('Failed to fetch from ProPublica API');
@@ -293,9 +295,10 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
     setIsLoadingDetail(true);
     try {
       const cleanEIN = ein.replace('-', '');
-      const response = await fetch(
-        `https://projects.propublica.org/nonprofits/api/v2/organizations/${cleanEIN}.json`
-      );
+      const corsProxy = 'https://api.allorigins.win/raw?url=';
+      const apiUrl = `https://projects.propublica.org/nonprofits/api/v2/organizations/${cleanEIN}.json`;
+      
+      const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
 
       if (!response.ok) {
         throw new Error('Failed to fetch organization details');
