@@ -214,9 +214,9 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-purple-700 to-indigo-800 text-white p-6">
+    <div className="h-screen flex flex-col bg-slate-100 overflow-hidden">
+      {/* Header - Fixed */}
+      <div className="bg-gradient-to-r from-purple-700 to-indigo-800 text-white p-6 flex-shrink-0">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
@@ -270,8 +270,9 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto p-6">
+      {/* Main Content - Scrollable */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-7xl mx-auto p-6">
         {/* Search Tab */}
         {activeTab === 'search' && (
           <div className="space-y-6">
@@ -626,6 +627,7 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
             </div>
           </div>
         )}
+        </div>
       </div>
 
       {/* Foundation Detail Modal */}
