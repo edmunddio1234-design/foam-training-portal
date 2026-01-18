@@ -233,18 +233,37 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
     setHasSearched(true);
 
     try {
-      // ProPublica Nonprofit Explorer API - using CORS proxy
-      // Option 1: Use a public CORS proxy (for development)
-      const corsProxy = 'https://api.allorigins.win/raw?url=';
-      const apiUrl = `https://projects.propublica.org/nonprofits/api/v2/search.json?q=${encodeURIComponent(query)}`;
-      
-      const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
+      // Try multiple CORS proxy options
+      const proxyOptions = [
+        `https://corsproxy.io/?${encodeURIComponent(`https://projects.propublica.org/nonprofits/api/v2/search.json?q=${encodeURIComponent(query)}`)}`,
+        `https://api.codetabs.com/v1/proxy?quest=https://projects.propublica.org/nonprofits/api/v2/search.json?q=${encodeURIComponent(query)}`,
+        `https://thingproxy.freeboard.io/fetch/https://projects.propublica.org/nonprofits/api/v2/search.json?q=${encodeURIComponent(query)}`
+      ];
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch from ProPublica API');
+      let data = null;
+      let lastError = null;
+
+      for (const proxyUrl of proxyOptions) {
+        try {
+          const response = await fetch(proxyUrl, {
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            data = await response.json();
+            break;
+          }
+        } catch (e) {
+          lastError = e;
+          continue;
+        }
       }
 
-      const data = await response.json();
+      if (!data) {
+        throw lastError || new Error('All proxy attempts failed');
+      }
       
       if (data.organizations && data.organizations.length > 0) {
         // Transform and filter results
@@ -295,16 +314,37 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
     setIsLoadingDetail(true);
     try {
       const cleanEIN = ein.replace('-', '');
-      const corsProxy = 'https://api.allorigins.win/raw?url=';
       const apiUrl = `https://projects.propublica.org/nonprofits/api/v2/organizations/${cleanEIN}.json`;
       
-      const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
+      const proxyOptions = [
+        `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${apiUrl}`,
+        `https://thingproxy.freeboard.io/fetch/${apiUrl}`
+      ];
 
-      if (!response.ok) {
+      let data = null;
+
+      for (const proxyUrl of proxyOptions) {
+        try {
+          const response = await fetch(proxyUrl, {
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            data = await response.json();
+            break;
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+
+      if (!data) {
         throw new Error('Failed to fetch organization details');
       }
 
-      const data: ProPublicaOrgDetail = await response.json();
       setSelectedOrgDetail(data);
 
       // Update the selected foundation with real data
