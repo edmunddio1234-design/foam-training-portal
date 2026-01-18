@@ -127,12 +127,12 @@ const externalResources = [
     features: ['Foundation profiles', 'Giving history', '990 data', 'Grant lists']
   },
   {
-    name: 'Foundation Directory Online',
-    url: 'https://fconline.foundationcenter.org/',
-    description: 'Comprehensive grantmaker database',
+    name: 'Instrumentl',
+    url: 'https://www.instrumentl.com',
+    description: 'Smart grant discovery and tracking platform',
     icon: BookOpen,
     color: 'from-blue-500 to-indigo-500',
-    features: ['200K+ foundations', 'Grant search', 'RFP alerts', 'Funder maps']
+    features: ['AI-matched grants', 'Deadline tracking', 'Funder insights', 'Award data']
   },
   {
     name: 'GrantStation',
