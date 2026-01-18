@@ -5,7 +5,8 @@ import {
   PieChart, Building2, ChevronRight, ExternalLink, Bell,
   FolderOpen, File, BarChart3, Target, Lightbulb, ArrowUpRight,
   ArrowDownRight, Activity, Zap, Plus, Compass, Database, Users
-} from 'lucide-react';import IRS990Research from './IRS990Research';
+} from 'lucide-react';
+import IRS990Research from './IRS990Research';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
 
@@ -169,7 +170,7 @@ const ProgressRing: React.FC<{ percent: number; size?: number; color: string }> 
 };
 
 // Funding Research Landing Page Component
-const FundingResearchLanding: React.FC = () => {
+const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void }> = ({ onOpenIRS990 }) => {
   const tools = [
     {
       name: 'Seamless.AI',
@@ -204,22 +205,30 @@ const FundingResearchLanding: React.FC = () => {
       bestFor: 'Researching which foundations fund organizations similar to FOAM'
     },
     {
-            name: 'IRS 990 Research',
-            url: '/irs-990-research',
-            icon: FileText,
-            color: 'from-purple-600 to-indigo-600',
-            shadowColor: 'shadow-purple-200',
-            description: 'AI-powered foundation search using real IRS 990-PF tax filings and grant data from ProPublica.',
-            features: [
-                      'Search 1.8M+ nonprofit filings from IRS database',
-                      'View actual grants made (990-PF Part XV data)',
-                      'AI-powered matching to your organization profile',
-                      'Filter by location, subject area, and grant size',
-                      'See foundation officers and their compensation'
-                    ],
-            bestFor: 'Finding foundations that have funded similar organizations and viewing their actual grant history'
+      name: 'IRS 990 Research',
+      url: '/irs-990-research',
+      icon: FileText,
+      color: 'from-purple-600 to-indigo-600',
+      shadowColor: 'shadow-purple-200',
+      description: 'AI-powered foundation search using real IRS 990-PF tax filings and grant data from ProPublica.',
+      features: [
+        'Search 1.8M+ nonprofit filings from IRS database',
+        'View actual grants made (990-PF Part XV data)',
+        'AI-powered matching to your organization profile',
+        'Filter by location, subject area, and grant size',
+        'See foundation officers and their compensation'
+      ],
+      bestFor: 'Finding foundations that have funded similar organizations and viewing their actual grant history'
     }
   ];
+
+  const handleToolClick = (tool: typeof tools[0]) => {
+    if (tool.url === '/irs-990-research') {
+      onOpenIRS990();
+    } else {
+      window.open(tool.url, '_blank');
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -278,15 +287,13 @@ const FundingResearchLanding: React.FC = () => {
                 </div>
 
                 {/* CTA Button */}
-                <a
-                  href={tool.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => handleToolClick(tool)}
                   className={`flex items-center justify-center gap-2 w-full py-4 bg-gradient-to-r ${tool.color} text-white rounded-xl font-bold hover:opacity-90 transition-all ${tool.shadowColor} shadow-lg`}
                 >
                   Open {tool.name}
                   <ExternalLink size={18} />
-                </a>
+                </button>
               </div>
             </div>
           );
@@ -614,6 +621,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGrant, setSelectedGrant] = useState<Grant | null>(null);
+  const [showIRS990Research, setShowIRS990Research] = useState(false);
 
   // Add Grant Modal State
   const [showAddModal, setShowAddModal] = useState(false);
@@ -1218,7 +1226,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
 
       {/* FUNDING RESEARCH */}
       {mainTab === 'funding-research' && (
-        <FundingResearchLanding />
+        <FundingResearchLanding onOpenIRS990={() => setShowIRS990Research(true)} />
       )}
 
       {/* DOCUMENT LIBRARY */}
@@ -1500,6 +1508,13 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* IRS 990 Research Full Screen */}
+      {showIRS990Research && (
+        <div className="fixed inset-0 z-50 bg-white">
+          <IRS990Research onBack={() => setShowIRS990Research(false)} />
         </div>
       )}
     </div>
