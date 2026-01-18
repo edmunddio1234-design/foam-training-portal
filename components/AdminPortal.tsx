@@ -202,6 +202,22 @@ const FundingResearchLanding: React.FC = () => {
         'Find new foundation prospects based on giving patterns'
       ],
       bestFor: 'Researching which foundations fund organizations similar to FOAM'
+    },
+    {
+            name: 'IRS 990 Research',
+            url: '/irs-990-research',
+            icon: FileText,
+            color: 'from-purple-600 to-indigo-600',
+            shadowColor: 'shadow-purple-200',
+            description: 'AI-powered foundation search using real IRS 990-PF tax filings and grant data from ProPublica.',
+            features: [
+                      'Search 1.8M+ nonprofit filings from IRS database',
+                      'View actual grants made (990-PF Part XV data)',
+                      'AI-powered matching to your organization profile',
+                      'Filter by location, subject area, and grant size',
+                      'See foundation officers and their compensation'
+                    ],
+            bestFor: 'Finding foundations that have funded similar organizations and viewing their actual grant history'
     }
   ];
 
