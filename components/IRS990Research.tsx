@@ -18,6 +18,11 @@ import {
   Loader2
 } from 'lucide-react';
 
+// ============================================
+// BACKEND URL - Your Render backend
+// ============================================
+const BACKEND_URL = 'https://foamla-backend-2.onrender.com';
+
 // Interface for ProPublica API response
 interface ProPublicaOrg {
   ein: number;
@@ -165,8 +170,8 @@ const calculateMatchScore = (org: ProPublicaOrg): number => {
     if (name.includes(keyword)) score += 5;
   });
   
-  // California bonus (FOAM is in LA)
-  if (org.state === 'CA') score += 5;
+  // Louisiana bonus (FOAM is in Baton Rouge, LA)
+  if (org.state === 'LA') score += 10;
   
   // Cap at 99
   return Math.min(99, Math.max(20, score));
@@ -192,14 +197,14 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
 
   // Suggested searches for FOAM
   const suggestedSearches = [
-    'family foundation california',
-    'youth development los angeles',
+    'family foundation louisiana',
+    'youth development baton rouge',
     'fatherhood programs',
     'children family services',
-    'community foundation california',
+    'community foundation louisiana',
     'mentorship programs',
     'human services foundation',
-    'education foundation los angeles'
+    'education foundation louisiana'
   ];
 
   const formatCurrency = (value: number) => {
@@ -221,7 +226,7 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
     return nteeDescriptions[category] || 'Other';
   };
 
-  // Search ProPublica API
+  // Search using YOUR backend proxy (no more CORS issues!)
   const searchFoundations = async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -233,57 +238,36 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
     setHasSearched(true);
 
     try {
-      // Try multiple CORS proxy options
-      const proxyOptions = [
-        `https://corsproxy.io/?${encodeURIComponent(`https://projects.propublica.org/nonprofits/api/v2/search.json?q=${encodeURIComponent(query)}`)}`,
-        `https://api.codetabs.com/v1/proxy?quest=https://projects.propublica.org/nonprofits/api/v2/search.json?q=${encodeURIComponent(query)}`,
-        `https://thingproxy.freeboard.io/fetch/https://projects.propublica.org/nonprofits/api/v2/search.json?q=${encodeURIComponent(query)}`
-      ];
-
-      let data = null;
-      let lastError = null;
-
-      for (const proxyUrl of proxyOptions) {
-        try {
-          const response = await fetch(proxyUrl, {
-            headers: {
-              'Accept': 'application/json'
-            }
-          });
-          
-          if (response.ok) {
-            data = await response.json();
-            break;
-          }
-        } catch (e) {
-          lastError = e;
-          continue;
-        }
-      }
-
-      if (!data) {
-        throw lastError || new Error('All proxy attempts failed');
+      // Use YOUR backend proxy endpoint
+      const url = `${BACKEND_URL}/api/propublica/search?q=${encodeURIComponent(query)}`;
+      
+      console.log('Searching via backend:', url);
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.status}`);
       }
       
+      const data = await response.json();
+      
       if (data.organizations && data.organizations.length > 0) {
-        // Transform and filter results
-        let foundations: Foundation[] = data.organizations
-          .filter((org: ProPublicaOrg) => org.have_filings) // Only orgs with filings
-          .map((org: ProPublicaOrg) => ({
-            id: org.ein.toString(),
-            ein: formatEIN(org.ein),
-            name: org.name,
-            city: org.city || 'Unknown',
-            state: org.state || 'Unknown',
-            totalAssets: 0, // Will be fetched on detail view
-            totalRevenue: 0,
-            totalExpenses: 0,
-            fiscalYear: 0,
-            nteeCode: org.ntee_code || org.raw_ntee_code || '',
-            subsectionCode: org.subseccd,
-            hasFilings: org.have_filings,
-            matchScore: calculateMatchScore(org)
-          }));
+        // Transform results
+        let foundations: Foundation[] = data.organizations.map((org: ProPublicaOrg) => ({
+          id: org.ein.toString(),
+          ein: formatEIN(org.ein),
+          name: org.name,
+          city: org.city || 'Unknown',
+          state: org.state || 'Unknown',
+          totalAssets: 0, // Will be fetched on detail view
+          totalRevenue: 0,
+          totalExpenses: 0,
+          fiscalYear: 0,
+          nteeCode: org.ntee_code || org.raw_ntee_code || '',
+          subsectionCode: org.subseccd,
+          hasFilings: org.have_filings !== false, // Default to true if null
+          matchScore: calculateMatchScore(org)
+        }));
 
         // Apply filters
         if (filters.state) {
@@ -309,41 +293,24 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
     }
   };
 
-  // Fetch detailed organization info
+  // Fetch detailed organization info using YOUR backend
   const fetchOrgDetail = async (ein: string) => {
     setIsLoadingDetail(true);
     try {
       const cleanEIN = ein.replace('-', '');
-      const apiUrl = `https://projects.propublica.org/nonprofits/api/v2/organizations/${cleanEIN}.json`;
       
-      const proxyOptions = [
-        `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${apiUrl}`,
-        `https://thingproxy.freeboard.io/fetch/${apiUrl}`
-      ];
-
-      let data = null;
-
-      for (const proxyUrl of proxyOptions) {
-        try {
-          const response = await fetch(proxyUrl, {
-            headers: {
-              'Accept': 'application/json'
-            }
-          });
-          
-          if (response.ok) {
-            data = await response.json();
-            break;
-          }
-        } catch (e) {
-          continue;
-        }
+      // Use YOUR backend proxy endpoint
+      const url = `${BACKEND_URL}/api/propublica/org/${cleanEIN}`;
+      
+      console.log('Fetching org detail via backend:', url);
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch organization: ${response.status}`);
       }
-
-      if (!data) {
-        throw new Error('Failed to fetch organization details');
-      }
+      
+      const data = await response.json();
 
       setSelectedOrgDetail(data);
 
@@ -476,7 +443,7 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search by name, city, or keywords (e.g., 'family foundation california')..."
+                      placeholder="Search by name, city, or keywords (e.g., 'family foundation louisiana')..."
                       className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800"
                     />
                   </div>
@@ -511,16 +478,16 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
                         className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800"
                       >
                         <option value="">All States</option>
+                        <option value="LA">Louisiana</option>
+                        <option value="TX">Texas</option>
+                        <option value="MS">Mississippi</option>
+                        <option value="AL">Alabama</option>
+                        <option value="AR">Arkansas</option>
                         <option value="CA">California</option>
                         <option value="NY">New York</option>
-                        <option value="TX">Texas</option>
                         <option value="FL">Florida</option>
-                        <option value="IL">Illinois</option>
-                        <option value="PA">Pennsylvania</option>
-                        <option value="OH">Ohio</option>
                         <option value="GA">Georgia</option>
-                        <option value="NC">North Carolina</option>
-                        <option value="MI">Michigan</option>
+                        <option value="IL">Illinois</option>
                       </select>
                     </div>
                     <div>
@@ -779,7 +746,7 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
                 <textarea
                   value={aiPrompt}
                   onChange={(e) => setAiPrompt(e.target.value)}
-                  placeholder="Example: Find foundations in California that fund youth development and family support programs, especially those focused on fatherhood initiatives..."
+                  placeholder="Example: Find foundations in Louisiana that fund youth development and family support programs, especially those focused on fatherhood initiatives..."
                   className="w-full p-4 border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-800 min-h-32 resize-none"
                 />
 
@@ -788,7 +755,7 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
                     // Extract keywords and search
                     const keywords = aiPrompt.toLowerCase();
                     let searchTerms = '';
-                    if (keywords.includes('california') || keywords.includes('ca')) searchTerms += 'california ';
+                    if (keywords.includes('louisiana') || keywords.includes('la')) searchTerms += 'louisiana ';
                     if (keywords.includes('youth')) searchTerms += 'youth ';
                     if (keywords.includes('family')) searchTerms += 'family ';
                     if (keywords.includes('father')) searchTerms += 'fatherhood ';
@@ -815,9 +782,9 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {[
                     'Foundations funding fatherhood programs',
-                    'Family support services California',
+                    'Family support services Louisiana',
                     'Youth mentorship foundations',
-                    'Community development Los Angeles',
+                    'Community development Baton Rouge',
                     'Human services grantmakers',
                     'Child welfare foundations'
                   ].map((prompt, i) => (
