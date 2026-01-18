@@ -5,7 +5,7 @@ import {
   PieChart, Building2, ChevronRight, ExternalLink, Bell,
   FolderOpen, File, BarChart3, Target, Lightbulb, ArrowUpRight,
   ArrowDownRight, Activity, Zap, Plus, Compass, Database, Users
-} from 'lucide-react';
+} from 'lucide-react';import IRS990Research from './IRS990Research';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
 
