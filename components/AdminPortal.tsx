@@ -4,9 +4,10 @@ import {
   AlertTriangle, CheckCircle2, Clock, TrendingUp, X, XCircle,
   PieChart, Building2, ChevronRight, ExternalLink, Bell,
   FolderOpen, File, BarChart3, Target, Lightbulb, ArrowUpRight,
-  ArrowDownRight, Activity, Zap, Plus, Compass, Database, Users
+  ArrowDownRight, Activity, Zap, Plus, Compass, Database, Users, Layers
 } from 'lucide-react';
 import IRS990Research from './IRS990Research';
+import FoundationResearchHub from './FoundationResearchHub';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
 
@@ -169,8 +170,8 @@ const ProgressRing: React.FC<{ percent: number; size?: number; color: string }> 
   );
 };
 
-// Funding Research Landing Page Component
-const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void }> = ({ onOpenIRS990 }) => {
+// Funding Research Landing Page Component - UPDATED with Foundation Research Hub
+const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void; onOpenFoundationHub: () => void }> = ({ onOpenIRS990, onOpenFoundationHub }) => {
   const tools = [
     {
       name: 'Seamless.AI',
@@ -219,12 +220,30 @@ const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void }> = ({ onOpen
         'See foundation officers and their compensation'
       ],
       bestFor: 'Finding foundations that have funded similar organizations and viewing their actual grant history'
+    },
+    {
+      name: 'Foundation Research Hub',
+      url: '/foundation-research-hub',
+      icon: Layers,
+      color: 'from-orange-600 to-red-600',
+      shadowColor: 'shadow-orange-200',
+      description: 'Multi-source research combining ProPublica, Open990, IRS data, plus links to Candid & premium tools.',
+      features: [
+        'Search multiple free databases simultaneously',
+        'Verify nonprofit status with EIN lookup',
+        'Quick links to Candid, Foundation Directory, Grants.gov',
+        'Compare results across ProPublica and Open990',
+        'Research tips tailored for FOAM\'s focus areas'
+      ],
+      bestFor: 'Comprehensive foundation research using all available free sources plus premium resource links'
     }
   ];
 
   const handleToolClick = (tool: typeof tools[0]) => {
     if (tool.url === '/irs-990-research') {
       onOpenIRS990();
+    } else if (tool.url === '/foundation-research-hub') {
+      onOpenFoundationHub();
     } else {
       window.open(tool.url, '_blank');
     }
@@ -300,7 +319,7 @@ const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void }> = ({ onOpen
         })}
       </div>
 
-      {/* Tips Section */}
+      {/* Tips Section - UPDATED */}
       <div className="mt-10 bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-8 border border-amber-200">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center shrink-0">
@@ -311,15 +330,15 @@ const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void }> = ({ onOpen
             <ul className="space-y-2 text-slate-600">
               <li className="flex items-start gap-2">
                 <span className="text-amber-500 font-bold">1.</span>
-                <span>Start with <strong>Cause IQ</strong> to find foundations that fund similar fatherhood and family support programs.</span>
+                <span>Start with <strong>Foundation Research Hub</strong> for comprehensive multi-source searching across free databases.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-500 font-bold">2.</span>
-                <span>Use <strong>Seamless.AI</strong> to find direct contact information for program officers at those foundations.</span>
+                <span>Use <strong>Cause IQ</strong> to find foundations that fund similar fatherhood and family support programs.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-500 font-bold">3.</span>
-                <span>Look at the "similar organizations" feature in Cause IQ to discover new potential funders you might have missed.</span>
+                <span>Use <strong>Seamless.AI</strong> to find direct contact information for program officers at those foundations.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-500 font-bold">4.</span>
@@ -622,6 +641,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGrant, setSelectedGrant] = useState<Grant | null>(null);
   const [showIRS990Research, setShowIRS990Research] = useState(false);
+  const [showFoundationHub, setShowFoundationHub] = useState(false);
 
   // Add Grant Modal State
   const [showAddModal, setShowAddModal] = useState(false);
@@ -1224,9 +1244,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
         </div>
       )}
 
-      {/* FUNDING RESEARCH */}
+      {/* FUNDING RESEARCH - UPDATED */}
       {mainTab === 'funding-research' && (
-        <FundingResearchLanding onOpenIRS990={() => setShowIRS990Research(true)} />
+        <FundingResearchLanding 
+          onOpenIRS990={() => setShowIRS990Research(true)} 
+          onOpenFoundationHub={() => setShowFoundationHub(true)}
+        />
       )}
 
       {/* DOCUMENT LIBRARY */}
@@ -1515,6 +1538,13 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
       {showIRS990Research && (
         <div className="fixed inset-0 z-50 bg-white">
           <IRS990Research onBack={() => setShowIRS990Research(false)} />
+        </div>
+      )}
+
+      {/* Foundation Research Hub Full Screen */}
+      {showFoundationHub && (
+        <div className="fixed inset-0 z-50 bg-white">
+          <FoundationResearchHub onBack={() => setShowFoundationHub(false)} />
         </div>
       )}
     </div>
