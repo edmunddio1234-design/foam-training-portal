@@ -180,16 +180,20 @@ const calculateMatchScore = (org: ProPublicaOrg): number => {
 const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Foundation[]>([]);
+  const [allResults, setAllResults] = useState<Foundation[]>([]);
   const [selectedFoundation, setSelectedFoundation] = useState<Foundation | null>(null);
   const [selectedOrgDetail, setSelectedOrgDetail] = useState<ProPublicaOrgDetail | null>(null);
   const [savedFoundations, setSavedFoundations] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'search' | 'saved' | 'ai'>('search');
   const [aiPrompt, setAiPrompt] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMoreResults, setHasMoreResults] = useState(true);
   const [filters, setFilters] = useState({
     state: '',
     nteeCode: ''
@@ -226,20 +230,28 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
     return nteeDescriptions[category] || 'Other';
   };
 
-  // Search using YOUR backend proxy (no more CORS issues!)
-  const searchFoundations = async (query: string) => {
+  // Search using YOUR backend proxy with pagination
+  const searchFoundations = async (query: string, page: number = 0, append: boolean = false) => {
     if (!query.trim()) {
       setSearchResults([]);
+      setAllResults([]);
       return;
     }
 
-    setIsLoading(true);
+    if (append) {
+      setIsLoadingMore(true);
+    } else {
+      setIsLoading(true);
+      setCurrentPage(0);
+      setAllResults([]);
+      setHasMoreResults(true);
+    }
     setError(null);
     setHasSearched(true);
 
     try {
-      // Use YOUR backend proxy endpoint
-      const url = `${BACKEND_URL}/api/propublica/search?q=${encodeURIComponent(query)}`;
+      // Use YOUR backend proxy endpoint with pagination
+      const url = `${BACKEND_URL}/api/propublica/search?q=${encodeURIComponent(query)}&page=${page}`;
       
       console.log('Searching via backend:', url);
       
@@ -280,16 +292,57 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
         // Sort by match score
         foundations.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
 
-        setSearchResults(foundations.slice(0, 50)); // Limit to 50 results
+        // Remove duplicates
+        const seen = new Set<string>();
+        if (append) {
+          allResults.forEach(f => seen.add(f.ein.replace('-', '')));
+        }
+        foundations = foundations.filter(f => {
+          const cleanEIN = f.ein.replace('-', '');
+          if (seen.has(cleanEIN)) return false;
+          seen.add(cleanEIN);
+          return true;
+        });
+
+        // Check if we got less than 25 results (no more pages)
+        if (data.organizations.length < 25) {
+          setHasMoreResults(false);
+        }
+
+        if (append) {
+          const newAllResults = [...allResults, ...foundations];
+          setAllResults(newAllResults);
+          setSearchResults(newAllResults);
+        } else {
+          setAllResults(foundations);
+          setSearchResults(foundations);
+        }
+        
+        setCurrentPage(page);
       } else {
-        setSearchResults([]);
+        if (!append) {
+          setSearchResults([]);
+          setAllResults([]);
+        }
+        setHasMoreResults(false);
       }
     } catch (err: any) {
       console.error('Search error:', err);
       setError(err.message || 'Failed to search. Please try again.');
-      setSearchResults([]);
+      if (!append) {
+        setSearchResults([]);
+        setAllResults([]);
+      }
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
+    }
+  };
+
+  // Load more results
+  const loadMoreResults = () => {
+    if (!isLoadingMore && hasMoreResults && searchQuery) {
+      searchFoundations(searchQuery, currentPage + 1, true);
     }
   };
 
@@ -668,6 +721,32 @@ const IRS990Research: React.FC<IRS990ResearchProps> = ({ onBack }) => {
                           </div>
                         </div>
                       ))}
+                      
+                      {/* Load More Button */}
+                      {hasMoreResults && searchResults.length >= 25 && (
+                        <div className="p-4 border-t border-slate-100">
+                          <button
+                            onClick={loadMoreResults}
+                            disabled={isLoadingMore}
+                            className="w-full py-3 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl font-medium flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                          >
+                            {isLoadingMore ? (
+                              <>
+                                <Loader2 className="animate-spin" size={18} />
+                                Loading more...
+                              </>
+                            ) : (
+                              <>
+                                <RefreshCw size={18} />
+                                Load More Results (Page {currentPage + 2})
+                              </>
+                            )}
+                          </button>
+                          <p className="text-center text-xs text-slate-400 mt-2">
+                            Showing {searchResults.length} results • ProPublica returns 25 per page
+                          </p>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="p-12 text-center">
