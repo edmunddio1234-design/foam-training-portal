@@ -120,7 +120,7 @@ const nteeDescriptions: Record<string, string> = {
 const externalResources = [
   {
     name: 'Candid (GuideStar)',
-    url: 'https://www.candid.org/find-a-funder',
+    url: 'https://www.candid.org',
     description: 'Premier foundation directory with 140,000+ grantmakers',
     icon: Database,
     color: 'from-orange-500 to-red-500',
@@ -238,12 +238,16 @@ const FoundationResearchHub: React.FC<FoundationResearchHubProps> = ({ onBack })
   const [selectedOrgDetail, setSelectedOrgDetail] = useState<any | null>(null);
   const [savedFoundations, setSavedFoundations] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchSource, setSearchSource] = useState<'propublica' | 'open990' | 'all'>('propublica');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({ state: '', nteeCode: '' });
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMoreResults, setHasMoreResults] = useState(true);
+  const [allResults, setAllResults] = useState<Foundation[]>([]);
   
   // EIN Verification state
   const [verifyEIN, setVerifyEIN] = useState('');
@@ -254,9 +258,9 @@ const FoundationResearchHub: React.FC<FoundationResearchHubProps> = ({ onBack })
   // API CALLS
   // ============================================
 
-  // ProPublica Search
-  const searchProPublica = async (query: string): Promise<Foundation[]> => {
-    const url = `${BACKEND_URL}/api/propublica/search?q=${encodeURIComponent(query)}`;
+  // ProPublica Search with pagination
+  const searchProPublica = async (query: string, page: number = 0): Promise<Foundation[]> => {
+    const url = `${BACKEND_URL}/api/propublica/search?q=${encodeURIComponent(query)}&page=${page}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error(`ProPublica search failed: ${response.status}`);
     const data = await response.json();
@@ -317,13 +321,21 @@ const FoundationResearchHub: React.FC<FoundationResearchHubProps> = ({ onBack })
   };
 
   // Combined search
-  const searchFoundations = async (query: string) => {
+  const searchFoundations = async (query: string, page: number = 0, append: boolean = false) => {
     if (!query.trim()) {
       setSearchResults([]);
+      setAllResults([]);
       return;
     }
 
-    setIsLoading(true);
+    if (append) {
+      setIsLoadingMore(true);
+    } else {
+      setIsLoading(true);
+      setCurrentPage(0);
+      setAllResults([]);
+      setHasMoreResults(true);
+    }
     setError(null);
     setHasSearched(true);
 
@@ -331,8 +343,12 @@ const FoundationResearchHub: React.FC<FoundationResearchHubProps> = ({ onBack })
       let results: Foundation[] = [];
       
       if (searchSource === 'propublica' || searchSource === 'all') {
-        const ppResults = await searchProPublica(query);
+        const ppResults = await searchProPublica(query, page);
         results = [...results, ...ppResults];
+        // ProPublica returns max 25, if we get less, no more results
+        if (ppResults.length < 25) {
+          setHasMoreResults(false);
+        }
       }
       
       if (searchSource === 'open990' || searchSource === 'all') {
@@ -353,6 +369,10 @@ const FoundationResearchHub: React.FC<FoundationResearchHubProps> = ({ onBack })
 
       // Remove duplicates by EIN
       const seen = new Set<string>();
+      if (append) {
+        // Add existing results to seen set
+        allResults.forEach(f => seen.add(f.ein.replace('-', '')));
+      }
       results = results.filter(f => {
         const cleanEIN = f.ein.replace('-', '');
         if (seen.has(cleanEIN)) return false;
@@ -360,13 +380,33 @@ const FoundationResearchHub: React.FC<FoundationResearchHubProps> = ({ onBack })
         return true;
       });
 
-      setSearchResults(results.slice(0, 50));
+      if (append) {
+        const newAllResults = [...allResults, ...results];
+        setAllResults(newAllResults);
+        setSearchResults(newAllResults);
+      } else {
+        setAllResults(results);
+        setSearchResults(results);
+      }
+      
+      setCurrentPage(page);
     } catch (err: any) {
       console.error('Search error:', err);
       setError(err.message || 'Failed to search. Please try again.');
-      setSearchResults([]);
+      if (!append) {
+        setSearchResults([]);
+        setAllResults([]);
+      }
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
+    }
+  };
+
+  // Load more results
+  const loadMoreResults = () => {
+    if (!isLoadingMore && hasMoreResults && searchQuery) {
+      searchFoundations(searchQuery, currentPage + 1, true);
     }
   };
 
@@ -795,6 +835,32 @@ const FoundationResearchHub: React.FC<FoundationResearchHubProps> = ({ onBack })
                           </div>
                         </div>
                       ))}
+                      
+                      {/* Load More Button */}
+                      {hasMoreResults && searchResults.length >= 25 && (
+                        <div className="p-4 border-t border-slate-100">
+                          <button
+                            onClick={loadMoreResults}
+                            disabled={isLoadingMore}
+                            className="w-full py-3 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-xl font-medium flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                          >
+                            {isLoadingMore ? (
+                              <>
+                                <Loader2 className="animate-spin" size={18} />
+                                Loading more...
+                              </>
+                            ) : (
+                              <>
+                                <RefreshCw size={18} />
+                                Load More Results (Page {currentPage + 2})
+                              </>
+                            )}
+                          </button>
+                          <p className="text-center text-xs text-slate-400 mt-2">
+                            Showing {searchResults.length} results • ProPublica returns 25 per page
+                          </p>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="p-12 text-center">
