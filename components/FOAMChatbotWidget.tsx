@@ -36,15 +36,15 @@ interface FOAMChatbotWidgetProps {
   onNavigate?: (view: string) => void;
 }
 
+const INITIAL_MESSAGE: ChatMessage = {
+  role: 'assistant',
+  content: "👋 Hi! I'm your FOAM Portal Assistant powered by AI. I can help you:\n\n• Navigate any portal section\n• Answer questions about FOAM\n• Show live enrollment & grant data\n• Explain features and processes\n\nWhat would you like help with?"
+};
+
 const FOAMChatbotWidget: React.FC<FOAMChatbotWidgetProps> = ({ onNavigate }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: 'assistant',
-      content: "👋 Hi! I'm your FOAM Portal Assistant powered by AI. I can help you:\n\n• Navigate any portal section\n• Answer questions about FOAM\n• Show live enrollment & grant data\n• Explain features and processes\n\nWhat would you like help with?"
-    }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(true);
@@ -80,6 +80,14 @@ const FOAMChatbotWidget: React.FC<FOAMChatbotWidgetProps> = ({ onNavigate }) => 
       console.error('Failed to fetch live stats:', error);
     }
     setStatsLoading(false);
+  };
+
+  // Reset chat to initial state
+  const resetChat = () => {
+    setMessages([INITIAL_MESSAGE]);
+    setShowQuickActions(true);
+    setInput('');
+    fetchLiveStats();
   };
 
   // Portal Knowledge Base with navigation info
@@ -621,10 +629,11 @@ const FOAMChatbotWidget: React.FC<FOAMChatbotWidgetProps> = ({ onNavigate }) => 
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {/* FIXED: Reset Chat Button - Now resets conversation */}
               <button
-                onClick={fetchLiveStats}
+                onClick={resetChat}
                 className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
-                title="Refresh Live Data"
+                title="Reset Chat & Refresh Data"
               >
                 <i className={`fas fa-sync-alt text-sm ${statsLoading ? 'animate-spin' : ''}`}></i>
               </button>
