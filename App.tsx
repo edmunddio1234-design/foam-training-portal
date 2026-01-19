@@ -1866,6 +1866,7 @@ const App: React.FC = () => {
   }
 
   return (
+  <>
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-50">
       <Sidebar 
         activeModuleId={activeModuleId} 
@@ -1898,7 +1899,7 @@ const App: React.FC = () => {
       {!isAssistantOpen && <button onClick={() => setIsAssistantOpen(true)} className="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-all flex items-center justify-center z-50"><i className="fas fa-robot text-xl"></i></button>}
     </div>
     <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as any)} />
-    
+    </>
   );
 };
 
