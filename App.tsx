@@ -1754,151 +1754,261 @@ const App: React.FC = () => {
     setCurrentView('hub');
   };
 
-  // NEW: Check-in page - NO LOGIN REQUIRED (for fathers on mobile)
+  // =====================================================
+  // UPDATED RENDER LOGIC - CHATBOT ON ALL NON-LOGIN PAGES
+  // =====================================================
+
+  // Check-in page - NO LOGIN REQUIRED (for fathers on mobile) - WITH CHATBOT
   if (currentView === 'checkin') {
-    return <FatherCheckIn />;
-  }
-
-  // Assessment page - NO LOGIN REQUIRED (for fathers on mobile)
-  if (currentView === 'assessment') {
-    return <ClassAssessment />;
-  }
-
-  // Progress page - NO LOGIN REQUIRED (for fathers to check their progress)
-  if (currentView === 'progress') {
-    return <FatherProgress />;
-  }
-
-  // Assessment Analytics - requires login (for staff/admin)
-  if (currentView === 'analytics') {
-    if (!isLoggedIn) {
-      return <LoginPage onLogin={() => setIsLoggedIn(true)} />;
-    }
-    return <AssessmentAnalytics onBack={() => setCurrentView('hub')} />;
-  }
-
-  if (!isLoggedIn) {
-    return <LoginPage onLogin={() => setIsLoggedIn(true)} />;
-  }
-
-  if (currentView === 'training' && !isTrainingAuthenticated) {
-    return <TrainingLoginPage onLogin={() => setIsTrainingAuthenticated(true)} onBack={() => setCurrentView('hub')} />;
-  }
-
-  if (currentView === 'training' && !trainingTrackSelected) {
-    return <TrainingTrackSelector onSelect={handleTrackSelect} onBack={() => setCurrentView('hub')} />;
-  }
-
-  if (currentView === 'finance' && !isFinanceAuthenticated) {
-    return <FinancialLoginPage onLogin={() => setIsFinanceAuthenticated(true)} onBack={() => setCurrentView('hub')} />;
-  }
-
-  if (currentView === 'hub') {
-    return <Hub onNavigate={(view) => setCurrentView(view)} onLogout={handleLogout} />;
-  }
-
-  if (currentView === 'casemanager') {
-    return <div className="h-screen animate-in fade-in duration-500 relative z-0 overflow-y-auto"><CaseManagerHub onClose={() => setCurrentView('hub')} /></div>;
-  }
-
-  if (currentView === 'admin') {
-    if (!isGrantAuthenticated) {
-      return <GrantLoginPage onLogin={() => setIsGrantAuthenticated(true)} onBack={() => setCurrentView('hub')} />;
-    }
-    return <div className="h-screen animate-in fade-in duration-500 relative z-0"><AdminPortal onClose={() => setCurrentView('hub')} /></div>;
-  }
-
-  // NEW: Document Library - opens AdminPortal with documents tab (also requires grant auth)
-  if (currentView === 'documents') {
-    if (!isGrantAuthenticated) {
-      return <GrantLoginPage onLogin={() => setIsGrantAuthenticated(true)} onBack={() => setCurrentView('hub')} />;
-    }
-    return <div className="h-screen animate-in fade-in duration-500 relative z-0"><AdminPortal onClose={() => setCurrentView('hub')} initialTab="documents" /></div>;
-  }
-
-  if (currentView === 'tracking') {
-    return <div className="h-screen animate-in fade-in duration-500 relative z-0 overflow-y-auto"><FatherhoodTracking onBack={() => setCurrentView('hub')} /></div>;
-  }
-
-  // NEW: Donation CRM Portal
-  if (currentView === 'donations') {
-    return <DonationPortal onBack={() => setCurrentView('hub')} />;
-  }
-
-  if (currentView === 'finance') {
     return (
-      <div className="min-h-screen bg-white flex flex-col p-6 md:p-12 animate-in fade-in duration-500 overflow-y-auto">
-        <div className="max-w-7xl mx-auto w-full flex flex-col md:flex-row md:items-center justify-between border-b pb-8 mb-12 gap-8">
-           <div className="flex items-center gap-6">
-              <div className="w-14 h-14 bg-[#0F2C5C] text-white rounded-2xl flex items-center justify-center shadow-xl ring-4 ring-indigo-50"><i className="fas fa-vault text-2xl"></i></div>
-              <div>
-                <h1 className="text-3xl font-black text-slate-800 tracking-tight">Financial Tools & Budgeting</h1>
-                <div className="flex items-center gap-3 mt-1">
-                  <p className="text-blue-600 font-black uppercase tracking-widest text-[10px] bg-blue-50 px-2 py-0.5 rounded">Restricted Access</p>
-                  <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Fiscal Analytics v3.1</p>
-                </div>
-              </div>
-           </div>
-           <div className="flex items-center gap-4">
-              <div className="bg-slate-50 p-1 rounded-xl flex border border-slate-100 overflow-x-auto hide-scrollbar">
-                <button onClick={() => setFinanceSubView('dashboard')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'dashboard' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Analysis</button>
-                <button onClick={() => setFinanceSubView('bills')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'bills' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Ledger</button>
-                <button onClick={() => setFinanceSubView('reports')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'reports' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>
-                  <i className="fas fa-file-invoice mr-1"></i>Reports
-                </button>
-                <button onClick={() => setFinanceSubView('exchange')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'exchange' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Exchange</button>
-                <button onClick={() => setFinanceSubView('multifunder')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'multifunder' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>
-                  <i className="fas fa-hand-holding-usd mr-1"></i>Multi-Funder
-                </button>
-              </div>
-              <button onClick={() => { setCurrentView('hub'); setFinanceSubView('dashboard'); }} className="px-6 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 transition-all whitespace-nowrap">Exit Portal</button>
-           </div>
-        </div>
-        <div className="max-w-7xl mx-auto w-full">
-           {financeSubView === 'dashboard' && <FinanceDashboard entries={allFinanceEntries} activeYear={2025} />}
-           {financeSubView === 'exchange' && <DataExchange entries={allFinanceEntries} onImport={setAllFinanceEntries} />}
-           {financeSubView === 'bills' && <FinanceBills entries={allFinanceEntries} onDataUpdate={setAllFinanceEntries} />}
-           {financeSubView === 'reports' && <FinanceReports entries={allFinanceEntries} />}
-           {financeSubView === 'multifunder' && <MultiFunderDashboard entries={allFinanceEntries} />}
-        </div>
-      </div>
+      <>
+        <FatherCheckIn />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
     );
   }
 
-  return (
-  <>
-    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50">
-      <Sidebar 
-        activeModuleId={activeModuleId} 
-        onModuleSelect={handleModuleChange} 
-        view={currentView === 'manual' ? 'manual' : 'module'} 
-        onViewChange={(v) => setCurrentView(v === 'manual' ? 'manual' : 'training')} 
-        onBackToHub={() => setCurrentView('hub')}
-        activeTrack={activeTrack}
-        onTrackSelect={handleTrackSelect}
-        activeModules={currentModules}
-        onChangeTrack={() => setTrainingTrackSelected(null)}
-      />
-      <main className="flex-1 flex flex-col md:ml-64 transition-all duration-300">
-        <Header activeModule={activeModule} view={currentView === 'manual' ? 'manual' : 'module'} onToggleAssistant={() => setIsAssistantOpen(!isAssistantOpen)} />
-        <div className="p-4 md:p-8 flex-1">
-          {currentView === 'training' ? (
-            <ModuleView 
-              module={activeModule} 
-              onNext={() => {
-                if (nextModule) handleModuleChange(nextModule.id);
-                else setCurrentView('manual');
-              }}
-              nextModuleTitle={nextModule?.title}
-            />
-          ) : <Manual onSelectModule={handleModuleChange} />}
+  // Assessment page - NO LOGIN REQUIRED (for fathers on mobile) - WITH CHATBOT
+  if (currentView === 'assessment') {
+    return (
+      <>
+        <ClassAssessment />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Progress page - NO LOGIN REQUIRED (for fathers to check their progress) - WITH CHATBOT
+  if (currentView === 'progress') {
+    return (
+      <>
+        <FatherProgress />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Assessment Analytics - requires login (for staff/admin) - WITH CHATBOT
+  if (currentView === 'analytics') {
+    if (!isLoggedIn) {
+      return (
+        <>
+          <LoginPage onLogin={() => setIsLoggedIn(true)} />
+          <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+        </>
+      );
+    }
+    return (
+      <>
+        <AssessmentAnalytics onBack={() => setCurrentView('hub')} />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Login page - WITH CHATBOT
+  if (!isLoggedIn) {
+    return (
+      <>
+        <LoginPage onLogin={() => setIsLoggedIn(true)} />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Training login page - WITH CHATBOT
+  if (currentView === 'training' && !isTrainingAuthenticated) {
+    return (
+      <>
+        <TrainingLoginPage onLogin={() => setIsTrainingAuthenticated(true)} onBack={() => setCurrentView('hub')} />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Training track selector - WITH CHATBOT
+  if (currentView === 'training' && !trainingTrackSelected) {
+    return (
+      <>
+        <TrainingTrackSelector onSelect={handleTrackSelect} onBack={() => setCurrentView('hub')} />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Finance login page - WITH CHATBOT
+  if (currentView === 'finance' && !isFinanceAuthenticated) {
+    return (
+      <>
+        <FinancialLoginPage onLogin={() => setIsFinanceAuthenticated(true)} onBack={() => setCurrentView('hub')} />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Hub page - WITH CHATBOT
+  if (currentView === 'hub') {
+    return (
+      <>
+        <Hub onNavigate={(view) => setCurrentView(view)} onLogout={handleLogout} />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Case Manager Portal - WITH CHATBOT
+  if (currentView === 'casemanager') {
+    return (
+      <>
+        <div className="h-screen animate-in fade-in duration-500 relative z-0 overflow-y-auto">
+          <CaseManagerHub onClose={() => setCurrentView('hub')} />
         </div>
-        <footer className="p-6 text-center text-slate-400 text-sm border-t bg-white">&copy; {new Date().getFullYear()} Fathers On A Mission (FOAM). All rights reserved.</footer>
-      </main>
-      <GeminiAssistant isOpen={isAssistantOpen} onClose={() => setIsAssistantOpen(false)} context={activeModule.fullText} />
-      {!isAssistantOpen && <button onClick={() => setIsAssistantOpen(true)} className="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-all flex items-center justify-center z-50"><i className="fas fa-robot text-xl"></i></button>}
-    </div>
-    <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as any)} />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Admin Portal - WITH CHATBOT
+  if (currentView === 'admin') {
+    if (!isGrantAuthenticated) {
+      return (
+        <>
+          <GrantLoginPage onLogin={() => setIsGrantAuthenticated(true)} onBack={() => setCurrentView('hub')} />
+          <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+        </>
+      );
+    }
+    return (
+      <>
+        <div className="h-screen animate-in fade-in duration-500 relative z-0">
+          <AdminPortal onClose={() => setCurrentView('hub')} />
+        </div>
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Document Library - WITH CHATBOT
+  if (currentView === 'documents') {
+    if (!isGrantAuthenticated) {
+      return (
+        <>
+          <GrantLoginPage onLogin={() => setIsGrantAuthenticated(true)} onBack={() => setCurrentView('hub')} />
+          <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+        </>
+      );
+    }
+    return (
+      <>
+        <div className="h-screen animate-in fade-in duration-500 relative z-0">
+          <AdminPortal onClose={() => setCurrentView('hub')} initialTab="documents" />
+        </div>
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Fatherhood Tracking - WITH CHATBOT
+  if (currentView === 'tracking') {
+    return (
+      <>
+        <div className="h-screen animate-in fade-in duration-500 relative z-0 overflow-y-auto">
+          <FatherhoodTracking onBack={() => setCurrentView('hub')} />
+        </div>
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Donation CRM Portal - WITH CHATBOT
+  if (currentView === 'donations') {
+    return (
+      <>
+        <DonationPortal onBack={() => setCurrentView('hub')} />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Finance Portal - WITH CHATBOT
+  if (currentView === 'finance') {
+    return (
+      <>
+        <div className="min-h-screen bg-white flex flex-col p-6 md:p-12 animate-in fade-in duration-500 overflow-y-auto">
+          <div className="max-w-7xl mx-auto w-full flex flex-col md:flex-row md:items-center justify-between border-b pb-8 mb-12 gap-8">
+             <div className="flex items-center gap-6">
+                <div className="w-14 h-14 bg-[#0F2C5C] text-white rounded-2xl flex items-center justify-center shadow-xl ring-4 ring-indigo-50"><i className="fas fa-vault text-2xl"></i></div>
+                <div>
+                  <h1 className="text-3xl font-black text-slate-800 tracking-tight">Financial Tools & Budgeting</h1>
+                  <div className="flex items-center gap-3 mt-1">
+                    <p className="text-blue-600 font-black uppercase tracking-widest text-[10px] bg-blue-50 px-2 py-0.5 rounded">Restricted Access</p>
+                    <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Fiscal Analytics v3.1</p>
+                  </div>
+                </div>
+             </div>
+             <div className="flex items-center gap-4">
+                <div className="bg-slate-50 p-1 rounded-xl flex border border-slate-100 overflow-x-auto hide-scrollbar">
+                  <button onClick={() => setFinanceSubView('dashboard')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'dashboard' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Analysis</button>
+                  <button onClick={() => setFinanceSubView('bills')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'bills' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Ledger</button>
+                  <button onClick={() => setFinanceSubView('reports')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'reports' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>
+                    <i className="fas fa-file-invoice mr-1"></i>Reports
+                  </button>
+                  <button onClick={() => setFinanceSubView('exchange')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'exchange' ? 'bg-[#0F2C5C] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Exchange</button>
+                  <button onClick={() => setFinanceSubView('multifunder')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${financeSubView === 'multifunder' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>
+                    <i className="fas fa-hand-holding-usd mr-1"></i>Multi-Funder
+                  </button>
+                </div>
+                <button onClick={() => { setCurrentView('hub'); setFinanceSubView('dashboard'); }} className="px-6 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 transition-all whitespace-nowrap">Exit Portal</button>
+             </div>
+          </div>
+          <div className="max-w-7xl mx-auto w-full">
+             {financeSubView === 'dashboard' && <FinanceDashboard entries={allFinanceEntries} activeYear={2025} />}
+             {financeSubView === 'exchange' && <DataExchange entries={allFinanceEntries} onImport={setAllFinanceEntries} />}
+             {financeSubView === 'bills' && <FinanceBills entries={allFinanceEntries} onDataUpdate={setAllFinanceEntries} />}
+             {financeSubView === 'reports' && <FinanceReports entries={allFinanceEntries} />}
+             {financeSubView === 'multifunder' && <MultiFunderDashboard entries={allFinanceEntries} />}
+          </div>
+        </div>
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // Training/Manual view (default) - WITH CHATBOT
+  return (
+    <>
+      <div className="min-h-screen flex flex-col md:flex-row bg-slate-50">
+        <Sidebar 
+          activeModuleId={activeModuleId} 
+          onModuleSelect={handleModuleChange} 
+          view={currentView === 'manual' ? 'manual' : 'module'} 
+          onViewChange={(v) => setCurrentView(v === 'manual' ? 'manual' : 'training')} 
+          onBackToHub={() => setCurrentView('hub')}
+          activeTrack={activeTrack}
+          onTrackSelect={handleTrackSelect}
+          activeModules={currentModules}
+          onChangeTrack={() => setTrainingTrackSelected(null)}
+        />
+        <main className="flex-1 flex flex-col md:ml-64 transition-all duration-300">
+          <Header activeModule={activeModule} view={currentView === 'manual' ? 'manual' : 'module'} onToggleAssistant={() => setIsAssistantOpen(!isAssistantOpen)} />
+          <div className="p-4 md:p-8 flex-1">
+            {currentView === 'training' ? (
+              <ModuleView 
+                module={activeModule} 
+                onNext={() => {
+                  if (nextModule) handleModuleChange(nextModule.id);
+                  else setCurrentView('manual');
+                }}
+                nextModuleTitle={nextModule?.title}
+              />
+            ) : <Manual onSelectModule={handleModuleChange} />}
+          </div>
+          <footer className="p-6 text-center text-slate-400 text-sm border-t bg-white">&copy; {new Date().getFullYear()} Fathers On A Mission (FOAM). All rights reserved.</footer>
+        </main>
+        <GeminiAssistant isOpen={isAssistantOpen} onClose={() => setIsAssistantOpen(false)} context={activeModule.fullText} />
+        {!isAssistantOpen && <button onClick={() => setIsAssistantOpen(true)} className="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-all flex items-center justify-center z-50"><i className="fas fa-robot text-xl"></i></button>}
+      </div>
+      <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
     </>
   );
 };
