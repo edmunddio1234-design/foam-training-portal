@@ -7,32 +7,92 @@ interface HubProps {
 }
 
 // ============================================
-// FOAM CHATBOT WIDGET COMPONENT
+// FOAM CHATBOT WIDGET COMPONENT - ENHANCED
+// With: Navigation, Live Data, Gemini AI
 // ============================================
-const FOAMChatbotWidget: React.FC = () => {
+
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  navigation?: {
+    view: string;
+    label: string;
+  };
+}
+
+interface LiveStats {
+  fathers: {
+    total: number;
+    active: number;
+    completedAll: number;
+  };
+  grants: {
+    total: number;
+    pending: number;
+    upcomingDeadlines: Array<{name: string; date: string}>;
+  };
+  assessments: {
+    thisMonth: number;
+    avgScore: number;
+  };
+}
+
+interface FOAMChatbotWidgetProps {
+  onNavigate: (view: string) => void;
+}
+
+const FOAMChatbotWidget: React.FC<FOAMChatbotWidgetProps> = ({ onNavigate }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [messages, setMessages] = useState<Array<{role: string; content: string}>>([
+  const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      content: "👋 Hi! I'm your FOAM Portal Assistant. I can help you navigate any portal section, find documents, or explain features.\n\nWhat would you like help with?"
+      content: "👋 Hi! I'm your FOAM Portal Assistant powered by AI. I can help you:\n\n• Navigate any portal section\n• Answer questions about FOAM\n• Show live enrollment & grant data\n• Explain features and processes\n\nWhat would you like help with?"
     }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(true);
+  const [liveStats, setLiveStats] = useState<LiveStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Backend URL - Update this to your Render URL
+  const BACKEND_URL = 'https://foamla-backend-2.onrender.com';
 
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Portal Knowledge Base
+  // Fetch live stats on first open
+  useEffect(() => {
+    if (isOpen && !liveStats && !statsLoading) {
+      fetchLiveStats();
+    }
+  }, [isOpen]);
+
+  // Fetch live data from backend
+  const fetchLiveStats = async () => {
+    setStatsLoading(true);
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/chatbot/stats`);
+      if (response.ok) {
+        const data = await response.json();
+        setLiveStats(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch live stats:', error);
+    }
+    setStatsLoading(false);
+  };
+
+  // Portal Knowledge Base with navigation info
   const knowledge: Record<string, any> = {
     'training academy': {
       title: 'Training Academy',
       icon: '📚',
+      navKey: 'training',
       description: 'Access certification modules, case study deep dives, and program orientation.',
       features: [
         '12+ training modules with video lessons',
@@ -53,6 +113,7 @@ const FOAMChatbotWidget: React.FC = () => {
     'fatherhood tracking': {
       title: 'Fatherhood Tracking',
       icon: '📈',
+      navKey: 'tracking',
       description: 'Monitor client progress through Fatherhood Classes and workforce placement.',
       features: [
         'Dashboard with enrollment overview',
@@ -74,6 +135,7 @@ const FOAMChatbotWidget: React.FC = () => {
     'grant management': {
       title: 'Grant Management',
       icon: '💰',
+      navKey: 'admin',
       description: 'Grant tracking & management, application status dashboard, and funding research tools.',
       features: [
         'Grant tracking dashboard with KPIs',
@@ -94,6 +156,7 @@ const FOAMChatbotWidget: React.FC = () => {
     'document library': {
       title: 'Document Library',
       icon: '📁',
+      navKey: 'documents',
       description: 'AI-powered document search with Google Drive integration and quick file access.',
       features: [
         'AI-powered natural language search',
@@ -113,6 +176,7 @@ const FOAMChatbotWidget: React.FC = () => {
     'case manager portal': {
       title: 'Case Manager Portal',
       icon: '📋',
+      navKey: 'casemanager',
       description: 'Monthly reports, procedures & resources, and forms & documents for case managers.',
       features: [
         'Monthly report submission (5 types)',
@@ -133,6 +197,7 @@ const FOAMChatbotWidget: React.FC = () => {
     'financial tools': {
       title: 'Financial Tools',
       icon: '💵',
+      navKey: 'finance',
       description: 'Analyze budgets, reports, invoicing, and grant tracking.',
       features: [
         'Budget vs. actual analysis',
@@ -152,6 +217,7 @@ const FOAMChatbotWidget: React.FC = () => {
     'assessment analytics': {
       title: 'Assessment Analytics',
       icon: '📊',
+      navKey: 'analytics',
       description: 'Class assessment trends, module performance reports, and father follow-up tracking.',
       features: [
         'Class assessment trend analysis',
@@ -171,6 +237,7 @@ const FOAMChatbotWidget: React.FC = () => {
     'donation crm': {
       title: 'Donation CRM',
       icon: '❤️',
+      navKey: 'donations',
       description: 'Track donors, donations, and fundraising campaigns.',
       features: [
         'Donor database management',
@@ -190,6 +257,7 @@ const FOAMChatbotWidget: React.FC = () => {
     'organizational handbook': {
       title: 'Organizational Handbook',
       icon: '📖',
+      navKey: 'handbook',
       description: 'Policies & Procedures, 14-Module Curriculum, Staff Roles & SOPs, Compliance & Style Guide.',
       features: [
         'Complete policies and procedures',
@@ -209,6 +277,7 @@ const FOAMChatbotWidget: React.FC = () => {
     '14 modules': {
       title: '14-Module Fatherhood Curriculum',
       description: 'The complete NPCL curriculum for Responsible Fatherhood:',
+      navKey: 'tracking',
       list: [
         'Module 1: Orientation',
         'Module 2: Manhood to Fatherhood',
@@ -230,6 +299,7 @@ const FOAMChatbotWidget: React.FC = () => {
     'new client checklist': {
       title: 'New Client Onboarding Checklist',
       description: 'This 6-phase checklist ensures no steps are missed:',
+      navKey: 'casemanager',
       phases: [
         { name: 'Phase 1: Initial Contact', steps: ['Receive referral', 'Call within 24 hours', 'Schedule intake', 'Send reminder'] },
         { name: 'Phase 2: Intake Assessment', steps: ['Complete demographics', 'Needs assessment', 'AAPI screening', 'Depression screening'] },
@@ -243,6 +313,7 @@ const FOAMChatbotWidget: React.FC = () => {
     'check in': {
       title: 'Class Check-In Options',
       description: 'Two ways to record attendance:',
+      navKey: 'tracking',
       options: [
         { name: 'Manual Check-In', steps: ['Go to Fatherhood Tracking → Check-In', 'Select class date', 'Mark fathers present', 'Click Save'] },
         { name: 'QR Code Self-Service', steps: ['Go to Fatherhood Tracking → QR Check-In', 'Generate QR code for class', 'Display on screen', 'Fathers scan to check in'] }
@@ -251,18 +322,18 @@ const FOAMChatbotWidget: React.FC = () => {
     }
   };
 
-  // Quick action buttons
+  // Quick action buttons with colors matching portal cards
   const quickActions = [
     { label: 'Training', key: 'training academy', color: 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100' },
     { label: 'Tracking', key: 'fatherhood tracking', color: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' },
     { label: 'Grants', key: 'grant management', color: 'bg-amber-50 text-amber-600 hover:bg-amber-100' },
     { label: 'Case Mgr', key: 'case manager portal', color: 'bg-teal-50 text-teal-600 hover:bg-teal-100' },
-    { label: '14 Modules', key: '14 modules', color: 'bg-purple-50 text-purple-600 hover:bg-purple-100' },
+    { label: 'Live Stats', key: 'live stats', color: 'bg-blue-50 text-blue-600 hover:bg-blue-100' },
     { label: 'Checklist', key: 'new client checklist', color: 'bg-rose-50 text-rose-600 hover:bg-rose-100' }
   ];
 
-  // Format response from knowledge base
-  const formatResponse = (data: any): string => {
+  // Format response with navigation link
+  const formatResponse = (data: any): { content: string; navigation?: { view: string; label: string } } => {
     let html = `**${data.title}**\n\n`;
     html += `${data.description}\n\n`;
     
@@ -297,21 +368,100 @@ const FOAMChatbotWidget: React.FC = () => {
     if (data.tip) {
       html += `\n💡 ${data.tip}`;
     }
+
+    // Add navigation info if available
+    const navigation = data.navKey ? {
+      view: data.navKey,
+      label: `Go to ${data.title} →`
+    } : undefined;
     
-    return html;
+    return { content: html, navigation };
   };
 
-  // Generate response based on user query
-  const getResponse = (query: string): string => {
+  // Format live stats response
+  const formatLiveStats = (): { content: string; navigation?: { view: string; label: string } } => {
+    if (!liveStats) {
+      return { content: "Loading live data... One moment please." };
+    }
+
+    let html = `**📊 Live FOAM Statistics**\n\n`;
+    
+    html += `**Father Enrollment:**\n`;
+    html += `• Total Fathers: ${liveStats.fathers.total}\n`;
+    html += `• Currently Active: ${liveStats.fathers.active}\n`;
+    html += `• Completed All 14 Modules: ${liveStats.fathers.completedAll}\n\n`;
+    
+    html += `**Grant Status:**\n`;
+    html += `• Total Active Grants: ${liveStats.grants.total}\n`;
+    html += `• Pending Applications: ${liveStats.grants.pending}\n`;
+    
+    if (liveStats.grants.upcomingDeadlines.length > 0) {
+      html += `\n**⚠️ Upcoming Deadlines:**\n`;
+      liveStats.grants.upcomingDeadlines.forEach(d => {
+        html += `• ${d.name}: ${d.date}\n`;
+      });
+    }
+    
+    html += `\n**Assessments This Month:**\n`;
+    html += `• Completed: ${liveStats.assessments.thisMonth}\n`;
+    html += `• Average Score: ${liveStats.assessments.avgScore}%\n`;
+    
+    html += `\n💡 Data updates in real-time from your Google Sheets.`;
+
+    return { 
+      content: html, 
+      navigation: { view: 'tracking', label: 'View Fatherhood Tracking →' }
+    };
+  };
+
+  // Call Gemini AI for natural language understanding
+  const callGeminiAI = async (query: string): Promise<{ content: string; navigation?: { view: string; label: string } }> => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/chatbot/ask`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          query,
+          context: {
+            liveStats,
+            portals: Object.keys(knowledge)
+          }
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return {
+          content: data.response,
+          navigation: data.navigation
+        };
+      }
+    } catch (error) {
+      console.error('Gemini AI call failed:', error);
+    }
+
+    // Fallback to keyword matching if AI fails
+    return getKeywordResponse(query);
+  };
+
+  // Keyword-based response (fallback)
+  const getKeywordResponse = (query: string): { content: string; navigation?: { view: string; label: string } } => {
     const lower = query.toLowerCase();
     
+    // Check for live stats request
+    if (lower.includes('stats') || lower.includes('how many') || lower.includes('enrollment') || 
+        lower.includes('numbers') || lower.includes('data') || lower.includes('live')) {
+      return formatLiveStats();
+    }
+
+    // Check knowledge base
     for (const [key, data] of Object.entries(knowledge)) {
       if (lower.includes(key)) {
         return formatResponse(data);
       }
     }
     
-    // Check for partial matches
+    // Partial matches
     if (lower.includes('training')) return formatResponse(knowledge['training academy']);
     if (lower.includes('tracking') || lower.includes('father')) return formatResponse(knowledge['fatherhood tracking']);
     if (lower.includes('grant') || lower.includes('funding')) return formatResponse(knowledge['grant management']);
@@ -326,43 +476,80 @@ const FOAMChatbotWidget: React.FC = () => {
     if (lower.includes('check in') || lower.includes('check-in') || lower.includes('attendance') || lower.includes('qr')) return formatResponse(knowledge['check in']);
     
     // Default response
-    return `I can help with any portal section! Try asking about:\n\n• Training Academy\n• Fatherhood Tracking\n• Grant Management\n• Case Manager Portal\n• Document Library\n• Financial Tools\n• Assessment Analytics\n• Donation CRM\n• The 14 modules\n• New client checklist\n\nOr click a quick action button above!`;
+    return {
+      content: `I can help with any portal section! Try asking about:\n\n• Training Academy\n• Fatherhood Tracking\n• Grant Management\n• Case Manager Portal\n• Document Library\n• Financial Tools\n• Assessment Analytics\n• Donation CRM\n• Live enrollment stats\n• The 14 modules\n• New client checklist\n\nOr click a quick action button above!`
+    };
   };
 
-  // Send message
-  const handleSend = () => {
+  // Send message - uses AI if available, falls back to keywords
+  const handleSend = async () => {
     if (!input.trim()) return;
     
-    const userMessage = { role: 'user', content: input };
+    const userMessage: ChatMessage = { role: 'user', content: input };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setShowQuickActions(false);
     setIsTyping(true);
     
-    setTimeout(() => {
-      const response = getResponse(input);
-      setMessages(prev => [...prev, { role: 'assistant', content: response }]);
-      setIsTyping(false);
-    }, 600);
+    // Try Gemini AI first, fall back to keyword matching
+    let response: { content: string; navigation?: { view: string; label: string } };
+    
+    try {
+      response = await callGeminiAI(input);
+    } catch {
+      response = getKeywordResponse(input);
+    }
+    
+    setMessages(prev => [...prev, { 
+      role: 'assistant', 
+      content: response.content,
+      navigation: response.navigation
+    }]);
+    setIsTyping(false);
   };
 
   // Handle quick action click
-  const handleQuickAction = (key: string) => {
-    const query = `Tell me about ${key}`;
+  const handleQuickAction = async (key: string) => {
+    const query = key === 'live stats' ? 'Show me live stats' : `Tell me about ${key}`;
     setMessages(prev => [...prev, { role: 'user', content: query }]);
     setShowQuickActions(false);
     setIsTyping(true);
     
+    let response: { content: string; navigation?: { view: string; label: string } };
+    
+    if (key === 'live stats') {
+      await fetchLiveStats();
+      response = formatLiveStats();
+    } else if (knowledge[key]) {
+      response = formatResponse(knowledge[key]);
+    } else {
+      response = getKeywordResponse(key);
+    }
+    
     setTimeout(() => {
-      const response = formatResponse(knowledge[key]);
-      setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: response.content,
+        navigation: response.navigation
+      }]);
       setIsTyping(false);
-    }, 600);
+    }, 400);
+  };
+
+  // Handle navigation click
+  const handleNavigationClick = (view: string) => {
+    setIsOpen(false);
+    if (view === 'handbook') {
+      // Handbook is a modal, not a navigation
+      return;
+    }
+    onNavigate(view);
   };
 
   // Render message content with formatting
-  const renderMessage = (content: string) => {
-    return content.split('\n').map((line, i) => {
+  const renderMessage = (msg: ChatMessage) => {
+    const content = msg.content;
+    const lines = content.split('\n').map((line, i) => {
       if (line.startsWith('**') && line.endsWith('**')) {
         return <p key={i} className="font-bold text-slate-900 mb-1">{line.replace(/\*\*/g, '')}</p>;
       }
@@ -381,12 +568,27 @@ const FOAMChatbotWidget: React.FC = () => {
       if (line.match(/^\d+\. /)) {
         return <p key={i} className="ml-2 mb-0.5 text-slate-600">{line}</p>;
       }
-      if (line.startsWith('💡')) {
+      if (line.startsWith('💡') || line.startsWith('⚠️')) {
         return <p key={i} className="mt-2 text-amber-600 text-xs bg-amber-50 p-2 rounded-lg">{line}</p>;
       }
       if (line.trim() === '') return <br key={i} />;
       return <p key={i} className="mb-1 text-slate-600">{line}</p>;
     });
+
+    return (
+      <>
+        {lines}
+        {msg.navigation && (
+          <button
+            onClick={() => handleNavigationClick(msg.navigation!.view)}
+            className="mt-3 w-full bg-gradient-to-r from-[#0F2C5C] to-[#1a4380] text-white text-sm font-medium py-2 px-4 rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+          >
+            <span>{msg.navigation.label}</span>
+            <i className="fas fa-arrow-right text-xs"></i>
+          </button>
+        )}
+      </>
+    );
   };
 
   // Floating button when closed
@@ -399,6 +601,8 @@ const FOAMChatbotWidget: React.FC = () => {
       >
         <i className="fas fa-comment-dots text-2xl group-hover:scale-110 transition-transform"></i>
         <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full animate-pulse"></span>
+        {/* AI Badge */}
+        <span className="absolute -bottom-1 -left-1 bg-purple-500 text-[8px] font-bold px-1.5 py-0.5 rounded-full">AI</span>
       </button>
     );
   }
@@ -411,18 +615,26 @@ const FOAMChatbotWidget: React.FC = () => {
         <div className="bg-gradient-to-r from-[#0F2C5C] to-[#1a4380] text-white p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center relative">
                 <i className="fas fa-robot text-lg"></i>
+                <span className="absolute -bottom-1 -right-1 bg-purple-500 text-[6px] font-bold px-1 rounded">AI</span>
               </div>
               <div>
                 <h3 className="font-bold text-sm">FOAM Portal Assistant</h3>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                  <span className="text-xs text-white/70">Online</span>
+                  <span className="text-xs text-white/70">Powered by Gemini AI</span>
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <button
+                onClick={fetchLiveStats}
+                className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                title="Refresh Live Data"
+              >
+                <i className={`fas fa-sync-alt text-sm ${statsLoading ? 'animate-spin' : ''}`}></i>
+              </button>
               <button
                 onClick={() => setIsMinimized(!isMinimized)}
                 className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
@@ -443,8 +655,28 @@ const FOAMChatbotWidget: React.FC = () => {
 
         {!isMinimized && (
           <>
+            {/* Live Stats Banner */}
+            {liveStats && (
+              <div className="bg-gradient-to-r from-emerald-50 to-blue-50 px-4 py-2 border-b border-slate-100">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-emerald-700 font-medium">
+                    <i className="fas fa-users mr-1"></i>
+                    {liveStats.fathers.active} Active Fathers
+                  </span>
+                  <span className="text-blue-700 font-medium">
+                    <i className="fas fa-file-invoice-dollar mr-1"></i>
+                    {liveStats.grants.total} Grants
+                  </span>
+                  <span className="text-purple-700 font-medium">
+                    <i className="fas fa-chart-line mr-1"></i>
+                    {liveStats.assessments.avgScore}% Avg
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Messages */}
-            <div className="h-80 overflow-y-auto p-4 space-y-3 bg-slate-50">
+            <div className="h-72 overflow-y-auto p-4 space-y-3 bg-slate-50">
               {messages.map((msg, idx) => (
                 <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[85%] ${
@@ -453,7 +685,7 @@ const FOAMChatbotWidget: React.FC = () => {
                       : 'bg-white text-slate-700 rounded-2xl rounded-bl-md border border-slate-200'
                   } p-3 shadow-sm`}>
                     <div className="text-sm">
-                      {msg.role === 'user' ? msg.content : renderMessage(msg.content)}
+                      {msg.role === 'user' ? msg.content : renderMessage(msg)}
                     </div>
                   </div>
                 </div>
@@ -462,10 +694,11 @@ const FOAMChatbotWidget: React.FC = () => {
               {isTyping && (
                 <div className="flex justify-start">
                   <div className="bg-white rounded-2xl rounded-bl-md p-3 border border-slate-200 shadow-sm">
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
-                      <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></span>
-                      <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                    <div className="flex gap-1 items-center">
+                      <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></span>
+                      <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></span>
+                      <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                      <span className="text-xs text-purple-500 ml-2">AI thinking...</span>
                     </div>
                   </div>
                 </div>
@@ -499,12 +732,12 @@ const FOAMChatbotWidget: React.FC = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder="Ask about any portal..."
+                  placeholder="Ask anything about FOAM..."
                   className="flex-1 bg-slate-100 border-0 rounded-xl px-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0F2C5C]/20"
                 />
                 <button
                   onClick={handleSend}
-                  disabled={!input.trim()}
+                  disabled={!input.trim() || isTyping}
                   className="bg-[#0F2C5C] hover:bg-[#1a4380] disabled:opacity-50 disabled:cursor-not-allowed text-white p-2.5 rounded-xl transition-colors"
                   title="Send"
                 >
@@ -518,6 +751,7 @@ const FOAMChatbotWidget: React.FC = () => {
     </div>
   );
 };
+
 
 // ============================================
 // MAIN HUB COMPONENT
@@ -737,8 +971,8 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
         <OrganizationalHandbook onClose={() => setShowHandbook(false)} />
       )}
 
-      {/* Chatbot Widget */}
-      <FOAMChatbotWidget />
+      {/* Enhanced Chatbot Widget with Navigation */}
+      <FOAMChatbotWidget onNavigate={(view) => onNavigate(view as any)} />
     </div>
   );
 };
