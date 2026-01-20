@@ -181,6 +181,28 @@ const FinanceBills: React.FC<FinanceBillsProps> = ({ entries, onDataUpdate }) =>
       funder: formData.funder // NEW: Include funder
     };
 
+    // Sync to Google Sheet
+    try {
+      await fetch('https://foamla-backend-2.onrender.com/api/finance/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: formData.payDate,
+          funder: formData.funder,
+          type: 'Expense',
+          category: formData.mainCategory,
+          subcategory: formData.subCategory || '',
+          amount: parseFloat(formData.amount),
+          description: formData.name,
+          payment_method: formData.paymentMethod,
+          reference: formData.referenceNumber,
+          entered_by: 'Portal'
+        }),
+      });
+    } catch (error) {
+      console.error('Sync error:', error);
+    }
+
     onDataUpdate([...entries, newEntry]);
     setFormData({ 
       name: '', 
