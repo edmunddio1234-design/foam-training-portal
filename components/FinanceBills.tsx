@@ -158,7 +158,7 @@ const FinanceBills: React.FC<FinanceBillsProps> = ({ entries, onDataUpdate }) =>
   // Funder spending summary
   const funderSummaries = useMemo(() => getAllFunderSummaries(entries), [entries]);
 
-  const handleAddEntry = (e: React.FormEvent) => {
+  const handleAddEntry = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.amount || !formData.payDate || !formData.funder) {
       alert('Please fill in all required fields including Funder');
