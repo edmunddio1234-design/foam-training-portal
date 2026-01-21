@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Father } from '../../types';
 import { TRACKER_MODULES, FULL_SCHEDULE_LOG, CLASS_LOCATION } from '../../constants';
@@ -25,14 +24,41 @@ export const FatherPortal: React.FC<FatherPortalProps> = ({ fathers, onBack }) =
     }
   };
 
-  const getNextOccurrence = (moduleTitle: string) => {
+  // Find the next incomplete module for a father
+  const getNextModule = (completedModules: number[]) => {
+    const completedSet = new Set(completedModules);
+    // Find the first module that hasn't been completed (in order 1-14)
+    for (const module of TRACKER_MODULES) {
+      if (!completedSet.has(module.id)) {
+        return module;
+      }
+    }
+    // All modules completed - return null or graduation message
+    return null;
+  };
+
+  // Get the next scheduled session for a specific module
+  const getNextSessionForModule = (moduleId: number) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    
     for (const session of FULL_SCHEDULE_LOG) {
-        const sessionDate = new Date(session.date + 'T12:00:00');
-        if (sessionDate >= today && session.topic === moduleTitle) return session.date;
+      const sessionDate = new Date(session.date + 'T12:00:00');
+      if (sessionDate >= today && session.moduleId === moduleId) {
+        return session;
+      }
     }
-    return 'TBD';
+    return null;
+  };
+
+  // Format date for display
+  const formatSessionDate = (dateString: string) => {
+    const date = new Date(dateString + 'T12:00:00');
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      month: 'long', 
+      day: 'numeric' 
+    });
   };
 
   if (!currentUser) {
@@ -56,6 +82,13 @@ export const FatherPortal: React.FC<FatherPortalProps> = ({ fathers, onBack }) =
 
   const completedSet = new Set(currentUser.completedModules);
   const progress = Math.round((completedSet.size / 14) * 100);
+  
+  // Get the next module dynamically based on father's progress
+  const nextModule = getNextModule(currentUser.completedModules);
+  const nextSession = nextModule ? getNextSessionForModule(nextModule.id) : null;
+  
+  // Check if father has graduated (all 14 modules completed)
+  const hasGraduated = completedSet.size >= 14;
 
   return (
     <div className="animate-in fade-in duration-500 space-y-10">
@@ -91,16 +124,50 @@ export const FatherPortal: React.FC<FatherPortalProps> = ({ fathers, onBack }) =
             </div>
         </div>
 
-        <div className="lg:col-span-4 bg-slate-900 text-white rounded-[3rem] p-10 shadow-2xl flex flex-col justify-between border-b-8 border-blue-600">
+        {/* Next Milestone Card - NOW DYNAMIC! */}
+        <div className={`lg:col-span-4 ${hasGraduated ? 'bg-emerald-700' : 'bg-slate-900'} text-white rounded-[3rem] p-10 shadow-2xl flex flex-col justify-between border-b-8 ${hasGraduated ? 'border-emerald-400' : 'border-blue-600'}`}>
             <div className="space-y-4">
-                <span className="px-3 py-1 bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-full">Next Milestone</span>
-                <p className="text-xs text-blue-400 font-bold uppercase tracking-widest">Required Curriculum</p>
-                <h3 className="text-2xl font-black leading-tight">Strengthening Families: Parenting & Support</h3>
+                <span className="px-3 py-1 bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-full">
+                  {hasGraduated ? '🎓 Congratulations!' : 'Next Milestone'}
+                </span>
+                <p className={`text-xs ${hasGraduated ? 'text-emerald-300' : 'text-blue-400'} font-bold uppercase tracking-widest`}>
+                  {hasGraduated ? 'Program Complete' : 'Required Curriculum'}
+                </p>
+                {/* FIXED: Now shows actual next module instead of hardcoded text */}
+                <h3 className="text-2xl font-black leading-tight">
+                  {hasGraduated 
+                    ? 'You Have Graduated!' 
+                    : nextModule 
+                      ? `Module ${nextModule.id}: ${nextModule.title}`
+                      : 'All Modules Complete'
+                  }
+                </h3>
+                {nextModule && !hasGraduated && (
+                  <p className="text-xs text-slate-400 mt-2">
+                    Category: {nextModule.category}
+                  </p>
+                )}
             </div>
             <div className="mt-8 p-6 bg-white/5 border border-white/10 rounded-2xl">
-                <p className="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-1">Upcoming Session</p>
-                <p className="text-lg font-black">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-                <p className="text-xs font-medium text-slate-400 mt-1">@ 6:00 PM CST</p>
+                <p className={`text-[10px] ${hasGraduated ? 'text-emerald-300' : 'text-blue-400'} font-black uppercase tracking-widest mb-1`}>
+                  {hasGraduated ? 'Achievement Unlocked' : 'Upcoming Session'}
+                </p>
+                {hasGraduated ? (
+                  <>
+                    <p className="text-lg font-black">Program Graduate</p>
+                    <p className="text-xs font-medium text-slate-400 mt-1">14/14 Modules Completed</p>
+                  </>
+                ) : nextSession ? (
+                  <>
+                    <p className="text-lg font-black">{formatSessionDate(nextSession.date)}</p>
+                    <p className="text-xs font-medium text-slate-400 mt-1">@ {nextSession.time} CST</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-lg font-black">Check Schedule</p>
+                    <p className="text-xs font-medium text-slate-400 mt-1">Contact your case manager</p>
+                  </>
+                )}
             </div>
         </div>
       </div>
@@ -121,15 +188,33 @@ export const FatherPortal: React.FC<FatherPortalProps> = ({ fathers, onBack }) =
                   <tbody className="divide-y divide-slate-50">
                       {TRACKER_MODULES.map(m => {
                           const isDone = completedSet.has(m.id);
+                          const isNext = nextModule && m.id === nextModule.id;
                           return (
-                              <tr key={m.id} className={`${isDone ? 'bg-emerald-50/20' : ''}`}>
-                                  <td className="px-8 py-6"><div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs ${isDone ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'}`}>{m.id}</div></td>
+                              <tr key={m.id} className={`${isDone ? 'bg-emerald-50/20' : isNext ? 'bg-blue-50/30' : ''}`}>
                                   <td className="px-8 py-6">
-                                      <p className={`font-black text-sm ${isDone ? 'text-slate-400 line-through' : 'text-slate-800'}`}>{m.title}</p>
+                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs ${
+                                      isDone ? 'bg-emerald-500 text-white' : 
+                                      isNext ? 'bg-blue-500 text-white' : 
+                                      'bg-slate-100 text-slate-400'
+                                    }`}>
+                                      {m.id}
+                                    </div>
+                                  </td>
+                                  <td className="px-8 py-6">
+                                      <p className={`font-black text-sm ${isDone ? 'text-slate-400 line-through' : isNext ? 'text-blue-700' : 'text-slate-800'}`}>
+                                        {m.title}
+                                      </p>
+                                      {isNext && (
+                                        <span className="text-[9px] font-bold text-blue-500 uppercase tracking-widest">← Up Next</span>
+                                      )}
                                   </td>
                                   <td className="px-8 py-6">
                                       {isDone ? (
                                           <span className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[9px] font-black uppercase tracking-widest"><Check size={12}/> Verified</span>
+                                      ) : isNext ? (
+                                          <span className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[9px] font-black uppercase tracking-widest">
+                                            <Calendar size={12}/> Next Class
+                                          </span>
                                       ) : (
                                           <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Enrolled</span>
                                       )}
