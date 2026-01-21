@@ -602,23 +602,23 @@ export const FACILITATOR_MODULES: ModuleContent[] = [];
 export const BOARD_MODULES: ModuleContent[] = [];
 
 // ============================================================
-// FATHERHOOD TRACKER - MODULE DEFINITIONS
+// FATHERHOOD TRACKER - MODULE DEFINITIONS (CORRECTED CURRICULUM)
 // ============================================================
 export const TRACKER_MODULES: TrackerModule[] = [
-  { id: 1, title: "Self-Awareness", category: "Identity" },
-  { id: 2, title: "Improving Me", category: "Identity" },
-  { id: 3, title: "Manhood & Fatherhood", category: "Identity" },
-  { id: 4, title: "Work & Family Balance", category: "Life Skills" },
-  { id: 5, title: "Dad Is Here", category: "Parenting" },
-  { id: 6, title: "Discipline vs Punishment", category: "Parenting" },
-  { id: 7, title: "Building Esteem", category: "Parenting" },
-  { id: 8, title: "Effective Communication", category: "Relationships" },
-  { id: 9, title: "Conflict Resolution", category: "Relationships" },
-  { id: 10, title: "Parenting Disagreements", category: "Relationships" },
-  { id: 11, title: "Workforce Readiness", category: "Career" },
-  { id: 12, title: "Financial Literacy", category: "Career" },
-  { id: 13, title: "Child Support", category: "Legal" },
-  { id: 14, title: "Graduation & Next Steps", category: "Completion" }
+  { id: 1, title: "Conflict Resolution/Anger Management", category: "Relationships" },
+  { id: 2, title: "Becoming Self-Sufficient", category: "Life Skills" },
+  { id: 3, title: "Building Your Child's Self-Esteem", category: "Parenting" },
+  { id: 4, title: "Co-Parenting/Single Fatherhood", category: "Parenting" },
+  { id: 5, title: "Male/Female Relationship", category: "Relationships" },
+  { id: 6, title: "Manhood", category: "Identity" },
+  { id: 7, title: "Values", category: "Identity" },
+  { id: 8, title: "Communication/Active Listening", category: "Relationships" },
+  { id: 9, title: "Dealing with Stress", category: "Life Skills" },
+  { id: 10, title: "Coping with Fatherhood Discrimination", category: "Identity" },
+  { id: 11, title: "Fatherhood Today", category: "Identity" },
+  { id: 12, title: "Understanding Children's Needs", category: "Parenting" },
+  { id: 13, title: "A Father's Influence on His Child", category: "Parenting" },
+  { id: 14, title: "Relationships", category: "Relationships" }
 ];
 
 // ============================================================
