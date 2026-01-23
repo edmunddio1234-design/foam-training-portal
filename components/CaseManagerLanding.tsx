@@ -7,6 +7,7 @@ import {
   Circle, ChevronDown, Clock, Target, Upload, Calendar, AlertCircle,
   ArrowRight
 } from 'lucide-react';
+import ResourceTracker from './ResourceTracker';
 
 interface CaseManagerLandingProps {
   onClose: () => void;
@@ -177,12 +178,14 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [hoveredFileId, setHoveredFileId] = useState<string | null>(null);
   const [hoveredProcedureId, setHoveredProcedureId] = useState<string | null>(null);
-  // NEW: Checklist state
+  // NEW: Resource Tracker state
+  const [showResourceTracker, setShowResourceTracker] = useState(false);
+  // Checklist state
   const [expandedPhases, setExpandedPhases] = useState<Record<string, boolean>>({});
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
   const [clientName, setClientName] = useState('');
 
-  // NEW: Load checklist progress from localStorage
+  // Load checklist progress from localStorage
   useEffect(() => {
     const saved = localStorage.getItem('foam-client-checklist');
     if (saved) {
@@ -194,7 +197,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     }
   }, []);
 
-  // NEW: Save checklist progress
+  // Save checklist progress
   useEffect(() => {
     if (Object.keys(checkedItems).length > 0 || clientName) {
       localStorage.setItem('foam-client-checklist', JSON.stringify({ checkedItems, clientName, lastUpdated: new Date().toISOString() }));
@@ -229,7 +232,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     }
   };
 
-  // NEW: Checklist functions
+  // Checklist functions
   const togglePhase = (phaseId: string) => setExpandedPhases(prev => ({ ...prev, [phaseId]: !prev[phaseId] }));
   const toggleItem = (itemId: string) => setCheckedItems(prev => ({ ...prev, [itemId]: !prev[itemId] }));
   const getPhaseProgress = (phase: ChecklistPhase) => {
@@ -293,7 +296,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       .trim();
   };
 
-  // KEEPING YOUR COMPLETE fileDetailsMap
+  // File details map
   const fileDetailsMap: Record<string, FileDetails> = {
     'new referrals tracker': {
       description: 'Central database for tracking all incoming client referrals',
@@ -460,6 +463,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     }
   };
 
+  // UPDATED: Resource sheets with Resource Tracker replacing Diaper Distribution
   const resourceSheets = [
     {
       id: 'employment',
@@ -470,7 +474,8 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       url: 'https://docs.google.com/spreadsheets/d/1k5wRl9FOAD-GZZb8OHqhcKwmWl0PhIXAMdj7vFd6qFM/edit',
       purpose: 'Monitors all clients receiving employment services from initial assessment through job placement.',
       howToUse: 'Add new clients when they request job help. Update status weekly.',
-      keyTopics: ['Client Status', 'Resume Status', 'Job Search Progress', 'Placement Date']
+      keyTopics: ['Client Status', 'Resume Status', 'Job Search Progress', 'Placement Date'],
+      isComponent: false
     },
     {
       id: 'resource-guide',
@@ -481,18 +486,20 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       url: 'https://docs.google.com/spreadsheets/d/1Joq9gBwd6spIrbqCBgaicuOFv0jAaGYSRntWZRKQry8/edit',
       purpose: 'Directory of community partners and resources for client referrals.',
       howToUse: 'Search by category or need. Verify contact information before referring.',
-      keyTopics: ['Housing Resources', 'Legal Aid', 'Food Assistance', 'Mental Health']
+      keyTopics: ['Housing Resources', 'Legal Aid', 'Food Assistance', 'Mental Health'],
+      isComponent: false
     },
     {
-      id: 'diaper',
-      title: 'Diaper Distribution Tracker',
-      description: 'Monitor diaper distribution, inventory levels, and client assistance records.',
+      id: 'resource-tracker',
+      title: 'Resource Tracker',
+      description: 'Track diapers, donations, transport assistance, and utility support all in one place.',
       icon: Baby,
       color: 'bg-pink-600',
-      url: 'https://docs.google.com/spreadsheets/d/1Fl7HSYwULP88C64rbbz6COAc5gpJH-SmRcWy5SLNIDU/edit',
-      purpose: 'Official record of all diaper distributions for JLBR grant reporting.',
-      howToUse: 'Complete for EVERY distribution. Include client signature.',
-      keyTopics: ['Client Information', 'Diaper Sizes', 'Quantity', 'Funding Source']
+      url: '',
+      purpose: 'Comprehensive resource tracking for diapers, donations, transport, and utilities.',
+      howToUse: 'Select month, add entries for each resource type, view totals on dashboard.',
+      keyTopics: ['Diaper Distribution', 'Donation Tracking', 'Transport Assistance', 'Utility Support'],
+      isComponent: true
     }
   ];
 
@@ -594,7 +601,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     resource.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // UPDATED: Added Data Entry card
+  // Portal cards
   const portalCards = [
     {
       id: 'reports',
@@ -676,7 +683,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
 
   const handleOpenLink = (url: string) => window.open(url, '_blank', 'noopener,noreferrer');
 
-  // UPDATED: renderHomeView with 5 cards + checklist card
+  // renderHomeView with 5 cards + checklist card
   const renderHomeView = () => (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -717,7 +724,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
           </div>
         </div>
       </div>
-      {/* NEW: Interactive Checklist Card */}
+      {/* Interactive Checklist Card */}
       <div onClick={() => setActiveTab('checklist')} className="group bg-gradient-to-br from-teal-50 to-cyan-50 border-2 border-teal-200 rounded-3xl p-8 hover:shadow-xl hover:border-teal-300 transition-all duration-300 cursor-pointer">
         <div className="flex flex-col lg:flex-row items-start gap-6">
           <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-lg shadow-teal-200"><CheckSquare className="w-10 h-10 text-white" /></div>
@@ -745,7 +752,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     </div>
   );
 
-  // NEW: renderChecklistView
+  // renderChecklistView
   const renderChecklistView = () => (
     <div className="space-y-6">
       <div className="flex items-center gap-4 mb-6">
@@ -822,6 +829,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     </div>
   );
 
+  // UPDATED: renderResourcesView to handle Resource Tracker component
   const renderResourcesView = () => (
     <div className="space-y-6">
       <div className="flex items-center gap-4 mb-6">
@@ -830,7 +838,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         </button>
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Resource Trackers</h2>
-          <p className="text-slate-500 text-sm">Google Sheets for tracking and management</p>
+          <p className="text-slate-500 text-sm">Google Sheets and tools for tracking and management</p>
         </div>
       </div>
       <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
@@ -845,7 +853,14 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
         {filteredResources.map((resource) => {
           const IconComponent = resource.icon;
           return (
-            <div key={resource.id} onClick={() => handleOpenLink(resource.url)}
+            <div key={resource.id} 
+              onClick={() => {
+                if (resource.isComponent) {
+                  setShowResourceTracker(true);
+                } else {
+                  handleOpenLink(resource.url);
+                }
+              }}
               className="group bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-lg hover:border-slate-200 transition-all cursor-pointer">
               <div className="space-y-4">
                 <div className={'w-12 h-12 ' + resource.color + ' text-white rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform'}>
@@ -856,7 +871,15 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
                   <p className="text-slate-500 text-sm leading-relaxed">{resource.description}</p>
                 </div>
                 <div className="flex items-center gap-2 text-teal-600 font-bold text-xs uppercase tracking-wider pt-2">
-                  <FileSpreadsheet size={14} /><span>Open in Google Sheets</span><ExternalLink size={12} className="ml-auto" />
+                  {resource.isComponent ? (
+                    <>
+                      <FileSpreadsheet size={14} /><span>Open Tracker</span><ChevronRight size={12} className="ml-auto" />
+                    </>
+                  ) : (
+                    <>
+                      <FileSpreadsheet size={14} /><span>Open in Google Sheets</span><ExternalLink size={12} className="ml-auto" />
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -1058,6 +1081,11 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       </div>
     );
   };
+
+  // Show Resource Tracker component when active
+  if (showResourceTracker) {
+    return <ResourceTracker onBack={() => setShowResourceTracker(false)} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
