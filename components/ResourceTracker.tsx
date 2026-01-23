@@ -3,7 +3,7 @@ import { ArrowLeft, TrendingUp, Users, DollarSign, Package, Gift, Bus, Car, Drop
 
 // ============================================
 // FOAM Resource Tracker - Google Sheets Integration
-// Sheet ID: 1ISn3Z6YEk444MpYApWAS1-JeVdKpiu6LM89aNBeHmVk
+// Sheet ID: 1n-mYCD_2KWUYMXjfD51cSHHesjDfafPkEVeAqTS0xiY
 // ============================================
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://foamla-backend-2.onrender.com';
@@ -421,7 +421,7 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
           </div>
           <div className="flex items-center gap-4">
             <select value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))} className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-white/50">{MONTHS.map((m, i) => <option key={m} value={i} className="text-gray-900">{m} 2026</option>)}</select>
-            <a href="https://docs.google.com/spreadsheets/d/1ISn3Z6YEk444MpYApWAS1-JeVdKpiu6LM89aNBeHmVk/edit" target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg hover:bg-white/20 transition-colors text-sm">Open Sheet ↗</a>
+            <a href="https://docs.google.com/spreadsheets/d/1n-mYCD_2KWUYMXjfD51cSHHesjDfafPkEVeAqTS0xiY/edit" target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg hover:bg-white/20 transition-colors text-sm">Open Sheet ↗</a>
           </div>
         </div>
       </header>
