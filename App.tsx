@@ -1868,7 +1868,7 @@ const App: React.FC = () => {
     );
   }
 
-  // Admin Portal - WITH CHATBOT
+  // Admin Portal (Grant Management) - WITH CHATBOT
   if (currentView === 'admin') {
     if (!isGrantAuthenticated) {
       return (
@@ -1888,16 +1888,11 @@ const App: React.FC = () => {
     );
   }
 
-  // Document Library - WITH CHATBOT
+  // =====================================================
+  // FIXED: Document Library - NO LONGER REQUIRES GRANT LOGIN
+  // Now goes directly to AdminPortal with documents tab
+  // =====================================================
   if (currentView === 'documents') {
-    if (!isGrantAuthenticated) {
-      return (
-        <>
-          <GrantLoginPage onLogin={() => setIsGrantAuthenticated(true)} onBack={() => setCurrentView('hub')} />
-          <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
-        </>
-      );
-    }
     return (
       <>
         <div className="h-screen animate-in fade-in duration-500 relative z-0">
