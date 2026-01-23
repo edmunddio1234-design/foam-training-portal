@@ -4,7 +4,8 @@ import {
   AlertTriangle, CheckCircle2, Clock, TrendingUp, X, XCircle,
   PieChart, Building2, ChevronRight, ExternalLink, Bell,
   FolderOpen, File, BarChart3, Target, Lightbulb, ArrowUpRight,
-  ArrowDownRight, Activity, Zap, Plus, Compass, Database, Users, Layers
+  ArrowDownRight, Activity, Zap, Plus, Compass, Database, Users, Layers,
+  Loader2
 } from 'lucide-react';
 import IRS990Research from './IRS990Research';
 import FoundationResearchHub from './FoundationResearchHub';
@@ -352,8 +353,8 @@ const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void; onOpenFoundat
   );
 };
 
-// Document Library Component with AI Chat
-const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Document[] }> = ({ onLoadDocuments, documents }) => {
+// Document Library Component with AI Chat - UPDATED with loading state
+const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Document[]; isLoading: boolean }> = ({ onLoadDocuments, documents, isLoading }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Document[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -457,6 +458,26 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
 
   return (
     <div className="max-w-7xl mx-auto p-6">
+      {/* Loading Banner - Shows when documents are being fetched */}
+      {isLoading && (
+        <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+              <Loader2 className="text-blue-600 animate-spin" size={24} />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-blue-800">Loading Your Documents</h3>
+              <p className="text-blue-600 text-sm">
+                Connecting to Google Drive and retrieving your files. This may take a moment...
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 w-full bg-blue-100 rounded-full h-2 overflow-hidden">
+            <div className="h-full bg-blue-500 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* AI Chat Panel */}
         <div className="lg:col-span-1">
@@ -566,9 +587,10 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
                 </select>
                 <button
                   onClick={onLoadDocuments}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
+                  disabled={isLoading}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50"
                 >
-                  <RefreshCw size={16} />
+                  <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
                 </button>
               </div>
             </div>
@@ -576,12 +598,22 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
 
           {/* Results Count */}
           <p className="text-slate-500 mb-4 font-medium">
-            {isSearching ? 'Searching...' : `${filteredDocs.length} documents`}
+            {isSearching ? 'Searching...' : isLoading ? 'Loading documents...' : `${filteredDocs.length} documents`}
             {searchQuery && ` matching "${searchQuery}"`}
           </p>
 
           {/* Documents Grid */}
-          {filteredDocs.length > 0 ? (
+          {isLoading && documents.length === 0 ? (
+            <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Loader2 className="text-blue-600 animate-spin" size={32} />
+              </div>
+              <p className="text-slate-700 font-medium text-lg">Loading your files...</p>
+              <p className="text-slate-400 text-sm mt-2">
+                Fetching documents from Google Drive. This will only take a moment.
+              </p>
+            </div>
+          ) : filteredDocs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto">
               {filteredDocs.map((doc) => (
                 <a
@@ -637,6 +669,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
   const [stats, setStats] = useState<GrantStats | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDocumentsLoading, setIsDocumentsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGrant, setSelectedGrant] = useState<Grant | null>(null);
@@ -664,10 +697,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
   });
 
   useEffect(() => {
-    loadGrantData();
     // If opening directly to documents tab, load documents immediately
     if (initialTab === 'documents') {
+      setIsLoading(false); // Don't show grant loading for documents
       loadDocuments();
+    } else {
+      loadGrantData();
     }
   }, [initialTab]);
 
@@ -693,6 +728,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
   };
 
   const loadDocuments = async () => {
+    setIsDocumentsLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/api/documents?all=true`);
       const data = await res.json();
@@ -702,6 +738,8 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
       }
     } catch (err) {
       console.error('Error loading documents:', err);
+    } finally {
+      setIsDocumentsLoading(false);
     }
   };
 
@@ -920,7 +958,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                 </button>
               )}
               <button onClick={mainTab === 'documents' ? loadDocuments : loadGrantData} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl transition-all font-medium">
-                <RefreshCw size={18} /> Refresh
+                <RefreshCw size={18} className={isDocumentsLoading ? 'animate-spin' : ''} /> Refresh
               </button>
             </div>
           </div>
@@ -1254,7 +1292,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
 
       {/* DOCUMENT LIBRARY */}
       {mainTab === 'documents' && (
-        <DocumentLibrary onLoadDocuments={loadDocuments} documents={documents} />
+        <DocumentLibrary onLoadDocuments={loadDocuments} documents={documents} isLoading={isDocumentsLoading} />
       )}
 
       {/* Grant Detail Modal */}
