@@ -157,6 +157,19 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
   const [showWaterForm, setShowWaterForm] = useState(false);
   const [showElectricForm, setShowElectricForm] = useState(false);
   const [showRentForm, setShowRentForm] = useState(false);
+  const [showQuickLogDropdown, setShowQuickLogDropdown] = useState(false);
+  const quickLogRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (quickLogRef.current && !quickLogRef.current.contains(event.target as Node)) {
+        setShowQuickLogDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const getDefaultDate = () => new Date().toISOString().split('T')[0];
 
@@ -352,7 +365,41 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
         {/* Quick Actions */}
         <div className="bg-white rounded-xl shadow-md p-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-800 flex items-center gap-2"><Plus size={18} className="text-blue-600" /> Quick Log</h3>
+            <div className="relative" ref={quickLogRef}>
+              <button 
+                onClick={() => setShowQuickLogDropdown(!showQuickLogDropdown)}
+                className="font-semibold text-gray-800 flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors"
+              >
+                <Plus size={18} className="text-blue-600" /> 
+                Quick Log
+                <svg className={`w-4 h-4 text-gray-500 transition-transform ${showQuickLogDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {showQuickLogDropdown && (
+                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
+                  {[
+                    { label: 'Log Diapers', icon: <Package size={16} />, color: 'text-blue-600', bg: 'hover:bg-blue-50', action: () => { setShowDiaperForm(true); setShowQuickLogDropdown(false); } },
+                    { label: 'Log Donation Given', icon: <Gift size={16} />, color: 'text-green-600', bg: 'hover:bg-green-50', action: () => { setShowDonationGivenForm(true); setShowQuickLogDropdown(false); } },
+                    { label: 'Log In-Kind Received', icon: <Gift size={16} />, color: 'text-emerald-600', bg: 'hover:bg-emerald-50', action: () => { setShowInKindForm(true); setShowQuickLogDropdown(false); } },
+                    { label: 'Log Bus Pass', icon: <Bus size={16} />, color: 'text-purple-600', bg: 'hover:bg-purple-50', action: () => { setShowBusForm(true); setShowQuickLogDropdown(false); } },
+                    { label: 'Log Uber Ride', icon: <Car size={16} />, color: 'text-gray-700', bg: 'hover:bg-gray-50', action: () => { setShowUberForm(true); setShowQuickLogDropdown(false); } },
+                    { label: 'Log Water Bill', icon: <Droplets size={16} />, color: 'text-blue-500', bg: 'hover:bg-blue-50', action: () => { setShowWaterForm(true); setShowQuickLogDropdown(false); } },
+                    { label: 'Log Electric Bill', icon: <Zap size={16} />, color: 'text-yellow-600', bg: 'hover:bg-yellow-50', action: () => { setShowElectricForm(true); setShowQuickLogDropdown(false); } },
+                    { label: 'Log Rent Payment', icon: <Home size={16} />, color: 'text-orange-600', bg: 'hover:bg-orange-50', action: () => { setShowRentForm(true); setShowQuickLogDropdown(false); } },
+                  ].map((item, i) => (
+                    <button
+                      key={i}
+                      onClick={item.action}
+                      className={`w-full px-4 py-2 flex items-center gap-3 ${item.bg} transition-colors`}
+                    >
+                      <span className={item.color}>{item.icon}</span>
+                      <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
             {[
@@ -787,6 +834,121 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
 
       {/* Footer */}
       <footer className="bg-white border-t py-4 px-6 mt-auto"><div className="max-w-7xl mx-auto text-center text-sm text-gray-500">FOAM Resource Tracker 2026 • Connected to Google Sheets</div></footer>
+
+      {/* ============================================ */}
+      {/* GLOBAL FORM MODALS - Available from any tab */}
+      {/* ============================================ */}
+      
+      {/* Diaper Form */}
+      <FormModal show={showDiaperForm} onClose={() => setShowDiaperForm(false)} title="Log Diaper Distribution" onSubmit={handleDiaperSubmit} color="bg-blue-600">
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Date *</label><input type="date" value={newDiaperEntry.date} onChange={(e) => setNewDiaperEntry({...newDiaperEntry, date: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Size *</label><select value={newDiaperEntry.diaperSize} onChange={(e) => setNewDiaperEntry({...newDiaperEntry, diaperSize: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">{DIAPER_SIZES.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Client Name *</label><input type="text" value={newDiaperEntry.clientName} onChange={(e) => setNewDiaperEntry({...newDiaperEntry, clientName: e.target.value})} placeholder="Enter father's name" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required /></div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Diapers Qty *</label><input type="number" value={newDiaperEntry.diapersQty || ''} onChange={(e) => setNewDiaperEntry({...newDiaperEntry, diapersQty: Number(e.target.value)})} min="0" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Packs</label><input type="number" value={newDiaperEntry.packs || ''} onChange={(e) => setNewDiaperEntry({...newDiaperEntry, packs: Number(e.target.value)})} min="0" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" /></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Notes</label><textarea value={newDiaperEntry.notes} onChange={(e) => setNewDiaperEntry({...newDiaperEntry, notes: e.target.value})} rows={2} placeholder="Optional notes..." className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" /></div>
+      </FormModal>
+
+      {/* Donation Given Form */}
+      <FormModal show={showDonationGivenForm} onClose={() => setShowDonationGivenForm(false)} title="Log Donation Given" onSubmit={handleDonationGivenSubmit} color="bg-green-600">
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Date *</label><input type="date" value={newDonationGiven.date} onChange={(e) => setNewDonationGiven({...newDonationGiven, date: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500" required /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Item Type *</label><select value={newDonationGiven.itemType} onChange={(e) => setNewDonationGiven({...newDonationGiven, itemType: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500">{DONATION_ITEM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Client Name *</label><input type="text" value={newDonationGiven.clientName} onChange={(e) => setNewDonationGiven({...newDonationGiven, clientName: e.target.value})} placeholder="Enter client's name" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500" required /></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Description *</label><input type="text" value={newDonationGiven.description} onChange={(e) => setNewDonationGiven({...newDonationGiven, description: e.target.value})} placeholder="e.g., Winter coat, Size L" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500" required /></div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label><input type="number" value={newDonationGiven.quantity || ''} onChange={(e) => setNewDonationGiven({...newDonationGiven, quantity: Number(e.target.value)})} min="1" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500" /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Est. Value ($)</label><input type="number" value={newDonationGiven.estimatedValue || ''} onChange={(e) => setNewDonationGiven({...newDonationGiven, estimatedValue: Number(e.target.value)})} min="0" step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500" /></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Notes</label><textarea value={newDonationGiven.notes} onChange={(e) => setNewDonationGiven({...newDonationGiven, notes: e.target.value})} rows={2} placeholder="Optional notes..." className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500" /></div>
+      </FormModal>
+
+      {/* In-Kind Donation Form */}
+      <FormModal show={showInKindForm} onClose={() => setShowInKindForm(false)} title="Log In-Kind Donation Received" onSubmit={handleInKindSubmit} color="bg-emerald-600">
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Date *</label><input type="date" value={newInKindDonation.date} onChange={(e) => setNewInKindDonation({...newInKindDonation, date: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500" required /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Item Type *</label><select value={newInKindDonation.itemType} onChange={(e) => setNewInKindDonation({...newInKindDonation, itemType: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500">{DONATION_ITEM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Donor Name *</label><input type="text" value={newInKindDonation.donorName} onChange={(e) => setNewInKindDonation({...newInKindDonation, donorName: e.target.value})} placeholder="Enter donor's name or organization" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500" required /></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Description *</label><input type="text" value={newInKindDonation.description} onChange={(e) => setNewInKindDonation({...newInKindDonation, description: e.target.value})} placeholder="e.g., 50 canned goods" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500" required /></div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label><input type="number" value={newInKindDonation.quantity || ''} onChange={(e) => setNewInKindDonation({...newInKindDonation, quantity: Number(e.target.value)})} min="1" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500" /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Est. Value ($)</label><input type="number" value={newInKindDonation.estimatedValue || ''} onChange={(e) => setNewInKindDonation({...newInKindDonation, estimatedValue: Number(e.target.value)})} min="0" step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500" /></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Notes</label><textarea value={newInKindDonation.notes} onChange={(e) => setNewInKindDonation({...newInKindDonation, notes: e.target.value})} rows={2} placeholder="Optional notes..." className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500" /></div>
+      </FormModal>
+
+      {/* Bus Pass Form */}
+      <FormModal show={showBusForm} onClose={() => setShowBusForm(false)} title="Log C.A.T. Bus Pass" onSubmit={handleBusSubmit} color="bg-purple-600">
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Date *</label><input type="date" value={newBusPass.date} onChange={(e) => setNewBusPass({...newBusPass, date: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500" required /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Pass Type *</label><select value={newBusPass.passType} onChange={(e) => setNewBusPass({...newBusPass, passType: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">{BUS_PASS_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Client Name *</label><input type="text" value={newBusPass.clientName} onChange={(e) => setNewBusPass({...newBusPass, clientName: e.target.value})} placeholder="Enter client's name" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500" required /></div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label><input type="number" value={newBusPass.quantity || ''} onChange={(e) => setNewBusPass({...newBusPass, quantity: Number(e.target.value)})} min="1" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500" /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Cost ($) *</label><input type="number" value={newBusPass.cost || ''} onChange={(e) => setNewBusPass({...newBusPass, cost: Number(e.target.value)})} min="0" step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500" required /></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Notes</label><textarea value={newBusPass.notes} onChange={(e) => setNewBusPass({...newBusPass, notes: e.target.value})} rows={2} placeholder="Optional notes..." className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500" /></div>
+      </FormModal>
+
+      {/* Uber Form */}
+      <FormModal show={showUberForm} onClose={() => setShowUberForm(false)} title="Log Uber Ride" onSubmit={handleUberSubmit} color="bg-gray-800">
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Date *</label><input type="date" value={newUberEntry.date} onChange={(e) => setNewUberEntry({...newUberEntry, date: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-gray-500" required /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Purpose *</label><select value={newUberEntry.purpose} onChange={(e) => setNewUberEntry({...newUberEntry, purpose: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-gray-500">{RIDE_PURPOSES.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Client Name *</label><input type="text" value={newUberEntry.clientName} onChange={(e) => setNewUberEntry({...newUberEntry, clientName: e.target.value})} placeholder="Enter client's name" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-gray-500" required /></div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Pickup *</label><input type="text" value={newUberEntry.pickup} onChange={(e) => setNewUberEntry({...newUberEntry, pickup: e.target.value})} placeholder="e.g., FOAM Office" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-gray-500" required /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Destination *</label><input type="text" value={newUberEntry.destination} onChange={(e) => setNewUberEntry({...newUberEntry, destination: e.target.value})} placeholder="e.g., Job Interview" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-gray-500" required /></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Cost ($) *</label><input type="number" value={newUberEntry.cost || ''} onChange={(e) => setNewUberEntry({...newUberEntry, cost: Number(e.target.value)})} min="0" step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-gray-500" required /></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Notes</label><textarea value={newUberEntry.notes} onChange={(e) => setNewUberEntry({...newUberEntry, notes: e.target.value})} rows={2} placeholder="Optional notes..." className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-gray-500" /></div>
+      </FormModal>
+
+      {/* Water Form */}
+      <FormModal show={showWaterForm} onClose={() => setShowWaterForm(false)} title="Log Water Bill Assistance" onSubmit={handleWaterSubmit} color="bg-blue-500">
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Date *</label><input type="date" value={newWaterEntry.date} onChange={(e) => setNewWaterEntry({...newWaterEntry, date: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Provider *</label><select value={newWaterEntry.provider} onChange={(e) => setNewWaterEntry({...newWaterEntry, provider: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">{WATER_PROVIDERS.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Client Name *</label><input type="text" value={newWaterEntry.clientName} onChange={(e) => setNewWaterEntry({...newWaterEntry, clientName: e.target.value})} placeholder="Enter client's name" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required /></div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Account #</label><input type="text" value={newWaterEntry.accountNumber} onChange={(e) => setNewWaterEntry({...newWaterEntry, accountNumber: e.target.value})} placeholder="Optional" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Amount ($) *</label><input type="number" value={newWaterEntry.amount || ''} onChange={(e) => setNewWaterEntry({...newWaterEntry, amount: Number(e.target.value)})} min="0" step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required /></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Notes</label><textarea value={newWaterEntry.notes} onChange={(e) => setNewWaterEntry({...newWaterEntry, notes: e.target.value})} rows={2} placeholder="Optional notes..." className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" /></div>
+      </FormModal>
+
+      {/* Electric Form */}
+      <FormModal show={showElectricForm} onClose={() => setShowElectricForm(false)} title="Log Electric Bill Assistance" onSubmit={handleElectricSubmit} color="bg-yellow-500">
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Date *</label><input type="date" value={newElectricEntry.date} onChange={(e) => setNewElectricEntry({...newElectricEntry, date: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500" required /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Provider *</label><select value={newElectricEntry.provider} onChange={(e) => setNewElectricEntry({...newElectricEntry, provider: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500">{ELECTRIC_PROVIDERS.map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Client Name *</label><input type="text" value={newElectricEntry.clientName} onChange={(e) => setNewElectricEntry({...newElectricEntry, clientName: e.target.value})} placeholder="Enter client's name" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500" required /></div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Account #</label><input type="text" value={newElectricEntry.accountNumber} onChange={(e) => setNewElectricEntry({...newElectricEntry, accountNumber: e.target.value})} placeholder="Optional" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500" /></div>
+          <div><label className="block text-sm font-medium text-gray-700 mb-1">Amount ($) *</label><input type="number" value={newElectricEntry.amount || ''} onChange={(e) => setNewElectricEntry({...newElectricEntry, amount: Number(e.target.value)})} min="0" step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500" required /></div>
+        </div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Notes</label><textarea value={newElectricEntry.notes} onChange={(e) => setNewElectricEntry({...newElectricEntry, notes: e.target.value})} rows={2} placeholder="Optional notes..." className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500" /></div>
+      </FormModal>
+
+      {/* Rent Form */}
+      <FormModal show={showRentForm} onClose={() => setShowRentForm(false)} title="Log Rent Assistance" onSubmit={handleRentSubmit} color="bg-orange-500">
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Date *</label><input type="date" value={newRentEntry.date} onChange={(e) => setNewRentEntry({...newRentEntry, date: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" required /></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Client Name *</label><input type="text" value={newRentEntry.clientName} onChange={(e) => setNewRentEntry({...newRentEntry, clientName: e.target.value})} placeholder="Enter client's name" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" required /></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Landlord Name *</label><input type="text" value={newRentEntry.landlordName} onChange={(e) => setNewRentEntry({...newRentEntry, landlordName: e.target.value})} placeholder="Enter landlord's name" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" required /></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Property Address</label><input type="text" value={newRentEntry.propertyAddress} onChange={(e) => setNewRentEntry({...newRentEntry, propertyAddress: e.target.value})} placeholder="Enter address (optional)" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" /></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Amount ($) *</label><input type="number" value={newRentEntry.amount || ''} onChange={(e) => setNewRentEntry({...newRentEntry, amount: Number(e.target.value)})} min="0" step="0.01" className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" required /></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">Notes</label><textarea value={newRentEntry.notes} onChange={(e) => setNewRentEntry({...newRentEntry, notes: e.target.value})} rows={2} placeholder="Optional notes..." className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500" /></div>
+      </FormModal>
     </div>
   );
 };
