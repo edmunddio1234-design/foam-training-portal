@@ -78,22 +78,60 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
 
   const selectedFather = fathers.find(f => f.id === selectedFatherId) || null;
 
-  // LIVE STATS - Calculated directly from fathers array so counts always match filter buttons
+  // Helper function to calculate days since last activity
+  const getDaysSinceActivity = (father: Father): number => {
+    if (!father.lastActiveDate) return 999;
+    const lastActive = new Date(father.lastActiveDate);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - lastActive.getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  // LIVE STATS - Calculated directly from fathers array so counts always match
+  // Using consistent logic: 
+  // - Graduated: 14/14 modules completed
+  // - Active: Has activity within last 28 days AND < 14 modules
+  // - At Risk: 14-28 days inactive with < 14 modules
+  // - Inactive: 28+ days inactive with < 14 modules
+  // - Certificates: Same as graduated (14/14 = certificate earned/pending)
   const liveStats = {
     total: fathers.length,
-    active: fathers.filter(f => f.status === 'Active').length,
-    inactive: fathers.filter(f => f.status === 'Inactive').length,
-    atRisk: fathers.filter(f => f.status === 'At Risk').length,
-    graduated: fathers.filter(f => f.status === 'Graduated').length,
-    certificates: fathers.filter(f => {
-      const father = f as any;
-      return f.certificateReceived === true || 
-             f.certificateReceived === 'Yes' || 
-             father.certificate === true ||
-             father.certificate === 'Yes' ||
-             father.certificateIssued === true ||
-             father.certificateIssued === 'Yes';
-    }).length
+    
+    // Graduated = completed all 14 modules
+    graduated: fathers.filter(f => 
+      f.completedModules.length === 14 || 
+      f.status === 'Graduated'
+    ).length,
+    
+    // Active = status is Active OR (has recent activity AND not graduated)
+    active: fathers.filter(f => {
+      if (f.completedModules.length === 14 || f.status === 'Graduated') return false;
+      if (f.status === 'Active') return true;
+      const daysSince = getDaysSinceActivity(f);
+      return daysSince <= 14 && f.completedModules.length > 0;
+    }).length,
+    
+    // At Risk = 14-28 days inactive OR status is At Risk
+    atRisk: fathers.filter(f => {
+      if (f.completedModules.length === 14 || f.status === 'Graduated') return false;
+      if (f.status === 'At Risk') return true;
+      const daysSince = getDaysSinceActivity(f);
+      return daysSince > 14 && daysSince <= 28;
+    }).length,
+    
+    // Inactive = 28+ days inactive OR status is Inactive
+    inactive: fathers.filter(f => {
+      if (f.completedModules.length === 14 || f.status === 'Graduated') return false;
+      if (f.status === 'Inactive') return true;
+      const daysSince = getDaysSinceActivity(f);
+      return daysSince > 28;
+    }).length,
+    
+    // Certificates = fathers who completed all 14 modules (they get certificates)
+    certificates: fathers.filter(f => 
+      f.completedModules.length === 14 || 
+      f.status === 'Graduated'
+    ).length
   };
 
   const menuItems = [
