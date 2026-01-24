@@ -35,15 +35,15 @@ const OrganizationalHandbook: React.FC<OrganizationalHandbookProps> = ({ onBack 
       content: [
         {
           title: 'Our Mission',
-          text: 'Fathers On A Mission (FOAM) is dedicated to empowering fathers in East Baton Rouge Parish to become positive, engaged parents through comprehensive support services, education, and community resources. We believe every father has the potential to be a transformative force in their children\'s lives.'
+          text: 'To enhance Fathers and Father Figures which will ultimately strengthen families.'
         },
         {
           title: 'Our Vision',
-          text: 'A community where every child has an actively involved, emotionally present, and supportive father figure who contributes positively to their development and well-being.'
+          text: 'All Fathers and Father Figures are active positive role models with their children, families and in the community.'
         },
         {
-          title: 'Core Values',
-          text: '• Family First - We prioritize the well-being of families in all our decisions\n• Empowerment - We equip fathers with tools and knowledge for success\n• Accountability - We hold ourselves and participants to high standards\n• Community - We build supportive networks that extend beyond our programs\n• Respect - We honor the dignity and potential of every individual'
+          title: 'The 4 Pillars',
+          text: '1. Education - Equipping fathers with knowledge and skills for effective parenting\n\n2. Strong Relationships - Building healthy connections with children, partners, and community\n\n3. Holistic Health - Supporting physical, mental, and emotional well-being\n\n4. Socioeconomic Improvement Opportunities - Creating pathways to financial stability and career growth'
         }
       ]
     },
@@ -78,60 +78,60 @@ const OrganizationalHandbook: React.FC<OrganizationalHandbookProps> = ({ onBack 
       color: 'emerald',
       content: [
         {
-          title: 'Module 1: Conflict Resolution/Anger Management',
-          text: 'Learn healthy ways to manage emotions and resolve conflicts constructively in family relationships.'
+          title: 'Lesson 1: Introduction to Fatherhood Development',
+          text: 'Category: Personal Development\n\nOrientation to the program, establishing group norms, and introducing the journey of responsible fatherhood.'
         },
         {
-          title: 'Module 2: Becoming Self-Sufficient',
-          text: 'Develop skills for financial independence, employment readiness, and personal responsibility.'
+          title: 'Lesson 2: Manhood',
+          text: 'Category: Personal Development\n\nExploring what it means to be a man, examining societal expectations, and defining personal values around masculinity.'
         },
         {
-          title: 'Module 3: Personal Development',
-          text: 'Focus on self-improvement, goal setting, and building a positive self-image as a father.'
+          title: 'Lesson 3: Values',
+          text: 'Category: Personal Development\n\nIdentifying core personal values and understanding how they shape decisions as a father and role model.'
         },
         {
-          title: 'Module 4: Relationships',
-          text: 'Build healthy relationships with partners, children, and extended family members.'
+          title: 'Lesson 4: Becoming Self-Sufficient',
+          text: 'Category: Personal Development\n\nDeveloping skills for financial independence, employment readiness, and personal responsibility.'
         },
         {
-          title: 'Module 5: Healthy Families',
-          text: 'Understand the components of healthy family dynamics and how to create a nurturing home environment.'
+          title: 'Lesson 5: Communication / Active Listening',
+          text: 'Category: Life Skills\n\nBuilding effective communication techniques and learning to truly listen in family relationships.'
         },
         {
-          title: 'Module 6: Parenting Skills',
-          text: 'Learn age-appropriate parenting techniques, discipline strategies, and child development basics.'
+          title: 'Lesson 6: Dealing with Stress',
+          text: 'Category: Life Skills\n\nRecognizing stress triggers, developing healthy coping mechanisms, and managing pressure constructively.'
         },
         {
-          title: 'Module 7: Fatherhood',
-          text: 'Explore the unique role of fathers and the impact of father involvement on child outcomes.'
+          title: 'Lesson 7: Coping with Fatherhood Discrimination',
+          text: 'Category: Life Skills\n\nAddressing challenges fathers face in systems and society, and strategies for advocacy and resilience.'
         },
         {
-          title: 'Module 8: Communication Skills',
-          text: 'Develop effective communication techniques for family relationships and professional settings.'
+          title: 'Lesson 8: Fatherhood Today',
+          text: 'Category: Responsible Fatherhood\n\nUnderstanding the modern role of fathers and the evolving expectations of engaged parenting.'
         },
         {
-          title: 'Module 9: Co-Parenting',
-          text: 'Navigate shared parenting responsibilities and maintain positive co-parenting relationships.'
+          title: 'Lesson 9: Understanding Children\'s Needs',
+          text: 'Category: Responsible Fatherhood\n\nLearning about child development stages and how to meet children\'s physical, emotional, and developmental needs.'
         },
         {
-          title: 'Module 10: Child Support & Legal Issues',
-          text: 'Understand child support obligations, custody rights, and navigating the legal system.'
+          title: 'Lesson 10: A Father\'s Influence on His Children',
+          text: 'Category: Responsible Fatherhood\n\nExploring the profound impact fathers have on child outcomes, self-esteem, and future success.'
         },
         {
-          title: 'Module 11: Financial Literacy',
-          text: 'Build budgeting skills, understand credit, and develop long-term financial planning strategies.'
+          title: 'Lesson 11: Building Your Child\'s Self-Esteem',
+          text: 'Category: Responsible Fatherhood\n\nTechniques for nurturing confidence, providing positive reinforcement, and supporting healthy self-image in children.'
         },
         {
-          title: 'Module 12: Health & Wellness',
-          text: 'Focus on physical and mental health, stress management, and healthy lifestyle choices.'
+          title: 'Lesson 12: Relationships',
+          text: 'Category: Relationships\n\nBuilding and maintaining healthy relationships with partners, family members, and support networks.'
         },
         {
-          title: 'Module 13: Career Development',
-          text: 'Explore career pathways, job search strategies, and professional skill development.'
+          title: 'Lesson 13: Conflict Resolution / Anger Management',
+          text: 'Category: Relationships\n\nLearning healthy ways to manage emotions and resolve conflicts constructively in family relationships.'
         },
         {
-          title: 'Module 14: Graduation & Next Steps',
-          text: 'Celebrate achievements, set future goals, and plan for continued growth as a father.'
+          title: 'Lesson 14: Male/Female Co-Parenting & Single Fatherhood',
+          text: 'Category: Relationships\n\nNavigating shared parenting responsibilities, communication with co-parents, and thriving as a single father.'
         }
       ]
     },
