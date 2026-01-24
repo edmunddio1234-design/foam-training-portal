@@ -45,6 +45,7 @@ const CATEGORY_CONFIG: Record<string, { icon: any; color: string; bgColor: strin
   'Housing': { icon: Home, color: 'from-blue-500 to-blue-600', bgColor: 'bg-blue-50', borderColor: 'border-blue-200', description: 'Emergency shelter, rental assistance, and housing programs' },
   'Employment': { icon: Briefcase, color: 'from-emerald-500 to-emerald-600', bgColor: 'bg-emerald-50', borderColor: 'border-emerald-200', description: 'Job training, placement, and workforce development' },
   'Legal Aid': { icon: Scale, color: 'from-purple-500 to-purple-600', bgColor: 'bg-purple-50', borderColor: 'border-purple-200', description: 'Legal assistance, family law, and advocacy' },
+  'Legal Services': { icon: Scale, color: 'from-purple-500 to-purple-600', bgColor: 'bg-purple-50', borderColor: 'border-purple-200', description: 'Legal assistance, family law, and advocacy' },
   'Food Assistance': { icon: Utensils, color: 'from-orange-500 to-orange-600', bgColor: 'bg-orange-50', borderColor: 'border-orange-200', description: 'Food banks, SNAP, and nutrition programs' },
   'Mental Health': { icon: Heart, color: 'from-pink-500 to-pink-600', bgColor: 'bg-pink-50', borderColor: 'border-pink-200', description: 'Counseling, therapy, and crisis support' },
   'Healthcare': { icon: Stethoscope, color: 'from-red-500 to-red-600', bgColor: 'bg-red-50', borderColor: 'border-red-200', description: 'Medical clinics, insurance, and health services' },
@@ -124,19 +125,37 @@ const ResourceGuideRolodex: React.FC<ResourceGuideRolodexProps> = ({ onBack }) =
     }
   }, []);
 
-  // Demo data for development/fallback
+  // Demo data matching actual Google Sheet data - fallback when backend unavailable
   const setDemoData = () => {
     const demoResources: Resource[] = [
-      { id: '1', category: 'Housing', name: 'Baton Rouge Housing Authority', description: 'Public housing and Section 8 vouchers', phone: '(225) 923-8100', address: '4731 North Blvd, Baton Rouge, LA 70806', website: 'https://brhousing.org' },
-      { id: '2', category: 'Housing', name: 'Capital Area Alliance for the Homeless', description: 'Emergency shelter and homeless services', phone: '(225) 355-0886', address: '755 Main St, Baton Rouge, LA' },
-      { id: '3', category: 'Housing', name: 'Habitat for Humanity', description: 'Affordable homeownership programs', phone: '(225) 769-4364', website: 'https://habitat.org' },
-      { id: '4', category: 'Employment', name: 'Louisiana Workforce Commission', description: 'Job search assistance and unemployment', phone: '(225) 342-3111', website: 'https://laworks.net' },
-      { id: '5', category: 'Employment', name: 'Goodwill Industries', description: 'Job training and employment services', phone: '(225) 775-8313', address: '7777 Florida Blvd, Baton Rouge, LA' },
-      { id: '6', category: 'Legal Aid', name: 'Southeast Louisiana Legal Services', description: 'Free legal assistance for low-income residents', phone: '(225) 448-0320', website: 'https://slls.org' },
-      { id: '7', category: 'Food Assistance', name: 'Greater Baton Rouge Food Bank', description: 'Food distribution and pantry network', phone: '(225) 359-9940', address: '10600 S. Choctaw Dr, Baton Rouge, LA' },
-      { id: '8', category: 'Mental Health', name: 'Capital Area Human Services', description: 'Mental health and substance abuse services', phone: '(225) 925-1906', website: 'https://cahsd.org' },
-      { id: '9', category: 'Healthcare', name: 'Our Lady of the Lake', description: 'Hospital and community health services', phone: '(225) 765-6565', address: '5000 Hennessy Blvd, Baton Rouge, LA' },
-      { id: '10', category: 'Childcare', name: 'Child Care Assistance Program', description: 'Subsidized childcare for working families', phone: '(225) 219-9898', website: 'https://louisianabelieves.com' },
+      // Childcare (3)
+      { id: '1', category: 'Childcare', name: 'Childcare Assistance Program', description: 'Financial assistance for childcare while working or in school', address: '1201 North Third St', phone: '1-877-453-2721', website: 'https://louisianabelieves.com', email: 'LDEccap@la.gov', notes: 'Online application' },
+      { id: '2', category: 'Childcare', name: 'YWCA Early Head Start', description: 'Early Head Start for infants & toddlers under 3', address: '8120 Kelwood Ave', phone: '(225) 383-0681', website: 'https://ywca-br.org', notes: 'Call and ask for transfer' },
+      { id: '3', category: 'Childcare', name: 'Volunteers of America', description: 'Childcare placement assistance', address: '7389 Florida Blvd, Ste 101A', phone: '(225) 926-8005', website: 'https://voascla.org', notes: 'Call for specific area' },
+      // Housing (3)
+      { id: '4', category: 'Housing', name: 'Housing Authority of EBR', description: 'Public housing and Section 8 vouchers', address: '4731 North Blvd', phone: '(225) 923-8100', website: 'https://ebrpha.org', notes: 'Application required' },
+      { id: '5', category: 'Housing', name: 'Volunteers of America - Housing', description: 'Transitional housing assistance', address: '7389 Florida Blvd', phone: '(225) 926-8005', website: 'https://voascla.org', notes: 'Call for intake' },
+      { id: '6', category: 'Housing', name: 'St. Vincent de Paul', description: 'Emergency rent/utility assistance', address: 'Multiple locations', phone: '(225) 383-7837', website: 'https://svdpbr.org', notes: 'Walk-in or call' },
+      // Employment (3)
+      { id: '7', category: 'Employment', name: 'Louisiana Workforce Commission', description: 'Job search, training, unemployment', address: '1001 North 23rd St', phone: '(225) 342-3111', website: 'https://laworks.net', notes: 'Walk-in registration' },
+      { id: '8', category: 'Employment', name: 'Goodwill Industries', description: 'Job training, career services', address: '7777 Florida Blvd', phone: '(225) 272-4057', website: 'https://goodwillno.org', notes: 'Walk-in' },
+      { id: '9', category: 'Employment', name: 'BRCC Workforce Training', description: 'Vocational training, certifications', address: '201 Community College Dr', phone: '(225) 216-8000', website: 'https://mybrcc.edu', notes: 'Enrollment required' },
+      // Mental Health (3)
+      { id: '10', category: 'Mental Health', name: 'Capital Area Human Services', description: 'Mental health counseling, substance abuse', address: '4615 Government St', phone: '(225) 925-1906', website: 'https://cahsd.org', notes: 'Call for appointment' },
+      { id: '11', category: 'Mental Health', name: 'NAMI Louisiana', description: 'Mental health support, education', phone: '(225) 291-6264', website: 'https://namilouisiana.org', notes: 'Call helpline' },
+      { id: '12', category: 'Mental Health', name: 'Hope Ministries', description: 'Faith-based counseling', phone: '(225) 923-4673', notes: 'Call for referral' },
+      // Food Assistance (2)
+      { id: '13', category: 'Food Assistance', name: 'Greater BR Food Bank', description: 'Food pantry, distribution events', address: '10600 S Choctaw Dr', phone: '(225) 359-9940', website: 'https://brfoodbank.org', notes: 'Check schedule' },
+      { id: '14', category: 'Food Assistance', name: 'SNAP Benefits (DCFS)', description: 'Food stamps application', address: 'Multiple offices', phone: '1-888-524-3578', website: 'https://dcfs.la.gov', notes: 'Online or in-person' },
+      // Legal Services (2)
+      { id: '15', category: 'Legal Services', name: 'Southeast LA Legal Services', description: 'Free civil legal help', address: '1200 Derek Dr, Ste 100', phone: '(225) 448-0824', website: 'https://slls.org', notes: 'Call for screening' },
+      { id: '16', category: 'Legal Services', name: 'BR Bar Association - Pro Bono', description: 'Lawyer referral service', phone: '(225) 344-4803', notes: 'Call for referral' },
+      // Education (2)
+      { id: '17', category: 'Education', name: 'BRCC Adult Education', description: 'GED classes, adult literacy', address: '201 Community College Dr', phone: '(225) 216-8000', website: 'https://mybrcc.edu', notes: 'Enrollment' },
+      { id: '18', category: 'Education', name: 'Literacy Council of BR', description: 'Reading/writing tutoring', phone: '(225) 925-8622', notes: 'Call for assessment' },
+      // Healthcare (2)
+      { id: '19', category: 'Healthcare', name: "Woman's Hospital", description: "Women's health, prenatal care", address: "100 Woman's Way", phone: '(225) 927-1300', website: 'https://womans.org', notes: 'Call for appointment' },
+      { id: '20', category: 'Healthcare', name: 'BR Primary Care', description: 'Sliding scale medical care', address: 'Multiple locations', phone: '(225) 200-0100', website: 'https://brgeneral.org', notes: 'Call for appointment' }
     ];
     
     setResources(demoResources);
