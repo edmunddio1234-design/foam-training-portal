@@ -2,6 +2,7 @@
 // FOAM DOCUMENT LIBRARY - AI ASSISTANT
 // ============================================
 // Browse, search, and chat with AI about documents
+// Financial documents are restricted from this portal
 // ============================================
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -9,10 +10,45 @@ import {
   Search, FileText, FileSpreadsheet, File, Image, Folder,
   RefreshCw, ExternalLink, Calendar, HardDrive, MessageSquare,
   Send, X, Filter, Grid, List, ChevronRight, Bot, User,
-  FileType, Clock, FolderOpen, Sparkles
+  FileType, Clock, FolderOpen, Sparkles, Lock, ShieldAlert
 } from 'lucide-react';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
+
+// Financial keywords to filter out (case-insensitive)
+const RESTRICTED_KEYWORDS = [
+  'budget',
+  'finance',
+  'financial',
+  'invoice',
+  'expense',
+  'treasury',
+  'funding',
+  'payroll',
+  'bank',
+  'accounting',
+  'fiscal',
+  'revenue',
+  'cost report',
+  'payment',
+  'billing',
+  'reimbursement',
+  'expenditure',
+  'ledger',
+  'quickbooks',
+  'profit',
+  'loss',
+  'balance sheet',
+  'cash flow',
+  'act 461',
+  'blue cross',
+  'charles lamar',
+  'funder',
+  'grant funds',
+  'salary',
+  'wages',
+  'compensation'
+];
 
 interface Document {
   id: string;
@@ -56,7 +92,14 @@ const DocumentLibrary: React.FC = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
+  const [restrictedCount, setRestrictedCount] = useState(0);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Check if a document name contains restricted keywords
+  const isRestrictedDocument = (docName: string): boolean => {
+    const lowerName = docName.toLowerCase();
+    return RESTRICTED_KEYWORDS.some(keyword => lowerName.includes(keyword.toLowerCase()));
+  };
 
   // Fetch documents (including subfolders)
   const fetchDocuments = async () => {
@@ -67,7 +110,17 @@ const DocumentLibrary: React.FC = () => {
       const response = await fetch(`${API_BASE_URL}/api/documents?includeSubfolders=true`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
-      setDocuments(data.files || []);
+      
+      const allFiles = data.files || [];
+      
+      // Count restricted documents before filtering
+      const restricted = allFiles.filter((doc: Document) => isRestrictedDocument(doc.name));
+      setRestrictedCount(restricted.length);
+      
+      // Filter out restricted financial documents
+      const accessibleFiles = allFiles.filter((doc: Document) => !isRestrictedDocument(doc.name));
+      
+      setDocuments(accessibleFiles);
       setStats(data.stats || null);
     } catch (err) {
       console.error('Fetch error:', err);
@@ -207,6 +260,23 @@ const DocumentLibrary: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Restricted Documents Notice */}
+      {restrictedCount > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex items-center gap-4">
+          <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <ShieldAlert className="w-6 h-6 text-amber-600" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-amber-800">Financial Documents Restricted</h3>
+            <p className="text-amber-700 text-sm">
+              {restrictedCount} financial document{restrictedCount !== 1 ? 's are' : ' is'} not accessible from this portal. 
+              Access financial records through the Finance Dashboard.
+            </p>
+          </div>
+          <Lock className="w-5 h-5 text-amber-400" />
+        </div>
+      )}
 
       {/* Stats Cards */}
       {stats && (
