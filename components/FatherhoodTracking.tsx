@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TrackerViewState, Father } from '../types';
 import {
   LayoutDashboard, Users, CheckSquare, ShieldCheck, Menu, X, Upload,
-  UserX, FileDown, BookOpen, Calendar, ChevronRight, ArrowLeft, RefreshCw, QrCode, ExternalLink
+  UserX, FileDown, BookOpen, ChevronRight, ArrowLeft, RefreshCw, QrCode, ExternalLink
 } from 'lucide-react';
 
 // Import API service
@@ -46,7 +46,6 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
     setIsLoading(true);
     setError(null);
     try {
-      // Load all data in parallel
       const [fathersData, modulesData, statsData] = await Promise.all([
         fatherhoodApi.getFathers(),
         fatherhoodApi.getModules(),
@@ -65,36 +64,36 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
     }
   };
 
-  // Refresh data
   const refreshData = async () => {
     await loadData();
   };
 
-  // Update a father in the local state (after API call succeeds)
   const updateFatherInState = (updatedFather: Father) => {
     setFathers(prev => prev.map(f => f.id === updatedFather.id ? updatedFather : f));
   };
 
-  // Add a father to the local state
   const addFatherToState = (newFather: Father) => {
     setFathers(prev => [...prev, newFather]);
   };
 
   const selectedFather = fathers.find(f => f.id === selectedFatherId) || null;
 
-  // Calculate live stats from fathers array (ensures counts match filter buttons)
+  // LIVE STATS - Calculated directly from fathers array so counts always match filter buttons
   const liveStats = {
     total: fathers.length,
     active: fathers.filter(f => f.status === 'Active').length,
     inactive: fathers.filter(f => f.status === 'Inactive').length,
     atRisk: fathers.filter(f => f.status === 'At Risk').length,
     graduated: fathers.filter(f => f.status === 'Graduated').length,
-    certificates: fathers.filter(f => 
-      f.certificateReceived === true || 
-      f.certificateReceived === 'Yes' || 
-      (f as any).certificate === true ||
-      (f as any).certificate === 'Yes'
-    ).length
+    certificates: fathers.filter(f => {
+      const father = f as any;
+      return f.certificateReceived === true || 
+             f.certificateReceived === 'Yes' || 
+             father.certificate === true ||
+             father.certificate === 'Yes' ||
+             father.certificateIssued === true ||
+             father.certificateIssued === 'Yes';
+    }).length
   };
 
   const menuItems = [
@@ -109,7 +108,6 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
     { id: 'financials', label: 'Resources', icon: BookOpen },
   ];
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
@@ -122,7 +120,6 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
@@ -187,51 +184,51 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
           </ul>
         </nav>
 
-        {/* Stats Footer - Now calculated from actual fathers array */}
+        {/* QUICK STATS - Using liveStats calculated from fathers array */}
         <div className="p-4 border-t border-slate-700">
           <div className="bg-slate-700/50 rounded-lg p-4">
-            <p className="text-slate-400 text-xs uppercase tracking-wider mb-2">Quick Stats</p>
-            <div className="grid grid-cols-2 gap-2 text-sm">
+            <p className="text-slate-400 text-xs uppercase tracking-wider mb-3">Quick Stats</p>
+            <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <p className="text-slate-400">Total</p>
-                <p className="font-bold text-white">{liveStats.total}</p>
+                <p className="font-bold text-white text-lg">{liveStats.total}</p>
               </div>
               <div>
                 <p className="text-slate-400">Graduated</p>
-                <p className="font-bold text-emerald-400">{liveStats.graduated}</p>
+                <p className="font-bold text-emerald-400 text-lg">{liveStats.graduated}</p>
               </div>
               <div>
                 <p className="text-slate-400">Active</p>
-                <p className="font-bold text-blue-400">{liveStats.active}</p>
+                <p className="font-bold text-blue-400 text-lg">{liveStats.active}</p>
               </div>
               <div>
                 <p className="text-slate-400">At Risk</p>
-                <p className="font-bold text-amber-400">{liveStats.atRisk}</p>
+                <p className="font-bold text-amber-400 text-lg">{liveStats.atRisk}</p>
               </div>
               <div>
                 <p className="text-slate-400">Inactive</p>
-                <p className="font-bold text-slate-400">{liveStats.inactive}</p>
+                <p className="font-bold text-slate-400 text-lg">{liveStats.inactive}</p>
               </div>
               <div>
                 <p className="text-slate-400">Certificates</p>
-                <p className="font-bold text-purple-400">{liveStats.certificates}</p>
+                <p className="font-bold text-purple-400 text-lg">{liveStats.certificates}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* ACTION BUTTONS */}
         <div className="p-4 border-t border-slate-700 space-y-2">
           <button
             onClick={refreshData}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-all text-sm"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-all text-sm"
           >
             <RefreshCw size={16} />
             Refresh Data
           </button>
           <button
             onClick={() => window.open(GOOGLE_SHEET_URL, '_blank')}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-all text-sm"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-all text-sm font-medium"
           >
             <ExternalLink size={16} />
             Open Google Sheet
@@ -288,31 +285,31 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
           {/* Mobile Stats */}
           <div className="p-4 border-t border-slate-700">
             <div className="bg-slate-700/50 rounded-lg p-4">
-              <p className="text-slate-400 text-xs uppercase tracking-wider mb-2">Quick Stats</p>
-              <div className="grid grid-cols-3 gap-2 text-sm">
+              <p className="text-slate-400 text-xs uppercase tracking-wider mb-3">Quick Stats</p>
+              <div className="grid grid-cols-3 gap-3 text-sm">
                 <div>
                   <p className="text-slate-400">Total</p>
-                  <p className="font-bold text-white">{liveStats.total}</p>
+                  <p className="font-bold text-white text-lg">{liveStats.total}</p>
                 </div>
                 <div>
                   <p className="text-slate-400">Active</p>
-                  <p className="font-bold text-blue-400">{liveStats.active}</p>
+                  <p className="font-bold text-blue-400 text-lg">{liveStats.active}</p>
                 </div>
                 <div>
                   <p className="text-slate-400">At Risk</p>
-                  <p className="font-bold text-amber-400">{liveStats.atRisk}</p>
+                  <p className="font-bold text-amber-400 text-lg">{liveStats.atRisk}</p>
                 </div>
                 <div>
                   <p className="text-slate-400">Inactive</p>
-                  <p className="font-bold text-slate-400">{liveStats.inactive}</p>
+                  <p className="font-bold text-slate-400 text-lg">{liveStats.inactive}</p>
                 </div>
                 <div>
                   <p className="text-slate-400">Graduated</p>
-                  <p className="font-bold text-emerald-400">{liveStats.graduated}</p>
+                  <p className="font-bold text-emerald-400 text-lg">{liveStats.graduated}</p>
                 </div>
                 <div>
                   <p className="text-slate-400">Certificates</p>
-                  <p className="font-bold text-purple-400">{liveStats.certificates}</p>
+                  <p className="font-bold text-purple-400 text-lg">{liveStats.certificates}</p>
                 </div>
               </div>
             </div>
@@ -329,7 +326,7 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
             </button>
             <button
               onClick={() => window.open(GOOGLE_SHEET_URL, '_blank')}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-all"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-all font-medium"
             >
               <ExternalLink size={18} />
               Open Google Sheet
