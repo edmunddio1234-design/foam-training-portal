@@ -172,8 +172,7 @@ const PortalGuides: React.FC<PortalGuidesProps> = ({ onBack }) => {
       color: 'amber',
       resources: [
         { type: 'video', title: 'Grant Management Video Guide', url: 'https://youtu.be/_yR576N0GTA' },
-        { type: 'flipbook', title: 'Grant Management Flipbook', url: 'https://heyzine.com/flip-book/ee58bfae90.html' },
-        { type: 'flipbook', title: 'Admin Command Center Flipbook', url: 'https://heyzine.com/flip-book/4327aaa470.html' }
+        { type: 'flipbook', title: 'Grant Management Flipbook', url: 'https://heyzine.com/flip-book/97033098e4.html' }
       ],
       steps: [
         {
