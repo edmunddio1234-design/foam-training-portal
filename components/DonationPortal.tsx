@@ -146,7 +146,7 @@ const LoginScreen: React.FC<LoginProps> = ({ onLoginSuccess, onBack }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLocked) {
-      setError(\`Too many attempts. Please wait \${getRemainingLockoutTime()} seconds.\`);
+      setError(`Too many attempts. Please wait ${getRemainingLockoutTime()} seconds.`);
       return;
     }
     setError('');
@@ -171,9 +171,9 @@ const LoginScreen: React.FC<LoginProps> = ({ onLoginSuccess, onBack }) => {
       if (newAttempts >= MAX_ATTEMPTS) {
         setIsLocked(true);
         setLockoutTime(Date.now() + LOCKOUT_DURATION * 1000);
-        setError(\`Too many failed attempts. Account locked for \${LOCKOUT_DURATION} seconds.\`);
+        setError(`Too many failed attempts. Account locked for ${LOCKOUT_DURATION} seconds.`);
       } else {
-        setError(\`Invalid email or password. \${MAX_ATTEMPTS - newAttempts} attempts remaining.\`);
+        setError(`Invalid email or password. ${MAX_ATTEMPTS - newAttempts} attempts remaining.`);
       }
       setIsLoading(false);
     }
