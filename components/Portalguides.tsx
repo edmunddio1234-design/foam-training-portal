@@ -4,11 +4,17 @@ import {
   Users, Database, FileText, BarChart3, Calendar, CheckSquare,
   Upload, Download, Settings, Bell, Shield, Monitor,
   Smartphone, QrCode, CreditCard, Heart, BookOpen, Play,
-  ExternalLink, Copy, CheckCircle2, AlertTriangle
+  ExternalLink, Copy, CheckCircle2, AlertTriangle, Book
 } from 'lucide-react';
 
 interface PortalGuidesProps {
   onBack: () => void;
+}
+
+interface GuideResource {
+  type: 'video' | 'flipbook';
+  title: string;
+  url: string;
 }
 
 interface Guide {
@@ -17,6 +23,7 @@ interface Guide {
   description: string;
   icon: React.ElementType;
   color: string;
+  resources?: GuideResource[];
   steps: {
     title: string;
     content: string;
@@ -31,11 +38,46 @@ const PortalGuides: React.FC<PortalGuidesProps> = ({ onBack }) => {
 
   const guides: Guide[] = [
     {
+      id: 'command-center',
+      title: 'Command Center Overview',
+      description: 'Navigate the main hub and access all FOAM portals',
+      icon: Monitor,
+      color: 'slate',
+      resources: [
+        { type: 'video', title: 'Command Center Video Guide', url: 'https://youtu.be/Fy6iHe__jvs' },
+        { type: 'flipbook', title: 'Command Center Flipbook', url: 'https://heyzine.com/flip-book/e7a4eda13a.html' }
+      ],
+      steps: [
+        {
+          title: 'Accessing the Command Center',
+          content: 'After logging in with your @foamla.org credentials, you\'ll land on the Command Center. This is your main hub for accessing all FOAM portal sections.',
+          tip: 'Bookmark the portal URL for quick access.'
+        },
+        {
+          title: 'Understanding the Portal Cards',
+          content: 'Each card represents a different portal section:\n• Training Academy - Staff training modules\n• Fatherhood Tracking - Father enrollment & attendance\n• Grant Management - Grant tracking & research\n• Document Library - Google Drive file search\n• Case Manager Portal - Monthly reports & resources\n• Financial Tools - Budget analysis & reporting\n• Assessment Analytics - Class assessment data\n• Donation CRM - Donor & campaign management\n• Documentation Center - Handbooks & guides',
+        },
+        {
+          title: 'Using the AI Chatbot',
+          content: 'Click the chat bubble in the bottom right corner to open the AI assistant. Ask questions about any portal feature, request navigation help, or get live statistics about enrollment and grants.',
+          tip: 'Try asking "Show me live stats" to see current enrollment numbers.'
+        },
+        {
+          title: 'Logging Out',
+          content: 'Click the logout icon (door with arrow) in the top right user panel to securely log out of the Command Center.',
+        }
+      ]
+    },
+    {
       id: 'fatherhood-tracker',
       title: 'Fatherhood Tracker',
       description: 'Track father enrollment, attendance, and program progress',
       icon: Users,
       color: 'blue',
+      resources: [
+        { type: 'video', title: 'Fatherhood Tracker Video Guide', url: 'https://youtu.be/GsPhVn4_-nc' },
+        { type: 'flipbook', title: 'Fatherhood Tracker Flipbook', url: 'https://heyzine.com/flip-book/c1ed03ea69.html' }
+      ],
       steps: [
         {
           title: 'Accessing the Tracker',
@@ -69,6 +111,11 @@ const PortalGuides: React.FC<PortalGuidesProps> = ({ onBack }) => {
       description: 'Enter case notes, track services, and manage participant files',
       icon: FileText,
       color: 'emerald',
+      resources: [
+        { type: 'video', title: 'Case Manager Portal Video Guide', url: 'https://youtu.be/drXNnWmujKU' },
+        { type: 'flipbook', title: 'Case Manager Guide Part 1', url: 'https://heyzine.com/flip-book/7c4f85453c.html' },
+        { type: 'flipbook', title: 'Case Manager Guide Part 2', url: 'https://heyzine.com/flip-book/90d9cdd166.html' }
+      ],
       steps: [
         {
           title: 'Starting a New Case Note',
@@ -118,29 +165,130 @@ const PortalGuides: React.FC<PortalGuidesProps> = ({ onBack }) => {
       ]
     },
     {
-      id: 'admin-command',
-      title: 'Admin Command Center',
-      description: 'Manage grants, documents, and organizational data',
-      icon: Settings,
-      color: 'purple',
+      id: 'grant-management',
+      title: 'Grant Management Portal',
+      description: 'Track grants, deadlines, and research funding opportunities',
+      icon: CreditCard,
+      color: 'amber',
+      resources: [
+        { type: 'video', title: 'Grant Management Video Guide', url: 'https://youtu.be/_yR576N0GTA' },
+        { type: 'flipbook', title: 'Grant Management Flipbook', url: 'https://heyzine.com/flip-book/ee58bfae90.html' },
+        { type: 'flipbook', title: 'Admin Command Center Flipbook', url: 'https://heyzine.com/flip-book/4327aaa470.html' }
+      ],
       steps: [
         {
           title: 'Accessing Grant Management',
-          content: 'The Admin Command Center requires login with your @foamla.org credentials. Click "Grant Management" tab to see all active and pending grants with deadlines, amounts, and status.',
+          content: 'The Grant Management portal requires login with your @foamla.org credentials. Click "Grant Management" tab to see all active and pending grants with deadlines, amounts, and status.',
           tip: 'Set up calendar reminders for grant deadlines - the system shows days remaining.'
         },
         {
-          title: 'Using the Document Library',
-          content: 'Click "Document Library" to access organizational files stored in Google Drive. You can search by keyword, filter by folder, and download or preview documents directly.',
-          tip: 'Use specific keywords like "LCTF 2025" or "budget template" for best results.'
+          title: 'Viewing the Grant Dashboard',
+          content: 'The dashboard shows key metrics: total grants, pending applications, success rate, and upcoming deadlines. Use the pipeline view to see grants by stage (Researching, Writing, Submitted, etc.).',
         },
         {
-          title: 'Funding Research Tool',
-          content: 'The "Funding Research" tab lets you search for new grant opportunities. Enter keywords related to your programs to find relevant funders and their giving patterns.',
+          title: 'Using Funding Research Tools',
+          content: 'The "Funding Research" tab provides links to research databases:\n• Seamless.AI - Foundation contact research\n• Cause IQ - Nonprofit funding data\n• IRS 990 Finder - Tax return research\n• Candid/Foundation Directory - Grant opportunities',
         },
         {
-          title: 'Running Analytics',
-          content: 'Go to "Assessment Analytics" (from main hub) to see participant outcome data, pre/post assessment scores, and program effectiveness metrics.',
+          title: 'Adding New Grants',
+          content: 'Click "+ Add Grant" to track a new opportunity. Enter funder name, amount, deadline, status, and any notes. The system will track it through your pipeline.',
+        }
+      ]
+    },
+    {
+      id: 'document-library',
+      title: 'Document Library',
+      description: 'Search and access organizational documents from Google Drive',
+      icon: Database,
+      color: 'blue',
+      resources: [
+        { type: 'flipbook', title: 'Document Library Flipbook', url: 'https://heyzine.com/flip-book/39e865ecfa.html' }
+      ],
+      steps: [
+        {
+          title: 'Searching for Documents',
+          content: 'Use the search bar at the top to find documents by keyword. The AI-powered search looks through file names, folder names, and document content.',
+          tip: 'Be specific in searches - try "LCTF 2025 budget" instead of just "budget".'
+        },
+        {
+          title: 'Browsing Folders',
+          content: 'Click "Browse Folders" to navigate the Google Drive folder structure manually. Click folder names to drill down, use breadcrumbs to go back up.',
+        },
+        {
+          title: 'Opening Documents',
+          content: 'Click on any document to open it directly in Google Drive. You can view, edit (if you have permission), download, or share from there.',
+        },
+        {
+          title: 'Recent Files',
+          content: 'The "Recent" tab shows files you\'ve accessed recently for quick re-access.',
+        }
+      ]
+    },
+    {
+      id: 'financial-tools',
+      title: 'Financial Tools',
+      description: 'Analyze budgets, track expenses, and generate funder reports',
+      icon: BarChart3,
+      color: 'green',
+      resources: [
+        { type: 'video', title: 'Financial Tools Video Guide', url: 'https://youtu.be/RBjCTwG3UiM' },
+        { type: 'flipbook', title: 'Financial Tools Flipbook', url: 'https://heyzine.com/flip-book/e126cf4f31.html' }
+      ],
+      steps: [
+        {
+          title: 'Accessing Financial Tools',
+          content: 'Click "Financial Tools" from the Command Center. Enter your finance credentials when prompted. The dashboard shows budget vs. actual spending across all funding sources.',
+          tip: 'Run funder reports monthly for compliance tracking.'
+        },
+        {
+          title: 'Using Budget Analysis',
+          content: 'The Analysis tab shows spending by category, trends over time, and budget utilization percentages. Click on any category to drill down into individual transactions.',
+        },
+        {
+          title: 'Managing the Ledger',
+          content: 'The Ledger tab shows all transactions. You can filter by date, category, funder, or vendor. Add new entries, edit existing ones, or export for external reporting.',
+        },
+        {
+          title: 'Generating Funder Reports',
+          content: 'Go to Reports tab and select a funder. The system generates a formatted report showing expenses charged to that grant, organized by budget category.',
+        },
+        {
+          title: 'Multi-Funder Dashboard',
+          content: 'The Multi-Funder tab provides a comparison view across all funding sources, showing which grants are over/under budget and overall financial health.',
+        }
+      ]
+    },
+    {
+      id: 'assessment-analytics',
+      title: 'Assessment Analytics',
+      description: 'View class assessment trends and outcome data',
+      icon: BarChart3,
+      color: 'purple',
+      resources: [
+        { type: 'video', title: 'Assessment Analytics Video Guide', url: 'https://youtu.be/sCZLj6c-lA8' },
+        { type: 'flipbook', title: 'Assessment Analytics Flipbook', url: 'https://heyzine.com/flip-book/1fd086df98.html' }
+      ],
+      steps: [
+        {
+          title: 'Accessing Assessment Analytics',
+          content: 'Click "Assessment Analytics" from the Command Center. The dashboard loads with overview statistics including total assessments, average scores, and improvement rates.',
+        },
+        {
+          title: 'Viewing Assessment Trends',
+          content: 'The trends chart shows assessment scores over time. Filter by date range, cohort, or specific module to see patterns in participant learning.',
+          tip: 'Compare pre/post assessment scores to demonstrate program impact for grant reports.'
+        },
+        {
+          title: 'Module Performance Reports',
+          content: 'See which modules have the highest and lowest scores. This helps identify curriculum areas that may need additional support or modification.',
+        },
+        {
+          title: 'Father Follow-up Tracking',
+          content: 'Track which fathers need follow-up based on their assessment scores. Low scores may indicate need for additional support or one-on-one coaching.',
+        },
+        {
+          title: 'Exporting Reports',
+          content: 'Use the export function to download assessment data for grant reporting. Reports can be generated by date range, cohort, or individual participant.',
         }
       ]
     },
@@ -149,7 +297,11 @@ const PortalGuides: React.FC<PortalGuidesProps> = ({ onBack }) => {
       title: 'QR Code Check-In System',
       description: 'Set up and use QR codes for class attendance',
       icon: QrCode,
-      color: 'amber',
+      color: 'cyan',
+      resources: [
+        { type: 'video', title: 'Fatherhood Tracker Video Guide', url: 'https://youtu.be/GsPhVn4_-nc' },
+        { type: 'flipbook', title: 'Fatherhood Tracker Flipbook', url: 'https://heyzine.com/flip-book/c1ed03ea69.html' }
+      ],
       steps: [
         {
           title: 'Generating a Class QR Code',
@@ -175,8 +327,12 @@ const PortalGuides: React.FC<PortalGuidesProps> = ({ onBack }) => {
       id: 'donations',
       title: 'Donation CRM',
       description: 'Track donors, record donations, and manage campaigns',
-      icon: CreditCard,
+      icon: Heart,
       color: 'pink',
+      resources: [
+        { type: 'video', title: 'Donor CRM Video Guide', url: 'https://youtu.be/slGXEE-dOdw' },
+        { type: 'flipbook', title: 'Donor CRM Flipbook', url: 'https://heyzine.com/flip-book/7187159ec4.html' }
+      ],
       steps: [
         {
           title: 'Adding a New Donor',
@@ -192,7 +348,11 @@ const PortalGuides: React.FC<PortalGuidesProps> = ({ onBack }) => {
           content: 'Create fundraising campaigns with goals and deadlines. As donations come in assigned to that campaign, the progress bar updates. View all campaign performance in the Campaigns tab.',
         },
         {
-          title: 'Sending Thank You Letters',
+          title: 'Generating Reports',
+          content: 'The Reports tab provides donation summaries by time period, donor tier, campaign, or payment method. Export reports for board meetings or tax documentation.',
+        },
+        {
+          title: 'Donor Acknowledgment',
           content: 'The system flags donations without thank-you letters. Click the envelope icon next to a donation to mark it as acknowledged. Run the "Acknowledgment Status" report to ensure no donors are missed.',
         }
       ]
@@ -203,6 +363,9 @@ const PortalGuides: React.FC<PortalGuidesProps> = ({ onBack }) => {
       description: 'Access staff training modules and certifications',
       icon: BookOpen,
       color: 'indigo',
+      resources: [
+        { type: 'video', title: 'Training Academy Video Guide', url: 'https://youtu.be/UqZrnfrajPc' }
+      ],
       steps: [
         {
           title: 'Selecting Your Training Track',
@@ -270,6 +433,9 @@ const PortalGuides: React.FC<PortalGuidesProps> = ({ onBack }) => {
       pink: { bg: 'bg-pink-500', light: 'bg-pink-50', text: 'text-pink-600' },
       indigo: { bg: 'bg-indigo-500', light: 'bg-indigo-50', text: 'text-indigo-600' },
       orange: { bg: 'bg-orange-500', light: 'bg-orange-50', text: 'text-orange-600' },
+      slate: { bg: 'bg-slate-600', light: 'bg-slate-50', text: 'text-slate-600' },
+      green: { bg: 'bg-green-500', light: 'bg-green-50', text: 'text-green-600' },
+      cyan: { bg: 'bg-cyan-500', light: 'bg-cyan-50', text: 'text-cyan-600' },
     };
     return colors[color] || colors.blue;
   };
@@ -327,6 +493,8 @@ const PortalGuides: React.FC<PortalGuidesProps> = ({ onBack }) => {
               {filteredGuides.map(guide => {
                 const colors = getColorClasses(guide.color);
                 const Icon = guide.icon;
+                const hasVideo = guide.resources?.some(r => r.type === 'video');
+                const hasFlipbook = guide.resources?.some(r => r.type === 'flipbook');
                 return (
                   <button
                     key={guide.id}
@@ -340,9 +508,24 @@ const PortalGuides: React.FC<PortalGuidesProps> = ({ onBack }) => {
                       {guide.title}
                     </h3>
                     <p className="text-slate-500 text-sm mb-4">{guide.description}</p>
-                    <div className="flex items-center gap-2 text-emerald-600 text-sm font-medium">
-                      <span>{guide.steps.length} steps</span>
-                      <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-emerald-600 text-sm font-medium">
+                        <span>{guide.steps.length} steps</span>
+                        <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                      </div>
+                      {/* Resource indicators */}
+                      <div className="flex items-center gap-1.5">
+                        {hasVideo && (
+                          <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center" title="Video available">
+                            <Play className="w-3 h-3 text-red-600" />
+                          </div>
+                        )}
+                        {hasFlipbook && (
+                          <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center" title="Flipbook available">
+                            <Book className="w-3 h-3 text-blue-600" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </button>
                 );
@@ -360,7 +543,7 @@ const PortalGuides: React.FC<PortalGuidesProps> = ({ onBack }) => {
             {/* Guide Detail View */}
             <div className="max-w-3xl mx-auto">
               {/* Guide Header */}
-              <div className="flex items-center gap-4 mb-8">
+              <div className="flex items-center gap-4 mb-6">
                 <div className={`w-14 h-14 ${getColorClasses(selectedGuide.color).bg} rounded-2xl flex items-center justify-center shadow-lg`}>
                   <selectedGuide.icon className="w-7 h-7 text-white" />
                 </div>
@@ -369,6 +552,56 @@ const PortalGuides: React.FC<PortalGuidesProps> = ({ onBack }) => {
                   <p className="text-slate-500">{selectedGuide.description}</p>
                 </div>
               </div>
+
+              {/* Resource Links (Video & Flipbook) */}
+              {selectedGuide.resources && selectedGuide.resources.length > 0 && (
+                <div className="mb-8 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl p-6 border border-slate-200">
+                  <h3 className="font-bold text-slate-700 mb-4 flex items-center gap-2">
+                    <ExternalLink className="w-4 h-4" />
+                    Learning Resources
+                  </h3>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {selectedGuide.resources.map((resource, idx) => (
+                      <a
+                        key={idx}
+                        href={resource.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
+                          resource.type === 'video'
+                            ? 'bg-red-50 border-red-200 hover:bg-red-100 hover:border-red-300'
+                            : 'bg-blue-50 border-blue-200 hover:bg-blue-100 hover:border-blue-300'
+                        }`}
+                      >
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          resource.type === 'video' ? 'bg-red-500' : 'bg-blue-500'
+                        }`}>
+                          {resource.type === 'video' ? (
+                            <Play className="w-5 h-5 text-white" />
+                          ) : (
+                            <Book className="w-5 h-5 text-white" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-medium text-sm ${
+                            resource.type === 'video' ? 'text-red-700' : 'text-blue-700'
+                          }`}>
+                            {resource.title}
+                          </p>
+                          <p className={`text-xs ${
+                            resource.type === 'video' ? 'text-red-500' : 'text-blue-500'
+                          }`}>
+                            {resource.type === 'video' ? 'Watch on YouTube' : 'View Flipbook'}
+                          </p>
+                        </div>
+                        <ExternalLink className={`w-4 h-4 ${
+                          resource.type === 'video' ? 'text-red-400' : 'text-blue-400'
+                        }`} />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Steps */}
               <div className="space-y-6">
