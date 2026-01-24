@@ -666,7 +666,7 @@ const OrganizationalHandbook: React.FC<OrganizationalHandbookProps> = ({ onClose
                 { id: 'tech', title: 'Technology & Security', icon: <Lock size={20} />, content: 'Only approved staff get system access. Change passwords every 90 days with 2FA. All public content reviewed by Program Manager/Executive Director before publication.' },
                 { id: 'facility', title: 'Facility Use & Safety', icon: <Building size={20} />, content: 'Office hours 8am-4pm or by appointment. Report safety incidents immediately. Complete event logistics checklist before hosting events.' },
                 { id: 'volunteer', title: 'Volunteer & Partner Management', icon: <HeartHandshake size={20} />, content: 'All volunteers complete orientation and sign confidentiality agreement. Partners require signed MOU. Vendor invoices paid within 15 days.' },
-              ].map((sop, index) => (
+              ].map((sop) => (
                 <div key={sop.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden group">
                   <button
                     onClick={() => toggleAccordion(sop.id)}
@@ -865,7 +865,7 @@ const OrganizationalHandbook: React.FC<OrganizationalHandbookProps> = ({ onClose
                   Official Program Names
                 </h4>
                 <div className="flex flex-wrap gap-3">
-                  {['Project Family Build', 'Responsible Fatherhood Class', 'Father and Child Bonding Activities', 'Enhancement Workshops'].map((name, i) => (
+                  {['Project Family Build', 'Responsible Fatherhood Class', 'Father and Child Bonding Activities', 'Enhancement Workshops'].map((name) => (
                     <span 
                       key={name} 
                       className="px-4 py-2 bg-white rounded-xl text-sm font-bold text-[#0F2C5C] border-2 border-amber-300 hover:bg-[#0F2C5C] hover:text-white hover:border-[#0F2C5C] transition-all duration-300 cursor-default"
