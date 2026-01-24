@@ -115,9 +115,10 @@ const ResourceGuideRolodex: React.FC<ResourceGuideRolodexProps> = ({ onBack }) =
       }
     } catch (err) {
       console.error('Error fetching resources:', err);
-      setError('Failed to load resources. Please try again.');
-      // Set demo data for development
+      // Set demo data as fallback - don't show error since demo data works
       setDemoData();
+      // Only show error if you want users to know it's using fallback data
+      // setError('Using offline data. Connect to internet for live updates.');
     } finally {
       setLoading(false);
     }
