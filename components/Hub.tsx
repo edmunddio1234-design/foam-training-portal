@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import OrganizationalHandbook from './OrganizationalHandbook';
 
 interface HubProps {
-  onNavigate: (view: 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'analytics' | 'documents' | 'donations') => void;
+  onNavigate: (view: 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'analytics' | 'documents' | 'donations' | 'handbook') => void;
   onLogout: () => void;
 }
 
@@ -255,22 +254,22 @@ const FOAMChatbotWidget: React.FC<FOAMChatbotWidgetProps> = ({ onNavigate }) => 
       tip: 'Update donor info promptly and log all communications.'
     },
     'organizational handbook': {
-      title: 'Organizational Handbook',
+      title: 'Documentation Center',
       icon: '📖',
       navKey: 'handbook',
-      description: 'Policies & Procedures, 14-Module Curriculum, Staff Roles & SOPs, Compliance & Style Guide.',
+      description: 'Access the Organizational Handbook and Portal Support Guides.',
       features: [
-        'Complete policies and procedures',
+        'Organizational Handbook with policies',
+        'Portal Support Guides for how-to help',
         '14-module curriculum details',
         'Staff roles and SOPs',
-        'Compliance requirements',
-        'Searchable content'
+        'Compliance requirements'
       ],
       howTo: [
-        'Click Organizational Handbook from Command Center',
-        'Use the search bar to find specific topics',
-        'Navigate sections using the sidebar',
-        'Click expandable items for detailed content'
+        'Click Documentation Center from Command Center',
+        'Choose Organizational Handbook for policies',
+        'Or choose Portal Support Guides for how-to help',
+        'Use the search bar to find specific topics'
       ],
       tip: 'Search is faster than navigating.'
     },
@@ -470,14 +469,14 @@ const FOAMChatbotWidget: React.FC<FOAMChatbotWidgetProps> = ({ onNavigate }) => 
     if (lower.includes('finance') || lower.includes('budget') || lower.includes('money')) return formatResponse(knowledge['financial tools']);
     if (lower.includes('assessment') || lower.includes('analytics')) return formatResponse(knowledge['assessment analytics']);
     if (lower.includes('donat') || lower.includes('donor') || lower.includes('fundrais')) return formatResponse(knowledge['donation crm']);
-    if (lower.includes('handbook') || lower.includes('policy') || lower.includes('procedure')) return formatResponse(knowledge['organizational handbook']);
+    if (lower.includes('handbook') || lower.includes('policy') || lower.includes('procedure') || lower.includes('guide')) return formatResponse(knowledge['organizational handbook']);
     if (lower.includes('module') || lower.includes('curriculum') || lower.includes('14')) return formatResponse(knowledge['14 modules']);
     if (lower.includes('checklist') || lower.includes('new client') || lower.includes('onboard')) return formatResponse(knowledge['new client checklist']);
     if (lower.includes('check in') || lower.includes('check-in') || lower.includes('attendance') || lower.includes('qr')) return formatResponse(knowledge['check in']);
     
     // Default response
     return {
-      content: `I can help with any portal section! Try asking about:\n\n• Training Academy\n• Fatherhood Tracking\n• Grant Management\n• Case Manager Portal\n• Document Library\n• Financial Tools\n• Assessment Analytics\n• Donation CRM\n• Live enrollment stats\n• The 14 modules\n• New client checklist\n\nOr click a quick action button above!`
+      content: `I can help with any portal section! Try asking about:\n\n• Training Academy\n• Fatherhood Tracking\n• Grant Management\n• Case Manager Portal\n• Document Library\n• Financial Tools\n• Assessment Analytics\n• Donation CRM\n• Documentation Center\n• Live enrollment stats\n• The 14 modules\n• New client checklist\n\nOr click a quick action button above!`
     };
   };
 
@@ -539,10 +538,6 @@ const FOAMChatbotWidget: React.FC<FOAMChatbotWidgetProps> = ({ onNavigate }) => 
   // Handle navigation click
   const handleNavigationClick = (view: string) => {
     setIsOpen(false);
-    if (view === 'handbook') {
-      // Handbook is a modal, not a navigation
-      return;
-    }
     onNavigate(view);
   };
 
@@ -757,7 +752,6 @@ const FOAMChatbotWidget: React.FC<FOAMChatbotWidgetProps> = ({ onNavigate }) => 
 // MAIN HUB COMPONENT
 // ============================================
 const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
-  const [showHandbook, setShowHandbook] = useState(false);
 
   const portals = [
     {
@@ -927,9 +921,9 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
           </button>
         ))}
 
-        {/* Handbook Card */}
+        {/* Documentation Center Card - Now navigates instead of opening modal */}
         <button
-          onClick={() => setShowHandbook(true)}
+          onClick={() => onNavigate('handbook')}
           className="bg-[#0F2C5C] rounded-[3rem] p-10 text-white flex flex-col justify-between relative overflow-hidden group text-left hover:shadow-2xl transition-all duration-500"
         >
           <i className="fas fa-book-open absolute -right-6 -bottom-6 text-[10rem] opacity-5 group-hover:scale-110 transition-transform duration-1000"></i>
@@ -940,10 +934,10 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
             </div>
             
             <div className="space-y-3">
-              <h2 className="text-2xl font-black tracking-tight">Organizational Handbook</h2>
+              <h2 className="text-2xl font-black tracking-tight">Documentation Center</h2>
               <ul className="space-y-1 text-indigo-200 font-medium">
-                <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-indigo-400"></i> Policies & Procedures</li>
-                <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-indigo-400"></i> 14-Module Curriculum</li>
+                <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-indigo-400"></i> Organizational Handbook</li>
+                <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-indigo-400"></i> Portal Support Guides</li>
                 <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-indigo-400"></i> Staff Roles & SOPs</li>
                 <li className="flex items-center gap-2"><i className="fas fa-check text-[10px] text-indigo-400"></i> Compliance & Style Guide</li>
               </ul>
@@ -951,7 +945,7 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
           </div>
           
           <div className="mt-8 pt-8 border-t border-white/10 flex items-center justify-between">
-            <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-300 group-hover:text-white transition-colors">Open Handbook</span>
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-indigo-300 group-hover:text-white transition-colors">Open Documentation</span>
             <div className="w-8 h-8 rounded-full bg-white/10 text-indigo-300 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-all">
               <i className="fas fa-chevron-right text-xs"></i>
             </div>
@@ -965,11 +959,6 @@ const Hub: React.FC<HubProps> = ({ onNavigate, onLogout }) => {
           Secure Network Access Verified
         </p>
       </div>
-
-      {/* Handbook Modal */}
-      {showHandbook && (
-        <OrganizationalHandbook onClose={() => setShowHandbook(false)} />
-      )}
 
       {/* Enhanced Chatbot Widget with Navigation */}
       <FOAMChatbotWidget onNavigate={(view) => onNavigate(view as any)} />
