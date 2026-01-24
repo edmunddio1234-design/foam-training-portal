@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TrackerViewState, Father } from '../types';
 import {
   LayoutDashboard, Users, CheckSquare, ShieldCheck, Menu, X, Upload,
-  UserX, FileDown, BookOpen, Calendar, ChevronRight, ArrowLeft, RefreshCw, QrCode
+  UserX, FileDown, BookOpen, Calendar, ChevronRight, ArrowLeft, RefreshCw, QrCode, ExternalLink
 } from 'lucide-react';
 
 // Import API service
@@ -19,6 +19,9 @@ import { FatherIDCard } from './tracking/FatherIDCard';
 import { ExportData } from './tracking/ExportData';
 import { Financials } from './tracking/Financials';
 import { QRCheckIn } from './tracking/QRCheckIn';
+
+// Google Sheet URL
+const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1_My5OViS4NCaWac48wn53LLPv_OmTq7LLrQAiu4phUs/edit?gid=770856518#gid=770856518';
 
 interface FatherhoodTrackingProps {
   onBack: () => void;
@@ -78,6 +81,21 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
   };
 
   const selectedFather = fathers.find(f => f.id === selectedFatherId) || null;
+
+  // Calculate live stats from fathers array (ensures counts match filter buttons)
+  const liveStats = {
+    total: fathers.length,
+    active: fathers.filter(f => f.status === 'Active').length,
+    inactive: fathers.filter(f => f.status === 'Inactive').length,
+    atRisk: fathers.filter(f => f.status === 'At Risk').length,
+    graduated: fathers.filter(f => f.status === 'Graduated').length,
+    certificates: fathers.filter(f => 
+      f.certificateReceived === true || 
+      f.certificateReceived === 'Yes' || 
+      (f as any).certificate === true ||
+      (f as any).certificate === 'Yes'
+    ).length
+  };
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -169,41 +187,54 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
           </ul>
         </nav>
 
-        {/* Stats Footer */}
-        {stats && (
-          <div className="p-4 border-t border-slate-700">
-            <div className="bg-slate-700/50 rounded-lg p-4">
-              <p className="text-slate-400 text-xs uppercase tracking-wider mb-2">Quick Stats</p>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <p className="text-slate-400">Total</p>
-                  <p className="font-bold text-white">{stats.totalFathers}</p>
-                </div>
-                <div>
-                  <p className="text-slate-400">Graduated</p>
-                  <p className="font-bold text-emerald-400">{stats.graduated}</p>
-                </div>
-                <div>
-                  <p className="text-slate-400">Active</p>
-                  <p className="font-bold text-blue-400">{stats.active}</p>
-                </div>
-                <div>
-                  <p className="text-slate-400">At Risk</p>
-                  <p className="font-bold text-amber-400">{stats.atRisk}</p>
-                </div>
+        {/* Stats Footer - Now calculated from actual fathers array */}
+        <div className="p-4 border-t border-slate-700">
+          <div className="bg-slate-700/50 rounded-lg p-4">
+            <p className="text-slate-400 text-xs uppercase tracking-wider mb-2">Quick Stats</p>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <p className="text-slate-400">Total</p>
+                <p className="font-bold text-white">{liveStats.total}</p>
+              </div>
+              <div>
+                <p className="text-slate-400">Graduated</p>
+                <p className="font-bold text-emerald-400">{liveStats.graduated}</p>
+              </div>
+              <div>
+                <p className="text-slate-400">Active</p>
+                <p className="font-bold text-blue-400">{liveStats.active}</p>
+              </div>
+              <div>
+                <p className="text-slate-400">At Risk</p>
+                <p className="font-bold text-amber-400">{liveStats.atRisk}</p>
+              </div>
+              <div>
+                <p className="text-slate-400">Inactive</p>
+                <p className="font-bold text-slate-400">{liveStats.inactive}</p>
+              </div>
+              <div>
+                <p className="text-slate-400">Certificates</p>
+                <p className="font-bold text-purple-400">{liveStats.certificates}</p>
               </div>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Refresh Button */}
-        <div className="p-4 border-t border-slate-700">
+        {/* Action Buttons */}
+        <div className="p-4 border-t border-slate-700 space-y-2">
           <button
             onClick={refreshData}
             className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-all text-sm"
           >
             <RefreshCw size={16} />
             Refresh Data
+          </button>
+          <button
+            onClick={() => window.open(GOOGLE_SHEET_URL, '_blank')}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-all text-sm"
+          >
+            <ExternalLink size={16} />
+            Open Google Sheet
           </button>
         </div>
       </aside>
@@ -226,7 +257,7 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 bg-slate-800 text-white z-40 pt-16">
+        <div className="lg:hidden fixed inset-0 bg-slate-800 text-white z-40 pt-16 overflow-y-auto">
           <nav className="p-4">
             <ul className="space-y-2">
               {menuItems.map(item => {
@@ -253,6 +284,57 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
               })}
             </ul>
           </nav>
+
+          {/* Mobile Stats */}
+          <div className="p-4 border-t border-slate-700">
+            <div className="bg-slate-700/50 rounded-lg p-4">
+              <p className="text-slate-400 text-xs uppercase tracking-wider mb-2">Quick Stats</p>
+              <div className="grid grid-cols-3 gap-2 text-sm">
+                <div>
+                  <p className="text-slate-400">Total</p>
+                  <p className="font-bold text-white">{liveStats.total}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400">Active</p>
+                  <p className="font-bold text-blue-400">{liveStats.active}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400">At Risk</p>
+                  <p className="font-bold text-amber-400">{liveStats.atRisk}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400">Inactive</p>
+                  <p className="font-bold text-slate-400">{liveStats.inactive}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400">Graduated</p>
+                  <p className="font-bold text-emerald-400">{liveStats.graduated}</p>
+                </div>
+                <div>
+                  <p className="text-slate-400">Certificates</p>
+                  <p className="font-bold text-purple-400">{liveStats.certificates}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Action Buttons */}
+          <div className="p-4 space-y-2">
+            <button
+              onClick={refreshData}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-all"
+            >
+              <RefreshCw size={18} />
+              Refresh Data
+            </button>
+            <button
+              onClick={() => window.open(GOOGLE_SHEET_URL, '_blank')}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-all"
+            >
+              <ExternalLink size={18} />
+              Open Google Sheet
+            </button>
+          </div>
         </div>
       )}
 
