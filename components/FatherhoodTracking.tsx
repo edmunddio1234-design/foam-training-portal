@@ -78,51 +78,60 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
 
   const selectedFather = fathers.find(f => f.id === selectedFatherId) || null;
 
-  // Helper function to calculate days since last activity
-  const getDaysSinceActivity = (father: Father): number => {
-    if (!father.lastActiveDate) return 999;
+  // Helper function to calculate days since last activity (for "Active within 4 weeks" stat)
+  const getDaysSinceActivity = (father: Father): number | null => {
+    if (!father.lastActiveDate) return null;
     const lastActive = new Date(father.lastActiveDate);
     const today = new Date();
     const diffTime = Math.abs(today.getTime() - lastActive.getTime());
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  // LIVE STATS - Calculated directly from fathers array using activity dates
-  // Logic must match the Dashboard component exactly:
-  // - Graduated (Alumni): 14/14 modules completed
-  // - Active: Activity within last 14 days AND < 14 modules
-  // - At Risk: 14-28 days since last activity with < 14 modules  
-  // - Inactive: 28+ days since last activity with < 14 modules
+  // LIVE STATS - Calculated directly from fathers array using STATUS FIELD
+  // This matches how Dashboard.tsx filters fathers (uses f.status, not lastActiveDate)
+  // - Graduated: status === 'Graduated' OR completed all 14 modules
+  // - Active: status === 'Active' AND not graduated
+  // - At Risk: status === 'At Risk' AND not graduated
+  // - Inactive: Everyone else who isn't Active, At Risk, or Graduated
   // - Certificates: Same as graduated (14/14 = certificate earned)
+  // - Active4Weeks: Fathers with lastActiveDate within 28 days (supplemental metric)
   const liveStats = {
     total: fathers.length,
     
-    // Graduated = completed all 14 modules
-    graduated: fathers.filter(f => f.completedModules.length === 14).length,
+    // Graduated = status is 'Graduated' OR completed all 14 modules
+    graduated: fathers.filter(f => f.status === 'Graduated' || f.completedModules.length === 14).length,
     
-    // Active = activity within last 14 days AND not graduated
+    // Active = status is 'Active' AND not graduated
     active: fathers.filter(f => {
       if (f.completedModules.length === 14) return false; // Graduated
-      const daysSince = getDaysSinceActivity(f);
-      return daysSince <= 14;
+      if (f.status === 'Graduated') return false;
+      return f.status === 'Active';
     }).length,
     
-    // At Risk = 14-28 days since last activity AND not graduated
+    // At Risk = status is 'At Risk' AND not graduated
     atRisk: fathers.filter(f => {
       if (f.completedModules.length === 14) return false; // Graduated
-      const daysSince = getDaysSinceActivity(f);
-      return daysSince > 14 && daysSince <= 28;
+      if (f.status === 'Graduated') return false;
+      return f.status === 'At Risk';
     }).length,
     
-    // Inactive = 28+ days since last activity AND not graduated
+    // Inactive = everyone who isn't Active, At Risk, or Graduated
     inactive: fathers.filter(f => {
       if (f.completedModules.length === 14) return false; // Graduated
-      const daysSince = getDaysSinceActivity(f);
-      return daysSince > 28;
+      if (f.status === 'Graduated') return false;
+      if (f.status === 'Active') return false;
+      if (f.status === 'At Risk') return false;
+      return true; // Everything else is Inactive (includes 'Inactive', 'Lost', empty, etc.)
     }).length,
     
     // Certificates = fathers who completed all 14 modules
-    certificates: fathers.filter(f => f.completedModules.length === 14).length
+    certificates: fathers.filter(f => f.completedModules.length === 14).length,
+    
+    // Active within 4 weeks = fathers with lastActiveDate within 28 days
+    active4Weeks: fathers.filter(f => {
+      const daysSince = getDaysSinceActivity(f);
+      return daysSince !== null && daysSince <= 28;
+    }).length
   };
 
   const menuItems = [
@@ -213,7 +222,7 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
           </ul>
         </nav>
 
-        {/* QUICK STATS - Using liveStats calculated from fathers array */}
+        {/* QUICK STATS - Using liveStats calculated from fathers array (status field) */}
         <div className="p-4 border-t border-slate-700">
           <div className="bg-slate-700/50 rounded-lg p-4">
             <p className="text-slate-400 text-xs uppercase tracking-wider mb-3">Quick Stats</p>
@@ -241,6 +250,13 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
               <div>
                 <p className="text-slate-400">Certificates</p>
                 <p className="font-bold text-purple-400 text-lg">{liveStats.certificates}</p>
+              </div>
+            </div>
+            {/* Active within 4 weeks - supplemental stat */}
+            <div className="mt-3 pt-3 border-t border-slate-600">
+              <div className="flex items-center justify-between">
+                <p className="text-slate-400 text-xs">Active within 4 weeks</p>
+                <p className="font-bold text-cyan-400 text-lg">{liveStats.active4Weeks}</p>
               </div>
             </div>
           </div>
@@ -339,6 +355,13 @@ const FatherhoodTracking: React.FC<FatherhoodTrackingProps> = ({ onBack: onNavig
                 <div>
                   <p className="text-slate-400">Certificates</p>
                   <p className="font-bold text-purple-400 text-lg">{liveStats.certificates}</p>
+                </div>
+              </div>
+              {/* Active within 4 weeks - supplemental stat (mobile) */}
+              <div className="mt-3 pt-3 border-t border-slate-600">
+                <div className="flex items-center justify-between">
+                  <p className="text-slate-400 text-xs">Active within 4 weeks</p>
+                  <p className="font-bold text-cyan-400 text-lg">{liveStats.active4Weeks}</p>
                 </div>
               </div>
             </div>
