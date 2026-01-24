@@ -8,6 +8,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import ResourceTracker from './ResourceTracker';
+import ResourceGuideRolodex from './ResourceGuideRolodex';
 
 interface CaseManagerLandingProps {
   onClose: () => void;
@@ -178,8 +179,11 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [hoveredFileId, setHoveredFileId] = useState<string | null>(null);
   const [hoveredProcedureId, setHoveredProcedureId] = useState<string | null>(null);
-  // NEW: Resource Tracker state
+  
+  // Component view states
   const [showResourceTracker, setShowResourceTracker] = useState(false);
+  const [showResourceGuide, setShowResourceGuide] = useState(false);
+  
   // Checklist state
   const [expandedPhases, setExpandedPhases] = useState<Record<string, boolean>>({});
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
@@ -463,20 +467,8 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     }
   };
 
-  // UPDATED: Resource sheets with Resource Tracker replacing Diaper Distribution
+  // UPDATED: Resource sheets - REMOVED Employment Support Tracker, Resource Guide is now a component
   const resourceSheets = [
-    {
-      id: 'employment',
-      title: 'Employment Support Tracker',
-      description: 'Track client employment status, job placements, and workforce development progress.',
-      icon: Briefcase,
-      color: 'bg-blue-600',
-      url: 'https://docs.google.com/spreadsheets/d/1k5wRl9FOAD-GZZb8OHqhcKwmWl0PhIXAMdj7vFd6qFM/edit',
-      purpose: 'Monitors all clients receiving employment services from initial assessment through job placement.',
-      howToUse: 'Add new clients when they request job help. Update status weekly.',
-      keyTopics: ['Client Status', 'Resume Status', 'Job Search Progress', 'Placement Date'],
-      isComponent: false
-    },
     {
       id: 'resource-guide',
       title: 'Resource Guide Enhanced',
@@ -484,10 +476,11 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       icon: BookOpen,
       color: 'bg-emerald-600',
       url: 'https://docs.google.com/spreadsheets/d/1Joq9gBwd6spIrbqCBgaicuOFv0jAaGYSRntWZRKQry8/edit',
-      purpose: 'Directory of community partners and resources for client referrals.',
-      howToUse: 'Search by category or need. Verify contact information before referring.',
+      purpose: 'Interactive directory of community partners and resources for client referrals.',
+      howToUse: 'Browse categories, search resources, and add new ones as you discover them.',
       keyTopics: ['Housing Resources', 'Legal Aid', 'Food Assistance', 'Mental Health'],
-      isComponent: false
+      isComponent: true,
+      componentType: 'resource-guide'
     },
     {
       id: 'resource-tracker',
@@ -499,7 +492,8 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
       purpose: 'Comprehensive resource tracking for diapers, donations, transport, and utilities.',
       howToUse: 'Select month, add entries for each resource type, view totals on dashboard.',
       keyTopics: ['Diaper Distribution', 'Donation Tracking', 'Transport Assistance', 'Utility Support'],
-      isComponent: true
+      isComponent: true,
+      componentType: 'resource-tracker'
     }
   ];
 
@@ -615,7 +609,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     {
       id: 'resources',
       title: 'Resources',
-      description: 'Access employment trackers, resource guides, and distribution tracking sheets.',
+      description: 'Access resource guide, distribution tracking, and support services.',
       icon: FileSpreadsheet,
       color: 'bg-blue-600',
       shadow: 'shadow-blue-200',
@@ -718,7 +712,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
           <h3 className="text-lg font-bold text-slate-300 uppercase tracking-wider">Case Manager Hub</h3>
           <p className="text-2xl font-bold leading-relaxed max-w-2xl">Your central location for reports, resources, and procedures. Everything you need to serve fathers effectively.</p>
           <div className="flex flex-wrap gap-4 pt-4">
-            <div className="px-4 py-2 bg-white/10 rounded-xl"><span className="text-sm font-medium">📊 3 Resource Trackers</span></div>
+            <div className="px-4 py-2 bg-white/10 rounded-xl"><span className="text-sm font-medium">📊 2 Resource Tools</span></div>
             <div className="px-4 py-2 bg-white/10 rounded-xl"><span className="text-sm font-medium">📄 7 Procedure Documents</span></div>
             <div className="px-4 py-2 bg-white/10 rounded-xl"><span className="text-sm font-medium">📁 40+ Forms & Templates</span></div>
           </div>
@@ -829,7 +823,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     </div>
   );
 
-  // UPDATED: renderResourcesView to handle Resource Tracker component
+  // UPDATED: renderResourcesView to handle both Resource Guide and Resource Tracker components
   const renderResourcesView = () => (
     <div className="space-y-6">
       <div className="flex items-center gap-4 mb-6">
@@ -849,14 +843,18 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
           {searchQuery && <button type="button" onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"><X size={18} /></button>}
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filteredResources.map((resource) => {
           const IconComponent = resource.icon;
           return (
             <div key={resource.id} 
               onClick={() => {
                 if (resource.isComponent) {
-                  setShowResourceTracker(true);
+                  if (resource.componentType === 'resource-guide') {
+                    setShowResourceGuide(true);
+                  } else if (resource.componentType === 'resource-tracker') {
+                    setShowResourceTracker(true);
+                  }
                 } else {
                   handleOpenLink(resource.url);
                 }
@@ -1085,6 +1083,11 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
   // Show Resource Tracker component when active
   if (showResourceTracker) {
     return <ResourceTracker onBack={() => setShowResourceTracker(false)} />;
+  }
+
+  // Show Resource Guide Rolodex component when active
+  if (showResourceGuide) {
+    return <ResourceGuideRolodex onBack={() => setShowResourceGuide(false)} />;
   }
 
   return (
