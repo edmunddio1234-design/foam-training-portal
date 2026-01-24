@@ -5,12 +5,56 @@ import {
   PieChart, Building2, ChevronRight, ExternalLink, Bell,
   FolderOpen, File, BarChart3, Target, Lightbulb, ArrowUpRight,
   ArrowDownRight, Activity, Zap, Plus, Compass, Database, Users, Layers,
-  Loader2
+  Loader2, ShieldAlert, Lock
 } from 'lucide-react';
 import IRS990Research from './IRS990Research';
 import FoundationResearchHub from './FoundationResearchHub';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
+
+// ============================================
+// FINANCIAL DOCUMENT FILTER - RESTRICTED KEYWORDS
+// Documents matching these keywords are hidden from Document Library
+// ============================================
+const RESTRICTED_KEYWORDS = [
+  'budget',
+  'finance',
+  'financial',
+  'invoice',
+  'expense',
+  'treasury',
+  'funding',
+  'payroll',
+  'bank',
+  'accounting',
+  'fiscal',
+  'revenue',
+  'cost report',
+  'payment',
+  'billing',
+  'reimbursement',
+  'expenditure',
+  'ledger',
+  'quickbooks',
+  'profit',
+  'loss',
+  'balance sheet',
+  'cash flow',
+  'act 461',
+  'blue cross',
+  'charles lamar',
+  'funder',
+  'grant funds',
+  'salary',
+  'wages',
+  'compensation'
+];
+
+// Check if a document name contains restricted keywords
+const isRestrictedDocument = (docName: string): boolean => {
+  const lowerName = docName.toLowerCase();
+  return RESTRICTED_KEYWORDS.some(keyword => lowerName.includes(keyword.toLowerCase()));
+};
 
 interface Grant {
   id: number;
@@ -353,8 +397,11 @@ const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void; onOpenFoundat
   );
 };
 
-// Document Library Component with AI Chat - UPDATED with loading state
-const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Document[]; isLoading: boolean }> = ({ onLoadDocuments, documents, isLoading }) => {
+// ============================================
+// Document Library Component with AI Chat
+// UPDATED: Now filters out financial documents
+// ============================================
+const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Document[]; isLoading: boolean; restrictedCount: number }> = ({ onLoadDocuments, documents, isLoading, restrictedCount }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Document[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -376,7 +423,9 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
       const res = await fetch(`${API_BASE_URL}/api/documents/search/${encodeURIComponent(query)}`);
       const data = await res.json();
       if (data.success) {
-        setSearchResults(data.data || []);
+        // Filter out restricted documents from search results
+        const filteredResults = (data.data || []).filter((doc: Document) => !isRestrictedDocument(doc.name));
+        setSearchResults(filteredResults);
       }
     } catch (err) {
       console.error('Search error:', err);
@@ -404,13 +453,24 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
       const data = await res.json();
 
       if (data.success && data.data && data.data.length > 0) {
-        const docs = data.data.slice(0, 15);
-        setChatMessages(prev => [...prev, {
-          role: 'assistant',
-          content: `I found ${data.count} document${data.count !== 1 ? 's' : ''} matching "${searchTerms || userMessage}". Here are the top results:`,
-          documents: docs
-        }]);
-        setSearchResults(data.data);
+        // Filter out restricted documents from AI search results
+        const filteredDocs = data.data.filter((doc: Document) => !isRestrictedDocument(doc.name));
+        const docs = filteredDocs.slice(0, 15);
+        
+        if (docs.length > 0) {
+          setChatMessages(prev => [...prev, {
+            role: 'assistant',
+            content: `I found ${filteredDocs.length} document${filteredDocs.length !== 1 ? 's' : ''} matching "${searchTerms || userMessage}". Here are the top results:`,
+            documents: docs
+          }]);
+          setSearchResults(filteredDocs);
+        } else {
+          // All results were financial documents
+          setChatMessages(prev => [...prev, {
+            role: 'assistant',
+            content: `I found documents matching "${searchTerms || userMessage}", but they are financial documents which are restricted from this portal. Please access financial records through the Finance Dashboard.`
+          }]);
+        }
       } else {
         setChatMessages(prev => [...prev, {
           role: 'assistant',
@@ -475,6 +535,23 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
           <div className="mt-4 w-full bg-blue-100 rounded-full h-2 overflow-hidden">
             <div className="h-full bg-blue-500 rounded-full animate-pulse" style={{ width: '60%' }}></div>
           </div>
+        </div>
+      )}
+
+      {/* Restricted Documents Notice */}
+      {restrictedCount > 0 && !isLoading && (
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-4">
+          <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <ShieldAlert className="text-amber-600" size={24} />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-amber-800">Financial Documents Restricted</h3>
+            <p className="text-amber-700 text-sm">
+              {restrictedCount} financial document{restrictedCount !== 1 ? 's are' : ' is'} not accessible from this portal. 
+              Access financial records through the Finance Dashboard.
+            </p>
+          </div>
+          <Lock className="text-amber-400" size={20} />
         </div>
       )}
 
@@ -668,6 +745,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
   const [grants, setGrants] = useState<Grant[]>([]);
   const [stats, setStats] = useState<GrantStats | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [restrictedCount, setRestrictedCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isDocumentsLoading, setIsDocumentsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -733,8 +811,17 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
       const res = await fetch(`${API_BASE_URL}/api/documents?all=true`);
       const data = await res.json();
       if (data.success) {
-        setDocuments(data.data || []);
-        console.log(`Loaded ${data.count} documents from ${data.totalPages} pages`);
+        const allDocs = data.data || [];
+        
+        // Count restricted documents before filtering
+        const restricted = allDocs.filter((doc: Document) => isRestrictedDocument(doc.name));
+        setRestrictedCount(restricted.length);
+        
+        // Filter out restricted financial documents
+        const accessibleDocs = allDocs.filter((doc: Document) => !isRestrictedDocument(doc.name));
+        
+        setDocuments(accessibleDocs);
+        console.log(`Loaded ${accessibleDocs.length} documents (${restricted.length} financial docs restricted)`);
       }
     } catch (err) {
       console.error('Error loading documents:', err);
@@ -1292,7 +1379,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
 
       {/* DOCUMENT LIBRARY */}
       {mainTab === 'documents' && (
-        <DocumentLibrary onLoadDocuments={loadDocuments} documents={documents} isLoading={isDocumentsLoading} />
+        <DocumentLibrary 
+          onLoadDocuments={loadDocuments} 
+          documents={documents} 
+          isLoading={isDocumentsLoading}
+          restrictedCount={restrictedCount}
+        />
       )}
 
       {/* Grant Detail Modal */}
