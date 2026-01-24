@@ -1,7 +1,7 @@
 import { ModuleType, ModuleContent, Father, TrackerModule } from './types';
 
 // CASE MANAGER TRACK - FULL 10 MODULE CURRICULUM
-// VIDEO LINKS UPDATED: January 6, 2026
+// VIDEO LINKS UPDATED: January 23, 2026
 export const CASE_MANAGER_MODULES: ModuleContent[] = [
   // ============================================================
   // MODULE 1: ORIENTATION TO FOAM MISSION & VALUES
@@ -263,12 +263,12 @@ export const CASE_MANAGER_MODULES: ModuleContent[] = [
     title: "Intake, Assessment & Plan of Care",
     subtitle: "Module 5: The Foundation of Service",
     description: "Standardized onboarding protocol. Collect 'Big 3' Docs: ID, SS Card, Proof of Income. Sign the ROI immediately. Finalize POC within 7 days.",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    videoUrl: "",
     videoList: [
       {
         title: "Intake Assessment Plan of Care",
         url: "",
-        description: "Coming soon: The complete intake and assessment process."
+        description: "Video coming soon: The complete intake and assessment process."
       }
     ],
     videoSummary: "Intake is your foundation. Collect the Big 3 documents, get the ROI signed, and create a personalized Plan of Care within 7 days.",
