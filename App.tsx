@@ -27,6 +27,9 @@ import FatherCheckIn from './components/tracking/FatherCheckIn';
 import AssessmentAnalytics from './components/tracking/AssessmentAnalytics';
 import GrantLoginPage from './components/GrantLoginPage';
 import DonationPortal from './components/DonationPortal';
+import HandbookHub from './components/HandbookHub';
+import OrganizationalHandbook from './components/OrganizationalHandbook';
+import PortalGuides from './components/PortalGuides';
 
 import FOAMChatbotWidget from './components/FOAMChatbotWidget';
 // Pre-loaded Treasury transactions from FOAM Financial Tracker v3
@@ -1686,7 +1689,7 @@ const PRELOADED_FINANCE_DATA: BillEntry[] = [
   }
 ];
 
-type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment' | 'progress' | 'checkin' | 'analytics' | 'documents' | 'donations';
+type AppView = 'hub' | 'training' | 'tracking' | 'admin' | 'casemanager' | 'finance' | 'manual' | 'assessment' | 'progress' | 'checkin' | 'analytics' | 'documents' | 'donations' | 'handbook' | 'org-handbook' | 'portal-guides';
 type FinanceSubView = 'dashboard' | 'exchange' | 'bills' | 'reports' | 'multifunder';
 
 const App: React.FC = () => {
@@ -1851,6 +1854,45 @@ const App: React.FC = () => {
     return (
       <>
         <Hub onNavigate={(view) => setCurrentView(view)} onLogout={handleLogout} />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // =====================================================
+  // NEW: Documentation Center Hub - WITH CHATBOT
+  // =====================================================
+  if (currentView === 'handbook') {
+    return (
+      <>
+        <HandbookHub 
+          onNavigate={(view) => setCurrentView(view as AppView)} 
+          onBack={() => setCurrentView('hub')} 
+        />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // =====================================================
+  // NEW: Organizational Handbook - WITH CHATBOT
+  // =====================================================
+  if (currentView === 'org-handbook') {
+    return (
+      <>
+        <OrganizationalHandbook onBack={() => setCurrentView('handbook')} />
+        <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
+      </>
+    );
+  }
+
+  // =====================================================
+  // NEW: Portal Support Guides - WITH CHATBOT
+  // =====================================================
+  if (currentView === 'portal-guides') {
+    return (
+      <>
+        <PortalGuides onBack={() => setCurrentView('handbook')} />
         <FOAMChatbotWidget onNavigate={(view) => setCurrentView(view as AppView)} />
       </>
     );
