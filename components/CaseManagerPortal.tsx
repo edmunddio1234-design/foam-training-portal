@@ -54,7 +54,7 @@ const MiniBarChart: React.FC<{ data: number[]; labels: string[]; color: string }
             className="w-full rounded-t transition-all duration-300"
             style={{ height: `${(val / max) * 100}%`, backgroundColor: color, minHeight: val > 0 ? '4px' : '0' }}
           />
-          <span className="text-[10px] text-slate-400">{labels[i]}</span>
+          <span className="text-[10px] text-gray-500">{labels[i]}</span>
         </div>
       ))}
     </div>
@@ -64,7 +64,7 @@ const MiniBarChart: React.FC<{ data: number[]; labels: string[]; color: string }
 // Mini Pie Chart Component
 const MiniPieChart: React.FC<{ data: { label: string; value: number; color: string }[] }> = ({ data }) => {
   const total = data.reduce((sum, d) => sum + d.value, 0);
-  if (total === 0) return <div className="text-slate-400 text-sm">No data</div>;
+  if (total === 0) return <div className="text-gray-400 text-sm">No data</div>;
   
   let cumulativePercent = 0;
 
@@ -96,7 +96,7 @@ const MiniPieChart: React.FC<{ data: { label: string; value: number; color: stri
         {data.map((d, i) => (
           <div key={i} className="flex items-center gap-2 text-xs">
             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
-            <span className="text-slate-600">{d.label}: {d.value}</span>
+            <span className="text-gray-600">{d.label}: {d.value}</span>
           </div>
         ))}
       </div>
@@ -218,12 +218,12 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
 
   const getCategoryIcon = (category: string) => {
     const cat = category.toLowerCase();
-    if (cat.includes('active') || cat.includes('enrolled')) return <Users size={16} className="text-blue-500" />;
-    if (cat.includes('job') || cat.includes('employment') || cat.includes('workforce')) return <Briefcase size={16} className="text-emerald-500" />;
-    if (cat.includes('mental') || cat.includes('relationship') || cat.includes('better father')) return <Heart size={16} className="text-pink-500" />;
-    if (cat.includes('financial') || cat.includes('income')) return <DollarSign size={16} className="text-amber-500" />;
-    if (cat.includes('education') || cat.includes('skill')) return <FileText size={16} className="text-purple-500" />;
-    return <ClipboardList size={16} className="text-slate-400" />;
+    if (cat.includes('active') || cat.includes('enrolled')) return <Users size={16} className="text-blue-600" />;
+    if (cat.includes('job') || cat.includes('employment') || cat.includes('workforce')) return <Briefcase size={16} className="text-emerald-600" />;
+    if (cat.includes('mental') || cat.includes('relationship') || cat.includes('better father')) return <Heart size={16} className="text-pink-600" />;
+    if (cat.includes('financial') || cat.includes('income')) return <DollarSign size={16} className="text-amber-600" />;
+    if (cat.includes('education') || cat.includes('skill')) return <FileText size={16} className="text-purple-600" />;
+    return <ClipboardList size={16} className="text-gray-500" />;
   };
 
   // Report Data Calculations
@@ -364,10 +364,10 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       text-align: center;
       margin-bottom: 30px;
       padding-bottom: 20px;
-      border-bottom: 3px solid #1e40af;
+      border-bottom: 3px solid #0F2C5C;
     }
     .header h1 {
-      color: #1e40af;
+      color: #0F2C5C;
       margin: 0 0 5px 0;
       font-size: 28pt;
       font-weight: bold;
@@ -379,7 +379,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       font-weight: normal;
     }
     .header .period {
-      color: #3b82f6;
+      color: #0F2C5C;
       font-size: 14pt;
       font-weight: bold;
     }
@@ -409,7 +409,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       font-weight: bold;
       margin: 10px 0;
     }
-    .kpi-card.blue .kpi-value { color: #1d4ed8; }
+    .kpi-card.blue .kpi-value { color: #0F2C5C; }
     .kpi-card.green .kpi-value { color: #059669; }
     .kpi-card.amber .kpi-value { color: #d97706; }
     .kpi-card.purple .kpi-value { color: #7c3aed; }
@@ -425,7 +425,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       page-break-inside: avoid;
     }
     .section-title {
-      color: #1e40af;
+      color: #0F2C5C;
       font-size: 14pt;
       font-weight: bold;
       margin-bottom: 15px;
@@ -435,7 +435,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
     
     .summary-item {
       background: #f0f9ff;
-      border-left: 4px solid #3b82f6;
+      border-left: 4px solid #0F2C5C;
       padding: 12px 15px;
       margin: 10px 0;
       border-radius: 0 8px 8px 0;
@@ -448,7 +448,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       font-size: 10pt;
     }
     table.outcomes th {
-      background: #1e40af;
+      background: #0F2C5C;
       color: white;
       padding: 12px;
       text-align: left;
@@ -468,7 +468,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       background: #f8fafc;
     }
     table.outcomes .result {
-      color: #1d4ed8;
+      color: #0F2C5C;
       font-weight: bold;
       text-align: center;
     }
@@ -486,7 +486,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       font-size: 9pt;
     }
     .footer .tagline {
-      color: #1e40af;
+      color: #0F2C5C;
       font-style: italic;
       margin-top: 5px;
     }
@@ -546,7 +546,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
         <td style="width: 48%; vertical-align: top; background: #f8fafc; padding: 20px; border-radius: 8px;">
           <h4 style="margin: 0 0 15px 0; color: #334155;">Workforce Pipeline</h4>
           ${(report.workforceOutcomes || []).map((item: any, i: number) => {
-            const colors = ['#3b82f6', '#10b981', '#8b5cf6'];
+            const colors = ['#0F2C5C', '#10b981', '#8b5cf6'];
             const max = Math.max(...(report.workforceOutcomes || []).map((o: any) => o.value), 1);
             const width = (item.value / max) * 100;
             return `
@@ -669,7 +669,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       text-align: center;
       padding: 40px 20px;
       margin-bottom: 30px;
-      background: linear-gradient(135deg, #0F2C5C 0%, #1e40af 100%);
+      background: linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%);
       color: white;
       border-radius: 16px;
     }
@@ -763,7 +763,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       background: #f8fafc;
     }
     .outcomes-table .metric-value {
-      color: #1d4ed8;
+      color: #0F2C5C;
       font-weight: bold;
       font-size: 11pt;
       text-align: center;
@@ -804,7 +804,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       margin: 8px 0;
       line-height: 1;
     }
-    .kpi-card.blue .kpi-value { color: #1d4ed8; }
+    .kpi-card.blue .kpi-value { color: #0F2C5C; }
     .kpi-card.green .kpi-value { color: #059669; }
     .kpi-card.amber .kpi-value { color: #d97706; }
     .kpi-card.purple .kpi-value { color: #7c3aed; }
@@ -824,7 +824,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
     /* Info Box */
     .info-box {
       background: #f0f9ff;
-      border-left: 5px solid #3b82f6;
+      border-left: 5px solid #0F2C5C;
       padding: 15px 20px;
       margin: 20px 0;
       border-radius: 0 12px 12px 0;
@@ -861,7 +861,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       vertical-align: top;
     }
     .program-box.primary {
-      background: linear-gradient(135deg, #0F2C5C 0%, #1e40af 100%);
+      background: linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%);
       color: white;
     }
     .program-box.secondary {
@@ -903,7 +903,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       font-weight: 500;
     }
     .progress-value {
-      color: #1d4ed8;
+      color: #0F2C5C;
       font-weight: bold;
     }
     .progress-bar {
@@ -916,7 +916,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       height: 100%;
       border-radius: 12px;
     }
-    .progress-fill.blue { background: linear-gradient(90deg, #3b82f6, #1d4ed8); }
+    .progress-fill.blue { background: linear-gradient(90deg, #0F2C5C, #1a365d); }
     .progress-fill.green { background: linear-gradient(90deg, #10b981, #059669); }
     .progress-fill.purple { background: linear-gradient(90deg, #8b5cf6, #7c3aed); }
     .progress-fill.amber { background: linear-gradient(90deg, #f59e0b, #d97706); }
@@ -981,7 +981,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       font-size: 9pt;
       font-weight: 600;
     }
-    .role-badge.primary { background: #dbeafe; color: #1d4ed8; }
+    .role-badge.primary { background: #dbeafe; color: #0F2C5C; }
     .role-badge.secondary { background: #d1fae5; color: #059669; }
     .role-badge.tertiary { background: #fef3c7; color: #d97706; }
     
@@ -1057,7 +1057,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       font-weight: 600;
       min-width: 140px;
     }
-    .flow-box.intake { background: #dbeafe; color: #1d4ed8; }
+    .flow-box.intake { background: #dbeafe; color: #0F2C5C; }
     .flow-box.assessment { background: #d1fae5; color: #059669; }
     .flow-box.services { background: #fef3c7; color: #d97706; }
     .flow-box.outcomes { background: #f3e8ff; color: #7c3aed; }
@@ -1080,7 +1080,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       margin-bottom: 8px;
     }
     .footer-tagline {
-      color: #3b82f6;
+      color: #0F2C5C;
       font-style: italic;
       font-size: 11pt;
       margin-bottom: 8px;
@@ -1310,7 +1310,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       <div class="bar-chart">
         <div class="bar-item">
           <div class="bar-value">${workforceParticipation}</div>
-          <div class="bar" style="height: 100%; background: linear-gradient(180deg, #3b82f6, #1d4ed8);"></div>
+          <div class="bar" style="height: 100%; background: linear-gradient(180deg, #0F2C5C, #1a365d);"></div>
           <div class="bar-label">Workforce<br/>Participation</div>
         </div>
         <div class="bar-item">
@@ -1411,7 +1411,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       <div class="bar-chart">
         <div class="bar-item">
           <div class="bar-value">${Math.round(stabilizationSupport * 0.35)}</div>
-          <div class="bar" style="height: 90%; background: linear-gradient(180deg, #3b82f6, #1d4ed8);"></div>
+          <div class="bar" style="height: 90%; background: linear-gradient(180deg, #0F2C5C, #1a365d);"></div>
           <div class="bar-label">Transportation</div>
         </div>
         <div class="bar-item">
@@ -1582,27 +1582,27 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
   };
 
   // ============================================
-  // RENDER DATA TABLE
+  // RENDER DATA TABLE - LIGHT THEME
   // ============================================
   const renderDataTable = (data: DataRow[], months: string[], editable: boolean = false) => (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto bg-white rounded-xl border border-gray-200 shadow-sm">
       <table className="w-full">
         <thead>
-          <tr className="bg-slate-800">
-            <th className="sticky left-0 bg-slate-800 px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider min-w-[200px]">
+          <tr style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}>
+            <th className="sticky left-0 px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider min-w-[200px]" style={{ background: '#0F2C5C' }}>
               Category
             </th>
             {months.map((month, i) => (
-              <th key={i} className="px-3 py-3 text-center text-xs font-semibold text-slate-300 uppercase tracking-wider min-w-[80px]">
+              <th key={i} className="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider min-w-[80px]">
                 {month}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-700">
+        <tbody className="divide-y divide-gray-200">
           {data.map((row, rowIndex) => (
-            <tr key={row.id} className="hover:bg-slate-800/50 transition-colors">
-              <td className="sticky left-0 bg-slate-900 px-4 py-3 text-sm font-medium text-slate-200 flex items-center gap-2">
+            <tr key={row.id} className="hover:bg-blue-50 transition-colors">
+              <td className="sticky left-0 bg-white px-4 py-3 text-sm font-medium text-gray-800 flex items-center gap-2 border-r border-gray-100">
                 {getCategoryIcon(row.category)}
                 {row.category}
               </td>
@@ -1611,9 +1611,9 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                   key={colIndex}
                   className={`px-3 py-3 text-center text-sm ${
                     editable && colIndex !== months.length - 1 
-                      ? 'cursor-pointer hover:bg-blue-900/30' 
+                      ? 'cursor-pointer hover:bg-blue-100' 
                       : ''
-                  } ${colIndex === months.length - 1 ? 'bg-slate-800/50 font-semibold text-blue-400' : 'text-slate-300'}`}
+                  } ${colIndex === months.length - 1 ? 'bg-blue-50 font-semibold text-blue-700' : 'text-gray-700'}`}
                   onClick={() => editable && handleCellClick(rowIndex, colIndex, value)}
                 >
                   {editingCell?.row === rowIndex && editingCell?.col === colIndex ? (
@@ -1622,7 +1622,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                         type="number"
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
-                        className="w-16 px-2 py-1 bg-slate-700 border border-blue-500 rounded text-center text-white"
+                        className="w-16 px-2 py-1 bg-white border-2 border-blue-500 rounded text-center text-gray-800"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') handleSaveCell();
@@ -1632,13 +1632,13 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                       <button
                         onClick={handleSaveCell}
                         disabled={isSaving}
-                        className="p-1 bg-green-600 rounded hover:bg-green-500"
+                        className="p-1 bg-green-600 text-white rounded hover:bg-green-500"
                       >
                         <CheckCircle2 size={14} />
                       </button>
                       <button
                         onClick={() => setEditingCell(null)}
-                        className="p-1 bg-slate-600 rounded hover:bg-slate-500"
+                        className="p-1 bg-gray-400 text-white rounded hover:bg-gray-500"
                       >
                         <X size={14} />
                       </button>
@@ -1656,27 +1656,27 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
   );
 
   // ============================================
-  // RENDER REPORTS TAB
+  // RENDER REPORTS TAB - LIGHT THEME
   // ============================================
   const renderReportsTab = () => (
     <div className="space-y-6">
       {/* Report Type Selection */}
-      <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <FileText size={20} className="text-blue-400" />
+      <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <FileText size={20} className="text-blue-600" />
           Generate Funder Report
         </h3>
         
         {/* Year Selection */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-slate-400 mb-2">Data Source</label>
+          <label className="block text-sm font-medium text-gray-600 mb-2">Data Source</label>
           <div className="flex gap-3">
             <button
               onClick={() => setSelectedYear('2026')}
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 selectedYear === '2026'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
               }`}
             >
               2026 (Current)
@@ -1686,7 +1686,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 selectedYear === '2024-2025'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
               }`}
             >
               2024-2025 (Historical)
@@ -1696,52 +1696,52 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
 
         {/* Report Type */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-slate-400 mb-2">Report Type</label>
+          <label className="block text-sm font-medium text-gray-600 mb-2">Report Type</label>
           <div className="grid grid-cols-4 gap-3">
             <button
               onClick={() => setReportType('monthly')}
               className={`p-4 rounded-xl border-2 transition-all ${
                 reportType === 'monthly'
-                  ? 'border-blue-500 bg-blue-500/20'
-                  : 'border-slate-600 hover:border-slate-500'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300 bg-white'
               }`}
             >
-              <Calendar size={24} className={reportType === 'monthly' ? 'text-blue-400 mx-auto mb-2' : 'text-slate-400 mx-auto mb-2'} />
-              <div className={`font-medium ${reportType === 'monthly' ? 'text-blue-400' : 'text-slate-300'}`}>Monthly</div>
+              <Calendar size={24} className={reportType === 'monthly' ? 'text-blue-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
+              <div className={`font-medium ${reportType === 'monthly' ? 'text-blue-600' : 'text-gray-700'}`}>Monthly</div>
             </button>
             <button
               onClick={() => setReportType('quarterly')}
               className={`p-4 rounded-xl border-2 transition-all ${
                 reportType === 'quarterly'
-                  ? 'border-emerald-500 bg-emerald-500/20'
-                  : 'border-slate-600 hover:border-slate-500'
+                  ? 'border-emerald-500 bg-emerald-50'
+                  : 'border-gray-200 hover:border-gray-300 bg-white'
               }`}
             >
-              <BarChart3 size={24} className={reportType === 'quarterly' ? 'text-emerald-400 mx-auto mb-2' : 'text-slate-400 mx-auto mb-2'} />
-              <div className={`font-medium ${reportType === 'quarterly' ? 'text-emerald-400' : 'text-slate-300'}`}>Quarterly</div>
+              <BarChart3 size={24} className={reportType === 'quarterly' ? 'text-emerald-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
+              <div className={`font-medium ${reportType === 'quarterly' ? 'text-emerald-600' : 'text-gray-700'}`}>Quarterly</div>
             </button>
             <button
               onClick={() => setReportType('annual')}
               className={`p-4 rounded-xl border-2 transition-all ${
                 reportType === 'annual'
-                  ? 'border-amber-500 bg-amber-500/20'
-                  : 'border-slate-600 hover:border-slate-500'
+                  ? 'border-amber-500 bg-amber-50'
+                  : 'border-gray-200 hover:border-gray-300 bg-white'
               }`}
             >
-              <Target size={24} className={reportType === 'annual' ? 'text-amber-400 mx-auto mb-2' : 'text-slate-400 mx-auto mb-2'} />
-              <div className={`font-medium ${reportType === 'annual' ? 'text-amber-400' : 'text-slate-300'}`}>Annual</div>
+              <Target size={24} className={reportType === 'annual' ? 'text-amber-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
+              <div className={`font-medium ${reportType === 'annual' ? 'text-amber-600' : 'text-gray-700'}`}>Annual</div>
             </button>
             <button
               onClick={() => setReportType('indepth')}
               className={`p-4 rounded-xl border-2 transition-all ${
                 reportType === 'indepth'
-                  ? 'border-purple-500 bg-purple-500/20'
-                  : 'border-slate-600 hover:border-slate-500'
+                  ? 'border-purple-500 bg-purple-50'
+                  : 'border-gray-200 hover:border-gray-300 bg-white'
               }`}
             >
-              <Sparkles size={24} className={reportType === 'indepth' ? 'text-purple-400 mx-auto mb-2' : 'text-slate-400 mx-auto mb-2'} />
-              <div className={`font-medium ${reportType === 'indepth' ? 'text-purple-400' : 'text-slate-300'}`}>In-Depth</div>
-              <div className="text-xs text-slate-500 mt-1">Comprehensive</div>
+              <Sparkles size={24} className={reportType === 'indepth' ? 'text-purple-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
+              <div className={`font-medium ${reportType === 'indepth' ? 'text-purple-600' : 'text-gray-700'}`}>In-Depth</div>
+              <div className="text-xs text-gray-500 mt-1">Comprehensive</div>
             </button>
           </div>
         </div>
@@ -1749,11 +1749,11 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
         {/* Period Selection (for monthly/quarterly) */}
         {reportType === 'monthly' && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-slate-400 mb-2">Select Month</label>
+            <label className="block text-sm font-medium text-gray-600 mb-2">Select Month</label>
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white"
+              className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             >
               {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((month, i) => (
                 <option key={i} value={i}>{month}</option>
@@ -1764,7 +1764,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
 
         {reportType === 'quarterly' && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-slate-400 mb-2">Select Quarter</label>
+            <label className="block text-sm font-medium text-gray-600 mb-2">Select Quarter</label>
             <div className="flex gap-3">
               {[1, 2, 3, 4].map((q) => (
                 <button
@@ -1773,7 +1773,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                   className={`flex-1 py-2 rounded-lg font-medium transition-all ${
                     selectedQuarter === q
                       ? 'bg-emerald-600 text-white'
-                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
                   }`}
                 >
                   Q{q}
@@ -1785,12 +1785,12 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
 
         {/* In-Depth Report Info */}
         {reportType === 'indepth' && (
-          <div className="mb-6 p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl">
+          <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-xl">
             <div className="flex items-start gap-3">
-              <Sparkles size={20} className="text-purple-400 mt-0.5" />
+              <Sparkles size={20} className="text-purple-600 mt-0.5" />
               <div>
-                <h4 className="font-medium text-purple-300 mb-1">Comprehensive In-Depth Report</h4>
-                <p className="text-sm text-slate-400">
+                <h4 className="font-medium text-purple-800 mb-1">Comprehensive In-Depth Report</h4>
+                <p className="text-sm text-gray-600">
                   Generates a full annual outcomes report with 8 sections including program analysis, 
                   workforce pipeline charts, success metrics, stabilization support breakdown, 
                   service delivery model, and staffing structure.
@@ -1805,7 +1805,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
           <button
             onClick={() => setShowPreview(true)}
             disabled={!previewData}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 border border-gray-300"
           >
             <Eye size={18} />
             Preview Data
@@ -1813,7 +1813,8 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
           <button
             onClick={handleGenerateReport}
             disabled={isGenerating}
-            className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-500 hover:to-blue-400 disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-2 text-white rounded-lg disabled:opacity-50"
+            style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}
           >
             {isGenerating ? (
               <>
@@ -1832,23 +1833,23 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
 
       {/* Generated Report */}
       {generatedReport && (
-        <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <CheckCircle2 size={20} className="text-green-400" />
+            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              <CheckCircle2 size={20} className="text-green-600" />
               Report Generated Successfully
             </h3>
             <div className="flex gap-2">
               <button
                 onClick={() => handleDownloadReport('word')}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 <Download size={16} />
                 Download Word
               </button>
               <button
                 onClick={() => handleDownloadReport('pdf')}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500"
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
               >
                 <Printer size={16} />
                 Export PDF
@@ -1857,48 +1858,48 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
           </div>
 
           {/* Report Preview */}
-          <div className="bg-slate-900 rounded-lg p-6 border border-slate-600">
+          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white">Fathers On A Mission</h2>
-              <p className="text-slate-400">
+              <h2 className="text-2xl font-bold text-gray-800">Fathers On A Mission</h2>
+              <p className="text-gray-600">
                 {reportType === 'indepth' ? 'Comprehensive In-Depth Report' : `${generatedReport.metadata?.reportType?.charAt(0).toUpperCase() + generatedReport.metadata?.reportType?.slice(1)} Outcomes Report`}
               </p>
-              <p className="text-blue-400 font-medium">{generatedReport.metadata?.periodLabel}</p>
+              <p className="text-blue-600 font-medium">{generatedReport.metadata?.periodLabel}</p>
             </div>
 
             {/* KPI Cards */}
             <div className="grid grid-cols-4 gap-4 mb-6">
-              <div className="bg-blue-500/20 rounded-xl p-4 text-center border border-blue-500/30">
-                <div className="text-3xl font-bold text-blue-400">{generatedReport.keyMetrics?.activeFathers || 0}</div>
-                <div className="text-xs text-slate-400 uppercase">Fathers Served</div>
+              <div className="bg-blue-50 rounded-xl p-4 text-center border border-blue-200">
+                <div className="text-3xl font-bold text-blue-700">{generatedReport.keyMetrics?.activeFathers || 0}</div>
+                <div className="text-xs text-gray-600 uppercase">Fathers Served</div>
               </div>
-              <div className="bg-emerald-500/20 rounded-xl p-4 text-center border border-emerald-500/30">
-                <div className="text-3xl font-bold text-emerald-400">{generatedReport.keyMetrics?.fatherhoodClassEnrollment || 0}</div>
-                <div className="text-xs text-slate-400 uppercase">Class Enrollment</div>
+              <div className="bg-emerald-50 rounded-xl p-4 text-center border border-emerald-200">
+                <div className="text-3xl font-bold text-emerald-700">{generatedReport.keyMetrics?.fatherhoodClassEnrollment || 0}</div>
+                <div className="text-xs text-gray-600 uppercase">Class Enrollment</div>
               </div>
-              <div className="bg-amber-500/20 rounded-xl p-4 text-center border border-amber-500/30">
-                <div className="text-3xl font-bold text-amber-400">{generatedReport.keyMetrics?.jobPlacements || 0}</div>
-                <div className="text-xs text-slate-400 uppercase">Job Placements</div>
+              <div className="bg-amber-50 rounded-xl p-4 text-center border border-amber-200">
+                <div className="text-3xl font-bold text-amber-700">{generatedReport.keyMetrics?.jobPlacements || 0}</div>
+                <div className="text-xs text-gray-600 uppercase">Job Placements</div>
               </div>
-              <div className="bg-purple-500/20 rounded-xl p-4 text-center border border-purple-500/30">
-                <div className="text-3xl font-bold text-purple-400">{generatedReport.successMetrics?.retentionRate || 0}%</div>
-                <div className="text-xs text-slate-400 uppercase">Retention Rate</div>
+              <div className="bg-purple-50 rounded-xl p-4 text-center border border-purple-200">
+                <div className="text-3xl font-bold text-purple-700">{generatedReport.successMetrics?.retentionRate || 0}%</div>
+                <div className="text-xs text-gray-600 uppercase">Retention Rate</div>
               </div>
             </div>
 
             {/* Charts Preview */}
             {reportType === 'indepth' && (
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-slate-800 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-slate-300 mb-3">Program Distribution</h4>
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">Program Distribution</h4>
                   <MiniPieChart data={[
-                    { label: 'Fatherhood Classes', value: generatedReport.keyMetrics?.fatherhoodClassEnrollment || 70, color: '#3b82f6' },
+                    { label: 'Fatherhood Classes', value: generatedReport.keyMetrics?.fatherhoodClassEnrollment || 70, color: '#0F2C5C' },
                     { label: 'Project Family Build', value: generatedReport.keyMetrics?.avgMonthlyEngagement || 60, color: '#10b981' },
                     { label: 'Workforce Dev', value: generatedReport.keyMetrics?.workforceParticipation || 77, color: '#8b5cf6' }
                   ]} />
                 </div>
-                <div className="bg-slate-800 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-slate-300 mb-3">Workforce Pipeline</h4>
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">Workforce Pipeline</h4>
                   <MiniBarChart 
                     data={[
                       generatedReport.keyMetrics?.workforceParticipation || 77,
@@ -1915,10 +1916,10 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
             {/* Narrative Insights */}
             {generatedReport.narrativeInsights && generatedReport.narrativeInsights.length > 0 && (
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-slate-300 mb-3">Key Insights</h4>
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Key Insights</h4>
                 <div className="space-y-2">
                   {generatedReport.narrativeInsights.slice(0, 3).map((insight: string, i: number) => (
-                    <div key={i} className="bg-slate-800 rounded-lg p-3 text-sm text-slate-300 border-l-4 border-blue-500">
+                    <div key={i} className="bg-white rounded-lg p-3 text-sm text-gray-700 border-l-4 border-blue-600">
                       {insight}
                     </div>
                   ))}
@@ -1931,29 +1932,29 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
 
       {/* Preview Modal */}
       {showPreview && previewData && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="bg-slate-800 rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto shadow-xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">Data Preview</h3>
+              <h3 className="text-lg font-semibold text-gray-800">Data Preview</h3>
               <button
                 onClick={() => setShowPreview(false)}
-                className="p-1 hover:bg-slate-700 rounded"
+                className="p-1 hover:bg-gray-100 rounded"
               >
-                <X size={20} className="text-slate-400" />
+                <X size={20} className="text-gray-500" />
               </button>
             </div>
             <table className="w-full">
               <thead>
-                <tr className="border-b border-slate-600">
-                  <th className="px-4 py-2 text-left text-sm font-medium text-slate-400">Category</th>
-                  <th className="px-4 py-2 text-right text-sm font-medium text-slate-400">Value</th>
+                <tr className="border-b border-gray-200">
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Category</th>
+                  <th className="px-4 py-2 text-right text-sm font-medium text-gray-600">Value</th>
                 </tr>
               </thead>
               <tbody>
                 {previewData.map((item: any, i: number) => (
-                  <tr key={i} className="border-b border-slate-700">
-                    <td className="px-4 py-2 text-sm text-slate-300">{item.category}</td>
-                    <td className="px-4 py-2 text-sm text-right text-blue-400 font-medium">{item.value}</td>
+                  <tr key={i} className="border-b border-gray-100">
+                    <td className="px-4 py-2 text-sm text-gray-700">{item.category}</td>
+                    <td className="px-4 py-2 text-sm text-right text-blue-600 font-medium">{item.value}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1965,45 +1966,45 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
   );
 
   // ============================================
-  // MAIN RENDER
+  // MAIN RENDER - LIGHT THEME
   // ============================================
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw size={40} className="text-blue-400 animate-spin mx-auto mb-4" />
-          <p className="text-slate-400">Loading Case Manager Portal...</p>
+          <RefreshCw size={40} className="text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading Case Manager Portal...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-slate-800 to-slate-900 border-b border-slate-700 px-6 py-4">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header - LIGHT THEME with FOAM Blue */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={onClose}
-              className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
             >
               <ArrowLeft size={20} />
             </button>
             <div>
-              <h1 className="text-xl font-bold">Case Manager Monthly Reports</h1>
-              <p className="text-sm text-slate-400">Track, compare, and generate funder reports</p>
+              <h1 className="text-xl font-bold text-gray-800">Case Manager Monthly Reports</h1>
+              <p className="text-sm text-gray-500">Track, compare, and generate funder reports</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             {caseManagerName && (
-              <span className="text-sm text-slate-400">
-                Logged in as: <span className="text-blue-400">{caseManagerName}</span>
+              <span className="text-sm text-gray-500">
+                Logged in as: <span className="text-blue-600 font-medium">{caseManagerName}</span>
               </span>
             )}
             <button
               onClick={loadData}
-              className="flex items-center gap-2 px-3 py-2 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors border border-gray-200"
             >
               <RefreshCw size={16} />
               Refresh
@@ -2012,8 +2013,8 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-slate-700">
+      {/* Tabs - LIGHT THEME */}
+      <div className="border-b border-gray-200 bg-white">
         <div className="flex px-6">
           {[
             { id: 'current', label: '2026 Data Entry', icon: Edit3 },
@@ -2027,8 +2028,8 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
               onClick={() => setActiveTab(tab.id as TabType)}
               className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
                 activeTab === tab.id
-                  ? 'border-blue-500 text-blue-400'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
               <tab.icon size={16} />
@@ -2041,7 +2042,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
       {/* Content */}
       <div className="p-6">
         {error && (
-          <div className="mb-4 p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 flex items-center gap-2">
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-center gap-2">
             <AlertTriangle size={20} />
             {error}
           </div>
@@ -2050,27 +2051,27 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
         {activeTab === 'current' && currentData.length > 0 && renderDataTable(currentData, currentMonths, true)}
         {activeTab === 'historical' && historicalData.length > 0 && renderDataTable(historicalData, historicalMonths)}
         {activeTab === 'comparison' && (
-          <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
             <table className="w-full">
               <thead>
-                <tr className="bg-slate-800">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300">Metric</th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-slate-300">2024-2025</th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-slate-300">2026</th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-slate-300">Change</th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-slate-300">% Change</th>
+                <tr style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-white">Metric</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-white">2024-2025</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-white">2026</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-white">Change</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-white">% Change</th>
                 </tr>
               </thead>
               <tbody>
                 {comparisonData.map((row) => (
-                  <tr key={row.id} className="border-t border-slate-700 hover:bg-slate-800/50">
-                    <td className="px-4 py-3 text-sm text-slate-200">{row.metric}</td>
-                    <td className="px-4 py-3 text-center text-sm text-slate-300">{row.historical}</td>
-                    <td className="px-4 py-3 text-center text-sm text-slate-300">{row.current}</td>
-                    <td className={`px-4 py-3 text-center text-sm font-medium ${row.change >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  <tr key={row.id} className="border-t border-gray-200 hover:bg-blue-50">
+                    <td className="px-4 py-3 text-sm text-gray-800">{row.metric}</td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-700">{row.historical}</td>
+                    <td className="px-4 py-3 text-center text-sm text-gray-700">{row.current}</td>
+                    <td className={`px-4 py-3 text-center text-sm font-medium ${row.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {row.change >= 0 ? '+' : ''}{row.change}
                     </td>
-                    <td className={`px-4 py-3 text-center text-sm font-medium ${row.percentChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    <td className={`px-4 py-3 text-center text-sm font-medium ${row.percentChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       <span className="flex items-center justify-center gap-1">
                         {row.percentChange >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                         {Math.abs(row.percentChange)}%
@@ -2083,28 +2084,28 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
           </div>
         )}
         {activeTab === 'log' && (
-          <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
             <table className="w-full">
               <thead>
-                <tr className="bg-slate-800">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300">Case Manager</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300">Month/Year</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300">Category</th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-slate-300">Old → New</th>
+                <tr style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-white">Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-white">Case Manager</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-white">Month/Year</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-white">Category</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-white">Old → New</th>
                 </tr>
               </thead>
               <tbody>
                 {logData.map((entry) => (
-                  <tr key={entry.id} className="border-t border-slate-700 hover:bg-slate-800/50">
-                    <td className="px-4 py-3 text-sm text-slate-400">{entry.date}</td>
-                    <td className="px-4 py-3 text-sm text-blue-400">{entry.caseManager}</td>
-                    <td className="px-4 py-3 text-sm text-slate-300">{entry.month} {entry.year}</td>
-                    <td className="px-4 py-3 text-sm text-slate-300">{entry.category}</td>
+                  <tr key={entry.id} className="border-t border-gray-200 hover:bg-blue-50">
+                    <td className="px-4 py-3 text-sm text-gray-500">{entry.date}</td>
+                    <td className="px-4 py-3 text-sm text-blue-600 font-medium">{entry.caseManager}</td>
+                    <td className="px-4 py-3 text-sm text-gray-700">{entry.month} {entry.year}</td>
+                    <td className="px-4 py-3 text-sm text-gray-700">{entry.category}</td>
                     <td className="px-4 py-3 text-center text-sm">
-                      <span className="text-red-400">{entry.oldValue}</span>
-                      <span className="text-slate-500 mx-2">→</span>
-                      <span className="text-green-400">{entry.newValue}</span>
+                      <span className="text-red-600">{entry.oldValue}</span>
+                      <span className="text-gray-400 mx-2">→</span>
+                      <span className="text-green-600">{entry.newValue}</span>
                     </td>
                   </tr>
                 ))}
@@ -2115,12 +2116,12 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
         {activeTab === 'reports' && renderReportsTab()}
       </div>
 
-      {/* Name Prompt Modal */}
+      {/* Name Prompt Modal - LIGHT THEME */}
       {showNamePrompt && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="bg-slate-800 rounded-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-white mb-4">Enter Your Name</h3>
-            <p className="text-sm text-slate-400 mb-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Enter Your Name</h3>
+            <p className="text-sm text-gray-600 mb-4">
               Please enter your name to track changes in the change log.
             </p>
             <input
@@ -2128,13 +2129,13 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
               placeholder="Your name"
               value={caseManagerName}
               onChange={(e) => setCaseManagerName(e.target.value)}
-              className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white mb-4"
+              className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 mb-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               autoFocus
             />
             <div className="flex gap-3">
               <button
                 onClick={() => setShowNamePrompt(false)}
-                className="flex-1 px-4 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600"
+                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 border border-gray-300"
               >
                 Cancel
               </button>
@@ -2145,7 +2146,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                   }
                 }}
                 disabled={!caseManagerName.trim()}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
               >
                 Continue
               </button>
