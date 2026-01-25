@@ -13,6 +13,7 @@ export interface Father {
   completedModules: number[];
   joinedDate: string;
   status: 'Active' | 'At Risk' | 'Graduated' | 'Inactive';
+  lastCheckIn: string | null;
 }
 
 export interface Module {
