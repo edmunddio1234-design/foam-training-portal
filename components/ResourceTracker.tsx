@@ -941,31 +941,101 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
   };
 
   const handleDonationGivenSubmit = (entry: DonationGivenEntry) => {
-    handleSubmitEntry('donations-given', entry, 'Donation given logged!', () => setShowDonationGivenForm(false));
+    // Backend expects /api/resources/donations-given
+    const payload = {
+      date: entry.date,
+      clientName: entry.clientName,
+      itemType: entry.itemType,
+      description: entry.description,
+      quantity: entry.quantity,
+      estimatedValue: entry.estimatedValue,
+      notes: entry.notes
+    };
+    handleSubmitEntry('donations-given', payload, 'Donation given logged!', () => setShowDonationGivenForm(false));
   };
 
   const handleInKindSubmit = (entry: InKindDonationEntry) => {
-    handleSubmitEntry('donations-inkind', entry, 'In-kind donation logged!', () => setShowInKindForm(false));
+    // Backend expects /api/resources/donations-inkind
+    const payload = {
+      date: entry.date,
+      donorName: entry.donorName,
+      itemType: entry.itemType,
+      description: entry.description,
+      quantity: entry.quantity,
+      estimatedValue: entry.estimatedValue,
+      notes: entry.notes
+    };
+    handleSubmitEntry('donations-inkind', payload, 'In-kind donation logged!', () => setShowInKindForm(false));
   };
 
   const handleBusSubmit = (entry: BusPassEntry) => {
-    handleSubmitEntry('transport-bus', entry, 'Bus pass logged!', () => setShowBusForm(false));
+    // Backend expects /api/resources/transport with transportType in body
+    const payload = {
+      transportType: 'bus',
+      date: entry.date,
+      clientName: entry.clientName,
+      quantity: entry.quantity,
+      cost: entry.cost,
+      typeOrDestination: entry.passType,
+      notes: entry.notes
+    };
+    handleSubmitEntry('transport', payload, 'Bus pass logged!', () => setShowBusForm(false));
   };
 
   const handleUberSubmit = (entry: UberEntry) => {
-    handleSubmitEntry('transport-uber', entry, 'Uber ride logged!', () => setShowUberForm(false));
+    // Backend expects /api/resources/transport with transportType in body
+    const payload = {
+      transportType: 'uber',
+      date: entry.date,
+      clientName: entry.clientName,
+      quantity: 1,
+      cost: entry.cost,
+      typeOrDestination: `${entry.pickup} to ${entry.destination} - ${entry.purpose}`,
+      notes: entry.notes
+    };
+    handleSubmitEntry('transport', payload, 'Uber ride logged!', () => setShowUberForm(false));
   };
 
   const handleWaterSubmit = (entry: WaterEntry) => {
-    handleSubmitEntry('utilities-water', entry, 'Water assistance logged!', () => setShowWaterForm(false));
+    // Backend expects /api/resources/utilities with utilityType in body
+    const payload = {
+      utilityType: 'water',
+      date: entry.date,
+      clientName: entry.clientName,
+      amount: entry.amount,
+      accountOrLandlord: entry.accountNumber,
+      providerOrProperty: entry.provider,
+      notes: entry.notes
+    };
+    handleSubmitEntry('utilities', payload, 'Water assistance logged!', () => setShowWaterForm(false));
   };
 
   const handleElectricSubmit = (entry: ElectricEntry) => {
-    handleSubmitEntry('utilities-electric', entry, 'Electric assistance logged!', () => setShowElectricForm(false));
+    // Backend expects /api/resources/utilities with utilityType in body
+    const payload = {
+      utilityType: 'electric',
+      date: entry.date,
+      clientName: entry.clientName,
+      amount: entry.amount,
+      accountOrLandlord: entry.accountNumber,
+      providerOrProperty: entry.provider,
+      notes: entry.notes
+    };
+    handleSubmitEntry('utilities', payload, 'Electric assistance logged!', () => setShowElectricForm(false));
   };
 
   const handleRentSubmit = (entry: RentEntry) => {
-    handleSubmitEntry('utilities-rent', entry, 'Rent assistance logged!', () => setShowRentForm(false));
+    // Backend expects /api/resources/utilities with utilityType in body
+    const payload = {
+      utilityType: 'rent',
+      date: entry.date,
+      clientName: entry.clientName,
+      amount: entry.amount,
+      accountOrLandlord: entry.landlordName,
+      providerOrProperty: entry.propertyAddress,
+      notes: entry.notes
+    };
+    handleSubmitEntry('utilities', payload, 'Rent assistance logged!', () => setShowRentForm(false));
   };
 
   // Stats calculations
