@@ -1198,12 +1198,17 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
               <p className="text-gray-600">{reportType === 'indepth' ? 'Comprehensive Annual Report (12 Sections)' : reportType === 'indepth6' ? 'Comprehensive 6-Month Report (12 Sections)' : (generatedReport.metadata?.reportType?.charAt(0).toUpperCase() + generatedReport.metadata?.reportType?.slice(1) + ' Report')}</p>
               <p className="text-blue-600 font-medium">{generatedReport.metadata?.periodLabel}</p>
             </div>
-            <div className="grid grid-cols-4 gap-4 mb-6">
-              <div className="bg-blue-50 rounded-xl p-4 text-center border border-blue-200"><div className="text-3xl font-bold text-blue-700">{generatedReport.keyMetrics?.activeFathers || 0}</div><div className="text-xs text-gray-600 uppercase">Fathers Served</div></div>
-              <div className="bg-emerald-50 rounded-xl p-4 text-center border border-emerald-200"><div className="text-3xl font-bold text-emerald-700">{generatedReport.keyMetrics?.fatherhoodClassEnrollment || 0}</div><div className="text-xs text-gray-600 uppercase">Class Enrollment</div></div>
-              <div className="bg-amber-50 rounded-xl p-4 text-center border border-amber-200"><div className="text-3xl font-bold text-amber-700">{generatedReport.keyMetrics?.jobPlacements || 0}</div><div className="text-xs text-gray-600 uppercase">Job Placements</div></div>
-              <div className="bg-purple-50 rounded-xl p-4 text-center border border-purple-200"><div className="text-3xl font-bold text-purple-700">{generatedReport.successMetrics?.retentionRate || 0}%</div><div className="text-xs text-gray-600 uppercase">Retention Rate</div></div>
-            </div>
+            {(() => {
+              const previewMetrics = getReportMetrics(generatedReport, reportType === 'indepth6');
+              return (
+                <div className="grid grid-cols-4 gap-4 mb-6">
+                  <div className="bg-blue-50 rounded-xl p-4 text-center border border-blue-200"><div className="text-3xl font-bold text-blue-700">{previewMetrics.activeFathers}</div><div className="text-xs text-gray-600 uppercase">Fathers Served</div></div>
+                  <div className="bg-emerald-50 rounded-xl p-4 text-center border border-emerald-200"><div className="text-3xl font-bold text-emerald-700">{previewMetrics.fatherhoodClassEnrollment}</div><div className="text-xs text-gray-600 uppercase">Class Enrollment</div></div>
+                  <div className="bg-amber-50 rounded-xl p-4 text-center border border-amber-200"><div className="text-3xl font-bold text-amber-700">{previewMetrics.jobPlacements}</div><div className="text-xs text-gray-600 uppercase">Job Placements</div></div>
+                  <div className="bg-purple-50 rounded-xl p-4 text-center border border-purple-200"><div className="text-3xl font-bold text-purple-700">{previewMetrics.retentionRate}%</div><div className="text-xs text-gray-600 uppercase">Retention Rate</div></div>
+                </div>
+              );
+            })()}
             {(reportType === 'indepth' || reportType === 'indepth6') && (
               <div className={`border rounded-lg p-4 ${reportType === 'indepth6' ? 'bg-pink-50 border-pink-200' : 'bg-purple-50 border-purple-200'}`}>
                 <h4 className={`font-semibold mb-2 ${reportType === 'indepth6' ? 'text-pink-800' : 'text-purple-800'}`}>📄 Report Contains 12 Comprehensive Sections</h4>
