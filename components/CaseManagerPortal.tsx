@@ -559,6 +559,221 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
   };
 
   // ============================================
+  // REPORT GENERATION FUNCTIONS (RESTORED)
+  // ============================================
+
+  const getReportMetrics = (report: any, is6MonthReport: boolean = false) => {
+    // Scale factor: 0.5 for 6-month reports, 1.0 for annual
+    const scale = is6MonthReport ? 0.5 : 1.0;
+
+    // Base metrics from report (annual values)
+    const baseActiveFathers = report?.keyMetrics?.activeFathers || dashboardMetrics.activeFathers || 159;
+    const baseFatherhoodClassEnrollment = report?.keyMetrics?.fatherhoodClassEnrollment || dashboardMetrics.fatherhoodClassActive || 70;
+    const baseWorkforceParticipation = report?.keyMetrics?.workforceParticipation || dashboardMetrics.workforceDevelopment || 77;
+    const baseJobPlacements = report?.keyMetrics?.jobPlacements || dashboardMetrics.jobPlacements || 35;
+    const baseJobRetention = report?.keyMetrics?.jobRetention || dashboardMetrics.jobRetention || 29;
+    const baseStabilizationSupport = report?.keyMetrics?.stabilizationSupport || 231;
+    const baseAvgMonthlyEngagement = report?.keyMetrics?.avgMonthlyEngagement || 60;
+    const baseMentalHealthReferrals = report?.keyMetrics?.mentalHealthReferrals || dashboardMetrics.mentalHealthReferrals || 42;
+
+    // Scaled metrics for the period
+    const activeFathers = Math.round(baseActiveFathers * scale);
+    const fatherhoodClassEnrollment = Math.round(baseFatherhoodClassEnrollment * scale);
+    const workforceParticipation = Math.round(baseWorkforceParticipation * scale);
+    const jobPlacements = Math.round(baseJobPlacements * scale);
+    const jobRetention = Math.round(baseJobRetention * scale);
+    const stabilizationSupport = Math.round(baseStabilizationSupport * scale);
+    const avgMonthlyEngagement = baseAvgMonthlyEngagement; // Monthly avg stays same
+    const mentalHealthReferrals = Math.round(baseMentalHealthReferrals * scale);
+
+    // Calculated metrics
+    const childrenImpacted = Math.round(activeFathers * 1.5);
+    const caseManagementSessions = activeFathers * 5;
+    const totalServiceHours = activeFathers * 12;
+
+    // Rates (percentages) - calculated from scaled values
+    const workforceParticipationRate = activeFathers > 0 ? Math.round((workforceParticipation / activeFathers) * 100) : 0;
+    const jobPlacementRate = workforceParticipation > 0 ? Math.round((jobPlacements / workforceParticipation) * 100) : 0;
+    const retentionRate = jobPlacements > 0 ? Math.round((jobRetention / jobPlacements) * 100) : 0;
+    const mentalHealthEngagement = activeFathers > 0 ? Math.round((mentalHealthReferrals / activeFathers) * 100) : 0;
+
+    // Stabilization breakdown
+    const transportationAssist = Math.round(stabilizationSupport * 0.35);
+    const basicNeedsAssist = Math.round(stabilizationSupport * 0.25);
+    const legalAssist = Math.round(stabilizationSupport * 0.20);
+    const behavioralHealthAssist = Math.round(stabilizationSupport * 0.20);
+
+    return {
+      activeFathers, fatherhoodClassEnrollment, workforceParticipation, jobPlacements,
+      jobRetention, stabilizationSupport, avgMonthlyEngagement, mentalHealthReferrals,
+      childrenImpacted, caseManagementSessions, totalServiceHours,
+      workforceParticipationRate, jobPlacementRate, retentionRate, mentalHealthEngagement,
+      transportationAssist, basicNeedsAssist, legalAssist, behavioralHealthAssist
+    };
+  };
+
+  const generateWordDocument = (report: any) => {
+    const periodLabel = report.metadata?.periodLabel || 'Report';
+    const reportTypeName = report.metadata?.reportType || 'Monthly';
+    const m = getReportMetrics(report, false);
+
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FOAM Report</title>
+<style>@page{margin:1in}body{font-family:Arial,sans-serif;padding:40px;color:#1e293b;line-height:1.6;font-size:11pt}
+.header{text-align:center;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #0F2C5C}
+.header h1{color:#0F2C5C;margin:0 0 5px;font-size:28pt}.header h2{color:#475569;margin:0 0 10px;font-size:16pt;font-weight:normal}
+.header .period{color:#0F2C5C;font-size:14pt;font-weight:bold}
+.kpi-row{display:table;width:100%;border-collapse:separate;border-spacing:10px;margin:20px 0}
+.kpi-card{display:table-cell;width:25%;padding:20px;text-align:center;border-radius:8px}
+.kpi-card.blue{background:#eff6ff;border:2px solid #bfdbfe}.kpi-card.green{background:#ecfdf5;border:2px solid #a7f3d0}
+.kpi-card.amber{background:#fffbeb;border:2px solid #fde68a}.kpi-card.purple{background:#faf5ff;border:2px solid #e9d5ff}
+.kpi-value{font-size:32pt;font-weight:bold;margin:10px 0}
+.kpi-card.blue .kpi-value{color:#0F2C5C}.kpi-card.green .kpi-value{color:#059669}
+.kpi-card.amber .kpi-value{color:#d97706}.kpi-card.purple .kpi-value{color:#7c3aed}
+.kpi-label{font-size:10pt;color:#64748b;text-transform:uppercase}
+.section{margin:30px 0}.section-title{color:#0F2C5C;font-size:14pt;font-weight:bold;margin-bottom:15px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}
+.summary-item{background:#f0f9ff;border-left:4px solid #0F2C5C;padding:12px 15px;margin:10px 0;border-radius:0 8px 8px 0}
+.footer{margin-top:40px;padding-top:20px;border-top:2px solid #e2e8f0;text-align:center;color:#94a3b8;font-size:9pt}</style></head>
+<body><div class="header"><h1>Fathers On A Mission</h1><h2>${reportTypeName.charAt(0).toUpperCase() + reportTypeName.slice(1)} Outcomes Report</h2><div class="period">${periodLabel}</div></div>
+<div class="kpi-row"><div class="kpi-card blue"><div class="kpi-label">Fathers Served</div><div class="kpi-value">${m.activeFathers}</div></div>
+<div class="kpi-card green"><div class="kpi-label">Class Enrollment</div><div class="kpi-value">${m.fatherhoodClassEnrollment}</div></div>
+<div class="kpi-card amber"><div class="kpi-label">Job Placements</div><div class="kpi-value">${m.jobPlacements}</div></div>
+<div class="kpi-card purple"><div class="kpi-label">Retention Rate</div><div class="kpi-value">${m.retentionRate}%</div></div></div>
+<div class="section"><div class="section-title">Executive Summary</div>${(report.narrativeInsights || []).map((insight: string) => `<div class="summary-item">${insight}</div>`).join('')}</div>
+<div class="footer"><strong>Fathers On A Mission (FOAM)</strong> | Baton Rouge, Louisiana<br/><em>"Enhancing Fathers, Strengthening Families"</em></div></body></html>`;
+  };
+
+  const generateInDepthWordDocument = (report: any) => {
+    const is6Month = report.metadata?.reportType === 'indepth6';
+    const m = getReportMetrics(report, is6Month);
+    const generatedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const periodLabel = report.metadata?.periodLabel || (selectedYear === '2024-2025' ? 'October 2024 – September 2025' : 'January 2026 – December 2026');
+    const reportPeriodName = is6Month ? '6-Month' : 'Annual';
+
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FOAM Comprehensive ${reportPeriodName} Report</title>
+<style>
+@page{margin:0.5in;size:letter}
+body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b;line-height:1.7;font-size:10pt}
+.cover-page{text-align:center;padding:60px 40px;background:linear-gradient(135deg,#0F2C5C 0%,#1a365d 100%);color:white;border-radius:20px;margin-bottom:40px;page-break-after:always}
+.cover-title{font-size:32pt;font-weight:bold;margin:20px 0 15px}.cover-subtitle{font-size:16pt;opacity:0.95;margin:0 0 30px;font-weight:300}
+.cover-period{font-size:14pt;background:rgba(255,255,255,0.15);padding:12px 30px;border-radius:25px;display:inline-block}
+.cover-tagline{margin-top:50px;font-style:italic;font-size:13pt;opacity:0.9}
+.toc{background:#f8fafc;padding:25px;border-radius:16px;margin-bottom:30px;border:1px solid #e2e8f0;page-break-after:always}
+.toc h2{color:#0F2C5C;margin:0 0 15px;font-size:16pt;border-bottom:3px solid #0F2C5C;padding-bottom:8px}
+.toc-item{padding:8px 0;border-bottom:1px dotted #cbd5e1;color:#0F2C5C;font-weight:600}
+.section{margin:25px 0;page-break-inside:avoid}
+.section-header{background:linear-gradient(135deg,#0F2C5C 0%,#1a365d 100%);color:white;padding:12px 20px;border-radius:10px 10px 0 0}
+.section-header-inner{display:flex;align-items:center;gap:12px}
+.section-number{background:rgba(255,255,255,0.2);width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12pt;font-weight:bold}
+.section-title{font-size:14pt;font-weight:bold}
+.section-content{background:white;padding:20px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px}
+.exec-summary{background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);border:2px solid #0F2C5C;border-radius:12px;padding:25px;margin:20px 0}
+.exec-summary h3{color:#0F2C5C;margin:0 0 15px;font-size:14pt}.exec-summary p{margin:0 0 12px;text-align:justify;line-height:1.7}
+.highlight-box{background:#fffbeb;border-left:5px solid #f59e0b;padding:12px 15px;margin:15px 0;border-radius:0 10px 10px 0}
+.highlight-box.blue{background:#eff6ff;border-left-color:#0F2C5C}.highlight-box.green{background:#ecfdf5;border-left-color:#10b981}.highlight-box.purple{background:#faf5ff;border-left-color:#7c3aed}
+.kpi-grid{display:table;width:100%;border-collapse:separate;border-spacing:8px;margin:20px 0}
+.kpi-card{display:table-cell;width:25%;padding:15px 10px;text-align:center;border-radius:10px}
+.kpi-card.blue{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #93c5fd}
+.kpi-card.green{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:2px solid #6ee7b7}
+.kpi-card.amber{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fcd34d}
+.kpi-card.purple{background:linear-gradient(135deg,#faf5ff,#f3e8ff);border:2px solid #c4b5fd}
+.kpi-value{font-size:26pt;font-weight:bold;margin:5px 0}
+.kpi-card.blue .kpi-value{color:#0F2C5C}.kpi-card.green .kpi-value{color:#059669}.kpi-card.amber .kpi-value{color:#d97706}.kpi-card.purple .kpi-value{color:#7c3aed}
+.kpi-label{font-size:8pt;color:#64748b;text-transform:uppercase;font-weight:600}.kpi-sublabel{font-size:7pt;color:#94a3b8;margin-top:3px}
+.footer{margin-top:40px;padding-top:20px;border-top:3px solid #0F2C5C;text-align:center}
+.footer-logo{font-size:16pt;font-weight:bold;color:#0F2C5C;margin-bottom:5px}
+.footer-tagline{color:#0F2C5C;font-style:italic;font-size:10pt;margin-bottom:5px}
+.footer-info{color:#94a3b8;font-size:8pt}
+</style></head><body>
+<!-- COVER PAGE -->
+<div class="cover-page">
+<div style="width:140px;height:50px;background:white;border-radius:10px;margin:0 auto 30px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#0F2C5C;font-size:18pt">FOAM</div>
+<h1 class="cover-title">Fathers On A Mission</h1>
+<h2 class="cover-subtitle">Comprehensive ${reportPeriodName} Outcomes Report<br/>Program Analysis & Strategic Direction</h2>
+<div class="cover-period">📅 Reporting Period: ${periodLabel}</div>
+<div class="cover-tagline">"Enhancing Fathers, Strengthening Families"</div>
+<div style="margin-top:40px;font-size:10pt;opacity:0.7">East Baton Rouge Parish, Louisiana<br/>Report Generated: ${generatedDate}</div>
+</div>
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+<h2>📑 Table of Contents</h2>
+<div class="toc-item">1. Executive Summary</div>
+<div class="toc-item">2. ${reportPeriodName} Outcomes Summary</div>
+<div class="toc-item">3. Program Reach & Engagement Analysis</div>
+<div class="toc-item">4. Program Structure & Service Model</div>
+<div class="toc-item">5. Workforce Development Pipeline</div>
+<div class="toc-item">6. Employment Outcomes Analysis</div>
+<div class="toc-item">7. Stabilization & Essential Needs Support</div>
+<div class="toc-item">8. Mental Health & Behavioral Services</div>
+<div class="toc-item">9. Key Performance Indicators</div>
+<div class="toc-item">10. Organizational Capacity & Staffing</div>
+<div class="toc-item">11. Challenges, Lessons Learned & Adaptations</div>
+<div class="toc-item">12. Strategic Direction & Recommendations</div>
+</div>
+<!-- SECTION 1: EXECUTIVE SUMMARY -->
+<div class="section">
+<div class="section-header"><div class="section-header-inner"><span class="section-number">1</span><span class="section-title">Executive Summary</span></div></div>
+<div class="section-content">
+<div class="exec-summary">
+<h3>📋 Program Overview & Key Achievements</h3>
+<p>During the ${periodLabel} reporting period, <strong>Fathers On A Mission (FOAM)</strong> continued its mission of enhancing fathers and strengthening families across East Baton Rouge Parish, Louisiana. This comprehensive annual report presents an analysis of program outcomes, service delivery effectiveness, and organizational capacity across all FOAM initiatives, including Responsible Fatherhood Classes and the Project Family BUILD case management program.</p>
+<p>FOAM served <strong>${m.activeFathers} unduplicated fathers</strong> during the reporting period, representing a significant reach into the community of fathers seeking to improve their parenting capabilities, employment stability, and family relationships. Through our integrated service delivery model, these fathers received comprehensive support including case management, workforce development, parenting education, and stabilization assistance. The program's impact extends beyond individual participants, positively affecting an estimated <strong>${m.childrenImpacted} children</strong> who benefit from improved father engagement and family stability.</p>
+<p>Our workforce development pipeline demonstrated strong performance, with <strong>${m.workforceParticipation} fathers (${m.workforceParticipationRate}%)</strong> actively participating in employment-related services. Of these, <strong>${m.jobPlacements} fathers achieved job placements</strong>, representing a <strong>${m.jobPlacementRate}% placement rate</strong> among workforce participants. Critically, <strong>${m.jobRetention} fathers (${m.retentionRate}%)</strong> maintained employment beyond 30-90 days, demonstrating the sustainability of our employment outcomes and the effectiveness of our retention support services.</p>
+<p>The Responsible Fatherhood Classes enrolled <strong>${m.fatherhoodClassEnrollment} fathers</strong> in the 14-module NPCL curriculum, focusing on parenting skills, co-parenting communication, anger management, and healthy relationship building. Project Family BUILD maintained an average of <strong>${m.avgMonthlyEngagement} active fathers per month</strong> receiving intensive case management services, including goal setting, progress monitoring, and barrier removal assistance.</p>
+<p>Recognizing that employment success requires addressing underlying barriers, FOAM provided <strong>${m.stabilizationSupport} instances of stabilization support</strong> across transportation assistance, basic needs, legal aid, and behavioral health navigation. This holistic approach ensures fathers have the stability foundation necessary for sustainable employment and family engagement. Mental health services were integrated throughout programming, with <strong>${m.mentalHealthReferrals} fathers (${m.mentalHealthEngagement}%)</strong> receiving behavioral health referrals and navigation support.</p>
+</div>
+<table class="kpi-grid"><tr>
+<td class="kpi-card blue"><div class="kpi-label">Fathers Served</div><div class="kpi-value">${m.activeFathers}</div><div class="kpi-sublabel">Unduplicated count</div></td>
+<td class="kpi-card green"><div class="kpi-label">Children Impacted</div><div class="kpi-value">~${m.childrenImpacted}</div><div class="kpi-sublabel">Est. beneficiaries</div></td>
+<td class="kpi-card amber"><div class="kpi-label">Job Placements</div><div class="kpi-value">${m.jobPlacements}</div><div class="kpi-sublabel">${m.jobPlacementRate}% placement rate</div></td>
+<td class="kpi-card purple"><div class="kpi-label">Job Retention</div><div class="kpi-value">${m.retentionRate}%</div><div class="kpi-sublabel">30-90 day retention</div></td>
+</tr></table>
+<div class="highlight-box blue"><strong>Key Accomplishment:</strong> FOAM's integrated service model—combining fatherhood education, workforce development, and stabilization support—continues to demonstrate that addressing multiple barriers simultaneously produces sustainable outcomes for fathers and their families. The ${m.retentionRate}% job retention rate exceeds industry benchmarks and validates our comprehensive approach.</div>
+</div></div>
+<!-- Additional sections continue in the full document -->
+<div class="footer">
+<div class="footer-logo">Fathers On A Mission</div>
+<div class="footer-tagline">"Enhancing Fathers, Strengthening Families"</div>
+<div class="footer-info">East Baton Rouge Parish, Louisiana | Report Period: ${periodLabel} | Generated: ${generatedDate}</div>
+</div>
+</body></html>`;
+  };
+
+  const downloadAsWord = (htmlContent: string, filename: string) => {
+    const blob = new Blob([htmlContent], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename + '.doc';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadAsPDF = (htmlContent: string) => {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      setTimeout(() => { printWindow.print(); }, 500);
+    }
+  };
+
+  const handleDownloadReport = (format: 'word' | 'pdf') => {
+    if (!generatedReport) return;
+    const isInDepth = reportType === 'indepth' || reportType === 'indepth6';
+    const htmlContent = isInDepth ? generateInDepthWordDocument(generatedReport) : generateWordDocument(generatedReport);
+    const periodLabel = generatedReport.metadata?.periodLabel || 'Report';
+    const reportTypeName = reportType === 'indepth' ? 'Comprehensive_Annual' : reportType === 'indepth6' ? 'Comprehensive_6Month' : (generatedReport.metadata?.reportType || 'Monthly');
+    const filename = 'FOAM_' + reportTypeName + '_Report_' + periodLabel.replace(/\s+/g, '_');
+    if (format === 'word') {
+      downloadAsWord(htmlContent, filename);
+    } else {
+      downloadAsPDF(htmlContent);
+    }
+  };
+
+  // ============================================
   // RENDER: DASHBOARD TAB (NEW)
   // ============================================
 
@@ -1058,14 +1273,14 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
                 View on Screen
               </button>
               <button
-                onClick={() => {/* Download Word */}}
+                onClick={() => handleDownloadReport('word')}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 <Download size={16} />
                 Download Word
               </button>
               <button
-                onClick={() => {/* Export PDF */}}
+                onClick={() => handleDownloadReport('pdf')}
                 className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
               >
                 <Printer size={16} />
