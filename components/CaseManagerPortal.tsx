@@ -14,33 +14,33 @@ interface CaseManagerPortalProps { onClose: () => void; }
 type TabType = 'historical' | 'current' | 'comparison' | 'log' | 'reports';
 type ReportType = 'monthly' | 'quarterly' | 'annual' | 'indepth';
 
-const CaseManagerPortal: React.FC&lt;CaseManagerPortalProps&gt; = ({ onClose }) =&gt; {
-  const [activeTab, setActiveTab] = useState&lt;TabType&gt;('current');
-  const [historicalData, setHistoricalData] = useState&lt;DataRow[]&gt;([]);
-  const [historicalMonths, setHistoricalMonths] = useState&lt;string[]&gt;([]);
-  const [currentData, setCurrentData] = useState&lt;DataRow[]&gt;([]);
-  const [currentMonths, setCurrentMonths] = useState&lt;string[]&gt;([]);
-  const [comparisonData, setComparisonData] = useState&lt;ComparisonRow[]&gt;([]);
-  const [logData, setLogData] = useState&lt;LogEntry[]&gt;([]);
+const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
+  const [activeTab, setActiveTab] = useState<TabType>('current');
+  const [historicalData, setHistoricalData] = useState<DataRow[]>([]);
+  const [historicalMonths, setHistoricalMonths] = useState<string[]>([]);
+  const [currentData, setCurrentData] = useState<DataRow[]>([]);
+  const [currentMonths, setCurrentMonths] = useState<string[]>([]);
+  const [comparisonData, setComparisonData] = useState<ComparisonRow[]>([]);
+  const [logData, setLogData] = useState<LogEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState&lt;string | null&gt;(null);
-  const [editingCell, setEditingCell] = useState&lt;{ row: number; col: number } | null&gt;(null);
-  const [editValue, setEditValue] = useState&lt;string&gt;('');
+  const [error, setError] = useState<string | null>(null);
+  const [editingCell, setEditingCell] = useState<{ row: number; col: number } | null>(null);
+  const [editValue, setEditValue] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
   const [caseManagerName, setCaseManagerName] = useState('');
   const [showNamePrompt, setShowNamePrompt] = useState(false);
-  const [reportType, setReportType] = useState&lt;ReportType&gt;('monthly');
-  const [selectedYear, setSelectedYear] = useState&lt;'2024-2025' | '2026'&gt;('2026');
-  const [selectedMonth, setSelectedMonth] = useState&lt;number&gt;(0);
-  const [selectedQuarter, setSelectedQuarter] = useState&lt;number&gt;(1);
+  const [reportType, setReportType] = useState<ReportType>('monthly');
+  const [selectedYear, setSelectedYear] = useState<'2024-2025' | '2026'>('2026');
+  const [selectedMonth, setSelectedMonth] = useState<number>(0);
+  const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
   const [showPreview, setShowPreview] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedReport, setGeneratedReport] = useState&lt;any&gt;(null);
+  const [generatedReport, setGeneratedReport] = useState<any>(null);
   const [showFullReport, setShowFullReport] = useState(false);
 
-  useEffect(() =&gt; { loadData(); }, []);
+  useEffect(() => { loadData(); }, []);
 
-  const loadData = async () =&gt; {
+  const loadData = async () => {
     setIsLoading(true); setError(null);
     try {
       const [histRes, currRes, compRes, logRes] = await Promise.all([
@@ -57,13 +57,13 @@ const CaseManagerPortal: React.FC&lt;CaseManagerPortalProps&gt; = ({ onClose }) 
     finally { setIsLoading(false); }
   };
 
-  const handleCellClick = (rowIndex: number, colIndex: number, currentValue: number | string | null) =&gt; {
+  const handleCellClick = (rowIndex: number, colIndex: number, currentValue: number | string | null) => {
     if (activeTab !== 'current' || colIndex === currentMonths.length - 1) return;
     if (!caseManagerName) { setShowNamePrompt(true); return; }
     setEditingCell({ row: rowIndex, col: colIndex }); setEditValue(currentValue?.toString() || '0');
   };
 
-  const handleSaveCell = async () =&gt; {
+  const handleSaveCell = async () => {
     if (!editingCell) return; setIsSaving(true);
     try {
       const res = await fetch(`${API_BASE_URL}/api/casemanager/current`, {
@@ -73,55 +73,55 @@ const CaseManagerPortal: React.FC&lt;CaseManagerPortalProps&gt; = ({ onClose }) 
       const data = await res.json();
       if (data.success) {
         const newData = [...currentData]; newData[editingCell.row].values[editingCell.col] = Number(editValue) || 0;
-        setCurrentData(newData); setEditingCell(null); setTimeout(() =&gt; loadData(), 500);
+        setCurrentData(newData); setEditingCell(null); setTimeout(() => loadData(), 500);
       } else { alert('Failed to save: ' + data.error); }
     } catch (err: any) { alert('Error saving: ' + err.message); }
     finally { setIsSaving(false); }
   };
 
-  const getCategoryIcon = (category: string) =&gt; {
+  const getCategoryIcon = (category: string) => {
     const cat = category.toLowerCase();
-    if (cat.includes('active') || cat.includes('enrolled')) return &lt;Users size={16} className="text-blue-600" /&gt;;
-    if (cat.includes('job') || cat.includes('employment') || cat.includes('workforce')) return &lt;Briefcase size={16} className="text-emerald-600" /&gt;;
-    if (cat.includes('mental') || cat.includes('relationship')) return &lt;Heart size={16} className="text-pink-600" /&gt;;
-    if (cat.includes('financial') || cat.includes('income')) return &lt;DollarSign size={16} className="text-amber-600" /&gt;;
-    if (cat.includes('education') || cat.includes('skill')) return &lt;FileText size={16} className="text-purple-600" /&gt;;
-    return &lt;ClipboardList size={16} className="text-gray-500" /&gt;;
+    if (cat.includes('active') || cat.includes('enrolled')) return <Users size={16} className="text-blue-600" />;
+    if (cat.includes('job') || cat.includes('employment') || cat.includes('workforce')) return <Briefcase size={16} className="text-emerald-600" />;
+    if (cat.includes('mental') || cat.includes('relationship')) return <Heart size={16} className="text-pink-600" />;
+    if (cat.includes('financial') || cat.includes('income')) return <DollarSign size={16} className="text-amber-600" />;
+    if (cat.includes('education') || cat.includes('skill')) return <FileText size={16} className="text-purple-600" />;
+    return <ClipboardList size={16} className="text-gray-500" />;
   };
 
-  const reportData = useMemo(() =&gt; {
+  const reportData = useMemo(() => {
     const sourceData = selectedYear === '2026' ? currentData : historicalData;
     const sourceMonths = selectedYear === '2026' ? currentMonths : historicalMonths;
     if (sourceData.length === 0) return null;
     const months = selectedYear === '2026' ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] : sourceMonths.slice(0, -1);
-    const getMonthData = (monthIndex: number) =&gt; sourceData.map(row =&gt; ({ category: row.category, value: typeof row.values[monthIndex] === 'number' ? row.values[monthIndex] as number : 0 }));
-    const getQuarterData = (quarter: number) =&gt; {
+    const getMonthData = (monthIndex: number) => sourceData.map(row => ({ category: row.category, value: typeof row.values[monthIndex] === 'number' ? row.values[monthIndex] as number : 0 }));
+    const getQuarterData = (quarter: number) => {
       const startMonth = (quarter - 1) * 3;
-      return sourceData.map(row =&gt; {
+      return sourceData.map(row => {
         const q1 = typeof row.values[startMonth] === 'number' ? row.values[startMonth] as number : 0;
         const q2 = typeof row.values[startMonth + 1] === 'number' ? row.values[startMonth + 1] as number : 0;
         const q3 = typeof row.values[startMonth + 2] === 'number' ? row.values[startMonth + 2] as number : 0;
         return { category: row.category, value: q1 + q2 + q3, monthly: [q1, q2, q3] };
       });
     };
-    const getYearData = () =&gt; {
+    const getYearData = () => {
       const monthCount = selectedYear === '2026' ? 12 : sourceMonths.length - 1;
-      return sourceData.map(row =&gt; {
-        const total = row.values.slice(0, monthCount).reduce((sum: number, v) =&gt; sum + (typeof v === 'number' ? v : 0), 0);
-        return { category: row.category, value: total, monthly: row.values.slice(0, Math.min(monthCount, 12)).map(v =&gt; typeof v === 'number' ? v : 0) };
+      return sourceData.map(row => {
+        const total = row.values.slice(0, monthCount).reduce((sum: number, v) => sum + (typeof v === 'number' ? v : 0), 0);
+        return { category: row.category, value: total, monthly: row.values.slice(0, Math.min(monthCount, 12)).map(v => typeof v === 'number' ? v : 0) };
       });
     };
     return { months, getMonthData, getQuarterData, getYearData };
   }, [currentData, historicalData, currentMonths, historicalMonths, selectedYear]);
 
-  const previewData = useMemo(() =&gt; {
+  const previewData = useMemo(() => {
     if (!reportData) return null;
     if (reportType === 'monthly') return reportData.getMonthData(selectedMonth);
     if (reportType === 'quarterly') return reportData.getQuarterData(selectedQuarter);
     return reportData.getYearData();
   }, [reportData, reportType, selectedMonth, selectedQuarter]);
 
-  const handleGenerateReport = async () =&gt; {
+  const handleGenerateReport = async () => {
     setIsGenerating(true); setGeneratedReport(null);
     try {
       const response = await fetch(`${API_BASE_URL}/api/reports/generate`, {
@@ -139,7 +139,7 @@ const CaseManagerPortal: React.FC&lt;CaseManagerPortalProps&gt; = ({ onClose }) 
     finally { setIsGenerating(false); }
   };
 
-  const getReportMetrics = (report: any) =&gt; {
+  const getReportMetrics = (report: any) => {
     const activeFathers = report?.keyMetrics?.activeFathers || 159;
     const fatherhoodClassEnrollment = report?.keyMetrics?.fatherhoodClassEnrollment || 70;
     const workforceParticipation = report?.keyMetrics?.workforceParticipation || 77;
@@ -162,11 +162,11 @@ const CaseManagerPortal: React.FC&lt;CaseManagerPortalProps&gt; = ({ onClose }) 
     return { activeFathers, fatherhoodClassEnrollment, workforceParticipation, jobPlacements, jobRetention, stabilizationSupport, avgMonthlyEngagement, mentalHealthReferrals, childrenImpacted, caseManagementSessions, totalServiceHours, workforceParticipationRate, jobPlacementRate, retentionRate, mentalHealthEngagement, transportationAssist, basicNeedsAssist, legalAssist, behavioralHealthAssist };
   };
 
-  const generateWordDocument = (report: any) =&gt; {
+  const generateWordDocument = (report: any) => {
     const periodLabel = report.metadata?.periodLabel || 'Report';
     const reportTypeName = report.metadata?.reportType || 'Monthly';
-    return `&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;title&gt;FOAM Report&lt;/title&gt;
-&lt;style&gt;@page{margin:1in}body{font-family:Arial,sans-serif;padding:40px;color:#1e293b;line-height:1.6;font-size:11pt}
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FOAM Report</title>
+<style>@page{margin:1in}body{font-family:Arial,sans-serif;padding:40px;color:#1e293b;line-height:1.6;font-size:11pt}
 .header{text-align:center;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #0F2C5C}
 .header h1{color:#0F2C5C;margin:0 0 5px;font-size:28pt}.header h2{color:#475569;margin:0 0 10px;font-size:16pt;font-weight:normal}
 .header .period{color:#0F2C5C;font-size:14pt;font-weight:bold}
@@ -180,23 +180,23 @@ const CaseManagerPortal: React.FC&lt;CaseManagerPortalProps&gt; = ({ onClose }) 
 .kpi-label{font-size:10pt;color:#64748b;text-transform:uppercase}
 .section{margin:30px 0}.section-title{color:#0F2C5C;font-size:14pt;font-weight:bold;margin-bottom:15px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}
 .summary-item{background:#f0f9ff;border-left:4px solid #0F2C5C;padding:12px 15px;margin:10px 0;border-radius:0 8px 8px 0}
-.footer{margin-top:40px;padding-top:20px;border-top:2px solid #e2e8f0;text-align:center;color:#94a3b8;font-size:9pt}&lt;/style&gt;&lt;/head&gt;
-&lt;body&gt;&lt;div class="header"&gt;&lt;h1&gt;Fathers On A Mission&lt;/h1&gt;&lt;h2&gt;${reportTypeName.charAt(0).toUpperCase() + reportTypeName.slice(1)} Outcomes Report&lt;/h2&gt;&lt;div class="period"&gt;${periodLabel}&lt;/div&gt;&lt;/div&gt;
-&lt;div class="kpi-row"&gt;&lt;div class="kpi-card blue"&gt;&lt;div class="kpi-label"&gt;Fathers Served&lt;/div&gt;&lt;div class="kpi-value"&gt;${report.keyMetrics?.activeFathers || 0}&lt;/div&gt;&lt;/div&gt;
-&lt;div class="kpi-card green"&gt;&lt;div class="kpi-label"&gt;Class Enrollment&lt;/div&gt;&lt;div class="kpi-value"&gt;${report.keyMetrics?.fatherhoodClassEnrollment || 0}&lt;/div&gt;&lt;/div&gt;
-&lt;div class="kpi-card amber"&gt;&lt;div class="kpi-label"&gt;Job Placements&lt;/div&gt;&lt;div class="kpi-value"&gt;${report.keyMetrics?.jobPlacements || 0}&lt;/div&gt;&lt;/div&gt;
-&lt;div class="kpi-card purple"&gt;&lt;div class="kpi-label"&gt;Retention Rate&lt;/div&gt;&lt;div class="kpi-value"&gt;${report.successMetrics?.retentionRate || 0}%&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;div class="section"&gt;&lt;div class="section-title"&gt;Executive Summary&lt;/div&gt;${(report.narrativeInsights || []).map((insight: string) =&gt; `&lt;div class="summary-item"&gt;${insight}&lt;/div&gt;`).join('')}&lt;/div&gt;
-&lt;div class="footer"&gt;&lt;strong&gt;Fathers On A Mission (FOAM)&lt;/strong&gt; | Baton Rouge, Louisiana&lt;br/&gt;&lt;em&gt;"Enhancing Fathers, Strengthening Families"&lt;/em&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;`;
+.footer{margin-top:40px;padding-top:20px;border-top:2px solid #e2e8f0;text-align:center;color:#94a3b8;font-size:9pt}</style></head>
+<body><div class="header"><h1>Fathers On A Mission</h1><h2>${reportTypeName.charAt(0).toUpperCase() + reportTypeName.slice(1)} Outcomes Report</h2><div class="period">${periodLabel}</div></div>
+<div class="kpi-row"><div class="kpi-card blue"><div class="kpi-label">Fathers Served</div><div class="kpi-value">${report.keyMetrics?.activeFathers || 0}</div></div>
+<div class="kpi-card green"><div class="kpi-label">Class Enrollment</div><div class="kpi-value">${report.keyMetrics?.fatherhoodClassEnrollment || 0}</div></div>
+<div class="kpi-card amber"><div class="kpi-label">Job Placements</div><div class="kpi-value">${report.keyMetrics?.jobPlacements || 0}</div></div>
+<div class="kpi-card purple"><div class="kpi-label">Retention Rate</div><div class="kpi-value">${report.successMetrics?.retentionRate || 0}%</div></div></div>
+<div class="section"><div class="section-title">Executive Summary</div>${(report.narrativeInsights || []).map((insight: string) => `<div class="summary-item">${insight}</div>`).join('')}</div>
+<div class="footer"><strong>Fathers On A Mission (FOAM)</strong> | Baton Rouge, Louisiana<br/><em>"Enhancing Fathers, Strengthening Families"</em></div></body></html>`;
   };
 
-  const generateInDepthWordDocument = (report: any) =&gt; {
+  const generateInDepthWordDocument = (report: any) => {
     const m = getReportMetrics(report);
     const generatedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const periodLabel = report.metadata?.periodLabel || (selectedYear === '2024-2025' ? 'October 2024 – September 2025' : 'January 2026 – December 2026');
     
-    return `&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;title&gt;FOAM Comprehensive Annual Report&lt;/title&gt;
-&lt;style&gt;
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FOAM Comprehensive Annual Report</title>
+<style>
 @page{margin:0.6in;size:letter}body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:25px;color:#1e293b;line-height:1.7;font-size:10.5pt}
 .cover-page{text-align:center;padding:60px 40px;background:linear-gradient(135deg,#0F2C5C 0%,#1a365d 100%);color:white;border-radius:20px;margin-bottom:40px;page-break-after:always}
 .cover-title{font-size:32pt;font-weight:bold;margin:20px 0 15px}.cover-subtitle{font-size:16pt;opacity:0.95;margin:0 0 30px;font-weight:300}
@@ -229,125 +229,125 @@ const CaseManagerPortal: React.FC&lt;CaseManagerPortalProps&gt; = ({ onClose }) 
 .data-table .metric-value{color:#0F2C5C;font-weight:bold;font-size:11pt;text-align:center}
 .footer{margin-top:50px;padding-top:25px;border-top:3px solid #0F2C5C;text-align:center}
 .footer-logo{font-size:18pt;font-weight:bold;color:#0F2C5C;margin-bottom:8px}.footer-tagline{color:#0F2C5C;font-style:italic;font-size:11pt;margin-bottom:8px}.footer-info{color:#94a3b8;font-size:9pt}
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
+</style></head><body>
 
-&lt;!-- COVER PAGE --&gt;
-&lt;div class="cover-page"&gt;
-&lt;div style="width:140px;height:50px;background:white;border-radius:10px;margin:0 auto 30px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#0F2C5C;font-size:18pt"&gt;FOAM&lt;/div&gt;
-&lt;h1 class="cover-title"&gt;Fathers On A Mission&lt;/h1&gt;
-&lt;h2 class="cover-subtitle"&gt;Comprehensive Annual Outcomes Report&lt;br/&gt;Program Analysis &amp; Strategic Direction&lt;/h2&gt;
-&lt;div class="cover-period"&gt;Reporting Period: ${periodLabel}&lt;/div&gt;
-&lt;div class="cover-tagline"&gt;"Enhancing Fathers, Strengthening Families"&lt;/div&gt;
-&lt;div style="margin-top:40px;font-size:10pt;opacity:0.7"&gt;East Baton Rouge Parish, Louisiana&lt;br/&gt;Report Generated: ${generatedDate}&lt;/div&gt;
-&lt;/div&gt;
+<!-- COVER PAGE -->
+<div class="cover-page">
+<div style="width:140px;height:50px;background:white;border-radius:10px;margin:0 auto 30px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#0F2C5C;font-size:18pt">FOAM</div>
+<h1 class="cover-title">Fathers On A Mission</h1>
+<h2 class="cover-subtitle">Comprehensive Annual Outcomes Report<br/>Program Analysis & Strategic Direction</h2>
+<div class="cover-period">Reporting Period: ${periodLabel}</div>
+<div class="cover-tagline">"Enhancing Fathers, Strengthening Families"</div>
+<div style="margin-top:40px;font-size:10pt;opacity:0.7">East Baton Rouge Parish, Louisiana<br/>Report Generated: ${generatedDate}</div>
+</div>
 
-&lt;!-- TABLE OF CONTENTS --&gt;
-&lt;div class="toc"&gt;&lt;h2&gt;Table of Contents&lt;/h2&gt;
-&lt;div class="toc-item"&gt;&lt;span class="toc-section"&gt;1. Executive Summary&lt;/span&gt;&lt;/div&gt;
-&lt;div class="toc-item"&gt;&lt;span class="toc-section"&gt;2. Annual Outcomes Summary&lt;/span&gt;&lt;/div&gt;
-&lt;div class="toc-item"&gt;&lt;span class="toc-section"&gt;3. Program Reach &amp; Engagement&lt;/span&gt;&lt;/div&gt;
-&lt;div class="toc-item"&gt;&lt;span class="toc-section"&gt;4. Program Structure &amp; Service Model&lt;/span&gt;&lt;/div&gt;
-&lt;div class="toc-item"&gt;&lt;span class="toc-section"&gt;5. Workforce Development Pipeline&lt;/span&gt;&lt;/div&gt;
-&lt;div class="toc-item"&gt;&lt;span class="toc-section"&gt;6. Employment Outcomes Analysis&lt;/span&gt;&lt;/div&gt;
-&lt;div class="toc-item"&gt;&lt;span class="toc-section"&gt;7. Stabilization &amp; Essential Needs&lt;/span&gt;&lt;/div&gt;
-&lt;div class="toc-item"&gt;&lt;span class="toc-section"&gt;8. Mental Health &amp; Behavioral Services&lt;/span&gt;&lt;/div&gt;
-&lt;div class="toc-item"&gt;&lt;span class="toc-section"&gt;9. Key Performance Indicators&lt;/span&gt;&lt;/div&gt;
-&lt;div class="toc-item"&gt;&lt;span class="toc-section"&gt;10. Organizational Capacity &amp; Staffing&lt;/span&gt;&lt;/div&gt;
-&lt;div class="toc-item"&gt;&lt;span class="toc-section"&gt;11. Challenges, Lessons Learned &amp; Adaptations&lt;/span&gt;&lt;/div&gt;
-&lt;div class="toc-item"&gt;&lt;span class="toc-section"&gt;12. Strategic Direction &amp; Recommendations&lt;/span&gt;&lt;/div&gt;
-&lt;/div&gt;
+<!-- TABLE OF CONTENTS -->
+<div class="toc"><h2>Table of Contents</h2>
+<div class="toc-item"><span class="toc-section">1. Executive Summary</span></div>
+<div class="toc-item"><span class="toc-section">2. Annual Outcomes Summary</span></div>
+<div class="toc-item"><span class="toc-section">3. Program Reach & Engagement</span></div>
+<div class="toc-item"><span class="toc-section">4. Program Structure & Service Model</span></div>
+<div class="toc-item"><span class="toc-section">5. Workforce Development Pipeline</span></div>
+<div class="toc-item"><span class="toc-section">6. Employment Outcomes Analysis</span></div>
+<div class="toc-item"><span class="toc-section">7. Stabilization & Essential Needs</span></div>
+<div class="toc-item"><span class="toc-section">8. Mental Health & Behavioral Services</span></div>
+<div class="toc-item"><span class="toc-section">9. Key Performance Indicators</span></div>
+<div class="toc-item"><span class="toc-section">10. Organizational Capacity & Staffing</span></div>
+<div class="toc-item"><span class="toc-section">11. Challenges, Lessons Learned & Adaptations</span></div>
+<div class="toc-item"><span class="toc-section">12. Strategic Direction & Recommendations</span></div>
+</div>
 
-&lt;!-- SECTION 1: EXECUTIVE SUMMARY --&gt;
-&lt;div class="section"&gt;
-&lt;div class="section-header"&gt;&lt;span class="section-number"&gt;1&lt;/span&gt;&lt;span class="section-title"&gt;Executive Summary&lt;/span&gt;&lt;/div&gt;
-&lt;div class="section-content"&gt;
-&lt;div class="exec-summary"&gt;
-&lt;h3&gt;Program Overview &amp; Key Achievements&lt;/h3&gt;
-&lt;p&gt;During the ${periodLabel} reporting period, &lt;strong&gt;Fathers On A Mission (FOAM)&lt;/strong&gt; continued its mission of enhancing fathers and strengthening families across East Baton Rouge Parish, Louisiana. This comprehensive annual report presents an analysis of program outcomes, service delivery effectiveness, and organizational capacity across all FOAM initiatives, including Responsible Fatherhood Classes and the Project Family BUILD case management program.&lt;/p&gt;
-&lt;p&gt;FOAM served &lt;strong&gt;${m.activeFathers} unduplicated fathers&lt;/strong&gt; during the reporting period, representing a significant reach into the community of fathers seeking to improve their parenting capabilities, employment stability, and family relationships. Through our integrated service delivery model, these fathers received comprehensive support including case management, workforce development, parenting education, and stabilization assistance. The program's impact extends beyond individual participants, positively affecting an estimated &lt;strong&gt;${m.childrenImpacted} children&lt;/strong&gt; who benefit from improved father engagement and family stability.&lt;/p&gt;
-&lt;p&gt;Our workforce development pipeline demonstrated strong performance, with &lt;strong&gt;${m.workforceParticipation} fathers (${m.workforceParticipationRate}%)&lt;/strong&gt; actively participating in employment-related services. Of these, &lt;strong&gt;${m.jobPlacements} fathers achieved job placements&lt;/strong&gt;, representing a &lt;strong&gt;${m.jobPlacementRate}% placement rate&lt;/strong&gt; among workforce participants. Critically, &lt;strong&gt;${m.jobRetention} fathers (${m.retentionRate}%)&lt;/strong&gt; maintained employment beyond 30-90 days, demonstrating the sustainability of our employment outcomes.&lt;/p&gt;
-&lt;p&gt;The Responsible Fatherhood Classes enrolled &lt;strong&gt;${m.fatherhoodClassEnrollment} fathers&lt;/strong&gt; in the 14-module NPCL curriculum, focusing on parenting skills, co-parenting communication, anger management, and healthy relationship building. Project Family BUILD maintained an average of &lt;strong&gt;${m.avgMonthlyEngagement} active fathers per month&lt;/strong&gt; receiving intensive case management services.&lt;/p&gt;
-&lt;p&gt;Recognizing that employment success requires addressing underlying barriers, FOAM provided &lt;strong&gt;${m.stabilizationSupport} instances of stabilization support&lt;/strong&gt; across transportation assistance, basic needs, legal aid, and behavioral health navigation. Mental health services were integrated throughout programming, with &lt;strong&gt;${m.mentalHealthReferrals} fathers (${m.mentalHealthEngagement}%)&lt;/strong&gt; receiving behavioral health referrals and navigation support.&lt;/p&gt;
-&lt;/div&gt;
-&lt;table class="kpi-grid"&gt;&lt;tr&gt;
-&lt;td class="kpi-card blue"&gt;&lt;div class="kpi-label"&gt;Fathers Served&lt;/div&gt;&lt;div class="kpi-value"&gt;${m.activeFathers}&lt;/div&gt;&lt;div class="kpi-sublabel"&gt;Unduplicated count&lt;/div&gt;&lt;/td&gt;
-&lt;td class="kpi-card green"&gt;&lt;div class="kpi-label"&gt;Children Impacted&lt;/div&gt;&lt;div class="kpi-value"&gt;~${m.childrenImpacted}&lt;/div&gt;&lt;div class="kpi-sublabel"&gt;Est. beneficiaries&lt;/div&gt;&lt;/td&gt;
-&lt;td class="kpi-card amber"&gt;&lt;div class="kpi-label"&gt;Job Placements&lt;/div&gt;&lt;div class="kpi-value"&gt;${m.jobPlacements}&lt;/div&gt;&lt;div class="kpi-sublabel"&gt;${m.jobPlacementRate}% placement rate&lt;/div&gt;&lt;/td&gt;
-&lt;td class="kpi-card purple"&gt;&lt;div class="kpi-label"&gt;Job Retention&lt;/div&gt;&lt;div class="kpi-value"&gt;${m.retentionRate}%&lt;/div&gt;&lt;div class="kpi-sublabel"&gt;30-90 day retention&lt;/div&gt;&lt;/td&gt;
-&lt;/tr&gt;&lt;/table&gt;
-&lt;div class="highlight-box blue"&gt;&lt;strong&gt;Key Accomplishment:&lt;/strong&gt; FOAM's integrated service model—combining fatherhood education, workforce development, and stabilization support—continues to demonstrate that addressing multiple barriers simultaneously produces sustainable outcomes for fathers and their families.&lt;/div&gt;
-&lt;/div&gt;&lt;/div&gt;
+<!-- SECTION 1: EXECUTIVE SUMMARY -->
+<div class="section">
+<div class="section-header"><span class="section-number">1</span><span class="section-title">Executive Summary</span></div>
+<div class="section-content">
+<div class="exec-summary">
+<h3>Program Overview & Key Achievements</h3>
+<p>During the ${periodLabel} reporting period, <strong>Fathers On A Mission (FOAM)</strong> continued its mission of enhancing fathers and strengthening families across East Baton Rouge Parish, Louisiana. This comprehensive annual report presents an analysis of program outcomes, service delivery effectiveness, and organizational capacity across all FOAM initiatives, including Responsible Fatherhood Classes and the Project Family BUILD case management program.</p>
+<p>FOAM served <strong>${m.activeFathers} unduplicated fathers</strong> during the reporting period, representing a significant reach into the community of fathers seeking to improve their parenting capabilities, employment stability, and family relationships. Through our integrated service delivery model, these fathers received comprehensive support including case management, workforce development, parenting education, and stabilization assistance. The program's impact extends beyond individual participants, positively affecting an estimated <strong>${m.childrenImpacted} children</strong> who benefit from improved father engagement and family stability.</p>
+<p>Our workforce development pipeline demonstrated strong performance, with <strong>${m.workforceParticipation} fathers (${m.workforceParticipationRate}%)</strong> actively participating in employment-related services. Of these, <strong>${m.jobPlacements} fathers achieved job placements</strong>, representing a <strong>${m.jobPlacementRate}% placement rate</strong> among workforce participants. Critically, <strong>${m.jobRetention} fathers (${m.retentionRate}%)</strong> maintained employment beyond 30-90 days, demonstrating the sustainability of our employment outcomes.</p>
+<p>The Responsible Fatherhood Classes enrolled <strong>${m.fatherhoodClassEnrollment} fathers</strong> in the 14-module NPCL curriculum, focusing on parenting skills, co-parenting communication, anger management, and healthy relationship building. Project Family BUILD maintained an average of <strong>${m.avgMonthlyEngagement} active fathers per month</strong> receiving intensive case management services.</p>
+<p>Recognizing that employment success requires addressing underlying barriers, FOAM provided <strong>${m.stabilizationSupport} instances of stabilization support</strong> across transportation assistance, basic needs, legal aid, and behavioral health navigation. Mental health services were integrated throughout programming, with <strong>${m.mentalHealthReferrals} fathers (${m.mentalHealthEngagement}%)</strong> receiving behavioral health referrals and navigation support.</p>
+</div>
+<table class="kpi-grid"><tr>
+<td class="kpi-card blue"><div class="kpi-label">Fathers Served</div><div class="kpi-value">${m.activeFathers}</div><div class="kpi-sublabel">Unduplicated count</div></td>
+<td class="kpi-card green"><div class="kpi-label">Children Impacted</div><div class="kpi-value">~${m.childrenImpacted}</div><div class="kpi-sublabel">Est. beneficiaries</div></td>
+<td class="kpi-card amber"><div class="kpi-label">Job Placements</div><div class="kpi-value">${m.jobPlacements}</div><div class="kpi-sublabel">${m.jobPlacementRate}% placement rate</div></td>
+<td class="kpi-card purple"><div class="kpi-label">Job Retention</div><div class="kpi-value">${m.retentionRate}%</div><div class="kpi-sublabel">30-90 day retention</div></td>
+</tr></table>
+<div class="highlight-box blue"><strong>Key Accomplishment:</strong> FOAM's integrated service model—combining fatherhood education, workforce development, and stabilization support—continues to demonstrate that addressing multiple barriers simultaneously produces sustainable outcomes for fathers and their families.</div>
+</div></div>
 
-&lt;!-- SECTION 2: ANNUAL OUTCOMES --&gt;
-&lt;div class="section"&gt;
-&lt;div class="section-header"&gt;&lt;span class="section-number"&gt;2&lt;/span&gt;&lt;span class="section-title"&gt;Annual Outcomes Summary&lt;/span&gt;&lt;/div&gt;
-&lt;div class="section-content"&gt;
-&lt;table class="data-table"&gt;
-&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Outcome Area&lt;/th&gt;&lt;th style="text-align:center"&gt;Result&lt;/th&gt;&lt;th&gt;Clarification&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;&lt;td&gt;&lt;strong&gt;Unduplicated Fathers Served&lt;/strong&gt;&lt;/td&gt;&lt;td class="metric-value"&gt;${m.activeFathers}&lt;/td&gt;&lt;td&gt;Total unique individuals who received any FOAM service during the reporting period.&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&lt;strong&gt;Responsible Fatherhood Classes&lt;/strong&gt;&lt;/td&gt;&lt;td class="metric-value"&gt;${m.fatherhoodClassEnrollment}&lt;/td&gt;&lt;td&gt;Fathers enrolled in 14-module NPCL curriculum.&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&lt;strong&gt;Project Family BUILD Engagement&lt;/strong&gt;&lt;/td&gt;&lt;td class="metric-value"&gt;~${m.avgMonthlyEngagement}/mo&lt;/td&gt;&lt;td&gt;Average monthly case management engagement.&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&lt;strong&gt;Case Management Sessions&lt;/strong&gt;&lt;/td&gt;&lt;td class="metric-value"&gt;${m.caseManagementSessions}&lt;/td&gt;&lt;td&gt;Total sessions conducted (5+ per father target).&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&lt;strong&gt;Workforce Development&lt;/strong&gt;&lt;/td&gt;&lt;td class="metric-value"&gt;${m.workforceParticipation}&lt;/td&gt;&lt;td&gt;${m.workforceParticipationRate}% of total fathers served.&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&lt;strong&gt;Job Placements&lt;/strong&gt;&lt;/td&gt;&lt;td class="metric-value"&gt;${m.jobPlacements}&lt;/td&gt;&lt;td&gt;${m.jobPlacementRate}% placement rate among workforce participants.&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&lt;strong&gt;Job Retention (30-90 days)&lt;/strong&gt;&lt;/td&gt;&lt;td class="metric-value"&gt;${m.jobRetention}&lt;/td&gt;&lt;td&gt;${m.retentionRate}% retention rate.&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&lt;strong&gt;Stabilization Support&lt;/strong&gt;&lt;/td&gt;&lt;td class="metric-value"&gt;${m.stabilizationSupport}&lt;/td&gt;&lt;td&gt;Transportation, basic needs, legal aid, behavioral health.&lt;/td&gt;&lt;/tr&gt;
-&lt;tr&gt;&lt;td&gt;&lt;strong&gt;Mental Health Referrals&lt;/strong&gt;&lt;/td&gt;&lt;td class="metric-value"&gt;${m.mentalHealthReferrals}&lt;/td&gt;&lt;td&gt;${m.mentalHealthEngagement}% of fathers served.&lt;/td&gt;&lt;/tr&gt;
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/div&gt;&lt;/div&gt;
+<!-- SECTION 2: ANNUAL OUTCOMES -->
+<div class="section">
+<div class="section-header"><span class="section-number">2</span><span class="section-title">Annual Outcomes Summary</span></div>
+<div class="section-content">
+<table class="data-table">
+<thead><tr><th>Outcome Area</th><th style="text-align:center">Result</th><th>Clarification</th></tr></thead>
+<tbody>
+<tr><td><strong>Unduplicated Fathers Served</strong></td><td class="metric-value">${m.activeFathers}</td><td>Total unique individuals who received any FOAM service during the reporting period.</td></tr>
+<tr><td><strong>Responsible Fatherhood Classes</strong></td><td class="metric-value">${m.fatherhoodClassEnrollment}</td><td>Fathers enrolled in 14-module NPCL curriculum.</td></tr>
+<tr><td><strong>Project Family BUILD Engagement</strong></td><td class="metric-value">~${m.avgMonthlyEngagement}/mo</td><td>Average monthly case management engagement.</td></tr>
+<tr><td><strong>Case Management Sessions</strong></td><td class="metric-value">${m.caseManagementSessions}</td><td>Total sessions conducted (5+ per father target).</td></tr>
+<tr><td><strong>Workforce Development</strong></td><td class="metric-value">${m.workforceParticipation}</td><td>${m.workforceParticipationRate}% of total fathers served.</td></tr>
+<tr><td><strong>Job Placements</strong></td><td class="metric-value">${m.jobPlacements}</td><td>${m.jobPlacementRate}% placement rate among workforce participants.</td></tr>
+<tr><td><strong>Job Retention (30-90 days)</strong></td><td class="metric-value">${m.jobRetention}</td><td>${m.retentionRate}% retention rate.</td></tr>
+<tr><td><strong>Stabilization Support</strong></td><td class="metric-value">${m.stabilizationSupport}</td><td>Transportation, basic needs, legal aid, behavioral health.</td></tr>
+<tr><td><strong>Mental Health Referrals</strong></td><td class="metric-value">${m.mentalHealthReferrals}</td><td>${m.mentalHealthEngagement}% of fathers served.</td></tr>
+</tbody></table>
+</div></div>
 
-&lt;!-- Sections 3-12 abbreviated for Word doc --&gt;
-&lt;div class="section"&gt;
-&lt;div class="section-header"&gt;&lt;span class="section-number"&gt;3&lt;/span&gt;&lt;span class="section-title"&gt;Program Reach &amp; Engagement&lt;/span&gt;&lt;/div&gt;
-&lt;div class="section-content"&gt;&lt;div class="highlight-box blue"&gt;FOAM served &lt;strong&gt;${m.activeFathers} unduplicated fathers&lt;/strong&gt; across its comprehensive service ecosystem, with ${m.fatherhoodClassEnrollment} in Responsible Fatherhood Classes and ~${m.avgMonthlyEngagement} active monthly in case management.&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+<!-- Sections 3-12 abbreviated for Word doc -->
+<div class="section">
+<div class="section-header"><span class="section-number">3</span><span class="section-title">Program Reach & Engagement</span></div>
+<div class="section-content"><div class="highlight-box blue">FOAM served <strong>${m.activeFathers} unduplicated fathers</strong> across its comprehensive service ecosystem, with ${m.fatherhoodClassEnrollment} in Responsible Fatherhood Classes and ~${m.avgMonthlyEngagement} active monthly in case management.</div></div></div>
 
-&lt;div class="section"&gt;
-&lt;div class="section-header"&gt;&lt;span class="section-number"&gt;4&lt;/span&gt;&lt;span class="section-title"&gt;Program Structure &amp; Service Model&lt;/span&gt;&lt;/div&gt;
-&lt;div class="section-content"&gt;&lt;p&gt;FOAM operates two distinct but complementary programs: &lt;strong&gt;Responsible Fatherhood Classes&lt;/strong&gt; (14-module NPCL curriculum) and &lt;strong&gt;Project Family BUILD&lt;/strong&gt; (comprehensive case management). These programs work holistically to support fathers.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+<div class="section">
+<div class="section-header"><span class="section-number">4</span><span class="section-title">Program Structure & Service Model</span></div>
+<div class="section-content"><p>FOAM operates two distinct but complementary programs: <strong>Responsible Fatherhood Classes</strong> (14-module NPCL curriculum) and <strong>Project Family BUILD</strong> (comprehensive case management). These programs work holistically to support fathers.</p></div></div>
 
-&lt;div class="section"&gt;
-&lt;div class="section-header"&gt;&lt;span class="section-number"&gt;5&lt;/span&gt;&lt;span class="section-title"&gt;Workforce Development Pipeline&lt;/span&gt;&lt;/div&gt;
-&lt;div class="section-content"&gt;&lt;div class="highlight-box green"&gt;&lt;strong&gt;${m.workforceParticipation} fathers&lt;/strong&gt; engaged in workforce services, with &lt;strong&gt;${m.jobPlacements} achieving job placements&lt;/strong&gt; (${m.jobPlacementRate}% rate) and &lt;strong&gt;${m.jobRetention} maintaining employment&lt;/strong&gt; (${m.retentionRate}% retention).&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+<div class="section">
+<div class="section-header"><span class="section-number">5</span><span class="section-title">Workforce Development Pipeline</span></div>
+<div class="section-content"><div class="highlight-box green"><strong>${m.workforceParticipation} fathers</strong> engaged in workforce services, with <strong>${m.jobPlacements} achieving job placements</strong> (${m.jobPlacementRate}% rate) and <strong>${m.jobRetention} maintaining employment</strong> (${m.retentionRate}% retention).</div></div></div>
 
-&lt;div class="section"&gt;
-&lt;div class="section-header"&gt;&lt;span class="section-number"&gt;6&lt;/span&gt;&lt;span class="section-title"&gt;Employment Outcomes Analysis&lt;/span&gt;&lt;/div&gt;
-&lt;div class="section-content"&gt;&lt;p&gt;Job placements showed strong quality metrics with majority full-time positions. Key sectors: logistics/warehousing, construction, healthcare support, manufacturing.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+<div class="section">
+<div class="section-header"><span class="section-number">6</span><span class="section-title">Employment Outcomes Analysis</span></div>
+<div class="section-content"><p>Job placements showed strong quality metrics with majority full-time positions. Key sectors: logistics/warehousing, construction, healthcare support, manufacturing.</p></div></div>
 
-&lt;div class="section"&gt;
-&lt;div class="section-header"&gt;&lt;span class="section-number"&gt;7&lt;/span&gt;&lt;span class="section-title"&gt;Stabilization &amp; Essential Needs&lt;/span&gt;&lt;/div&gt;
-&lt;div class="section-content"&gt;&lt;p&gt;FOAM provided &lt;strong&gt;${m.stabilizationSupport} instances&lt;/strong&gt; of stabilization support: Transportation (${m.transportationAssist}), Basic Needs (${m.basicNeedsAssist}), Legal Aid (${m.legalAssist}), Behavioral Health (${m.behavioralHealthAssist}).&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+<div class="section">
+<div class="section-header"><span class="section-number">7</span><span class="section-title">Stabilization & Essential Needs</span></div>
+<div class="section-content"><p>FOAM provided <strong>${m.stabilizationSupport} instances</strong> of stabilization support: Transportation (${m.transportationAssist}), Basic Needs (${m.basicNeedsAssist}), Legal Aid (${m.legalAssist}), Behavioral Health (${m.behavioralHealthAssist}).</p></div></div>
 
-&lt;div class="section"&gt;
-&lt;div class="section-header"&gt;&lt;span class="section-number"&gt;8&lt;/span&gt;&lt;span class="section-title"&gt;Mental Health &amp; Behavioral Services&lt;/span&gt;&lt;/div&gt;
-&lt;div class="section-content"&gt;&lt;p&gt;&lt;strong&gt;${m.mentalHealthReferrals} fathers (${m.mentalHealthEngagement}%)&lt;/strong&gt; received behavioral health referrals. Mental health is embedded throughout all programming using trauma-informed approaches.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+<div class="section">
+<div class="section-header"><span class="section-number">8</span><span class="section-title">Mental Health & Behavioral Services</span></div>
+<div class="section-content"><p><strong>${m.mentalHealthReferrals} fathers (${m.mentalHealthEngagement}%)</strong> received behavioral health referrals. Mental health is embedded throughout all programming using trauma-informed approaches.</p></div></div>
 
-&lt;div class="section"&gt;
-&lt;div class="section-header"&gt;&lt;span class="section-number"&gt;9&lt;/span&gt;&lt;span class="section-title"&gt;Key Performance Indicators&lt;/span&gt;&lt;/div&gt;
-&lt;div class="section-content"&gt;&lt;p&gt;Performance targets: Program Completion 70%, Stability Achievement 80%, Assessment Improvement 75%. All targets met or exceeded.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+<div class="section">
+<div class="section-header"><span class="section-number">9</span><span class="section-title">Key Performance Indicators</span></div>
+<div class="section-content"><p>Performance targets: Program Completion 70%, Stability Achievement 80%, Assessment Improvement 75%. All targets met or exceeded.</p></div></div>
 
-&lt;div class="section"&gt;
-&lt;div class="section-header"&gt;&lt;span class="section-number"&gt;10&lt;/span&gt;&lt;span class="section-title"&gt;Organizational Capacity &amp; Staffing&lt;/span&gt;&lt;/div&gt;
-&lt;div class="section-content"&gt;&lt;p&gt;FOAM operates with experienced leadership, trained case managers, workforce specialist, and fatherhood facilitator. All staff trained in trauma-informed approaches.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+<div class="section">
+<div class="section-header"><span class="section-number">10</span><span class="section-title">Organizational Capacity & Staffing</span></div>
+<div class="section-content"><p>FOAM operates with experienced leadership, trained case managers, workforce specialist, and fatherhood facilitator. All staff trained in trauma-informed approaches.</p></div></div>
 
-&lt;div class="section"&gt;
-&lt;div class="section-header"&gt;&lt;span class="section-number"&gt;11&lt;/span&gt;&lt;span class="section-title"&gt;Challenges, Lessons Learned &amp; Adaptations&lt;/span&gt;&lt;/div&gt;
-&lt;div class="section-content"&gt;&lt;p&gt;Key challenges addressed: Transportation barriers (expanded assistance), Mental health stigma (integrated wellness approach), Engagement retention (rapid engagement protocols).&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+<div class="section">
+<div class="section-header"><span class="section-number">11</span><span class="section-title">Challenges, Lessons Learned & Adaptations</span></div>
+<div class="section-content"><p>Key challenges addressed: Transportation barriers (expanded assistance), Mental health stigma (integrated wellness approach), Engagement retention (rapid engagement protocols).</p></div></div>
 
-&lt;div class="section"&gt;
-&lt;div class="section-header"&gt;&lt;span class="section-number"&gt;12&lt;/span&gt;&lt;span class="section-title"&gt;Strategic Direction &amp; Recommendations&lt;/span&gt;&lt;/div&gt;
-&lt;div class="section-content"&gt;&lt;p&gt;Strategic priorities: Expand employer partnerships, enhance retention support, strengthen mental health integration, build sustainable transportation solutions, improve data systems, diversify funding.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+<div class="section">
+<div class="section-header"><span class="section-number">12</span><span class="section-title">Strategic Direction & Recommendations</span></div>
+<div class="section-content"><p>Strategic priorities: Expand employer partnerships, enhance retention support, strengthen mental health integration, build sustainable transportation solutions, improve data systems, diversify funding.</p></div></div>
 
-&lt;!-- FOOTER --&gt;
-&lt;div class="footer"&gt;
-&lt;div class="footer-logo"&gt;Fathers On A Mission&lt;/div&gt;
-&lt;div class="footer-tagline"&gt;"Enhancing Fathers, Strengthening Families"&lt;/div&gt;
-&lt;div class="footer-info"&gt;East Baton Rouge Parish, Louisiana | Report Period: ${periodLabel} | Generated: ${generatedDate}&lt;/div&gt;
-&lt;/div&gt;
-&lt;/body&gt;&lt;/html&gt;`;
+<!-- FOOTER -->
+<div class="footer">
+<div class="footer-logo">Fathers On A Mission</div>
+<div class="footer-tagline">"Enhancing Fathers, Strengthening Families"</div>
+<div class="footer-info">East Baton Rouge Parish, Louisiana | Report Period: ${periodLabel} | Generated: ${generatedDate}</div>
+</div>
+</body></html>`;
   };
 
-  const downloadAsWord = (htmlContent: string, filename: string) =&gt; {
+  const downloadAsWord = (htmlContent: string, filename: string) => {
     const blob = new Blob([htmlContent], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -356,12 +356,12 @@ const CaseManagerPortal: React.FC&lt;CaseManagerPortalProps&gt; = ({ onClose }) 
     URL.revokeObjectURL(url);
   };
 
-  const downloadAsPDF = (htmlContent: string) =&gt; {
+  const downloadAsPDF = (htmlContent: string) => {
     const printWindow = window.open('', '_blank');
-    if (printWindow) { printWindow.document.write(htmlContent); printWindow.document.close(); setTimeout(() =&gt; { printWindow.print(); }, 500); }
+    if (printWindow) { printWindow.document.write(htmlContent); printWindow.document.close(); setTimeout(() => { printWindow.print(); }, 500); }
   };
 
-  const handleDownloadReport = (format: 'word' | 'pdf') =&gt; {
+  const handleDownloadReport = (format: 'word' | 'pdf') => {
     if (!generatedReport) return;
     const isInDepth = reportType === 'indepth';
     const htmlContent = isInDepth ? generateInDepthWordDocument(generatedReport) : generateWordDocument(generatedReport);
@@ -374,26 +374,26 @@ const CaseManagerPortal: React.FC&lt;CaseManagerPortalProps&gt; = ({ onClose }) 
   // ========================================
   // ON-SCREEN FULL REPORT VIEWER COMPONENT
   // ========================================
-  const renderFullReportViewer = () =&gt; {
+  const renderFullReportViewer = () => {
     if (!generatedReport || !showFullReport) return null;
     const m = getReportMetrics(generatedReport);
     const periodLabel = generatedReport.metadata?.periodLabel || (selectedYear === '2024-2025' ? 'October 2024 – September 2025' : 'January 2026 – December 2026');
     const generatedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-    const ProgressBar = ({ label, value, color }: { label: string; value: number; color: string }) =&gt; (
-      &lt;div className="mb-4"&gt;
-        &lt;div className="flex justify-between mb-1 text-sm"&gt;
-          &lt;span className="text-gray-700 font-medium"&gt;{label}&lt;/span&gt;
-          &lt;span className="font-bold" style={{ color }}&gt;{value}%&lt;/span&gt;
-        &lt;/div&gt;
-        &lt;div className="h-6 bg-gray-200 rounded-full overflow-hidden"&gt;
-          &lt;div className="h-full rounded-full flex items-center justify-end pr-2 text-white text-xs font-bold" style={{ width: value + '%', background: 'linear-gradient(90deg, ' + color + ', ' + color + 'dd)' }}&gt;{value}%&lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
+    const ProgressBar = ({ label, value, color }: { label: string; value: number; color: string }) => (
+      <div className="mb-4">
+        <div className="flex justify-between mb-1 text-sm">
+          <span className="text-gray-700 font-medium">{label}</span>
+          <span className="font-bold" style={{ color }}>{value}%</span>
+        </div>
+        <div className="h-6 bg-gray-200 rounded-full overflow-hidden">
+          <div className="h-full rounded-full flex items-center justify-end pr-2 text-white text-xs font-bold" style={{ width: value + '%', background: 'linear-gradient(90deg, ' + color + ', ' + color + 'dd)' }}>{value}%</div>
+        </div>
+      </div>
     );
 
-    const KPICard = ({ label, value, sublabel, colorClass }: { label: string; value: string | number; sublabel?: string; colorClass: string }) =&gt; {
-      const colors: Record&lt;string, { bg: string; border: string; text: string }&gt; = {
+    const KPICard = ({ label, value, sublabel, colorClass }: { label: string; value: string | number; sublabel?: string; colorClass: string }) => {
+      const colors: Record<string, { bg: string; border: string; text: string }> = {
         blue: { bg: 'bg-gradient-to-br from-blue-50 to-blue-100', border: 'border-blue-300', text: 'text-[#0F2C5C]' },
         green: { bg: 'bg-gradient-to-br from-emerald-50 to-emerald-100', border: 'border-emerald-300', text: 'text-emerald-600' },
         amber: { bg: 'bg-gradient-to-br from-amber-50 to-amber-100', border: 'border-amber-300', text: 'text-amber-600' },
@@ -401,111 +401,111 @@ const CaseManagerPortal: React.FC&lt;CaseManagerPortalProps&gt; = ({ onClose }) 
       };
       const c = colors[colorClass] || colors.blue;
       return (
-        &lt;div className={c.bg + ' ' + c.border + ' border-2 rounded-xl p-5 text-center'}&gt;
-          &lt;div className="text-xs text-gray-500 uppercase font-semibold mb-1"&gt;{label}&lt;/div&gt;
-          &lt;div className={'text-3xl font-bold ' + c.text}&gt;{value}&lt;/div&gt;
-          {sublabel &amp;&amp; &lt;div className="text-xs text-gray-400 mt-1"&gt;{sublabel}&lt;/div&gt;}
-        &lt;/div&gt;
+        <div className={c.bg + ' ' + c.border + ' border-2 rounded-xl p-5 text-center'}>
+          <div className="text-xs text-gray-500 uppercase font-semibold mb-1">{label}</div>
+          <div className={'text-3xl font-bold ' + c.text}>{value}</div>
+          {sublabel && <div className="text-xs text-gray-400 mt-1">{sublabel}</div>}
+        </div>
       );
     };
 
-    const SectionHeader = ({ number, title }: { number: number; title: string }) =&gt; (
-      &lt;div className="flex items-center gap-4 p-4 rounded-t-xl text-white" style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}&gt;
-        &lt;div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center font-bold text-lg"&gt;{number}&lt;/div&gt;
-        &lt;h3 className="text-lg font-bold"&gt;{title}&lt;/h3&gt;
-      &lt;/div&gt;
+    const SectionHeader = ({ number, title }: { number: number; title: string }) => (
+      <div className="flex items-center gap-4 p-4 rounded-t-xl text-white" style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}>
+        <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center font-bold text-lg">{number}</div>
+        <h3 className="text-lg font-bold">{title}</h3>
+      </div>
     );
 
-    const BarChart = ({ data }: { data: { label: string; value: number; color: string }[] }) =&gt; {
-      const maxVal = Math.max(...data.map(d =&gt; d.value), 1);
+    const BarChart = ({ data }: { data: { label: string; value: number; color: string }[] }) => {
+      const maxVal = Math.max(...data.map(d => d.value), 1);
       return (
-        &lt;div className="flex items-end gap-5 h-44 p-4"&gt;
-          {data.map((item, i) =&gt; (
-            &lt;div key={i} className="flex-1 flex flex-col items-center gap-2"&gt;
-              &lt;div className="font-bold text-gray-700"&gt;{item.value}&lt;/div&gt;
-              &lt;div className="w-full rounded-t-lg" style={{ height: (item.value / maxVal * 100) + '%', background: 'linear-gradient(180deg, ' + item.color + ', ' + item.color + 'dd)', minHeight: item.value &gt; 0 ? '10px' : '0' }} /&gt;
-              &lt;div className="text-xs text-gray-500 text-center font-medium"&gt;{item.label}&lt;/div&gt;
-            &lt;/div&gt;
+        <div className="flex items-end gap-5 h-44 p-4">
+          {data.map((item, i) => (
+            <div key={i} className="flex-1 flex flex-col items-center gap-2">
+              <div className="font-bold text-gray-700">{item.value}</div>
+              <div className="w-full rounded-t-lg" style={{ height: (item.value / maxVal * 100) + '%', background: 'linear-gradient(180deg, ' + item.color + ', ' + item.color + 'dd)', minHeight: item.value > 0 ? '10px' : '0' }} />
+              <div className="text-xs text-gray-500 text-center font-medium">{item.label}</div>
+            </div>
           ))}
-        &lt;/div&gt;
+        </div>
       );
     };
 
     return (
-      &lt;div className="fixed inset-0 bg-black/60 z-50 overflow-y-auto"&gt;
-        &lt;div className="min-h-screen py-8 px-4"&gt;
-          &lt;div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden"&gt;
+      <div className="fixed inset-0 bg-black/60 z-50 overflow-y-auto">
+        <div className="min-h-screen py-8 px-4">
+          <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
             {/* Sticky Header with Close/Download buttons */}
-            &lt;div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center"&gt;
-              &lt;div className="flex items-center gap-3"&gt;
-                &lt;Sparkles className="text-purple-600" size={24} /&gt;
-                &lt;span className="font-semibold text-gray-800"&gt;Comprehensive Annual Report (12 Sections)&lt;/span&gt;
-              &lt;/div&gt;
-              &lt;div className="flex gap-2"&gt;
-                &lt;button onClick={() =&gt; handleDownloadReport('word')} className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"&gt;&lt;Download size={16} /&gt;Word&lt;/button&gt;
-                &lt;button onClick={() =&gt; handleDownloadReport('pdf')} className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm"&gt;&lt;Printer size={16} /&gt;PDF&lt;/button&gt;
-                &lt;button onClick={() =&gt; setShowFullReport(false)} className="p-2 hover:bg-gray-100 rounded-lg"&gt;&lt;X size={20} className="text-gray-500" /&gt;&lt;/button&gt;
-              &lt;/div&gt;
-            &lt;/div&gt;
+            <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <Sparkles className="text-purple-600" size={24} />
+                <span className="font-semibold text-gray-800">Comprehensive Annual Report (12 Sections)</span>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => handleDownloadReport('word')} className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"><Download size={16} />Word</button>
+                <button onClick={() => handleDownloadReport('pdf')} className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm"><Printer size={16} />PDF</button>
+                <button onClick={() => setShowFullReport(false)} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20} className="text-gray-500" /></button>
+              </div>
+            </div>
 
             {/* COVER PAGE */}
-            &lt;div className="text-center py-16 px-8 text-white" style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}&gt;
-              &lt;div className="inline-block bg-white text-[#0F2C5C] font-bold text-2xl px-6 py-3 rounded-xl mb-8"&gt;FOAM&lt;/div&gt;
-              &lt;h1 className="text-4xl font-bold mb-4"&gt;Fathers On A Mission&lt;/h1&gt;
-              &lt;h2 className="text-xl opacity-90 mb-8"&gt;Comprehensive Annual Outcomes Report&lt;br/&gt;Program Analysis &amp; Strategic Direction&lt;/h2&gt;
-              &lt;div className="inline-block bg-white/15 px-8 py-3 rounded-full text-lg"&gt;📅 Reporting Period: {periodLabel}&lt;/div&gt;
-              &lt;p className="mt-12 italic text-lg opacity-90"&gt;"Enhancing Fathers, Strengthening Families"&lt;/p&gt;
-              &lt;p className="mt-8 text-sm opacity-70"&gt;East Baton Rouge Parish, Louisiana&lt;br/&gt;Report Generated: {generatedDate}&lt;/p&gt;
-            &lt;/div&gt;
+            <div className="text-center py-16 px-8 text-white" style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}>
+              <div className="inline-block bg-white text-[#0F2C5C] font-bold text-2xl px-6 py-3 rounded-xl mb-8">FOAM</div>
+              <h1 className="text-4xl font-bold mb-4">Fathers On A Mission</h1>
+              <h2 className="text-xl opacity-90 mb-8">Comprehensive Annual Outcomes Report<br/>Program Analysis & Strategic Direction</h2>
+              <div className="inline-block bg-white/15 px-8 py-3 rounded-full text-lg">📅 Reporting Period: {periodLabel}</div>
+              <p className="mt-12 italic text-lg opacity-90">"Enhancing Fathers, Strengthening Families"</p>
+              <p className="mt-8 text-sm opacity-70">East Baton Rouge Parish, Louisiana<br/>Report Generated: {generatedDate}</p>
+            </div>
 
-            &lt;div className="p-8"&gt;
+            <div className="p-8">
               {/* TABLE OF CONTENTS */}
-              &lt;div className="bg-gray-50 rounded-xl p-6 mb-8 border border-gray-200"&gt;
-                &lt;h2 className="text-xl font-bold text-[#0F2C5C] border-b-2 border-[#0F2C5C] pb-3 mb-4"&gt;📑 Table of Contents&lt;/h2&gt;
-                &lt;div className="grid grid-cols-2 gap-2"&gt;
-                  {['Executive Summary', 'Annual Outcomes Summary', 'Program Reach &amp; Engagement', 'Program Structure &amp; Service Model', 'Workforce Development Pipeline', 'Employment Outcomes Analysis', 'Stabilization &amp; Essential Needs', 'Mental Health &amp; Behavioral Services', 'Key Performance Indicators', 'Organizational Capacity &amp; Staffing', 'Challenges, Lessons Learned &amp; Adaptations', 'Strategic Direction &amp; Recommendations'].map((title, i) =&gt; (
-                    &lt;div key={i} className="py-2 border-b border-dotted border-gray-300 text-[#0F2C5C] font-medium"&gt;{i + 1}. {title}&lt;/div&gt;
+              <div className="bg-gray-50 rounded-xl p-6 mb-8 border border-gray-200">
+                <h2 className="text-xl font-bold text-[#0F2C5C] border-b-2 border-[#0F2C5C] pb-3 mb-4">📑 Table of Contents</h2>
+                <div className="grid grid-cols-2 gap-2">
+                  {['Executive Summary', 'Annual Outcomes Summary', 'Program Reach & Engagement', 'Program Structure & Service Model', 'Workforce Development Pipeline', 'Employment Outcomes Analysis', 'Stabilization & Essential Needs', 'Mental Health & Behavioral Services', 'Key Performance Indicators', 'Organizational Capacity & Staffing', 'Challenges, Lessons Learned & Adaptations', 'Strategic Direction & Recommendations'].map((title, i) => (
+                    <div key={i} className="py-2 border-b border-dotted border-gray-300 text-[#0F2C5C] font-medium">{i + 1}. {title}</div>
                   ))}
-                &lt;/div&gt;
-              &lt;/div&gt;
+                </div>
+              </div>
 
               {/* SECTION 1: EXECUTIVE SUMMARY */}
-              &lt;div className="mb-8 rounded-xl overflow-hidden border border-gray-200"&gt;
-                &lt;SectionHeader number={1} title="Executive Summary" /&gt;
-                &lt;div className="p-6 bg-white"&gt;
-                  &lt;div className="bg-gradient-to-br from-blue-50 to-sky-100 border-2 border-[#0F2C5C] rounded-xl p-6 mb-6"&gt;
-                    &lt;h4 className="text-[#0F2C5C] font-bold text-lg mb-4"&gt;📋 Program Overview &amp; Key Achievements&lt;/h4&gt;
-                    &lt;p className="text-gray-700 mb-4 text-justify leading-relaxed"&gt;During the {periodLabel} reporting period, &lt;strong&gt;Fathers On A Mission (FOAM)&lt;/strong&gt; continued its mission of enhancing fathers and strengthening families across East Baton Rouge Parish, Louisiana. This comprehensive annual report presents an analysis of program outcomes, service delivery effectiveness, and organizational capacity.&lt;/p&gt;
-                    &lt;p className="text-gray-700 mb-4 text-justify leading-relaxed"&gt;FOAM served &lt;strong&gt;{m.activeFathers} unduplicated fathers&lt;/strong&gt; during the reporting period. The program's impact extends beyond individual participants, positively affecting an estimated &lt;strong&gt;{m.childrenImpacted} children&lt;/strong&gt; who benefit from improved father engagement and family stability.&lt;/p&gt;
-                    &lt;p className="text-gray-700 mb-4 text-justify leading-relaxed"&gt;Our workforce development pipeline demonstrated strong performance, with &lt;strong&gt;{m.workforceParticipation} fathers ({m.workforceParticipationRate}%)&lt;/strong&gt; actively participating in employment-related services. Of these, &lt;strong&gt;{m.jobPlacements} fathers achieved job placements&lt;/strong&gt;, representing a &lt;strong&gt;{m.jobPlacementRate}% placement rate&lt;/strong&gt;. Critically, &lt;strong&gt;{m.jobRetention} fathers ({m.retentionRate}%)&lt;/strong&gt; maintained employment beyond 30-90 days.&lt;/p&gt;
-                    &lt;p className="text-gray-700 mb-4 text-justify leading-relaxed"&gt;The Responsible Fatherhood Classes enrolled &lt;strong&gt;{m.fatherhoodClassEnrollment} fathers&lt;/strong&gt; in the 14-module NPCL curriculum. Project Family BUILD maintained an average of &lt;strong&gt;{m.avgMonthlyEngagement} active fathers per month&lt;/strong&gt; receiving intensive case management services.&lt;/p&gt;
-                    &lt;p className="text-gray-700 text-justify leading-relaxed"&gt;FOAM provided &lt;strong&gt;{m.stabilizationSupport} instances of stabilization support&lt;/strong&gt; across transportation assistance, basic needs, legal aid, and behavioral health navigation. Mental health services were integrated throughout programming, with &lt;strong&gt;{m.mentalHealthReferrals} fathers ({m.mentalHealthEngagement}%)&lt;/strong&gt; receiving behavioral health referrals.&lt;/p&gt;
-                  &lt;/div&gt;
-                  &lt;div className="grid grid-cols-4 gap-4 mb-6"&gt;
-                    &lt;KPICard label="Fathers Served" value={m.activeFathers} sublabel="Unduplicated count" colorClass="blue" /&gt;
-                    &lt;KPICard label="Children Impacted" value={'~' + m.childrenImpacted} sublabel="Est. beneficiaries" colorClass="green" /&gt;
-                    &lt;KPICard label="Job Placements" value={m.jobPlacements} sublabel={m.jobPlacementRate + '% placement rate'} colorClass="amber" /&gt;
-                    &lt;KPICard label="Job Retention" value={m.retentionRate + '%'} sublabel="30-90 day retention" colorClass="purple" /&gt;
-                  &lt;/div&gt;
-                  &lt;div className="bg-blue-50 border-l-4 border-[#0F2C5C] p-4 rounded-r-xl"&gt;
-                    &lt;strong&gt;Key Accomplishment:&lt;/strong&gt; FOAM's integrated service model—combining fatherhood education, workforce development, and stabilization support—continues to demonstrate that addressing multiple barriers simultaneously produces sustainable outcomes. The {m.retentionRate}% job retention rate exceeds industry benchmarks.
-                  &lt;/div&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
+              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
+                <SectionHeader number={1} title="Executive Summary" />
+                <div className="p-6 bg-white">
+                  <div className="bg-gradient-to-br from-blue-50 to-sky-100 border-2 border-[#0F2C5C] rounded-xl p-6 mb-6">
+                    <h4 className="text-[#0F2C5C] font-bold text-lg mb-4">📋 Program Overview & Key Achievements</h4>
+                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">During the {periodLabel} reporting period, <strong>Fathers On A Mission (FOAM)</strong> continued its mission of enhancing fathers and strengthening families across East Baton Rouge Parish, Louisiana. This comprehensive annual report presents an analysis of program outcomes, service delivery effectiveness, and organizational capacity.</p>
+                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">FOAM served <strong>{m.activeFathers} unduplicated fathers</strong> during the reporting period. The program's impact extends beyond individual participants, positively affecting an estimated <strong>{m.childrenImpacted} children</strong> who benefit from improved father engagement and family stability.</p>
+                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">Our workforce development pipeline demonstrated strong performance, with <strong>{m.workforceParticipation} fathers ({m.workforceParticipationRate}%)</strong> actively participating in employment-related services. Of these, <strong>{m.jobPlacements} fathers achieved job placements</strong>, representing a <strong>{m.jobPlacementRate}% placement rate</strong>. Critically, <strong>{m.jobRetention} fathers ({m.retentionRate}%)</strong> maintained employment beyond 30-90 days.</p>
+                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">The Responsible Fatherhood Classes enrolled <strong>{m.fatherhoodClassEnrollment} fathers</strong> in the 14-module NPCL curriculum. Project Family BUILD maintained an average of <strong>{m.avgMonthlyEngagement} active fathers per month</strong> receiving intensive case management services.</p>
+                    <p className="text-gray-700 text-justify leading-relaxed">FOAM provided <strong>{m.stabilizationSupport} instances of stabilization support</strong> across transportation assistance, basic needs, legal aid, and behavioral health navigation. Mental health services were integrated throughout programming, with <strong>{m.mentalHealthReferrals} fathers ({m.mentalHealthEngagement}%)</strong> receiving behavioral health referrals.</p>
+                  </div>
+                  <div className="grid grid-cols-4 gap-4 mb-6">
+                    <KPICard label="Fathers Served" value={m.activeFathers} sublabel="Unduplicated count" colorClass="blue" />
+                    <KPICard label="Children Impacted" value={'~' + m.childrenImpacted} sublabel="Est. beneficiaries" colorClass="green" />
+                    <KPICard label="Job Placements" value={m.jobPlacements} sublabel={m.jobPlacementRate + '% placement rate'} colorClass="amber" />
+                    <KPICard label="Job Retention" value={m.retentionRate + '%'} sublabel="30-90 day retention" colorClass="purple" />
+                  </div>
+                  <div className="bg-blue-50 border-l-4 border-[#0F2C5C] p-4 rounded-r-xl">
+                    <strong>Key Accomplishment:</strong> FOAM's integrated service model—combining fatherhood education, workforce development, and stabilization support—continues to demonstrate that addressing multiple barriers simultaneously produces sustainable outcomes. The {m.retentionRate}% job retention rate exceeds industry benchmarks.
+                  </div>
+                </div>
+              </div>
 
               {/* SECTION 2: ANNUAL OUTCOMES */}
-              &lt;div className="mb-8 rounded-xl overflow-hidden border border-gray-200"&gt;
-                &lt;SectionHeader number={2} title="Annual Outcomes Summary" /&gt;
-                &lt;div className="p-6 bg-white"&gt;
-                  &lt;table className="w-full border-collapse"&gt;
-                    &lt;thead&gt;
-                      &lt;tr className="bg-[#0F2C5C] text-white text-left"&gt;
-                        &lt;th className="p-3 font-semibold"&gt;Outcome Area&lt;/th&gt;
-                        &lt;th className="p-3 font-semibold text-center"&gt;Result&lt;/th&gt;
-                        &lt;th className="p-3 font-semibold"&gt;Clarification&lt;/th&gt;
-                      &lt;/tr&gt;
-                    &lt;/thead&gt;
-                    &lt;tbody&gt;
+              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
+                <SectionHeader number={2} title="Annual Outcomes Summary" />
+                <div className="p-6 bg-white">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-[#0F2C5C] text-white text-left">
+                        <th className="p-3 font-semibold">Outcome Area</th>
+                        <th className="p-3 font-semibold text-center">Result</th>
+                        <th className="p-3 font-semibold">Clarification</th>
+                      </tr>
+                    </thead>
+                    <tbody>
                       {[
                         ['Unduplicated Fathers Served', m.activeFathers, 'Total unique individuals who received any FOAM service'],
                         ['Responsible Fatherhood Classes', m.fatherhoodClassEnrollment, 'Fathers enrolled in 14-module NPCL curriculum'],
@@ -516,272 +516,272 @@ const CaseManagerPortal: React.FC&lt;CaseManagerPortalProps&gt; = ({ onClose }) 
                         ['Job Retention (30-90 days)', m.jobRetention, m.retentionRate + '% retention rate'],
                         ['Stabilization Support', m.stabilizationSupport, 'Transportation, basic needs, legal, behavioral health'],
                         ['Mental Health Referrals', m.mentalHealthReferrals, m.mentalHealthEngagement + '% of fathers served']
-                      ].map(([area, result, clarification], i) =&gt; (
-                        &lt;tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}&gt;
-                          &lt;td className="p-3 font-medium text-gray-800"&gt;{area}&lt;/td&gt;
-                          &lt;td className="p-3 text-center font-bold text-[#0F2C5C]"&gt;{result}&lt;/td&gt;
-                          &lt;td className="p-3 text-sm text-gray-600"&gt;{clarification}&lt;/td&gt;
-                        &lt;/tr&gt;
+                      ].map(([area, result, clarification], i) => (
+                        <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                          <td className="p-3 font-medium text-gray-800">{area}</td>
+                          <td className="p-3 text-center font-bold text-[#0F2C5C]">{result}</td>
+                          <td className="p-3 text-sm text-gray-600">{clarification}</td>
+                        </tr>
                       ))}
-                    &lt;/tbody&gt;
-                  &lt;/table&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
               {/* SECTION 3: PROGRAM REACH */}
-              &lt;div className="mb-8 rounded-xl overflow-hidden border border-gray-200"&gt;
-                &lt;SectionHeader number={3} title="Program Reach &amp; Engagement Analysis" /&gt;
-                &lt;div className="p-6 bg-white"&gt;
-                  &lt;div className="bg-blue-50 border-l-4 border-[#0F2C5C] p-4 rounded-r-xl mb-6"&gt;
-                    During the reporting period, FOAM served &lt;strong&gt;{m.activeFathers} unduplicated fathers&lt;/strong&gt; across its comprehensive service ecosystem.
-                  &lt;/div&gt;
-                  &lt;div className="grid grid-cols-4 gap-4 mb-6"&gt;
-                    &lt;KPICard label="Total Fathers" value={m.activeFathers} sublabel="Unduplicated" colorClass="blue" /&gt;
-                    &lt;KPICard label="Class Participants" value={m.fatherhoodClassEnrollment} sublabel="Education" colorClass="green" /&gt;
-                    &lt;KPICard label="Monthly Active" value={m.avgMonthlyEngagement} sublabel="Case management" colorClass="amber" /&gt;
-                    &lt;KPICard label="Workforce" value={m.workforceParticipation} sublabel="Employment svcs" colorClass="purple" /&gt;
-                  &lt;/div&gt;
-                  &lt;div className="bg-gray-50 rounded-xl p-6 border border-gray-200"&gt;
-                    &lt;h4 className="font-bold text-gray-700 mb-4"&gt;📈 Service Engagement Funnel&lt;/h4&gt;
-                    &lt;BarChart data={[
+              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
+                <SectionHeader number={3} title="Program Reach & Engagement Analysis" />
+                <div className="p-6 bg-white">
+                  <div className="bg-blue-50 border-l-4 border-[#0F2C5C] p-4 rounded-r-xl mb-6">
+                    During the reporting period, FOAM served <strong>{m.activeFathers} unduplicated fathers</strong> across its comprehensive service ecosystem.
+                  </div>
+                  <div className="grid grid-cols-4 gap-4 mb-6">
+                    <KPICard label="Total Fathers" value={m.activeFathers} sublabel="Unduplicated" colorClass="blue" />
+                    <KPICard label="Class Participants" value={m.fatherhoodClassEnrollment} sublabel="Education" colorClass="green" />
+                    <KPICard label="Monthly Active" value={m.avgMonthlyEngagement} sublabel="Case management" colorClass="amber" />
+                    <KPICard label="Workforce" value={m.workforceParticipation} sublabel="Employment svcs" colorClass="purple" />
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                    <h4 className="font-bold text-gray-700 mb-4">📈 Service Engagement Funnel</h4>
+                    <BarChart data={[
                       { label: 'Total Fathers', value: m.activeFathers, color: '#0F2C5C' },
                       { label: 'Workforce', value: m.workforceParticipation, color: '#059669' },
                       { label: 'Classes', value: m.fatherhoodClassEnrollment, color: '#d97706' },
                       { label: 'Mental Health', value: m.mentalHealthReferrals, color: '#7c3aed' }
-                    ]} /&gt;
-                  &lt;/div&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
+                    ]} />
+                  </div>
+                </div>
+              </div>
 
               {/* SECTION 4: PROGRAM STRUCTURE */}
-              &lt;div className="mb-8 rounded-xl overflow-hidden border border-gray-200"&gt;
-                &lt;SectionHeader number={4} title="Program Structure &amp; Service Model" /&gt;
-                &lt;div className="p-6 bg-white"&gt;
-                  &lt;div className="grid grid-cols-2 gap-4 mb-6"&gt;
-                    &lt;div className="rounded-xl p-6 text-white" style={{ background: 'linear-gradient(135deg, #0F2C5C, #1a365d)' }}&gt;
-                      &lt;h4 className="text-lg font-bold mb-3"&gt;📚 Responsible Fatherhood Classes&lt;/h4&gt;
-                      &lt;p className="opacity-90 text-sm mb-4"&gt;Structured, curriculum-based educational program focused on developing fatherhood identity and parenting competencies.&lt;/p&gt;
-                      &lt;ul className="text-sm opacity-90 space-y-2"&gt;
-                        &lt;li&gt;• &lt;strong&gt;Curriculum:&lt;/strong&gt; 14-module NPCL&lt;/li&gt;
-                        &lt;li&gt;• &lt;strong&gt;Focus:&lt;/strong&gt; Parenting, co-parenting, relationships&lt;/li&gt;
-                        &lt;li&gt;• &lt;strong&gt;Participation:&lt;/strong&gt; {m.fatherhoodClassEnrollment} fathers&lt;/li&gt;
-                      &lt;/ul&gt;
-                    &lt;/div&gt;
-                    &lt;div className="rounded-xl p-6 text-white" style={{ background: 'linear-gradient(135deg, #059669, #10b981)' }}&gt;
-                      &lt;h4 className="text-lg font-bold mb-3"&gt;🏗️ Project Family BUILD&lt;/h4&gt;
-                      &lt;p className="opacity-90 text-sm mb-4"&gt;Comprehensive case management providing individualized support for workforce development and stabilization.&lt;/p&gt;
-                      &lt;ul className="text-sm opacity-90 space-y-2"&gt;
-                        &lt;li&gt;• &lt;strong&gt;Model:&lt;/strong&gt; Individualized case management&lt;/li&gt;
-                        &lt;li&gt;• &lt;strong&gt;Services:&lt;/strong&gt; Workforce, education, stabilization&lt;/li&gt;
-                        &lt;li&gt;• &lt;strong&gt;Engagement:&lt;/strong&gt; ~{m.avgMonthlyEngagement} fathers/month&lt;/li&gt;
-                      &lt;/ul&gt;
-                    &lt;/div&gt;
-                  &lt;/div&gt;
-                  &lt;div className="bg-gradient-to-r from-amber-50 to-amber-100 border-2 border-amber-400 rounded-xl p-5"&gt;
-                    &lt;h4 className="text-amber-800 font-bold mb-2"&gt;💡 Critical Distinction&lt;/h4&gt;
-                    &lt;p className="text-amber-900 text-sm"&gt;Participation in Fatherhood Classes does not equate to enrollment in Project Family BUILD. These are &lt;strong&gt;distinct but complementary programs&lt;/strong&gt; that fathers may access independently or simultaneously.&lt;/p&gt;
-                  &lt;/div&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
+              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
+                <SectionHeader number={4} title="Program Structure & Service Model" />
+                <div className="p-6 bg-white">
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="rounded-xl p-6 text-white" style={{ background: 'linear-gradient(135deg, #0F2C5C, #1a365d)' }}>
+                      <h4 className="text-lg font-bold mb-3">📚 Responsible Fatherhood Classes</h4>
+                      <p className="opacity-90 text-sm mb-4">Structured, curriculum-based educational program focused on developing fatherhood identity and parenting competencies.</p>
+                      <ul className="text-sm opacity-90 space-y-2">
+                        <li>• <strong>Curriculum:</strong> 14-module NPCL</li>
+                        <li>• <strong>Focus:</strong> Parenting, co-parenting, relationships</li>
+                        <li>• <strong>Participation:</strong> {m.fatherhoodClassEnrollment} fathers</li>
+                      </ul>
+                    </div>
+                    <div className="rounded-xl p-6 text-white" style={{ background: 'linear-gradient(135deg, #059669, #10b981)' }}>
+                      <h4 className="text-lg font-bold mb-3">🏗️ Project Family BUILD</h4>
+                      <p className="opacity-90 text-sm mb-4">Comprehensive case management providing individualized support for workforce development and stabilization.</p>
+                      <ul className="text-sm opacity-90 space-y-2">
+                        <li>• <strong>Model:</strong> Individualized case management</li>
+                        <li>• <strong>Services:</strong> Workforce, education, stabilization</li>
+                        <li>• <strong>Engagement:</strong> ~{m.avgMonthlyEngagement} fathers/month</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-r from-amber-50 to-amber-100 border-2 border-amber-400 rounded-xl p-5">
+                    <h4 className="text-amber-800 font-bold mb-2">💡 Critical Distinction</h4>
+                    <p className="text-amber-900 text-sm">Participation in Fatherhood Classes does not equate to enrollment in Project Family BUILD. These are <strong>distinct but complementary programs</strong> that fathers may access independently or simultaneously.</p>
+                  </div>
+                </div>
+              </div>
 
               {/* SECTION 5: WORKFORCE PIPELINE */}
-              &lt;div className="mb-8 rounded-xl overflow-hidden border border-gray-200"&gt;
-                &lt;SectionHeader number={5} title="Workforce Development Pipeline" /&gt;
-                &lt;div className="p-6 bg-white"&gt;
-                  &lt;div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-xl mb-6"&gt;
-                    &lt;strong&gt;{m.workforceParticipation} fathers&lt;/strong&gt; engaged in workforce services, with &lt;strong&gt;{m.jobPlacements} achieving job placements&lt;/strong&gt; and &lt;strong&gt;{m.jobRetention} maintaining employment&lt;/strong&gt; beyond 30-90 days.
-                  &lt;/div&gt;
-                  &lt;div className="bg-gray-50 rounded-xl p-6 border border-gray-200 mb-6"&gt;
-                    &lt;h4 className="font-bold text-gray-700 mb-4"&gt;📊 Workforce Progression Funnel&lt;/h4&gt;
-                    &lt;BarChart data={[
+              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
+                <SectionHeader number={5} title="Workforce Development Pipeline" />
+                <div className="p-6 bg-white">
+                  <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-xl mb-6">
+                    <strong>{m.workforceParticipation} fathers</strong> engaged in workforce services, with <strong>{m.jobPlacements} achieving job placements</strong> and <strong>{m.jobRetention} maintaining employment</strong> beyond 30-90 days.
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 mb-6">
+                    <h4 className="font-bold text-gray-700 mb-4">📊 Workforce Progression Funnel</h4>
+                    <BarChart data={[
                       { label: 'Workforce Participation', value: m.workforceParticipation, color: '#0F2C5C' },
                       { label: 'Job Placements', value: m.jobPlacements, color: '#059669' },
                       { label: 'Job Retention', value: m.jobRetention, color: '#7c3aed' }
-                    ]} /&gt;
-                  &lt;/div&gt;
-                  &lt;ProgressBar label="Workforce Participation Rate" value={m.workforceParticipationRate} color="#0F2C5C" /&gt;
-                  &lt;ProgressBar label="Job Placement Rate" value={m.jobPlacementRate} color="#059669" /&gt;
-                  &lt;ProgressBar label="Job Retention Rate (30-90 days)" value={m.retentionRate} color="#7c3aed" /&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
+                    ]} />
+                  </div>
+                  <ProgressBar label="Workforce Participation Rate" value={m.workforceParticipationRate} color="#0F2C5C" />
+                  <ProgressBar label="Job Placement Rate" value={m.jobPlacementRate} color="#059669" />
+                  <ProgressBar label="Job Retention Rate (30-90 days)" value={m.retentionRate} color="#7c3aed" />
+                </div>
+              </div>
 
               {/* SECTION 6: EMPLOYMENT OUTCOMES */}
-              &lt;div className="mb-8 rounded-xl overflow-hidden border border-gray-200"&gt;
-                &lt;SectionHeader number={6} title="Employment Outcomes Analysis" /&gt;
-                &lt;div className="p-6 bg-white"&gt;
-                  &lt;table className="w-full border-collapse mb-6"&gt;
-                    &lt;thead&gt;
-                      &lt;tr className="bg-[#0F2C5C] text-white text-left"&gt;
-                        &lt;th className="p-3 font-semibold"&gt;Employment Metric&lt;/th&gt;
-                        &lt;th className="p-3 font-semibold text-center"&gt;Result&lt;/th&gt;
-                        &lt;th className="p-3 font-semibold"&gt;Analysis&lt;/th&gt;
-                      &lt;/tr&gt;
-                    &lt;/thead&gt;
-                    &lt;tbody&gt;
+              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
+                <SectionHeader number={6} title="Employment Outcomes Analysis" />
+                <div className="p-6 bg-white">
+                  <table className="w-full border-collapse mb-6">
+                    <thead>
+                      <tr className="bg-[#0F2C5C] text-white text-left">
+                        <th className="p-3 font-semibold">Employment Metric</th>
+                        <th className="p-3 font-semibold text-center">Result</th>
+                        <th className="p-3 font-semibold">Analysis</th>
+                      </tr>
+                    </thead>
+                    <tbody>
                       {[
                         ['Total Job Placements', m.jobPlacements, 'Fathers who obtained paid employment'],
                         ['Placement Rate', m.jobPlacementRate + '%', 'Percentage of workforce participants achieving employment'],
                         ['30-90 Day Retention', m.jobRetention, 'Fathers maintaining employment beyond critical window'],
                         ['Retention Rate', m.retentionRate + '%', 'Exceeds typical benchmarks for similar programs']
-                      ].map(([metric, result, analysis], i) =&gt; (
-                        &lt;tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}&gt;
-                          &lt;td className="p-3 font-medium text-gray-800"&gt;{metric}&lt;/td&gt;
-                          &lt;td className="p-3 text-center font-bold text-[#0F2C5C]"&gt;{result}&lt;/td&gt;
-                          &lt;td className="p-3 text-sm text-gray-600"&gt;{analysis}&lt;/td&gt;
-                        &lt;/tr&gt;
+                      ].map(([metric, result, analysis], i) => (
+                        <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                          <td className="p-3 font-medium text-gray-800">{metric}</td>
+                          <td className="p-3 text-center font-bold text-[#0F2C5C]">{result}</td>
+                          <td className="p-3 text-sm text-gray-600">{analysis}</td>
+                        </tr>
                       ))}
-                    &lt;/tbody&gt;
-                  &lt;/table&gt;
-                  &lt;div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-xl"&gt;
-                    &lt;strong&gt;Key Finding:&lt;/strong&gt; The combination of job placement services with comprehensive retention support produces significantly better employment outcomes.
-                  &lt;/div&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
+                    </tbody>
+                  </table>
+                  <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-xl">
+                    <strong>Key Finding:</strong> The combination of job placement services with comprehensive retention support produces significantly better employment outcomes.
+                  </div>
+                </div>
+              </div>
 
               {/* SECTION 7: STABILIZATION */}
-              &lt;div className="mb-8 rounded-xl overflow-hidden border border-gray-200"&gt;
-                &lt;SectionHeader number={7} title="Stabilization &amp; Essential Needs Support" /&gt;
-                &lt;div className="p-6 bg-white"&gt;
-                  &lt;div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl mb-6"&gt;
-                    FOAM provided &lt;strong&gt;{m.stabilizationSupport} instances of stabilization support&lt;/strong&gt; during the reporting period.
-                  &lt;/div&gt;
-                  &lt;div className="bg-gray-50 rounded-xl p-6 border border-gray-200 mb-6"&gt;
-                    &lt;h4 className="font-bold text-gray-700 mb-4"&gt;📊 Stabilization Support Distribution&lt;/h4&gt;
-                    &lt;BarChart data={[
+              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
+                <SectionHeader number={7} title="Stabilization & Essential Needs Support" />
+                <div className="p-6 bg-white">
+                  <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl mb-6">
+                    FOAM provided <strong>{m.stabilizationSupport} instances of stabilization support</strong> during the reporting period.
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 mb-6">
+                    <h4 className="font-bold text-gray-700 mb-4">📊 Stabilization Support Distribution</h4>
+                    <BarChart data={[
                       { label: 'Transportation', value: m.transportationAssist, color: '#0F2C5C' },
                       { label: 'Basic Needs', value: m.basicNeedsAssist, color: '#059669' },
                       { label: 'Legal Aid', value: m.legalAssist, color: '#d97706' },
                       { label: 'Behavioral Health', value: m.behavioralHealthAssist, color: '#7c3aed' }
-                    ]} /&gt;
-                  &lt;/div&gt;
-                  &lt;table className="w-full border-collapse"&gt;
-                    &lt;thead&gt;
-                      &lt;tr className="bg-[#0F2C5C] text-white text-left"&gt;
-                        &lt;th className="p-3 font-semibold"&gt;Category&lt;/th&gt;
-                        &lt;th className="p-3 font-semibold text-center"&gt;Instances&lt;/th&gt;
-                        &lt;th className="p-3 font-semibold text-center"&gt;%&lt;/th&gt;
-                        &lt;th className="p-3 font-semibold"&gt;Services&lt;/th&gt;
-                      &lt;/tr&gt;
-                    &lt;/thead&gt;
-                    &lt;tbody&gt;
+                    ]} />
+                  </div>
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-[#0F2C5C] text-white text-left">
+                        <th className="p-3 font-semibold">Category</th>
+                        <th className="p-3 font-semibold text-center">Instances</th>
+                        <th className="p-3 font-semibold text-center">%</th>
+                        <th className="p-3 font-semibold">Services</th>
+                      </tr>
+                    </thead>
+                    <tbody>
                       {[
                         ['Transportation', m.transportationAssist, '35%', 'Gas cards, bus passes, ride coordination'],
                         ['Basic Needs', m.basicNeedsAssist, '25%', 'Emergency food, clothing, utility assistance'],
                         ['Legal Aid', m.legalAssist, '20%', 'Child support, custody, record expungement'],
                         ['Behavioral Health', m.behavioralHealthAssist, '20%', 'Mental health screening, counseling referrals']
-                      ].map(([cat, instances, pct, services], i) =&gt; (
-                        &lt;tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}&gt;
-                          &lt;td className="p-3 font-medium text-gray-800"&gt;{cat}&lt;/td&gt;
-                          &lt;td className="p-3 text-center font-bold text-[#0F2C5C]"&gt;{instances}&lt;/td&gt;
-                          &lt;td className="p-3 text-center font-bold text-[#0F2C5C]"&gt;{pct}&lt;/td&gt;
-                          &lt;td className="p-3 text-sm text-gray-600"&gt;{services}&lt;/td&gt;
-                        &lt;/tr&gt;
+                      ].map(([cat, instances, pct, services], i) => (
+                        <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                          <td className="p-3 font-medium text-gray-800">{cat}</td>
+                          <td className="p-3 text-center font-bold text-[#0F2C5C]">{instances}</td>
+                          <td className="p-3 text-center font-bold text-[#0F2C5C]">{pct}</td>
+                          <td className="p-3 text-sm text-gray-600">{services}</td>
+                        </tr>
                       ))}
-                    &lt;/tbody&gt;
-                  &lt;/table&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
               {/* SECTION 8: MENTAL HEALTH */}
-              &lt;div className="mb-8 rounded-xl overflow-hidden border border-gray-200"&gt;
-                &lt;SectionHeader number={8} title="Mental Health &amp; Behavioral Services" /&gt;
-                &lt;div className="p-6 bg-white"&gt;
-                  &lt;div className="grid grid-cols-4 gap-4 mb-6"&gt;
-                    &lt;KPICard label="MH Referrals" value={m.mentalHealthReferrals} sublabel="Fathers referred" colorClass="purple" /&gt;
-                    &lt;KPICard label="Engagement Rate" value={m.mentalHealthEngagement + '%'} sublabel="Of fathers served" colorClass="blue" /&gt;
-                    &lt;KPICard label="BH Support" value={m.behavioralHealthAssist} sublabel="Service events" colorClass="green" /&gt;
-                    &lt;KPICard label="Integration" value="Embedded" sublabel="Throughout programming" colorClass="amber" /&gt;
-                  &lt;/div&gt;
-                  &lt;div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-r-xl"&gt;
-                    &lt;strong&gt;Key Insight:&lt;/strong&gt; Fathers who engage in mental health services alongside workforce development show significantly better employment retention rates.
-                  &lt;/div&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
+              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
+                <SectionHeader number={8} title="Mental Health & Behavioral Services" />
+                <div className="p-6 bg-white">
+                  <div className="grid grid-cols-4 gap-4 mb-6">
+                    <KPICard label="MH Referrals" value={m.mentalHealthReferrals} sublabel="Fathers referred" colorClass="purple" />
+                    <KPICard label="Engagement Rate" value={m.mentalHealthEngagement + '%'} sublabel="Of fathers served" colorClass="blue" />
+                    <KPICard label="BH Support" value={m.behavioralHealthAssist} sublabel="Service events" colorClass="green" />
+                    <KPICard label="Integration" value="Embedded" sublabel="Throughout programming" colorClass="amber" />
+                  </div>
+                  <div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-r-xl">
+                    <strong>Key Insight:</strong> Fathers who engage in mental health services alongside workforce development show significantly better employment retention rates.
+                  </div>
+                </div>
+              </div>
 
               {/* SECTION 9: KPIs */}
-              &lt;div className="mb-8 rounded-xl overflow-hidden border border-gray-200"&gt;
-                &lt;SectionHeader number={9} title="Key Performance Indicators" /&gt;
-                &lt;div className="p-6 bg-white"&gt;
-                  &lt;div className="grid grid-cols-4 gap-4 mb-6"&gt;
+              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
+                <SectionHeader number={9} title="Key Performance Indicators" />
+                <div className="p-6 bg-white">
+                  <div className="grid grid-cols-4 gap-4 mb-6">
                     {[
                       { label: 'Workforce Participation', value: m.workforceParticipationRate, target: 50 },
                       { label: 'Job Placement Rate', value: m.jobPlacementRate, target: 40 },
                       { label: 'Job Retention', value: m.retentionRate, target: 70 },
                       { label: 'MH Engagement', value: m.mentalHealthEngagement, target: 25 }
-                    ].map((item, i) =&gt; (
-                      &lt;div key={i} className="bg-gray-50 rounded-xl p-5 text-center border border-gray-200"&gt;
-                        &lt;div className="w-24 h-24 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl font-bold" style={{ border: '8px solid ' + (item.value &gt;= item.target ? '#10b981' : '#f59e0b'), color: item.value &gt;= item.target ? '#059669' : '#d97706' }}&gt;
+                    ].map((item, i) => (
+                      <div key={i} className="bg-gray-50 rounded-xl p-5 text-center border border-gray-200">
+                        <div className="w-24 h-24 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl font-bold" style={{ border: '8px solid ' + (item.value >= item.target ? '#10b981' : '#f59e0b'), color: item.value >= item.target ? '#059669' : '#d97706' }}>
                           {item.value}%
-                        &lt;/div&gt;
-                        &lt;div className="text-xs text-gray-500 font-medium"&gt;{item.label}&lt;/div&gt;
-                      &lt;/div&gt;
+                        </div>
+                        <div className="text-xs text-gray-500 font-medium">{item.label}</div>
+                      </div>
                     ))}
-                  &lt;/div&gt;
-                  &lt;ProgressBar label="Program Completion Rate (Target: 70%)" value={70} color="#059669" /&gt;
-                  &lt;ProgressBar label="Stability Achievement Rate (Target: 80%)" value={80} color="#0F2C5C" /&gt;
-                  &lt;ProgressBar label="Assessment Improvement Rate (Target: 75%)" value={75} color="#7c3aed" /&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
+                  </div>
+                  <ProgressBar label="Program Completion Rate (Target: 70%)" value={70} color="#059669" />
+                  <ProgressBar label="Stability Achievement Rate (Target: 80%)" value={80} color="#0F2C5C" />
+                  <ProgressBar label="Assessment Improvement Rate (Target: 75%)" value={75} color="#7c3aed" />
+                </div>
+              </div>
 
               {/* SECTION 10: ORGANIZATIONAL CAPACITY */}
-              &lt;div className="mb-8 rounded-xl overflow-hidden border border-gray-200"&gt;
-                &lt;SectionHeader number={10} title="Organizational Capacity &amp; Staffing" /&gt;
-                &lt;div className="p-6 bg-white"&gt;
-                  &lt;table className="w-full border-collapse mb-6"&gt;
-                    &lt;thead&gt;
-                      &lt;tr className="bg-[#0F2C5C] text-white text-left"&gt;
-                        &lt;th className="p-3 font-semibold"&gt;Position&lt;/th&gt;
-                        &lt;th className="p-3 font-semibold"&gt;Primary Functions&lt;/th&gt;
-                        &lt;th className="p-3 font-semibold"&gt;Area&lt;/th&gt;
-                        &lt;th className="p-3 font-semibold text-center"&gt;FTE&lt;/th&gt;
-                      &lt;/tr&gt;
-                    &lt;/thead&gt;
-                    &lt;tbody&gt;
+              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
+                <SectionHeader number={10} title="Organizational Capacity & Staffing" />
+                <div className="p-6 bg-white">
+                  <table className="w-full border-collapse mb-6">
+                    <thead>
+                      <tr className="bg-[#0F2C5C] text-white text-left">
+                        <th className="p-3 font-semibold">Position</th>
+                        <th className="p-3 font-semibold">Primary Functions</th>
+                        <th className="p-3 font-semibold">Area</th>
+                        <th className="p-3 font-semibold text-center">FTE</th>
+                      </tr>
+                    </thead>
+                    <tbody>
                       {[
                         ['Executive Director', 'Strategic leadership, funder relations', 'Leadership', '1.0'],
                         ['Program Manager', 'Operations, staff supervision, QA', 'Leadership', '1.0'],
                         ['Case Managers', 'Direct services, intake, goal planning', 'Service', '2.0'],
                         ['Workforce Specialist', 'Employment services, job readiness', 'Service', '1.0'],
                         ['Fatherhood Facilitator', 'Curriculum delivery, facilitation', 'Education', '1.0']
-                      ].map(([position, functions, area, fte], i) =&gt; (
-                        &lt;tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}&gt;
-                          &lt;td className="p-3 font-medium text-gray-800"&gt;{position}&lt;/td&gt;
-                          &lt;td className="p-3 text-sm text-gray-600"&gt;{functions}&lt;/td&gt;
-                          &lt;td className="p-3"&gt;&lt;span className={'px-3 py-1 rounded-full text-xs font-semibold ' + (area === 'Leadership' ? 'bg-blue-100 text-[#0F2C5C]' : area === 'Service' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700')}&gt;{area}&lt;/span&gt;&lt;/td&gt;
-                          &lt;td className="p-3 text-center font-medium"&gt;{fte}&lt;/td&gt;
-                        &lt;/tr&gt;
+                      ].map(([position, functions, area, fte], i) => (
+                        <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                          <td className="p-3 font-medium text-gray-800">{position}</td>
+                          <td className="p-3 text-sm text-gray-600">{functions}</td>
+                          <td className="p-3"><span className={'px-3 py-1 rounded-full text-xs font-semibold ' + (area === 'Leadership' ? 'bg-blue-100 text-[#0F2C5C]' : area === 'Service' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700')}>{area}</span></td>
+                          <td className="p-3 text-center font-medium">{fte}</td>
+                        </tr>
                       ))}
-                    &lt;/tbody&gt;
-                  &lt;/table&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
               {/* SECTION 11: CHALLENGES */}
-              &lt;div className="mb-8 rounded-xl overflow-hidden border border-gray-200"&gt;
-                &lt;SectionHeader number={11} title="Challenges, Lessons Learned &amp; Adaptations" /&gt;
-                &lt;div className="p-6 bg-white"&gt;
+              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
+                <SectionHeader number={11} title="Challenges, Lessons Learned & Adaptations" />
+                <div className="p-6 bg-white">
                   {[
                     { title: 'Transportation Barriers', issue: 'Transportation emerged as the single largest barrier to program participation and employment retention.', adaptation: 'FOAM significantly expanded transportation assistance (35% of all support instances).' },
                     { title: 'Mental Health Stigma', issue: 'Many fathers were reluctant to acknowledge mental health needs due to stigma.', adaptation: 'We shifted from formal screening language to integrated wellness conversations.' },
                     { title: 'Engagement Retention', issue: 'Some fathers disengaged after initial contact.', adaptation: 'We implemented rapid engagement protocols to ensure meaningful services within the first week.' }
-                  ].map((item, i) =&gt; (
-                    &lt;div key={i} className="bg-white border border-gray-200 rounded-xl p-5 mb-4"&gt;
-                      &lt;h5 className="text-[#0F2C5C] font-bold mb-2"&gt;⚠️ Challenge: {item.title}&lt;/h5&gt;
-                      &lt;p className="text-gray-600 text-sm mb-2"&gt;&lt;strong&gt;Issue:&lt;/strong&gt; {item.issue}&lt;/p&gt;
-                      &lt;p className="text-gray-600 text-sm"&gt;&lt;strong&gt;Adaptation:&lt;/strong&gt; {item.adaptation}&lt;/p&gt;
-                    &lt;/div&gt;
+                  ].map((item, i) => (
+                    <div key={i} className="bg-white border border-gray-200 rounded-xl p-5 mb-4">
+                      <h5 className="text-[#0F2C5C] font-bold mb-2">⚠️ Challenge: {item.title}</h5>
+                      <p className="text-gray-600 text-sm mb-2"><strong>Issue:</strong> {item.issue}</p>
+                      <p className="text-gray-600 text-sm"><strong>Adaptation:</strong> {item.adaptation}</p>
+                    </div>
                   ))}
-                  &lt;div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl"&gt;
-                    &lt;strong&gt;Key Lesson Learned:&lt;/strong&gt; The most successful outcomes occur when fathers receive simultaneous support across multiple domains—parenting education, workforce development, and stabilization support—rather than sequential services.
-                  &lt;/div&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
+                  <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl">
+                    <strong>Key Lesson Learned:</strong> The most successful outcomes occur when fathers receive simultaneous support across multiple domains—parenting education, workforce development, and stabilization support—rather than sequential services.
+                  </div>
+                </div>
+              </div>
 
               {/* SECTION 12: STRATEGIC DIRECTION */}
-              &lt;div className="mb-8 rounded-xl overflow-hidden border border-gray-200"&gt;
-                &lt;SectionHeader number={12} title="Strategic Direction &amp; Recommendations" /&gt;
-                &lt;div className="p-6 bg-white"&gt;
-                  &lt;ol className="space-y-4 mb-6"&gt;
+              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
+                <SectionHeader number={12} title="Strategic Direction & Recommendations" />
+                <div className="p-6 bg-white">
+                  <ol className="space-y-4 mb-6">
                     {[
                       ['Expand Employer Partnerships', 'Develop formal relationships with 5-10 additional employers committed to hiring program participants.'],
                       ['Enhance Retention Support', 'Strengthen post-placement support to maintain strong retention rates.'],
@@ -790,30 +790,30 @@ const CaseManagerPortal: React.FC&lt;CaseManagerPortalProps&gt; = ({ onClose }) 
                       ['Enhance Data Systems', 'Implement improved outcome tracking including 6-month and 12-month employment retention.'],
                       ['Scale Successful Interventions', 'Document and replicate most effective program elements.'],
                       ['Diversify Funding Base', 'Pursue additional funding sources to ensure program sustainability.']
-                    ].map(([title, desc], i) =&gt; (
-                      &lt;li key={i} className="flex gap-4"&gt;
-                        &lt;div className="w-8 h-8 rounded-full bg-[#0F2C5C] text-white flex items-center justify-center font-bold text-sm flex-shrink-0"&gt;{i + 1}&lt;/div&gt;
-                        &lt;div&gt;&lt;strong className="text-gray-800"&gt;{title}:&lt;/strong&gt; &lt;span className="text-gray-600"&gt;{desc}&lt;/span&gt;&lt;/div&gt;
-                      &lt;/li&gt;
+                    ].map(([title, desc], i) => (
+                      <li key={i} className="flex gap-4">
+                        <div className="w-8 h-8 rounded-full bg-[#0F2C5C] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">{i + 1}</div>
+                        <div><strong className="text-gray-800">{title}:</strong> <span className="text-gray-600">{desc}</span></div>
+                      </li>
                     ))}
-                  &lt;/ol&gt;
-                  &lt;div className="bg-gradient-to-r from-amber-50 to-amber-100 border-2 border-amber-400 rounded-xl p-5"&gt;
-                    &lt;h4 className="text-amber-800 font-bold mb-2"&gt;🎯 Summary of Strategic Priorities&lt;/h4&gt;
-                    &lt;p className="text-amber-900 text-sm"&gt;FOAM's strategic direction focuses on &lt;strong&gt;deepening impact&lt;/strong&gt; rather than simply expanding reach. By strengthening employer relationships, enhancing retention support, and building sustainable solutions to persistent barriers, we aim to improve outcomes for each father served.&lt;/p&gt;
-                  &lt;/div&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
+                  </ol>
+                  <div className="bg-gradient-to-r from-amber-50 to-amber-100 border-2 border-amber-400 rounded-xl p-5">
+                    <h4 className="text-amber-800 font-bold mb-2">🎯 Summary of Strategic Priorities</h4>
+                    <p className="text-amber-900 text-sm">FOAM's strategic direction focuses on <strong>deepening impact</strong> rather than simply expanding reach. By strengthening employer relationships, enhancing retention support, and building sustainable solutions to persistent barriers, we aim to improve outcomes for each father served.</p>
+                  </div>
+                </div>
+              </div>
 
               {/* FOOTER */}
-              &lt;div className="text-center py-8 border-t-4 border-[#0F2C5C]"&gt;
-                &lt;div className="text-2xl font-bold text-[#0F2C5C] mb-2"&gt;Fathers On A Mission&lt;/div&gt;
-                &lt;div className="text-[#0F2C5C] italic mb-2"&gt;"Enhancing Fathers, Strengthening Families"&lt;/div&gt;
-                &lt;div className="text-sm text-gray-400"&gt;East Baton Rouge Parish, Louisiana&lt;br/&gt;Report Period: {periodLabel} | Generated: {generatedDate}&lt;/div&gt;
-              &lt;/div&gt;
-            &lt;/div&gt;
-          &lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
+              <div className="text-center py-8 border-t-4 border-[#0F2C5C]">
+                <div className="text-2xl font-bold text-[#0F2C5C] mb-2">Fathers On A Mission</div>
+                <div className="text-[#0F2C5C] italic mb-2">"Enhancing Fathers, Strengthening Families"</div>
+                <div className="text-sm text-gray-400">East Baton Rouge Parish, Louisiana<br/>Report Period: {periodLabel} | Generated: {generatedDate}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   };
 
