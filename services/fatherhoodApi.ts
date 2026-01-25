@@ -12,7 +12,7 @@ export interface Father {
   email: string | null;
   completedModules: number[];
   joinedDate: string;
-  status: 'Active' | 'At Risk' | 'Graduated';
+  status: 'Active' | 'At Risk' | 'Graduated' | 'Inactive';
 }
 
 export interface Module {
@@ -26,6 +26,7 @@ export interface Stats {
   graduated: number;
   active: number;
   atRisk: number;
+  inactive: number;
   graduationRate: string;
   averageProgress: string;
   totalModulesCompleted: number;
