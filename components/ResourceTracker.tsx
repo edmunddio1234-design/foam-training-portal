@@ -898,11 +898,13 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
       setDiaperEntries(data.diapers || []);
       setDonationsGiven(data.donationsGiven || []);
       setInKindDonations(data.inKindDonations || []);
-      setBusPassEntries(data.busPass || []);
-      setUberEntries(data.uber || []);
-      setWaterEntries(data.water || []);
-      setElectricEntries(data.electric || []);
-      setRentEntries(data.rent || []);
+      const transport = data.transport || [];
+      setBusPassEntries(transport.filter((t: any) => t.type === 'bus'));
+      setUberEntries(transport.filter((t: any) => t.type === 'uber'));
+      const utilities = data.utilities || [];
+      setWaterEntries(utilities.filter((u: any) => u.type === 'water'));
+      setElectricEntries(utilities.filter((u: any) => u.type === 'electric'));
+      setRentEntries(utilities.filter((u: any) => u.type === 'rent'));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
