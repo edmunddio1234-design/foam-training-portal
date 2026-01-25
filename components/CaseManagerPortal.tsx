@@ -247,13 +247,24 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
   const loadAssessmentData = async () => {
     setLoadingStates(prev => ({ ...prev, assessments: true }));
     try {
-      const response = await fetch(`${API_BASE_URL}/api/assessments/aggregate?year=2026`);
+      // Use the existing fatherhood assessments aggregated endpoint
+      const response = await fetch(`${API_BASE_URL}/api/fatherhood/assessments/aggregated?year=2026`);
       const data = await response.json();
 
       if (data.success) {
         setLiveData(prev => ({
           ...prev,
-          assessments: data
+          assessments: {
+            monthlyBreakdown: data.monthlyBreakdown || {},
+            totals: {
+              totalAssessments: data.totalAssessments || 0,
+              uniqueFathers: data.uniqueFathers || 0,
+              fathersReportImprovedRelationship: data.fathersReportImprovedRelationship || 0,
+              fathersFeelBecomingBetterFather: data.fathersFeelBecomingBetterFather || 0,
+              participantsDemonstratingBetterParenting: data.participantsDemonstratingBetterParenting || 0,
+              fathersReportingImprovedOutcomes: data.fathersReportingImprovedOutcomes || 0
+            }
+          }
         }));
       }
     } catch (err: any) {
