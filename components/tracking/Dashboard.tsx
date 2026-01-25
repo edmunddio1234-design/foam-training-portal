@@ -14,6 +14,7 @@ interface Stats {
   graduated: number;
   active: number;
   atRisk: number;
+  inactive: number;
   graduationRate: string;
   averageProgress: string;
   totalModulesCompleted: number;
