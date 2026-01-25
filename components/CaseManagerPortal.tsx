@@ -142,26 +142,47 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
     finally { setIsGenerating(false); }
   };
 
-  const getReportMetrics = (report: any) => {
-    const activeFathers = report?.keyMetrics?.activeFathers || 159;
-    const fatherhoodClassEnrollment = report?.keyMetrics?.fatherhoodClassEnrollment || 70;
-    const workforceParticipation = report?.keyMetrics?.workforceParticipation || 77;
-    const jobPlacements = report?.keyMetrics?.jobPlacements || 35;
-    const jobRetention = report?.keyMetrics?.jobRetention || 29;
-    const stabilizationSupport = report?.keyMetrics?.stabilizationSupport || 231;
-    const avgMonthlyEngagement = report?.keyMetrics?.avgMonthlyEngagement || 60;
-    const mentalHealthReferrals = report?.keyMetrics?.mentalHealthReferrals || 42;
+  const getReportMetrics = (report: any, is6MonthReport: boolean = false) => {
+    // Scale factor: 0.5 for 6-month reports, 1.0 for annual
+    const scale = is6MonthReport ? 0.5 : 1.0;
+    
+    // Base metrics from report (annual values)
+    const baseActiveFathers = report?.keyMetrics?.activeFathers || 159;
+    const baseFatherhoodClassEnrollment = report?.keyMetrics?.fatherhoodClassEnrollment || 70;
+    const baseWorkforceParticipation = report?.keyMetrics?.workforceParticipation || 77;
+    const baseJobPlacements = report?.keyMetrics?.jobPlacements || 35;
+    const baseJobRetention = report?.keyMetrics?.jobRetention || 29;
+    const baseStabilizationSupport = report?.keyMetrics?.stabilizationSupport || 231;
+    const baseAvgMonthlyEngagement = report?.keyMetrics?.avgMonthlyEngagement || 60;
+    const baseMentalHealthReferrals = report?.keyMetrics?.mentalHealthReferrals || 42;
+    
+    // Scaled metrics for the period
+    const activeFathers = Math.round(baseActiveFathers * scale);
+    const fatherhoodClassEnrollment = Math.round(baseFatherhoodClassEnrollment * scale);
+    const workforceParticipation = Math.round(baseWorkforceParticipation * scale);
+    const jobPlacements = Math.round(baseJobPlacements * scale);
+    const jobRetention = Math.round(baseJobRetention * scale);
+    const stabilizationSupport = Math.round(baseStabilizationSupport * scale);
+    const avgMonthlyEngagement = baseAvgMonthlyEngagement; // Monthly avg stays same
+    const mentalHealthReferrals = Math.round(baseMentalHealthReferrals * scale);
+    
+    // Calculated metrics
     const childrenImpacted = Math.round(activeFathers * 1.5);
     const caseManagementSessions = activeFathers * 5;
     const totalServiceHours = activeFathers * 12;
+    
+    // Rates (percentages) - calculated from scaled values, should be similar
     const workforceParticipationRate = Math.round((workforceParticipation / activeFathers) * 100);
     const jobPlacementRate = Math.round((jobPlacements / workforceParticipation) * 100);
     const retentionRate = Math.round((jobRetention / jobPlacements) * 100);
     const mentalHealthEngagement = Math.round((mentalHealthReferrals / activeFathers) * 100);
+    
+    // Stabilization breakdown
     const transportationAssist = Math.round(stabilizationSupport * 0.35);
     const basicNeedsAssist = Math.round(stabilizationSupport * 0.25);
     const legalAssist = Math.round(stabilizationSupport * 0.20);
     const behavioralHealthAssist = Math.round(stabilizationSupport * 0.20);
+    
     return { activeFathers, fatherhoodClassEnrollment, workforceParticipation, jobPlacements, jobRetention, stabilizationSupport, avgMonthlyEngagement, mentalHealthReferrals, childrenImpacted, caseManagementSessions, totalServiceHours, workforceParticipationRate, jobPlacementRate, retentionRate, mentalHealthEngagement, transportationAssist, basicNeedsAssist, legalAssist, behavioralHealthAssist };
   };
 
@@ -194,10 +215,10 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
   };
 
   const generateInDepthWordDocument = (report: any) => {
-    const m = getReportMetrics(report);
+    const is6Month = report.metadata?.reportType === 'indepth6';
+    const m = getReportMetrics(report, is6Month);
     const generatedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const periodLabel = report.metadata?.periodLabel || (selectedYear === '2024-2025' ? 'October 2024 – September 2025' : 'January 2026 – December 2026');
-    const is6Month = report.metadata?.reportType === 'indepth6';
     const reportPeriodName = is6Month ? '6-Month' : 'Annual';
     
     return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FOAM Comprehensive ${reportPeriodName} Report</title>
@@ -585,7 +606,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
   // ========================================
   const renderFullReportViewer = () => {
     if (!generatedReport || !showFullReport) return null;
-    const m = getReportMetrics(generatedReport);
+    const is6Month = reportType === 'indepth6';
+    const m = getReportMetrics(generatedReport, is6Month);
     const periodLabel = generatedReport.metadata?.periodLabel || (selectedYear === '2024-2025' ? 'October 2024 – September 2025' : 'January 2026 – December 2026');
     const generatedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -639,8 +661,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
         </div>
       );
     };
-
-    const is6Month = reportType === 'indepth6';
 
     return (
       <div className="fixed inset-0 bg-black/60 z-50 overflow-y-auto">
