@@ -12,7 +12,7 @@ interface ComparisonRow { id: number; metric: string; historical: number; curren
 interface LogEntry { id: number; date: string; caseManager: string; month: string; year: string; category: string; oldValue: string; newValue: string; }
 interface CaseManagerPortalProps { onClose: () => void; }
 type TabType = 'historical' | 'current' | 'comparison' | 'log' | 'reports';
-type ReportType = 'monthly' | 'quarterly' | 'annual' | 'indepth';
+type ReportType = 'monthly' | 'quarterly' | 'annual' | 'indepth' | 'indepth6';
 
 const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<TabType>('current');
@@ -126,12 +126,15 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/reports/generate`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ year: selectedYear, reportType: reportType === 'indepth' ? 'annual' : reportType, period: reportType === 'monthly' ? selectedMonth : reportType === 'quarterly' ? selectedQuarter : 0 })
+        body: JSON.stringify({ year: selectedYear, reportType: (reportType === 'indepth' || reportType === 'indepth6') ? 'annual' : reportType, period: reportType === 'monthly' ? selectedMonth : reportType === 'quarterly' ? selectedQuarter : 0 })
       });
       const data = await response.json();
       if (data.success) {
         if (reportType === 'indepth') {
           data.report.metadata = { ...data.report.metadata, reportType: 'indepth', periodLabel: selectedYear === '2024-2025' ? 'October 2024 – September 2025' : 'January 2026 – December 2026' };
+        }
+        if (reportType === 'indepth6') {
+          data.report.metadata = { ...data.report.metadata, reportType: 'indepth6', periodLabel: selectedYear === '2024-2025' ? 'October 2024 – March 2025' : 'January 2026 – June 2026' };
         }
         setGeneratedReport(data.report); setShowPreview(false);
       } else { alert('Failed to generate report: ' + data.error); }
@@ -194,8 +197,10 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
     const m = getReportMetrics(report);
     const generatedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const periodLabel = report.metadata?.periodLabel || (selectedYear === '2024-2025' ? 'October 2024 – September 2025' : 'January 2026 – December 2026');
+    const is6Month = report.metadata?.reportType === 'indepth6';
+    const reportPeriodName = is6Month ? '6-Month' : 'Annual';
     
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FOAM Comprehensive Annual Report</title>
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>FOAM Comprehensive ${reportPeriodName} Report</title>
 <style>
 @page{margin:0.5in;size:letter}
 body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b;line-height:1.7;font-size:10pt}
@@ -287,7 +292,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
 <div class="cover-page">
 <div style="width:140px;height:50px;background:white;border-radius:10px;margin:0 auto 30px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#0F2C5C;font-size:18pt">FOAM</div>
 <h1 class="cover-title">Fathers On A Mission</h1>
-<h2 class="cover-subtitle">Comprehensive Annual Outcomes Report<br/>Program Analysis & Strategic Direction</h2>
+<h2 class="cover-subtitle">Comprehensive ${reportPeriodName} Outcomes Report<br/>Program Analysis & Strategic Direction</h2>
 <div class="cover-period">📅 Reporting Period: ${periodLabel}</div>
 <div class="cover-tagline">"Enhancing Fathers, Strengthening Families"</div>
 <div style="margin-top:40px;font-size:10pt;opacity:0.7">East Baton Rouge Parish, Louisiana<br/>Report Generated: ${generatedDate}</div>
@@ -297,7 +302,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
 <div class="toc">
 <h2>📑 Table of Contents</h2>
 <div class="toc-item">1. Executive Summary</div>
-<div class="toc-item">2. Annual Outcomes Summary</div>
+<div class="toc-item">2. ${reportPeriodName} Outcomes Summary</div>
 <div class="toc-item">3. Program Reach & Engagement Analysis</div>
 <div class="toc-item">4. Program Structure & Service Model</div>
 <div class="toc-item">5. Workforce Development Pipeline</div>
@@ -331,13 +336,13 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
 <div class="highlight-box blue"><strong>Key Accomplishment:</strong> FOAM's integrated service model—combining fatherhood education, workforce development, and stabilization support—continues to demonstrate that addressing multiple barriers simultaneously produces sustainable outcomes for fathers and their families. The ${m.retentionRate}% job retention rate exceeds industry benchmarks and validates our comprehensive approach.</div>
 </div></div>
 
-<!-- SECTION 2: ANNUAL OUTCOMES -->
+<!-- SECTION 2: OUTCOMES SUMMARY -->
 <div class="section">
-<div class="section-header"><div class="section-header-inner"><span class="section-number">2</span><span class="section-title">Annual Outcomes Summary</span></div></div>
+<div class="section-header"><div class="section-header-inner"><span class="section-number">2</span><span class="section-title">${reportPeriodName} Outcomes Summary</span></div></div>
 <div class="section-content">
-<p style="margin-bottom:15px">The following table presents a comprehensive summary of FOAM's annual outcomes across all program areas with clarification on measurement methodology.</p>
+<p style="margin-bottom:15px">The following table presents a comprehensive summary of FOAM's ${reportPeriodName.toLowerCase()} outcomes across all program areas with clarification on measurement methodology.</p>
 <table class="data-table">
-<thead><tr><th style="width:28%">Outcome Area</th><th style="width:14%;text-align:center">Annual Result</th><th style="width:58%">Clarification & Interpretation</th></tr></thead>
+<thead><tr><th style="width:28%">Outcome Area</th><th style="width:14%;text-align:center">${reportPeriodName} Result</th><th style="width:58%">Clarification & Interpretation</th></tr></thead>
 <tbody>
 <tr><td><strong>Unduplicated Fathers Served</strong></td><td class="metric-value">${m.activeFathers}</td><td class="clarification">Total unique individuals who received any FOAM service during the reporting period.</td></tr>
 <tr><td><strong>Responsible Fatherhood Classes</strong></td><td class="metric-value">${m.fatherhoodClassEnrollment}</td><td class="clarification">Fathers enrolled in curriculum-based Responsible Fatherhood Classes using the 14-module NPCL curriculum.</td></tr>
@@ -567,10 +572,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
 
   const handleDownloadReport = (format: 'word' | 'pdf') => {
     if (!generatedReport) return;
-    const isInDepth = reportType === 'indepth';
+    const isInDepth = reportType === 'indepth' || reportType === 'indepth6';
     const htmlContent = isInDepth ? generateInDepthWordDocument(generatedReport) : generateWordDocument(generatedReport);
     const periodLabel = generatedReport.metadata?.periodLabel || 'Report';
-    const reportTypeName = isInDepth ? 'Comprehensive_Annual' : (generatedReport.metadata?.reportType || 'Monthly');
+    const reportTypeName = reportType === 'indepth' ? 'Comprehensive_Annual' : reportType === 'indepth6' ? 'Comprehensive_6Month' : (generatedReport.metadata?.reportType || 'Monthly');
     const filename = 'FOAM_' + reportTypeName + '_Report_' + periodLabel.replace(/\s+/g, '_');
     if (format === 'word') { downloadAsWord(htmlContent, filename); } else { downloadAsPDF(htmlContent); }
   };
@@ -635,6 +640,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
       );
     };
 
+    const is6Month = reportType === 'indepth6';
+
     return (
       <div className="fixed inset-0 bg-black/60 z-50 overflow-y-auto">
         <div className="min-h-screen py-8 px-4">
@@ -642,8 +649,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
             {/* Sticky Header with Close/Download buttons */}
             <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <Sparkles className="text-purple-600" size={24} />
-                <span className="font-semibold text-gray-800">Comprehensive Annual Report (12 Sections)</span>
+                <Sparkles className={is6Month ? 'text-pink-600' : 'text-purple-600'} size={24} />
+                <span className="font-semibold text-gray-800">Comprehensive {is6Month ? '6-Month' : 'Annual'} Report (12 Sections)</span>
               </div>
               <div className="flex gap-2">
                 <button onClick={() => handleDownloadReport('word')} className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"><Download size={16} />Word</button>
@@ -656,7 +663,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
             <div className="text-center py-16 px-8 text-white" style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}>
               <div className="inline-block bg-white text-[#0F2C5C] font-bold text-2xl px-6 py-3 rounded-xl mb-8">FOAM</div>
               <h1 className="text-4xl font-bold mb-4">Fathers On A Mission</h1>
-              <h2 className="text-xl opacity-90 mb-8">Comprehensive Annual Outcomes Report<br/>Program Analysis & Strategic Direction</h2>
+              <h2 className="text-xl opacity-90 mb-8">Comprehensive {is6Month ? '6-Month' : 'Annual'} Outcomes Report<br/>Program Analysis & Strategic Direction</h2>
               <div className="inline-block bg-white/15 px-8 py-3 rounded-full text-lg">📅 Reporting Period: {periodLabel}</div>
               <p className="mt-12 italic text-lg opacity-90">"Enhancing Fathers, Strengthening Families"</p>
               <p className="mt-8 text-sm opacity-70">East Baton Rouge Parish, Louisiana<br/>Report Generated: {generatedDate}</p>
@@ -667,7 +674,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
               <div className="bg-gray-50 rounded-xl p-6 mb-8 border border-gray-200">
                 <h2 className="text-xl font-bold text-[#0F2C5C] border-b-2 border-[#0F2C5C] pb-3 mb-4">📑 Table of Contents</h2>
                 <div className="grid grid-cols-2 gap-2">
-                  {['Executive Summary', 'Annual Outcomes Summary', 'Program Reach & Engagement', 'Program Structure & Service Model', 'Workforce Development Pipeline', 'Employment Outcomes Analysis', 'Stabilization & Essential Needs', 'Mental Health & Behavioral Services', 'Key Performance Indicators', 'Organizational Capacity & Staffing', 'Challenges, Lessons Learned & Adaptations', 'Strategic Direction & Recommendations'].map((title, i) => (
+                  {['Executive Summary', (is6Month ? '6-Month' : 'Annual') + ' Outcomes Summary', 'Program Reach & Engagement', 'Program Structure & Service Model', 'Workforce Development Pipeline', 'Employment Outcomes Analysis', 'Stabilization & Essential Needs', 'Mental Health & Behavioral Services', 'Key Performance Indicators', 'Organizational Capacity & Staffing', 'Challenges, Lessons Learned & Adaptations', 'Strategic Direction & Recommendations'].map((title, i) => (
                     <div key={i} className="py-2 border-b border-dotted border-gray-300 text-[#0F2C5C] font-medium">{i + 1}. {title}</div>
                   ))}
                 </div>
@@ -697,9 +704,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
                 </div>
               </div>
 
-              {/* SECTION 2: ANNUAL OUTCOMES */}
+              {/* SECTION 2: OUTCOMES SUMMARY */}
               <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={2} title="Annual Outcomes Summary" />
+                <SectionHeader number={2} title={(is6Month ? '6-Month' : 'Annual') + ' Outcomes Summary'} />
                 <div className="p-6 bg-white">
                   <table className="w-full border-collapse">
                     <thead>
@@ -1065,7 +1072,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
         </div>
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-600 mb-2">Report Type</label>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-5 gap-3">
             <button onClick={() => setReportType('monthly')} className={`p-4 rounded-xl border-2 transition-all ${reportType === 'monthly' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
               <Calendar size={24} className={reportType === 'monthly' ? 'text-blue-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
               <div className={`font-medium ${reportType === 'monthly' ? 'text-blue-600' : 'text-gray-700'}`}>Monthly</div>
@@ -1078,10 +1085,15 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
               <Target size={24} className={reportType === 'annual' ? 'text-amber-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
               <div className={`font-medium ${reportType === 'annual' ? 'text-amber-600' : 'text-gray-700'}`}>Annual</div>
             </button>
+            <button onClick={() => setReportType('indepth6')} className={`p-4 rounded-xl border-2 transition-all ${reportType === 'indepth6' ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
+              <Sparkles size={24} className={reportType === 'indepth6' ? 'text-pink-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
+              <div className={`font-medium ${reportType === 'indepth6' ? 'text-pink-600' : 'text-gray-700'}`}>In-Depth</div>
+              <div className="text-xs text-gray-500 mt-1">6-Month Report</div>
+            </button>
             <button onClick={() => setReportType('indepth')} className={`p-4 rounded-xl border-2 transition-all ${reportType === 'indepth' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
               <Sparkles size={24} className={reportType === 'indepth' ? 'text-purple-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
               <div className={`font-medium ${reportType === 'indepth' ? 'text-purple-600' : 'text-gray-700'}`}>In-Depth</div>
-              <div className="text-xs text-gray-500 mt-1">12-Section Grant Report</div>
+              <div className="text-xs text-gray-500 mt-1">Annual Report</div>
             </button>
           </div>
         </div>
@@ -1106,10 +1118,29 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
             <div className="flex items-start gap-3">
               <Sparkles size={24} className="text-purple-600 mt-0.5" />
               <div>
-                <h4 className="font-semibold text-purple-800 mb-2">Comprehensive Grant Report (12 Sections)</h4>
+                <h4 className="font-semibold text-purple-800 mb-2">Comprehensive Annual Grant Report (12 Sections)</h4>
                 <p className="text-sm text-gray-600 mb-3">Generates a complete funder-ready annual outcomes report including:</p>
                 <ul className="text-sm text-gray-600 grid grid-cols-2 gap-1">
                   <li>✓ Executive Summary</li><li>✓ Annual Outcomes Table</li>
+                  <li>✓ Program Reach Analysis</li><li>✓ Service Model Overview</li>
+                  <li>✓ Workforce Pipeline Charts</li><li>✓ Employment Outcomes</li>
+                  <li>✓ Stabilization Support</li><li>✓ Mental Health Integration</li>
+                  <li>✓ KPI Performance Dashboard</li><li>✓ Organizational Capacity</li>
+                  <li>✓ Challenges & Lessons</li><li>✓ Strategic Recommendations</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+        {reportType === 'indepth6' && (
+          <div className="mb-6 p-4 bg-pink-50 border border-pink-200 rounded-xl">
+            <div className="flex items-start gap-3">
+              <Sparkles size={24} className="text-pink-600 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-pink-800 mb-2">Comprehensive 6-Month Grant Report (12 Sections)</h4>
+                <p className="text-sm text-gray-600 mb-3">Generates a complete funder-ready 6-month outcomes report including:</p>
+                <ul className="text-sm text-gray-600 grid grid-cols-2 gap-1">
+                  <li>✓ Executive Summary</li><li>✓ 6-Month Outcomes Table</li>
                   <li>✓ Program Reach Analysis</li><li>✓ Service Model Overview</li>
                   <li>✓ Workforce Pipeline Charts</li><li>✓ Employment Outcomes</li>
                   <li>✓ Stabilization Support</li><li>✓ Mental Health Integration</li>
@@ -1134,8 +1165,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><CheckCircle2 size={20} className="text-green-600" />Report Generated Successfully</h3>
             <div className="flex gap-2">
-              {reportType === 'indepth' && (
-                <button onClick={() => setShowFullReport(true)} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"><Monitor size={16} />View on Screen</button>
+              {(reportType === 'indepth' || reportType === 'indepth6') && (
+                <button onClick={() => setShowFullReport(true)} className={`flex items-center gap-2 px-4 py-2 text-white rounded-lg ${reportType === 'indepth6' ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}><Monitor size={16} />View on Screen</button>
               )}
               <button onClick={() => handleDownloadReport('word')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Download size={16} />Download Word</button>
               <button onClick={() => handleDownloadReport('pdf')} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"><Printer size={16} />Export PDF</button>
@@ -1144,7 +1175,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
           <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-800">Fathers On A Mission</h2>
-              <p className="text-gray-600">{reportType === 'indepth' ? 'Comprehensive Annual Report (12 Sections)' : (generatedReport.metadata?.reportType?.charAt(0).toUpperCase() + generatedReport.metadata?.reportType?.slice(1) + ' Report')}</p>
+              <p className="text-gray-600">{reportType === 'indepth' ? 'Comprehensive Annual Report (12 Sections)' : reportType === 'indepth6' ? 'Comprehensive 6-Month Report (12 Sections)' : (generatedReport.metadata?.reportType?.charAt(0).toUpperCase() + generatedReport.metadata?.reportType?.slice(1) + ' Report')}</p>
               <p className="text-blue-600 font-medium">{generatedReport.metadata?.periodLabel}</p>
             </div>
             <div className="grid grid-cols-4 gap-4 mb-6">
@@ -1153,16 +1184,16 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
               <div className="bg-amber-50 rounded-xl p-4 text-center border border-amber-200"><div className="text-3xl font-bold text-amber-700">{generatedReport.keyMetrics?.jobPlacements || 0}</div><div className="text-xs text-gray-600 uppercase">Job Placements</div></div>
               <div className="bg-purple-50 rounded-xl p-4 text-center border border-purple-200"><div className="text-3xl font-bold text-purple-700">{generatedReport.successMetrics?.retentionRate || 0}%</div><div className="text-xs text-gray-600 uppercase">Retention Rate</div></div>
             </div>
-            {reportType === 'indepth' && (
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <h4 className="font-semibold text-purple-800 mb-2">📄 Report Contains 12 Comprehensive Sections</h4>
+            {(reportType === 'indepth' || reportType === 'indepth6') && (
+              <div className={`border rounded-lg p-4 ${reportType === 'indepth6' ? 'bg-pink-50 border-pink-200' : 'bg-purple-50 border-purple-200'}`}>
+                <h4 className={`font-semibold mb-2 ${reportType === 'indepth6' ? 'text-pink-800' : 'text-purple-800'}`}>📄 Report Contains 12 Comprehensive Sections</h4>
                 <div className="grid grid-cols-3 gap-2 text-sm text-gray-700">
-                  <div>1. Executive Summary</div><div>2. Annual Outcomes</div><div>3. Program Reach</div>
+                  <div>1. Executive Summary</div><div>2. {reportType === 'indepth6' ? '6-Month' : 'Annual'} Outcomes</div><div>3. Program Reach</div>
                   <div>4. Service Model</div><div>5. Workforce Pipeline</div><div>6. Employment Outcomes</div>
                   <div>7. Stabilization</div><div>8. Mental Health</div><div>9. KPIs</div>
                   <div>10. Org Capacity</div><div>11. Challenges</div><div>12. Strategic Direction</div>
                 </div>
-                <p className="text-purple-700 text-sm mt-3">💡 Click <strong>"View on Screen"</strong> to see the full visual report, or download as Word/PDF.</p>
+                <p className={`text-sm mt-3 ${reportType === 'indepth6' ? 'text-pink-700' : 'text-purple-700'}`}>💡 Click <strong>"View on Screen"</strong> to see the full visual report, or download as Word/PDF.</p>
               </div>
             )}
           </div>
