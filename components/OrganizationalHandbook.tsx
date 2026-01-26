@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  ArrowLeft, BookOpen, FileText, Users, Shield, Briefcase, 
-  CheckSquare, ChevronRight, ChevronDown, Search, Download,
+import {
+  ArrowLeft, BookOpen, FileText, Users, Shield, Briefcase,
+  CheckSquare, ChevronRight, ChevronDown, Search, ExternalLink,
   Award, Target, Heart, Clock, MapPin, Phone, Mail,
   AlertCircle, BookMarked, GraduationCap, Clipboard
 } from 'lucide-react';
@@ -20,6 +20,8 @@ interface Section {
     text: string;
   }[];
 }
+
+const HANDBOOK_URL = 'https://heyzine.com/flip-book/2771945ba5.html';
 
 const OrganizationalHandbook: React.FC<OrganizationalHandbookProps> = ({ onBack }) => {
   const [activeSection, setActiveSection] = useState<string>('mission');
@@ -242,8 +244,8 @@ const OrganizationalHandbook: React.FC<OrganizationalHandbookProps> = ({ onBack 
   ];
 
   const toggleItem = (itemId: string) => {
-    setExpandedItems(prev => 
-      prev.includes(itemId) 
+    setExpandedItems(prev =>
+      prev.includes(itemId)
         ? prev.filter(id => id !== itemId)
         : [...prev, itemId]
     );
@@ -313,8 +315,8 @@ const OrganizationalHandbook: React.FC<OrganizationalHandbookProps> = ({ onBack 
                   <button
                     onClick={() => setActiveSection(section.id)}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                      isActive 
-                        ? 'bg-[#0F2C5C] text-white' 
+                      isActive
+                        ? 'bg-[#0F2C5C] text-white'
                         : 'text-slate-600 hover:bg-slate-100'
                     }`}
                   >
@@ -328,12 +330,17 @@ const OrganizationalHandbook: React.FC<OrganizationalHandbookProps> = ({ onBack 
           </ul>
         </nav>
 
-        {/* Footer */}
+        {/* Footer with Open Handbook Button */}
         <div className="p-4 border-t border-slate-100">
-          <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-all text-sm font-medium">
-            <Download size={16} />
-            Download PDF
-          </button>
+          <a
+            href={HANDBOOK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-all text-sm font-medium"
+          >
+            <ExternalLink size={16} />
+            Open Handbook
+          </a>
         </div>
       </aside>
 
@@ -348,6 +355,17 @@ const OrganizationalHandbook: React.FC<OrganizationalHandbookProps> = ({ onBack 
             <ArrowLeft size={18} />
             <span className="text-sm font-medium">Back</span>
           </button>
+
+          {/* Mobile Open Handbook Button */}
+          <a
+            href={HANDBOOK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0F2C5C] hover:bg-[#1a3d6e] text-white rounded-lg transition-all text-sm font-medium mb-4"
+          >
+            <ExternalLink size={16} />
+            Open Handbook
+          </a>
         </div>
 
         {/* Section Header */}
@@ -369,7 +387,7 @@ const OrganizationalHandbook: React.FC<OrganizationalHandbookProps> = ({ onBack 
                 const itemId = `${activeContent.id}-${index}`;
                 const isExpanded = expandedItems.includes(itemId);
                 return (
-                  <div 
+                  <div
                     key={itemId}
                     className={`bg-white rounded-2xl border ${isExpanded ? getColorClasses(activeContent.color, 'border') : 'border-slate-200'} overflow-hidden transition-all`}
                   >
@@ -387,8 +405,8 @@ const OrganizationalHandbook: React.FC<OrganizationalHandbookProps> = ({ onBack 
                           {item.title}
                         </h3>
                       </div>
-                      <ChevronDown 
-                        className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
+                      <ChevronDown
+                        className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                       />
                     </button>
                     {isExpanded && (
