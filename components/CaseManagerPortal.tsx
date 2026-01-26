@@ -11,11 +11,50 @@ interface DataRow { id: number; category: string; values: (number | string | nul
 interface ComparisonRow { id: number; metric: string; historical: number; current: number; change: number; percentChange: number; }
 interface LogEntry { id: number; date: string; caseManager: string; month: string; year: string; category: string; oldValue: string; newValue: string; }
 interface CaseManagerPortalProps { onClose: () => void; }
-type TabType = 'historical' | 'current' | 'comparison' | 'log' | 'reports';
+type TabType = 'dashboard' | 'historical' | 'current' | 'comparison' | 'log' | 'reports';
 type ReportType = 'monthly' | 'quarterly' | 'annual' | 'indepth' | 'indepth6';
 
+// Live Data Interfaces
+interface LiveDataState {
+  assessments: {
+    monthlyBreakdown: Record<string, any>;
+    totals: {
+      totalAssessments: number;
+      uniqueFathers: number;
+      fathersReportImprovedRelationship: number;
+      fathersFeelBecomingBetterFather: number;
+      participantsDemonstratingBetterParenting: number;
+      fathersReportingImprovedOutcomes: number;
+    };
+  };
+  resources: {
+    totalDistributed: number;
+    byCategory: Record<string, number>;
+    monthlyTrend: any[];
+  };
+  attendance: {
+    totalSessions: number;
+    uniqueParticipants: number;
+    averageAttendance: number;
+    monthlyBreakdown: Record<string, any>;
+  };
+  master: {
+    totalFathers: number;
+    activeCases: number;
+    completedCases: number;
+    byStatus: Record<string, number>;
+  };
+}
+
+interface LoadingStates {
+  assessments: boolean;
+  resources: boolean;
+  attendance: boolean;
+  master: boolean;
+}
+
 const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
-  const [activeTab, setActiveTab] = useState<TabType>('current');
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [historicalData, setHistoricalData] = useState<DataRow[]>([]);
   const [historicalMonths, setHistoricalMonths] = useState<string[]>([]);
   const [currentData, setCurrentData] = useState<DataRow[]>([]);
@@ -38,7 +77,94 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
   const [generatedReport, setGeneratedReport] = useState<any>(null);
   const [showFullReport, setShowFullReport] = useState(false);
 
-  useEffect(() => { loadData(); }, []);
+  // Live Data States
+  const [liveData, setLiveData] = useState<LiveDataState>({
+    assessments: { monthlyBreakdown: {}, totals: { totalAssessments: 0, uniqueFathers: 0, fathersReportImprovedRelationship: 0, fathersFeelBecomingBetterFather: 0, participantsDemonstratingBetterParenting: 0, fathersReportingImprovedOutcomes: 0 } },
+    resources: { totalDistributed: 0, byCategory: {}, monthlyTrend: [] },
+    attendance: { totalSessions: 0, uniqueParticipants: 0, averageAttendance: 0, monthlyBreakdown: {} },
+    master: { totalFathers: 0, activeCases: 0, completedCases: 0, byStatus: {} }
+  });
+  const [loadingStates, setLoadingStates] = useState<LoadingStates>({ assessments: false, resources: false, attendance: false, master: false });
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [autoRefresh, setAutoRefresh] = useState(false);
+
+  useEffect(() => { loadData(); loadAllLiveData(); }, []);
+
+  // Auto-refresh effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (autoRefresh) {
+      interval = setInterval(() => { loadAllLiveData(); }, 60000); // Refresh every 60 seconds
+    }
+    return () => { if (interval) clearInterval(interval); };
+  }, [autoRefresh]);
+
+  const loadAllLiveData = async () => {
+    await Promise.all([loadAssessmentData(), loadResourcesData(), loadAttendanceData(), loadMasterData()]);
+    setLastRefresh(new Date());
+  };
+
+  const loadAssessmentData = async () => {
+    setLoadingStates(prev => ({ ...prev, assessments: true }));
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/fatherhood/assessments/aggregated?year=2026`);
+      const result = await response.json();
+      if (result.success && result.data) {
+        const data = result.data;
+        setLiveData(prev => ({
+          ...prev,
+          assessments: {
+            monthlyBreakdown: data.monthlyBreakdown || {},
+            totals: {
+              totalAssessments: data.totalAssessments || 0,
+              uniqueFathers: data.uniqueFathers || 0,
+              fathersReportImprovedRelationship: data.fathersReportImprovedRelationship || 0,
+              fathersFeelBecomingBetterFather: data.fathersFeelBecomingBetterFather || 0,
+              participantsDemonstratingBetterParenting: data.participantsDemonstratingBetterParenting || 0,
+              fathersReportingImprovedOutcomes: data.fathersReportingImprovedOutcomes || 0
+            }
+          }
+        }));
+      }
+    } catch (err: any) { console.error('Error loading assessment data:', err); }
+    finally { setLoadingStates(prev => ({ ...prev, assessments: false })); }
+  };
+
+  const loadResourcesData = async () => {
+    setLoadingStates(prev => ({ ...prev, resources: true }));
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/resources/dashboard?year=2026`);
+      const result = await response.json();
+      if (result.success && result.data) {
+        setLiveData(prev => ({ ...prev, resources: result.data }));
+      }
+    } catch (err: any) { console.error('Error loading resources data:', err); }
+    finally { setLoadingStates(prev => ({ ...prev, resources: false })); }
+  };
+
+  const loadAttendanceData = async () => {
+    setLoadingStates(prev => ({ ...prev, attendance: true }));
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/attendance/stats?year=2026`);
+      const result = await response.json();
+      if (result.success && result.data) {
+        setLiveData(prev => ({ ...prev, attendance: result.data }));
+      }
+    } catch (err: any) { console.error('Error loading attendance data:', err); }
+    finally { setLoadingStates(prev => ({ ...prev, attendance: false })); }
+  };
+
+  const loadMasterData = async () => {
+    setLoadingStates(prev => ({ ...prev, master: true }));
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/master/aggregate?year=2026`);
+      const result = await response.json();
+      if (result.success && result.data) {
+        setLiveData(prev => ({ ...prev, master: result.data }));
+      }
+    } catch (err: any) { console.error('Error loading master data:', err); }
+    finally { setLoadingStates(prev => ({ ...prev, master: false })); }
+  };
 
   const loadData = async () => {
     setIsLoading(true); setError(null);
@@ -1279,6 +1405,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
       <div className="border-b border-gray-200 bg-white">
         <div className="flex px-6">
           {[
+            { id: 'dashboard', label: 'Live Dashboard', icon: Monitor },
             { id: 'current', label: '2026 Data Entry', icon: Edit3 },
             { id: 'historical', label: '2024-2025 Historical', icon: History },
             { id: 'comparison', label: 'Year Comparison', icon: BarChart3 },
@@ -1295,6 +1422,203 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
       {/* Content */}
       <div className="p-6">
         {error && (<div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-center gap-2"><AlertTriangle size={20} />{error}</div>)}
+
+        {/* Live Dashboard Tab */}
+        {activeTab === 'dashboard' && (
+          <div className="space-y-6">
+            {/* Dashboard Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-gray-800">Live Data Dashboard</h2>
+                <p className="text-sm text-gray-500">Real-time data from all FOAM data sources</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-sm text-gray-500">
+                  Last updated: {lastRefresh.toLocaleTimeString()}
+                </div>
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={autoRefresh} onChange={(e) => setAutoRefresh(e.target.checked)} className="rounded" />
+                  Auto-refresh (60s)
+                </label>
+                <button onClick={loadAllLiveData} disabled={Object.values(loadingStates).some(v => v)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                  <RefreshCw size={16} className={Object.values(loadingStates).some(v => v) ? 'animate-spin' : ''} />
+                  Refresh All
+                </button>
+              </div>
+            </div>
+
+            {/* KPI Cards Row */}
+            <div className="grid grid-cols-4 gap-4">
+              {/* Total Fathers */}
+              <div className="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl p-5 text-white shadow-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <Users size={24} className="opacity-80" />
+                  {loadingStates.master && <RefreshCw size={16} className="animate-spin opacity-60" />}
+                </div>
+                <div className="text-3xl font-bold">{liveData.master.totalFathers || 0}</div>
+                <div className="text-sm opacity-80">Total Fathers Enrolled</div>
+              </div>
+
+              {/* Assessments */}
+              <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl p-5 text-white shadow-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <ClipboardList size={24} className="opacity-80" />
+                  {loadingStates.assessments && <RefreshCw size={16} className="animate-spin opacity-60" />}
+                </div>
+                <div className="text-3xl font-bold">{liveData.assessments.totals.totalAssessments || 0}</div>
+                <div className="text-sm opacity-80">Total Assessments</div>
+              </div>
+
+              {/* Resources Distributed */}
+              <div className="bg-gradient-to-br from-amber-500 to-amber-700 rounded-xl p-5 text-white shadow-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <DollarSign size={24} className="opacity-80" />
+                  {loadingStates.resources && <RefreshCw size={16} className="animate-spin opacity-60" />}
+                </div>
+                <div className="text-3xl font-bold">{liveData.resources.totalDistributed || 0}</div>
+                <div className="text-sm opacity-80">Resources Distributed</div>
+              </div>
+
+              {/* Attendance */}
+              <div className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl p-5 text-white shadow-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <Calendar size={24} className="opacity-80" />
+                  {loadingStates.attendance && <RefreshCw size={16} className="animate-spin opacity-60" />}
+                </div>
+                <div className="text-3xl font-bold">{liveData.attendance.totalSessions || 0}</div>
+                <div className="text-sm opacity-80">Total Sessions</div>
+              </div>
+            </div>
+
+            {/* Assessment Analytics */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                  <Target size={18} className="text-emerald-600" />
+                  Assessment Analytics
+                </h3>
+                {loadingStates.assessments && <span className="text-sm text-gray-500">Loading...</span>}
+              </div>
+              <div className="p-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-700">{liveData.assessments.totals.uniqueFathers || 0}</div>
+                    <div className="text-sm text-gray-600">Unique Fathers Assessed</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-700">{liveData.assessments.totals.fathersReportImprovedRelationship || 0}</div>
+                    <div className="text-sm text-gray-600">Improved Relationships</div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-700">{liveData.assessments.totals.fathersFeelBecomingBetterFather || 0}</div>
+                    <div className="text-sm text-gray-600">Feel Better Fathers</div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="text-center p-4 bg-amber-50 rounded-lg">
+                    <div className="text-2xl font-bold text-amber-700">{liveData.assessments.totals.participantsDemonstratingBetterParenting || 0}</div>
+                    <div className="text-sm text-gray-600">Better Parenting Skills</div>
+                  </div>
+                  <div className="text-center p-4 bg-rose-50 rounded-lg">
+                    <div className="text-2xl font-bold text-rose-700">{liveData.assessments.totals.fathersReportingImprovedOutcomes || 0}</div>
+                    <div className="text-sm text-gray-600">Improved Outcomes</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Two Column Layout - Resources & Attendance */}
+            <div className="grid grid-cols-2 gap-6">
+              {/* Resources by Category */}
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                  <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                    <DollarSign size={18} className="text-amber-600" />
+                    Resources by Category
+                  </h3>
+                  {loadingStates.resources && <span className="text-sm text-gray-500">Loading...</span>}
+                </div>
+                <div className="p-4">
+                  {Object.entries(liveData.resources.byCategory || {}).length > 0 ? (
+                    <div className="space-y-3">
+                      {Object.entries(liveData.resources.byCategory).map(([category, count]) => (
+                        <div key={category} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="text-sm font-medium text-gray-700">{category}</span>
+                          <span className="text-lg font-bold text-amber-600">{count as number}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center text-gray-500 py-8">No resource data available</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Attendance Stats */}
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                  <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                    <Calendar size={18} className="text-purple-600" />
+                    Attendance Statistics
+                  </h3>
+                  {loadingStates.attendance && <span className="text-sm text-gray-500">Loading...</span>}
+                </div>
+                <div className="p-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-700">{liveData.attendance.uniqueParticipants || 0}</div>
+                      <div className="text-sm text-gray-600">Unique Participants</div>
+                    </div>
+                    <div className="text-center p-4 bg-indigo-50 rounded-lg">
+                      <div className="text-2xl font-bold text-indigo-700">{liveData.attendance.averageAttendance || 0}</div>
+                      <div className="text-sm text-gray-600">Avg Attendance</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Master Data Summary */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                  <Users size={18} className="text-blue-600" />
+                  Case Status Summary
+                </h3>
+                {loadingStates.master && <span className="text-sm text-gray-500">Loading...</span>}
+              </div>
+              <div className="p-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-700">{liveData.master.activeCases || 0}</div>
+                    <div className="text-sm text-gray-600">Active Cases</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-700">{liveData.master.completedCases || 0}</div>
+                    <div className="text-sm text-gray-600">Completed Cases</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-gray-700">{liveData.master.totalFathers || 0}</div>
+                    <div className="text-sm text-gray-600">Total Enrolled</div>
+                  </div>
+                </div>
+                {Object.entries(liveData.master.byStatus || {}).length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">Status Breakdown</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(liveData.master.byStatus).map(([status, count]) => (
+                        <span key={status} className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                          {status}: <strong>{count as number}</strong>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'current' && currentData.length > 0 && renderDataTable(currentData, currentMonths, true)}
         {activeTab === 'historical' && historicalData.length > 0 && renderDataTable(historicalData, historicalMonths)}
         {activeTab === 'comparison' && (
