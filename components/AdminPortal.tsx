@@ -12,45 +12,15 @@ import FoundationResearchHub from './FoundationResearchHub';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
 
-// ============================================
-// FINANCIAL DOCUMENT FILTER - RESTRICTED KEYWORDS
-// Documents matching these keywords are hidden from Document Library
-// ============================================
 const RESTRICTED_KEYWORDS = [
-  'budget',
-  'finance',
-  'financial',
-  'invoice',
-  'expense',
-  'treasury',
-  'funding',
-  'payroll',
-  'bank',
-  'accounting',
-  'fiscal',
-  'revenue',
-  'cost report',
-  'payment',
-  'billing',
-  'reimbursement',
-  'expenditure',
-  'ledger',
-  'quickbooks',
-  'profit',
-  'loss',
-  'balance sheet',
-  'cash flow',
-  'act 461',
-  'blue cross',
-  'charles lamar',
-  'funder',
-  'grant funds',
-  'salary',
-  'wages',
-  'compensation'
+  'budget', 'finance', 'financial', 'invoice', 'expense', 'treasury',
+  'funding', 'payroll', 'bank', 'accounting', 'fiscal', 'revenue',
+  'cost report', 'payment', 'billing', 'reimbursement', 'expenditure',
+  'ledger', 'quickbooks', 'profit', 'loss', 'balance sheet', 'cash flow',
+  'act 461', 'blue cross', 'charles lamar', 'funder', 'grant funds',
+  'salary', 'wages', 'compensation'
 ];
 
-// Check if a document name contains restricted keywords
 const isRestrictedDocument = (docName: string): boolean => {
   const lowerName = docName.toLowerCase();
   return RESTRICTED_KEYWORDS.some(keyword => lowerName.includes(keyword.toLowerCase()));
@@ -137,7 +107,6 @@ interface ActionItemForm {
 type MainTab = 'grants' | 'funding-research' | 'documents';
 type GrantTab = 'dashboard' | 'all' | 'approved' | 'pending' | 'denied';
 
-// Pie Chart Component
 const PieChartVisual: React.FC<{ data: Record<string, number>; colors: string[] }> = ({ data, colors }) => {
   const total = Object.values(data).reduce((a, b) => a + b, 0);
   if (total === 0) return <div className="text-slate-400 text-center py-8">No data</div>;
@@ -178,7 +147,6 @@ const PieChartVisual: React.FC<{ data: Record<string, number>; colors: string[] 
   );
 };
 
-// Bar Chart Component
 const BarChartVisual: React.FC<{ data: Record<string, number>; color: string }> = ({ data, color }) => {
   const entries = Object.entries(data).sort((a, b) => a[0].localeCompare(b[0]));
   const max = Math.max(...Object.values(data), 1);
@@ -202,7 +170,6 @@ const BarChartVisual: React.FC<{ data: Record<string, number>; color: string }> 
   );
 };
 
-// Progress Ring Component
 const ProgressRing: React.FC<{ percent: number; size?: number; color: string }> = ({ percent, size = 80, color }) => {
   const strokeWidth = 8;
   const radius = (size - strokeWidth) / 2;
@@ -227,7 +194,6 @@ const ProgressRing: React.FC<{ percent: number; size?: number; color: string }> 
   );
 };
 
-// Funding Research Landing Page Component - UPDATED with Foundation Research Hub
 const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void; onOpenFoundationHub: () => void }> = ({ onOpenIRS990, onOpenFoundationHub }) => {
   const tools = [
     {
@@ -308,7 +274,6 @@ const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void; onOpenFoundat
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      {/* Header */}
       <div className="text-center mb-10">
         <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-purple-200">
           <Compass className="text-white" size={40} />
@@ -320,13 +285,11 @@ const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void; onOpenFoundat
         </p>
       </div>
 
-      {/* Tools Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {tools.map((tool) => {
           const Icon = tool.icon;
           return (
             <div key={tool.name} className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden hover:shadow-2xl transition-all duration-300">
-              {/* Tool Header */}
               <div className={`bg-gradient-to-r ${tool.color} p-6 text-white`}>
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center">
@@ -338,10 +301,7 @@ const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void; onOpenFoundat
                   </div>
                 </div>
               </div>
-
-              {/* Tool Content */}
               <div className="p-6">
-                {/* Features */}
                 <div className="mb-6">
                   <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Key Features</h4>
                   <ul className="space-y-2">
@@ -353,16 +313,12 @@ const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void; onOpenFoundat
                     ))}
                   </ul>
                 </div>
-
-                {/* Best For */}
                 <div className="bg-slate-50 rounded-xl p-4 mb-6">
                   <p className="text-sm">
                     <span className="font-bold text-slate-700">Best for: </span>
                     <span className="text-slate-600">{tool.bestFor}</span>
                   </p>
                 </div>
-
-                {/* CTA Button */}
                 <button
                   onClick={() => handleToolClick(tool)}
                   className={`flex items-center justify-center gap-2 w-full py-4 bg-gradient-to-r ${tool.color} text-white rounded-xl font-bold hover:opacity-90 transition-all ${tool.shadowColor} shadow-lg`}
@@ -376,7 +332,6 @@ const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void; onOpenFoundat
         })}
       </div>
 
-      {/* Tips Section - UPDATED */}
       <div className="mt-10 bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-8 border border-amber-200">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center shrink-0">
@@ -409,10 +364,6 @@ const FundingResearchLanding: React.FC<{ onOpenIRS990: () => void; onOpenFoundat
   );
 };
 
-// ============================================
-// Document Library Component with AI Chat
-// UPDATED: Now filters out financial documents
-// ============================================
 const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Document[]; isLoading: boolean; restrictedCount: number }> = ({ onLoadDocuments, documents, isLoading, restrictedCount }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Document[]>([]);
@@ -422,7 +373,6 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
   ]);
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filterType, setFilterType] = useState<string>('all');
 
   const searchDocuments = async (query: string) => {
@@ -435,7 +385,6 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
       const res = await fetch(`${API_BASE_URL}/api/documents/search/${encodeURIComponent(query)}`);
       const data = await res.json();
       if (data.success) {
-        // Filter out restricted documents from search results
         const filteredResults = (data.data || []).filter((doc: Document) => !isRestrictedDocument(doc.name));
         setSearchResults(filteredResults);
       }
@@ -465,7 +414,6 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
       const data = await res.json();
 
       if (data.success && data.data && data.data.length > 0) {
-        // Filter out restricted documents from AI search results
         const filteredDocs = data.data.filter((doc: Document) => !isRestrictedDocument(doc.name));
         const docs = filteredDocs.slice(0, 15);
         
@@ -477,7 +425,6 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
           }]);
           setSearchResults(filteredDocs);
         } else {
-          // All results were financial documents
           setChatMessages(prev => [...prev, {
             role: 'assistant',
             content: `I found documents matching "${searchTerms || userMessage}", but they are financial documents which are restricted from this portal. Please access financial records through the Finance Dashboard.`
@@ -486,7 +433,7 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
       } else {
         setChatMessages(prev => [...prev, {
           role: 'assistant',
-          content: `I couldn't find any documents matching "${searchTerms || userMessage}". Try:\n• Different keywords\n• Shorter search terms\n• Check spelling\n• Search for file types (e.g., "budget spreadsheet")`
+          content: `I couldn't find any documents matching "${searchTerms || userMessage}". Try:\n• Different keywords\n• Shorter search terms\n• Check spelling`
         }]);
       }
     } catch (err) {
@@ -530,7 +477,6 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      {/* Loading Banner - Shows when documents are being fetched */}
       {isLoading && (
         <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6">
           <div className="flex items-center gap-4">
@@ -539,18 +485,12 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
             </div>
             <div>
               <h3 className="text-lg font-bold text-blue-800">Loading Your Documents</h3>
-              <p className="text-blue-600 text-sm">
-                Connecting to Google Drive and retrieving your files. This may take a moment...
-              </p>
+              <p className="text-blue-600 text-sm">Connecting to Google Drive and retrieving your files...</p>
             </div>
-          </div>
-          <div className="mt-4 w-full bg-blue-100 rounded-full h-2 overflow-hidden">
-            <div className="h-full bg-blue-500 rounded-full animate-pulse" style={{ width: '60%' }}></div>
           </div>
         </div>
       )}
 
-      {/* Restricted Documents Notice */}
       {restrictedCount > 0 && !isLoading && (
         <div className="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-4">
           <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -559,8 +499,7 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
           <div className="flex-1">
             <h3 className="font-bold text-amber-800">Financial Documents Restricted</h3>
             <p className="text-amber-700 text-sm">
-              {restrictedCount} financial document{restrictedCount !== 1 ? 's are' : ' is'} not accessible from this portal. 
-              Access financial records through the Finance Dashboard.
+              {restrictedCount} financial document{restrictedCount !== 1 ? 's are' : ' is'} not accessible from this portal.
             </p>
           </div>
           <Lock className="text-amber-400" size={20} />
@@ -568,7 +507,6 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* AI Chat Panel */}
         <div className="lg:col-span-1">
           <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl shadow-xl overflow-hidden h-[600px] flex flex-col">
             <div className="p-4 border-b border-white/10">
@@ -579,15 +517,10 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
               <p className="text-indigo-200 text-xs mt-1">Ask me to find any document</p>
             </div>
             
-            {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {chatMessages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] rounded-2xl p-3 ${
-                    msg.role === 'user' 
-                      ? 'bg-white text-slate-800' 
-                      : 'bg-white/10 text-white'
-                  }`}>
+                  <div className={`max-w-[85%] rounded-2xl p-3 ${msg.role === 'user' ? 'bg-white text-slate-800' : 'bg-white/10 text-white'}`}>
                     <p className="text-sm">{msg.content}</p>
                     {msg.documents && msg.documents.length > 0 && (
                       <div className="mt-3 space-y-2">
@@ -622,7 +555,6 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
               )}
             </div>
 
-            {/* Chat Input */}
             <form onSubmit={handleChatSubmit} className="p-4 border-t border-white/10">
               <div className="flex gap-2">
                 <input
@@ -644,9 +576,7 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
           </div>
         </div>
 
-        {/* Document Browser */}
         <div className="lg:col-span-2">
-          {/* Search & Filters */}
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-4">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
@@ -654,10 +584,7 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    searchDocuments(e.target.value);
-                  }}
+                  onChange={(e) => { setSearchQuery(e.target.value); searchDocuments(e.target.value); }}
                   placeholder="Search all documents..."
                   className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -685,22 +612,17 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
             </div>
           </div>
 
-          {/* Results Count */}
           <p className="text-slate-500 mb-4 font-medium">
             {isSearching ? 'Searching...' : isLoading ? 'Loading documents...' : `${filteredDocs.length} documents`}
             {searchQuery && ` matching "${searchQuery}"`}
           </p>
 
-          {/* Documents Grid */}
           {isLoading && documents.length === 0 ? (
             <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Loader2 className="text-blue-600 animate-spin" size={32} />
               </div>
               <p className="text-slate-700 font-medium text-lg">Loading your files...</p>
-              <p className="text-slate-400 text-sm mt-2">
-                Fetching documents from Google Drive. This will only take a moment.
-              </p>
             </div>
           ) : filteredDocs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto">
@@ -717,16 +639,10 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
                       {getFileIcon(doc.type, doc.isFolder)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-slate-800 truncate group-hover:text-blue-600 transition-all">
-                        {doc.name}
-                      </p>
+                      <p className="font-medium text-slate-800 truncate group-hover:text-blue-600 transition-all">{doc.name}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full">
-                          {getFileTypeName(doc.type)}
-                        </span>
-                        <span className="text-xs text-slate-400">
-                          {doc.modified ? new Date(doc.modified).toLocaleDateString() : ''}
-                        </span>
+                        <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full">{getFileTypeName(doc.type)}</span>
+                        <span className="text-xs text-slate-400">{doc.modified ? new Date(doc.modified).toLocaleDateString() : ''}</span>
                       </div>
                     </div>
                     <ExternalLink className="text-slate-300 group-hover:text-blue-500 shrink-0" size={16} />
@@ -737,12 +653,7 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
           ) : (
             <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
               <FolderOpen className="mx-auto text-slate-300 mb-4" size={48} />
-              <p className="text-slate-500 font-medium">
-                {searchQuery ? 'No documents match your search' : 'No documents found'}
-              </p>
-              <p className="text-slate-400 text-sm mt-2">
-                {searchQuery ? 'Try different keywords' : 'Click Refresh to load documents from Google Drive'}
-              </p>
+              <p className="text-slate-500 font-medium">{searchQuery ? 'No documents match your search' : 'No documents found'}</p>
             </div>
           )}
         </div>
@@ -766,7 +677,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
   const [showIRS990Research, setShowIRS990Research] = useState(false);
   const [showFoundationHub, setShowFoundationHub] = useState(false);
 
-  // Add Grant Modal State
   const [showAddModal, setShowAddModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -786,9 +696,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
     submissionyear: new Date().getFullYear().toString()
   });
 
-  // ============================================
-  // ACTION ITEMS CRUD STATE - NEW
-  // ============================================
   const [actionItems, setActionItems] = useState<ActionItem[]>([]);
   const [showActionModal, setShowActionModal] = useState(false);
   const [editingAction, setEditingAction] = useState<ActionItem | null>(null);
@@ -803,9 +710,8 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
   const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
-    // If opening directly to documents tab, load documents immediately
     if (initialTab === 'documents') {
-      setIsLoading(false); // Don't show grant loading for documents
+      setIsLoading(false);
       loadDocuments();
     } else {
       loadGrantData();
@@ -824,9 +730,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
       const grantsData = await grantsRes.json();
       const statsData = await statsRes.json();
       const actionsData = await actionsRes.json();
-      console.log('Grants:', grantsData);
-      console.log('Stats:', statsData);
-      console.log('Action Items:', actionsData);
       if (grantsData.success) setGrants(grantsData.data || []);
       if (statsData.success) setStats(statsData.data);
       if (actionsData.success) setActionItems(actionsData.data || []);
@@ -844,16 +747,10 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
       const data = await res.json();
       if (data.success) {
         const allDocs = data.data || [];
-        
-        // Count restricted documents before filtering
         const restricted = allDocs.filter((doc: Document) => isRestrictedDocument(doc.name));
         setRestrictedCount(restricted.length);
-        
-        // Filter out restricted financial documents
         const accessibleDocs = allDocs.filter((doc: Document) => !isRestrictedDocument(doc.name));
-        
         setDocuments(accessibleDocs);
-        console.log(`Loaded ${accessibleDocs.length} documents (${restricted.length} financial docs restricted)`);
       }
     } catch (err) {
       console.error('Error loading documents:', err);
@@ -862,9 +759,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
     }
   };
 
-  // ============================================
-  // ACTION ITEMS CRUD FUNCTIONS - NEW
-  // ============================================
   const loadActionItems = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/grants/action-items`);
@@ -963,9 +857,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
     try {
       const response = await fetch(`${API_BASE_URL}/api/grants`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newGrant),
       });
 
@@ -999,7 +891,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
       }, 1500);
 
     } catch (err: any) {
-      console.error('Error adding grant:', err);
       setSubmitError(err.message || 'Failed to add grant');
     } finally {
       setIsSubmitting(false);
@@ -1021,7 +912,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
     return 'bg-slate-100 text-slate-700 border-slate-200';
   };
 
-  // Computed values
   const approvedGrants = useMemo(() => grants.filter(g => 
     g.grantstatus?.toLowerCase().includes('approved') || g.grantstatus?.toLowerCase().includes('awarded')
   ), [grants]);
@@ -1052,17 +942,11 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
     if (!stats || grants.length === 0) return null;
     
     const successRate = stats.totalRequested > 0 ? Math.round((stats.totalApproved / stats.totalRequested) * 100) : 0;
-    const avgRequestAmount = grants.length > 0 
-      ? grants.reduce((sum, g) => sum + (parseFloat(g.amountrequested?.toString().replace(/[$,]/g, '') || '0') || 0), 0) / grants.length 
-      : 0;
-    
     const topFunder = Object.entries(stats.funderTypes || {}).sort((a, b) => b[1] - a[1])[0];
     
     return {
       successRate,
-      avgRequestAmount,
       topFunder: topFunder ? topFunder[0] : 'N/A',
-      pendingValue: pendingGrants.reduce((sum, g) => sum + (parseFloat(g.amountrequested?.toString().replace(/[$,]/g, '') || '0') || 0), 0),
       insights: [
         successRate > 15 ? `Strong ${successRate}% success rate - above nonprofit average` : `${successRate}% success rate - room for improvement`,
         topFunder ? `${topFunder[0]} is your top funding source with ${topFunder[1]} grants` : '',
@@ -1089,31 +973,14 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
   };
 
   const filteredGrants = getFilteredGrants();
-
   const pieColors = ['#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4'];
-  const funderColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
-
-  // Dynamic header based on tab
-  const getHeaderTitle = () => {
-    if (mainTab === 'documents') return 'Document Library';
-    return 'Grant Management Center';
-  };
-
-  const getHeaderSubtitle = () => {
-    if (mainTab === 'documents') return 'AI-Powered Document Search & Access';
-    return 'Real-time Grant Analytics & Funding Research';
-  };
 
   if (isLoading && mainTab !== 'documents') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="relative">
-            <RefreshCw className="animate-spin mx-auto text-blue-600 mb-4" size={48} />
-            <div className="absolute inset-0 blur-xl bg-blue-400/30 rounded-full"></div>
-          </div>
-          <p className="text-slate-600 text-lg font-medium">Loading {mainTab === 'documents' ? 'Document Library' : 'Grant Management'}...</p>
-          <p className="text-slate-400 text-sm">Connecting to live data</p>
+          <RefreshCw className="animate-spin mx-auto text-blue-600 mb-4" size={48} />
+          <p className="text-slate-600 text-lg font-medium">Loading Grant Management...</p>
         </div>
       </div>
     );
@@ -1126,8 +993,8 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
           <XCircle className="mx-auto text-red-500 mb-4" size={48} />
           <h2 className="text-xl font-bold text-slate-800 mb-2">Connection Failed</h2>
           <p className="text-slate-600 mb-6">{error}</p>
-          <button onClick={loadGrantData} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium flex items-center gap-2 mx-auto transition-all">
-            <RefreshCw size={18} /> Retry Connection
+          <button onClick={loadGrantData} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium">
+            <RefreshCw size={18} className="inline mr-2" /> Retry
           </button>
         </div>
       </div>
@@ -1136,7 +1003,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header */}
       <div className={`${mainTab === 'documents' ? 'bg-gradient-to-r from-blue-700 via-blue-800 to-blue-900' : 'bg-gradient-to-r from-slate-800 via-slate-800 to-slate-900'} text-white p-6 shadow-xl`}>
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -1146,14 +1012,10 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
               </button>
               <div>
                 <h1 className="text-2xl font-bold flex items-center gap-2">
-                  {mainTab === 'documents' ? (
-                    <FolderOpen className="text-blue-300" size={24} />
-                  ) : (
-                    <Zap className="text-amber-400" size={24} />
-                  )}
-                  {getHeaderTitle()}
+                  {mainTab === 'documents' ? <FolderOpen className="text-blue-300" size={24} /> : <Zap className="text-amber-400" size={24} />}
+                  {mainTab === 'documents' ? 'Document Library' : 'Grant Management Center'}
                 </h1>
-                <p className="text-slate-400">{getHeaderSubtitle()}</p>
+                <p className="text-slate-400">{mainTab === 'documents' ? 'AI-Powered Document Search & Access' : 'Real-time Grant Analytics & Funding Research'}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -1161,10 +1023,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                 <Activity size={14} /> Live
               </div>
               {mainTab === 'grants' && (
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl transition-all font-medium"
-                >
+                <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl transition-all font-medium">
                   <Plus size={18} /> Add Grant
                 </button>
               )}
@@ -1174,26 +1033,17 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
             </div>
           </div>
 
-          {/* Main Tabs - Only show when NOT in documents mode */}
           {mainTab !== 'documents' && (
             <div className="flex gap-3">
               <button
                 onClick={() => setMainTab('grants')}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
-                  mainTab === 'grants' 
-                    ? 'bg-white text-slate-800 shadow-lg' 
-                    : 'bg-white/10 text-white hover:bg-white/20'
-                }`}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${mainTab === 'grants' ? 'bg-white text-slate-800 shadow-lg' : 'bg-white/10 text-white hover:bg-white/20'}`}
               >
                 <DollarSign size={20} /> Grant Management
               </button>
               <button
                 onClick={() => setMainTab('funding-research')}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
-                  mainTab === 'funding-research' 
-                    ? 'bg-white text-slate-800 shadow-lg' 
-                    : 'bg-white/10 text-white hover:bg-white/20'
-                }`}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${mainTab === 'funding-research' ? 'bg-white text-slate-800 shadow-lg' : 'bg-white/10 text-white hover:bg-white/20'}`}
               >
                 <Compass size={20} /> Funding Research
               </button>
@@ -1202,10 +1052,8 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
         </div>
       </div>
 
-      {/* GRANT MANAGEMENT */}
       {mainTab === 'grants' && (
         <div className="max-w-7xl mx-auto p-6">
-          {/* Grant Sub-Tabs */}
           <div className="flex gap-2 mb-6 flex-wrap">
             {[
               { id: 'dashboard', label: 'Dashboard', icon: BarChart3, count: null, color: 'blue' },
@@ -1220,31 +1068,21 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                 <button
                   key={tab.id}
                   onClick={() => setGrantTab(tab.id as GrantTab)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all shadow-sm ${
-                    isActive
-                      ? `bg-${tab.color}-600 text-white shadow-lg shadow-${tab.color}-200`
-                      : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-300 hover:shadow-md'
-                  }`}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all shadow-sm ${isActive ? 'text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-300'}`}
                   style={isActive ? { backgroundColor: tab.color === 'emerald' ? '#10b981' : tab.color === 'amber' ? '#f59e0b' : tab.color === 'red' ? '#ef4444' : '#3b82f6' } : {}}
                 >
                   <Icon size={18} />
                   {tab.label}
-                  {tab.count !== null && (
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${isActive ? 'bg-white/20' : 'bg-slate-100'}`}>
-                      {tab.count}
-                    </span>
-                  )}
+                  {tab.count !== null && <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${isActive ? 'bg-white/20' : 'bg-slate-100'}`}>{tab.count}</span>}
                 </button>
               );
             })}
           </div>
 
-          {/* DASHBOARD VIEW */}
           {grantTab === 'dashboard' && stats && (
             <div className="space-y-6">
-              {/* Top Stats Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-lg transition-all">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-slate-500 text-sm font-medium">Total Grants</p>
@@ -1257,14 +1095,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-lg transition-all">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-slate-500 text-sm font-medium">Total Requested</p>
                       <p className="text-3xl font-bold text-slate-800 mt-1">{formatCurrency(stats.totalRequested)}</p>
-                      <p className="text-xs text-blue-500 mt-1 flex items-center gap-1">
-                        <ArrowUpRight size={12} /> Lifetime value
-                      </p>
+                      <p className="text-xs text-blue-500 mt-1 flex items-center gap-1"><ArrowUpRight size={12} /> Lifetime value</p>
                     </div>
                     <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-200">
                       <DollarSign className="text-white" size={24} />
@@ -1272,14 +1108,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-lg transition-all">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-slate-500 text-sm font-medium">Total Approved</p>
                       <p className="text-3xl font-bold text-emerald-600 mt-1">{formatCurrency(stats.totalApproved)}</p>
-                      <p className="text-xs text-emerald-500 mt-1 flex items-center gap-1">
-                        <CheckCircle2 size={12} /> Secured funding
-                      </p>
+                      <p className="text-xs text-emerald-500 mt-1 flex items-center gap-1"><CheckCircle2 size={12} /> Secured funding</p>
                     </div>
                     <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-200">
                       <CheckCircle2 className="text-white" size={24} />
@@ -1287,7 +1121,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-lg transition-all">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-slate-500 text-sm font-medium">Success Rate</p>
@@ -1299,31 +1133,26 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                 </div>
               </div>
 
-              {/* Charts Row */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                   <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <PieChart size={20} className="text-blue-600" />
-                    Grant Status Distribution
+                    <PieChart size={20} className="text-blue-600" /> Grant Status Distribution
                   </h3>
                   <PieChartVisual data={stats.statusCounts || {}} colors={pieColors} />
                 </div>
 
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                   <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <Building2 size={20} className="text-blue-600" />
-                    Grants by Funder Type
+                    <Building2 size={20} className="text-blue-600" /> Grants by Funder Type
                   </h3>
                   <BarChartVisual data={stats.funderTypes || {}} color="#3b82f6" />
                 </div>
               </div>
 
-              {/* AI Insights & Action Items */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-xl">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                    <Lightbulb size={20} className="text-amber-300" />
-                    AI Grant Analysis
+                    <Lightbulb size={20} className="text-amber-300" /> AI Grant Analysis
                   </h3>
                   <div className="space-y-3">
                     {analysis?.insights.map((insight, i) => (
@@ -1336,28 +1165,20 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                     ))}
                   </div>
                   <div className="mt-4 pt-4 border-t border-white/20">
-                    <p className="text-xs text-blue-200">
-                      💡 Recommendation: Focus on {analysis?.topFunder} opportunities for higher success rates
-                    </p>
+                    <p className="text-xs text-blue-200">💡 Recommendation: Focus on {analysis?.topFunder} opportunities for higher success rates</p>
                   </div>
                 </div>
 
-                {/* ACTION ITEMS WITH CRUD - UPDATED */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                       <AlertTriangle size={20} className="text-amber-500" />
                       Action Items
                       {actionItems.length > 0 && (
-                        <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">
-                          {actionItems.length}
-                        </span>
+                        <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">{actionItems.length}</span>
                       )}
                     </h3>
-                    <button
-                      onClick={openAddAction}
-                      className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-all"
-                    >
+                    <button onClick={openAddAction} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-all">
                       <Plus size={16} /> Add
                     </button>
                   </div>
@@ -1396,28 +1217,15 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                                 item.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
                                 'bg-slate-100 text-slate-600'
                               }`}>{item.status}</span>
-                              {/* Action buttons - only for manual items that aren't completed */}
                               {item.source !== 'auto-deadline' && item.status !== 'Completed' && (
                                 <div className="flex items-center gap-1">
-                                  <button
-                                    onClick={() => handleMarkComplete(item)}
-                                    className="p-1 hover:bg-emerald-100 rounded text-emerald-600"
-                                    title="Mark Complete"
-                                  >
+                                  <button onClick={() => handleMarkComplete(item)} className="p-1 hover:bg-emerald-100 rounded text-emerald-600" title="Mark Complete">
                                     <CheckCircle2 size={16} />
                                   </button>
-                                  <button
-                                    onClick={() => openEditAction(item)}
-                                    className="p-1 hover:bg-blue-100 rounded text-blue-600"
-                                    title="Edit"
-                                  >
+                                  <button onClick={() => openEditAction(item)} className="p-1 hover:bg-blue-100 rounded text-blue-600" title="Edit">
                                     <Edit2 size={16} />
                                   </button>
-                                  <button
-                                    onClick={() => handleDeleteAction(item.id)}
-                                    className="p-1 hover:bg-red-100 rounded text-red-600"
-                                    title="Delete"
-                                  >
+                                  <button onClick={() => handleDeleteAction(item.id)} className="p-1 hover:bg-red-100 rounded text-red-600" title="Delete">
                                     <Trash2 size={16} />
                                   </button>
                                 </div>
@@ -1433,15 +1241,11 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                 </div>
               </div>
 
-              {/* Grants Needing Reporting Attention */}
               {grantsNeedingAttention.length > 0 && (
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                   <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <Bell size={20} className="text-orange-500" />
-                    Approved Grants - Reporting & Compliance
-                    <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full text-xs font-bold">
-                      {grantsNeedingAttention.length}
-                    </span>
+                    <Bell size={20} className="text-orange-500" /> Approved Grants - Reporting & Compliance
+                    <span className="bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full text-xs font-bold">{grantsNeedingAttention.length}</span>
                   </h3>
                   <div className="overflow-x-auto">
                     <table className="w-full">
@@ -1456,16 +1260,10 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                       <tbody>
                         {grantsNeedingAttention.slice(0, 10).map((grant) => (
                           <tr key={grant.id} className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer" onClick={() => setSelectedGrant(grant)}>
-                            <td className="py-3 px-4">
-                              <p className="font-medium text-slate-800 truncate max-w-xs">{grant.grantname}</p>
-                            </td>
+                            <td className="py-3 px-4"><p className="font-medium text-slate-800 truncate max-w-xs">{grant.grantname}</p></td>
                             <td className="py-3 px-4 text-sm text-slate-600">{grant.grantsource}</td>
                             <td className="py-3 px-4 text-right font-bold text-emerald-600">{formatCurrency(grant.amountapproved)}</td>
-                            <td className="py-3 px-4">
-                              <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
-                                {grant.grantstatus}
-                              </span>
-                            </td>
+                            <td className="py-3 px-4"><span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">{grant.grantstatus}</span></td>
                           </tr>
                         ))}
                       </tbody>
@@ -1474,12 +1272,10 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                 </div>
               )}
 
-              {/* Grants by Year */}
               {stats.byYear && Object.keys(stats.byYear).length > 0 && (
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                   <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <Calendar size={20} className="text-blue-600" />
-                    Grants by Submission Year
+                    <Calendar size={20} className="text-blue-600" /> Grants by Submission Year
                   </h3>
                   <BarChartVisual data={stats.byYear} color="#10b981" />
                 </div>
@@ -1487,7 +1283,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
             </div>
           )}
 
-          {/* GRANTS LIST VIEW */}
           {grantTab !== 'dashboard' && (
             <div className="space-y-4">
               <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
@@ -1514,9 +1309,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <h3 className="font-bold text-slate-800 truncate">{grant.grantname || 'Unnamed'}</h3>
-                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium border shrink-0 ${getStatusColor(grant.grantstatus)}`}>
-                                {grant.grantstatus || 'Unknown'}
-                              </span>
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium border shrink-0 ${getStatusColor(grant.grantstatus)}`}>{grant.grantstatus || 'Unknown'}</span>
                             </div>
                             <p className="text-sm text-slate-600">{grant.grantsource}</p>
                           </div>
@@ -1543,32 +1336,19 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
         </div>
       )}
 
-      {/* FUNDING RESEARCH - UPDATED */}
       {mainTab === 'funding-research' && (
-        <FundingResearchLanding 
-          onOpenIRS990={() => setShowIRS990Research(true)} 
-          onOpenFoundationHub={() => setShowFoundationHub(true)}
-        />
+        <FundingResearchLanding onOpenIRS990={() => setShowIRS990Research(true)} onOpenFoundationHub={() => setShowFoundationHub(true)} />
       )}
 
-      {/* DOCUMENT LIBRARY */}
       {mainTab === 'documents' && (
-        <DocumentLibrary 
-          onLoadDocuments={loadDocuments} 
-          documents={documents} 
-          isLoading={isDocumentsLoading}
-          restrictedCount={restrictedCount}
-        />
+        <DocumentLibrary onLoadDocuments={loadDocuments} documents={documents} isLoading={isDocumentsLoading} restrictedCount={restrictedCount} />
       )}
 
-      {/* Grant Detail Modal */}
       {selectedGrant && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setSelectedGrant(null)}>
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 rounded-t-2xl text-white relative">
-              <button onClick={() => setSelectedGrant(null)} className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full">
-                <X size={20} />
-              </button>
+              <button onClick={() => setSelectedGrant(null)} className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full"><X size={20} /></button>
               <h2 className="text-xl font-bold pr-10">{selectedGrant.grantname}</h2>
               <p className="text-blue-100">{selectedGrant.grantsource}</p>
             </div>
@@ -1595,25 +1375,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
         </div>
       )}
 
-      {/* Add Grant Modal - FULL VERSION */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => !isSubmitting && setShowAddModal(false)}>
-          <div 
-            className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-6 rounded-t-2xl text-white relative">
-              <button 
-                onClick={() => !isSubmitting && setShowAddModal(false)}
-                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full"
-                disabled={isSubmitting}
-              >
-                <X size={20} />
-              </button>
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <Plus size={24} />
-                Add New Grant
-              </h2>
+              <button onClick={() => !isSubmitting && setShowAddModal(false)} className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full" disabled={isSubmitting}><X size={20} /></button>
+              <h2 className="text-xl font-bold flex items-center gap-2"><Plus size={24} /> Add New Grant</h2>
               <p className="text-emerald-100">Enter the grant details below</p>
             </div>
             
@@ -1621,148 +1388,70 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
               {submitSuccess && (
                 <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
                   <CheckCircle2 className="text-emerald-600" size={24} />
-                  <div>
-                    <p className="font-medium text-emerald-800">Grant Added Successfully!</p>
-                    <p className="text-sm text-emerald-600">Refreshing data...</p>
-                  </div>
+                  <div><p className="font-medium text-emerald-800">Grant Added Successfully!</p><p className="text-sm text-emerald-600">Refreshing data...</p></div>
                 </div>
               )}
 
               {submitError && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
                   <XCircle className="text-red-600" size={24} />
-                  <div>
-                    <p className="font-medium text-red-800">Error Adding Grant</p>
-                    <p className="text-sm text-red-600">{submitError}</p>
-                  </div>
+                  <div><p className="font-medium text-red-800">Error Adding Grant</p><p className="text-sm text-red-600">{submitError}</p></div>
                 </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Grant Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={newGrant.grantname}
-                    onChange={(e) => setNewGrant({...newGrant, grantname: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
-                    placeholder="e.g., Youth Development Grant"
-                    disabled={isSubmitting}
-                  />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Grant Name <span className="text-red-500">*</span></label>
+                  <input type="text" required value={newGrant.grantname} onChange={(e) => setNewGrant({...newGrant, grantname: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800" placeholder="e.g., Youth Development Grant" disabled={isSubmitting} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Grant Source / Funder <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={newGrant.grantsource}
-                    onChange={(e) => setNewGrant({...newGrant, grantsource: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
-                    placeholder="e.g., LA Children's Trust Fund"
-                    disabled={isSubmitting}
-                  />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Grant Source / Funder <span className="text-red-500">*</span></label>
+                  <input type="text" required value={newGrant.grantsource} onChange={(e) => setNewGrant({...newGrant, grantsource: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800" placeholder="e.g., LA Children's Trust Fund" disabled={isSubmitting} />
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Purpose</label>
-                <textarea
-                  value={newGrant.purpose}
-                  onChange={(e) => setNewGrant({...newGrant, purpose: e.target.value})}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
-                  rows={2}
-                  placeholder="Brief description of grant purpose..."
-                  disabled={isSubmitting}
-                />
+                <textarea value={newGrant.purpose} onChange={(e) => setNewGrant({...newGrant, purpose: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800" rows={2} placeholder="Brief description of grant purpose..." disabled={isSubmitting} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Contact Person</label>
-                  <input
-                    type="text"
-                    value={newGrant.contactperson}
-                    onChange={(e) => setNewGrant({...newGrant, contactperson: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
-                    placeholder="Contact name"
-                    disabled={isSubmitting}
-                  />
+                  <input type="text" value={newGrant.contactperson} onChange={(e) => setNewGrant({...newGrant, contactperson: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800" placeholder="Contact name" disabled={isSubmitting} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Contact Email</label>
-                  <input
-                    type="email"
-                    value={newGrant.contactemail}
-                    onChange={(e) => setNewGrant({...newGrant, contactemail: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
-                    placeholder="contact@example.com"
-                    disabled={isSubmitting}
-                  />
+                  <input type="email" value={newGrant.contactemail} onChange={(e) => setNewGrant({...newGrant, contactemail: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800" placeholder="contact@example.com" disabled={isSubmitting} />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Application Deadline</label>
-                  <input
-                    type="date"
-                    value={newGrant.applicationdeadline}
-                    onChange={(e) => setNewGrant({...newGrant, applicationdeadline: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
-                    disabled={isSubmitting}
-                  />
+                  <input type="date" value={newGrant.applicationdeadline} onChange={(e) => setNewGrant({...newGrant, applicationdeadline: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800" disabled={isSubmitting} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Submission Date</label>
-                  <input
-                    type="date"
-                    value={newGrant.submissiondate}
-                    onChange={(e) => setNewGrant({...newGrant, submissiondate: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
-                    disabled={isSubmitting}
-                  />
+                  <input type="date" value={newGrant.submissiondate} onChange={(e) => setNewGrant({...newGrant, submissiondate: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800" disabled={isSubmitting} />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Amount Requested</label>
-                  <input
-                    type="text"
-                    value={newGrant.amountrequested}
-                    onChange={(e) => setNewGrant({...newGrant, amountrequested: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
-                    placeholder="e.g., 50000 or $50,000"
-                    disabled={isSubmitting}
-                  />
+                  <input type="text" value={newGrant.amountrequested} onChange={(e) => setNewGrant({...newGrant, amountrequested: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800" placeholder="e.g., 50000 or $50,000" disabled={isSubmitting} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Amount Approved</label>
-                  <input
-                    type="text"
-                    value={newGrant.amountapproved}
-                    onChange={(e) => setNewGrant({...newGrant, amountapproved: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
-                    placeholder="Leave empty if pending"
-                    disabled={isSubmitting}
-                  />
+                  <input type="text" value={newGrant.amountapproved} onChange={(e) => setNewGrant({...newGrant, amountapproved: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800" placeholder="Leave empty if pending" disabled={isSubmitting} />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                  <select
-                    value={newGrant.grantstatus}
-                    onChange={(e) => setNewGrant({...newGrant, grantstatus: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
-                    disabled={isSubmitting}
-                  >
+                  <select value={newGrant.grantstatus} onChange={(e) => setNewGrant({...newGrant, grantstatus: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800" disabled={isSubmitting}>
                     <option value="To Submit">To Submit</option>
                     <option value="Submitted">Submitted</option>
                     <option value="Pending">Pending</option>
@@ -1774,12 +1463,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Funder Type</label>
-                  <select
-                    value={newGrant.fundertype}
-                    onChange={(e) => setNewGrant({...newGrant, fundertype: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
-                    disabled={isSubmitting}
-                  >
+                  <select value={newGrant.fundertype} onChange={(e) => setNewGrant({...newGrant, fundertype: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800" disabled={isSubmitting}>
                     <option value="">Select Type...</option>
                     <option value="Federal">Federal</option>
                     <option value="State">State</option>
@@ -1795,42 +1479,14 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Submission Year</label>
-                  <input
-                    type="text"
-                    value={newGrant.submissionyear}
-                    onChange={(e) => setNewGrant({...newGrant, submissionyear: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800"
-                    placeholder="e.g., 2026"
-                    disabled={isSubmitting}
-                  />
+                  <input type="text" value={newGrant.submissionyear} onChange={(e) => setNewGrant({...newGrant, submissionyear: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-800" placeholder="e.g., 2026" disabled={isSubmitting} />
                 </div>
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-6 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium"
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting || submitSuccess}
-                  className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white rounded-lg font-medium flex items-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <RefreshCw className="animate-spin" size={18} />
-                      Adding...
-                    </>
-                  ) : (
-                    <>
-                      <Plus size={18} />
-                      Add Grant
-                    </>
-                  )}
+                <button type="button" onClick={() => setShowAddModal(false)} className="px-6 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium" disabled={isSubmitting}>Cancel</button>
+                <button type="submit" disabled={isSubmitting || submitSuccess} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white rounded-lg font-medium flex items-center gap-2">
+                  {isSubmitting ? (<><RefreshCw className="animate-spin" size={18} /> Adding...</>) : (<><Plus size={18} /> Add Grant</>)}
                 </button>
               </div>
             </form>
@@ -1838,21 +1494,11 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
         </div>
       )}
 
-      {/* Action Item Modal - NEW */}
       {showActionModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => !actionSubmitting && setShowActionModal(false)}>
-          <div 
-            className="bg-white rounded-2xl max-w-lg w-full shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-6 rounded-t-2xl text-white relative">
-              <button 
-                onClick={() => !actionSubmitting && setShowActionModal(false)}
-                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full"
-                disabled={actionSubmitting}
-              >
-                <X size={20} />
-              </button>
+              <button onClick={() => !actionSubmitting && setShowActionModal(false)} className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full" disabled={actionSubmitting}><X size={20} /></button>
               <h2 className="text-xl font-bold flex items-center gap-2">
                 {editingAction ? <Edit2 size={24} /> : <Plus size={24} />}
                 {editingAction ? 'Edit Action Item' : 'Add Action Item'}
@@ -1869,29 +1515,14 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
               )}
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Action Description <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  required
-                  value={actionForm.action}
-                  onChange={(e) => setActionForm({...actionForm, action: e.target.value})}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
-                  rows={3}
-                  placeholder="What needs to be done?"
-                  disabled={actionSubmitting}
-                />
+                <label className="block text-sm font-medium text-slate-700 mb-1">Action Description <span className="text-red-500">*</span></label>
+                <textarea required value={actionForm.action} onChange={(e) => setActionForm({...actionForm, action: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800" rows={3} placeholder="What needs to be done?" disabled={actionSubmitting} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Priority</label>
-                  <select
-                    value={actionForm.priority}
-                    onChange={(e) => setActionForm({...actionForm, priority: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
-                    disabled={actionSubmitting}
-                  >
+                  <select value={actionForm.priority} onChange={(e) => setActionForm({...actionForm, priority: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800" disabled={actionSubmitting}>
                     <option value="HIGH">HIGH</option>
                     <option value="MEDIUM">MEDIUM</option>
                     <option value="LOW">LOW</option>
@@ -1899,12 +1530,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                  <select
-                    value={actionForm.status}
-                    onChange={(e) => setActionForm({...actionForm, status: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
-                    disabled={actionSubmitting}
-                  >
+                  <select value={actionForm.status} onChange={(e) => setActionForm({...actionForm, status: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800" disabled={actionSubmitting}>
                     <option value="Pending">Pending</option>
                     <option value="In Progress">In Progress</option>
                     <option value="Urgent">Urgent</option>
@@ -1916,52 +1542,18 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Deadline</label>
-                  <input
-                    type="date"
-                    value={actionForm.deadline}
-                    onChange={(e) => setActionForm({...actionForm, deadline: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
-                    disabled={actionSubmitting}
-                  />
+                  <input type="date" value={actionForm.deadline} onChange={(e) => setActionForm({...actionForm, deadline: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800" disabled={actionSubmitting} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Related Grant</label>
-                  <input
-                    type="text"
-                    value={actionForm.grantName}
-                    onChange={(e) => setActionForm({...actionForm, grantName: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
-                    placeholder="Optional"
-                    disabled={actionSubmitting}
-                  />
+                  <input type="text" value={actionForm.grantName} onChange={(e) => setActionForm({...actionForm, grantName: e.target.value})} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800" placeholder="Optional" disabled={actionSubmitting} />
                 </div>
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
-                <button
-                  type="button"
-                  onClick={() => setShowActionModal(false)}
-                  className="px-6 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium"
-                  disabled={actionSubmitting}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={actionSubmitting}
-                  className="px-6 py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white rounded-lg font-medium flex items-center gap-2"
-                >
-                  {actionSubmitting ? (
-                    <>
-                      <RefreshCw className="animate-spin" size={18} />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 size={18} />
-                      {editingAction ? 'Update' : 'Create'}
-                    </>
-                  )}
+                <button type="button" onClick={() => setShowActionModal(false)} className="px-6 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium" disabled={actionSubmitting}>Cancel</button>
+                <button type="submit" disabled={actionSubmitting} className="px-6 py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white rounded-lg font-medium flex items-center gap-2">
+                  {actionSubmitting ? (<><RefreshCw className="animate-spin" size={18} /> Saving...</>) : (<><CheckCircle2 size={18} /> {editingAction ? 'Update' : 'Create'}</>)}
                 </button>
               </div>
             </form>
@@ -1969,14 +1561,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
         </div>
       )}
 
-      {/* IRS 990 Research Full Screen */}
       {showIRS990Research && (
         <div className="fixed inset-0 z-50 bg-white">
           <IRS990Research onBack={() => setShowIRS990Research(false)} />
         </div>
       )}
 
-      {/* Foundation Research Hub Full Screen */}
       {showFoundationHub && (
         <div className="fixed inset-0 z-50 bg-white">
           <FoundationResearchHub onBack={() => setShowFoundationHub(false)} />
