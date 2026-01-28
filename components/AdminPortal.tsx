@@ -5,7 +5,7 @@ import {
   PieChart, Building2, ChevronRight, ExternalLink, Bell,
   FolderOpen, File, BarChart3, Target, Lightbulb, ArrowUpRight,
   ArrowDownRight, Activity, Zap, Plus, Compass, Database, Users, Layers,
-  Loader2, ShieldAlert, Lock
+  Loader2, ShieldAlert, Lock, Edit2, Trash2
 } from 'lucide-react';
 import IRS990Research from './IRS990Research';
 import FoundationResearchHub from './FoundationResearchHub';
@@ -75,11 +75,15 @@ interface Grant {
 }
 
 interface ActionItem {
-  id: number;
+  id: string;
   priority: string;
   action: string;
   deadline: string;
   status: string;
+  grantName?: string;
+  source?: string;
+  createdAt?: string;
+  completedAt?: string;
 }
 
 interface Document {
@@ -120,6 +124,14 @@ interface NewGrantForm {
   grantstatus: string;
   fundertype: string;
   submissionyear: string;
+}
+
+interface ActionItemForm {
+  priority: string;
+  action: string;
+  deadline: string;
+  status: string;
+  grantName: string;
 }
 
 type MainTab = 'grants' | 'funding-research' | 'documents';
@@ -580,7 +592,7 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
                     {msg.documents && msg.documents.length > 0 && (
                       <div className="mt-3 space-y-2">
                         {msg.documents.map((doc, j) => (
-                          <a
+                          
                             key={j}
                             href={doc.url}
                             target="_blank"
@@ -693,7 +705,7 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
           ) : filteredDocs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto">
               {filteredDocs.map((doc) => (
-                <a
+                
                   key={doc.id}
                   href={doc.url}
                   target="_blank"
@@ -774,6 +786,22 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
     submissionyear: new Date().getFullYear().toString()
   });
 
+  // ============================================
+  // ACTION ITEMS CRUD STATE - NEW
+  // ============================================
+  const [actionItems, setActionItems] = useState<ActionItem[]>([]);
+  const [showActionModal, setShowActionModal] = useState(false);
+  const [editingAction, setEditingAction] = useState<ActionItem | null>(null);
+  const [actionForm, setActionForm] = useState<ActionItemForm>({
+    priority: 'MEDIUM',
+    action: '',
+    deadline: '',
+    status: 'Pending',
+    grantName: ''
+  });
+  const [actionSubmitting, setActionSubmitting] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+
   useEffect(() => {
     // If opening directly to documents tab, load documents immediately
     if (initialTab === 'documents') {
@@ -788,16 +816,20 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
     setIsLoading(true);
     setError(null);
     try {
-      const [grantsRes, statsRes] = await Promise.all([
+      const [grantsRes, statsRes, actionsRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/grants`),
-        fetch(`${API_BASE_URL}/api/grants/stats`)
+        fetch(`${API_BASE_URL}/api/grants/stats`),
+        fetch(`${API_BASE_URL}/api/grants/action-items`)
       ]);
       const grantsData = await grantsRes.json();
       const statsData = await statsRes.json();
+      const actionsData = await actionsRes.json();
       console.log('Grants:', grantsData);
       console.log('Stats:', statsData);
+      console.log('Action Items:', actionsData);
       if (grantsData.success) setGrants(grantsData.data || []);
       if (statsData.success) setStats(statsData.data);
+      if (actionsData.success) setActionItems(actionsData.data || []);
     } catch (err: any) {
       setError(err.message || 'Failed to load data');
     } finally {
@@ -828,6 +860,98 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
     } finally {
       setIsDocumentsLoading(false);
     }
+  };
+
+  // ============================================
+  // ACTION ITEMS CRUD FUNCTIONS - NEW
+  // ============================================
+  const loadActionItems = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/grants/action-items`);
+      const data = await res.json();
+      if (data.success) setActionItems(data.data || []);
+    } catch (err) {
+      console.error('Error loading action items:', err);
+    }
+  };
+
+  const handleSaveAction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setActionSubmitting(true);
+    setActionError(null);
+
+    try {
+      const url = editingAction 
+        ? `${API_BASE_URL}/api/grants/action-items/${editingAction.id}`
+        : `${API_BASE_URL}/api/grants/action-items`;
+      
+      const method = editingAction ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(actionForm)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to save action item');
+      }
+
+      setShowActionModal(false);
+      setEditingAction(null);
+      setActionForm({ priority: 'MEDIUM', action: '', deadline: '', status: 'Pending', grantName: '' });
+      loadActionItems();
+    } catch (err: any) {
+      setActionError(err.message);
+    } finally {
+      setActionSubmitting(false);
+    }
+  };
+
+  const handleDeleteAction = async (id: string) => {
+    if (!confirm('Delete this action item?')) return;
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/grants/action-items/${id}`, { method: 'DELETE' });
+      const data = await response.json();
+      if (data.success) loadActionItems();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  const handleMarkComplete = async (item: ActionItem) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/grants/action-items/${item.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Completed' })
+      });
+      const data = await response.json();
+      if (data.success) loadActionItems();
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  };
+
+  const openEditAction = (item: ActionItem) => {
+    setEditingAction(item);
+    setActionForm({
+      priority: item.priority,
+      action: item.action,
+      deadline: item.deadline || '',
+      status: item.status,
+      grantName: item.grantName || ''
+    });
+    setShowActionModal(true);
+  };
+
+  const openAddAction = () => {
+    setEditingAction(null);
+    setActionForm({ priority: 'MEDIUM', action: '', deadline: '', status: 'Pending', grantName: '' });
+    setShowActionModal(true);
   };
 
   const handleAddGrant = async (e: React.FormEvent) => {
@@ -1218,37 +1342,87 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                   </div>
                 </div>
 
+                {/* ACTION ITEMS WITH CRUD - UPDATED */}
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <AlertTriangle size={20} className="text-amber-500" />
-                    Action Items
-                    {stats.actionItems?.length > 0 && (
-                      <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">
-                        {stats.actionItems.length}
-                      </span>
-                    )}
-                  </h3>
-                  {stats.actionItems && stats.actionItems.length > 0 ? (
-                    <div className="space-y-3 max-h-64 overflow-y-auto">
-                      {stats.actionItems.map((item) => (
-                        <div key={item.id} className={`p-4 rounded-xl border-l-4 ${
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                      <AlertTriangle size={20} className="text-amber-500" />
+                      Action Items
+                      {actionItems.length > 0 && (
+                        <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                          {actionItems.length}
+                        </span>
+                      )}
+                    </h3>
+                    <button
+                      onClick={openAddAction}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-all"
+                    >
+                      <Plus size={16} /> Add
+                    </button>
+                  </div>
+                  {actionItems.length > 0 ? (
+                    <div className="space-y-3 max-h-72 overflow-y-auto">
+                      {actionItems.map((item) => (
+                        <div key={item.id} className={`p-3 rounded-xl border-l-4 ${
+                          item.status === 'Completed' ? 'bg-slate-50 border-slate-300 opacity-60' :
                           item.priority === 'HIGH' ? 'bg-red-50 border-red-500' :
                           item.priority === 'MEDIUM' ? 'bg-amber-50 border-amber-500' :
                           'bg-blue-50 border-blue-500'
                         }`}>
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold mb-2 ${
-                                item.priority === 'HIGH' ? 'bg-red-100 text-red-700' :
-                                item.priority === 'MEDIUM' ? 'bg-amber-100 text-amber-700' :
-                                'bg-blue-100 text-blue-700'
-                              }`}>{item.priority}</span>
-                              <p className="text-sm font-medium text-slate-800">{item.action}</p>
-                              <p className="text-xs text-slate-500 mt-1">Due: {item.deadline}</p>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${
+                                  item.priority === 'HIGH' ? 'bg-red-100 text-red-700' :
+                                  item.priority === 'MEDIUM' ? 'bg-amber-100 text-amber-700' :
+                                  'bg-blue-100 text-blue-700'
+                                }`}>{item.priority}</span>
+                                {item.source === 'auto-deadline' && (
+                                  <span className="text-xs text-slate-400 italic">Auto</span>
+                                )}
+                              </div>
+                              <p className={`text-sm font-medium ${item.status === 'Completed' ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                                {item.action}
+                              </p>
+                              <p className="text-xs text-slate-500 mt-1">
+                                {item.deadline && `Due: ${item.deadline}`}
+                                {item.grantName && ` • ${item.grantName}`}
+                              </p>
                             </div>
-                            <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                              item.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
-                            }`}>{item.status}</span>
+                            <div className="flex flex-col items-end gap-2">
+                              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                                item.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
+                                item.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
+                                'bg-slate-100 text-slate-600'
+                              }`}>{item.status}</span>
+                              {/* Action buttons - only for manual items that aren't completed */}
+                              {item.source !== 'auto-deadline' && item.status !== 'Completed' && (
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={() => handleMarkComplete(item)}
+                                    className="p-1 hover:bg-emerald-100 rounded text-emerald-600"
+                                    title="Mark Complete"
+                                  >
+                                    <CheckCircle2 size={16} />
+                                  </button>
+                                  <button
+                                    onClick={() => openEditAction(item)}
+                                    className="p-1 hover:bg-blue-100 rounded text-blue-600"
+                                    title="Edit"
+                                  >
+                                    <Edit2 size={16} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteAction(item.id)}
+                                    className="p-1 hover:bg-red-100 rounded text-red-600"
+                                    title="Delete"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -1421,7 +1595,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
         </div>
       )}
 
-      {/* Add Grant Modal */}
+      {/* Add Grant Modal - FULL VERSION */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => !isSubmitting && setShowAddModal(false)}>
           <div 
@@ -1655,6 +1829,137 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onClose, initialTab = 'grants
                     <>
                       <Plus size={18} />
                       Add Grant
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Action Item Modal - NEW */}
+      {showActionModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => !actionSubmitting && setShowActionModal(false)}>
+          <div 
+            className="bg-white rounded-2xl max-w-lg w-full shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-6 rounded-t-2xl text-white relative">
+              <button 
+                onClick={() => !actionSubmitting && setShowActionModal(false)}
+                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full"
+                disabled={actionSubmitting}
+              >
+                <X size={20} />
+              </button>
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                {editingAction ? <Edit2 size={24} /> : <Plus size={24} />}
+                {editingAction ? 'Edit Action Item' : 'Add Action Item'}
+              </h2>
+              <p className="text-amber-100">{editingAction ? 'Update the action item details' : 'Create a new action item'}</p>
+            </div>
+            
+            <form onSubmit={handleSaveAction} className="p-6 space-y-4">
+              {actionError && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+                  <XCircle className="text-red-600" size={24} />
+                  <p className="text-sm text-red-600">{actionError}</p>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Action Description <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  required
+                  value={actionForm.action}
+                  onChange={(e) => setActionForm({...actionForm, action: e.target.value})}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
+                  rows={3}
+                  placeholder="What needs to be done?"
+                  disabled={actionSubmitting}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Priority</label>
+                  <select
+                    value={actionForm.priority}
+                    onChange={(e) => setActionForm({...actionForm, priority: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
+                    disabled={actionSubmitting}
+                  >
+                    <option value="HIGH">HIGH</option>
+                    <option value="MEDIUM">MEDIUM</option>
+                    <option value="LOW">LOW</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                  <select
+                    value={actionForm.status}
+                    onChange={(e) => setActionForm({...actionForm, status: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
+                    disabled={actionSubmitting}
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Urgent">Urgent</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Deadline</label>
+                  <input
+                    type="date"
+                    value={actionForm.deadline}
+                    onChange={(e) => setActionForm({...actionForm, deadline: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
+                    disabled={actionSubmitting}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Related Grant</label>
+                  <input
+                    type="text"
+                    value={actionForm.grantName}
+                    onChange={(e) => setActionForm({...actionForm, grantName: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
+                    placeholder="Optional"
+                    disabled={actionSubmitting}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setShowActionModal(false)}
+                  className="px-6 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium"
+                  disabled={actionSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionSubmitting}
+                  className="px-6 py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white rounded-lg font-medium flex items-center gap-2"
+                >
+                  {actionSubmitting ? (
+                    <>
+                      <RefreshCw className="animate-spin" size={18} />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 size={18} />
+                      {editingAction ? 'Update' : 'Create'}
                     </>
                   )}
                 </button>
