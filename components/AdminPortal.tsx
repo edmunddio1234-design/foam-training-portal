@@ -475,6 +475,58 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
     return true;
   });
 
+  const renderDocLink = (doc: Document, index: number | string) => {
+    return React.createElement('a', {
+      key: index,
+      href: doc.url,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      className: 'flex items-center gap-2 p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all'
+    }, [
+      getFileIcon(doc.type, doc.isFolder),
+      React.createElement('span', { key: 'name', className: 'text-xs truncate flex-1' }, doc.name),
+      React.createElement(ExternalLink, { key: 'icon', size: 12 })
+    ]);
+  };
+
+  const renderDocCard = (doc: Document) => {
+    return React.createElement('a', {
+      key: doc.id,
+      href: doc.url,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      className: 'bg-white rounded-2xl p-4 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all group'
+    }, 
+      React.createElement('div', { className: 'flex items-start gap-3' }, [
+        React.createElement('div', { 
+          key: 'icon-wrapper',
+          className: 'w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-all shrink-0' 
+        }, getFileIcon(doc.type, doc.isFolder)),
+        React.createElement('div', { key: 'content', className: 'flex-1 min-w-0' }, [
+          React.createElement('p', { 
+            key: 'name',
+            className: 'font-medium text-slate-800 truncate group-hover:text-blue-600 transition-all' 
+          }, doc.name),
+          React.createElement('div', { key: 'meta', className: 'flex items-center gap-2 mt-1' }, [
+            React.createElement('span', { 
+              key: 'type',
+              className: 'text-xs px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full' 
+            }, getFileTypeName(doc.type)),
+            React.createElement('span', { 
+              key: 'date',
+              className: 'text-xs text-slate-400' 
+            }, doc.modified ? new Date(doc.modified).toLocaleDateString() : '')
+          ])
+        ]),
+        React.createElement(ExternalLink, { 
+          key: 'link-icon',
+          className: 'text-slate-300 group-hover:text-blue-500 shrink-0', 
+          size: 16 
+        })
+      ])
+    );
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-6">
       {isLoading && (
@@ -524,19 +576,7 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
                     <p className="text-sm">{msg.content}</p>
                     {msg.documents && msg.documents.length > 0 && (
                       <div className="mt-3 space-y-2">
-                        {msg.documents.map((doc, j) => (
-                          
-                            key={j}
-                            href={doc.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all"
-                          >
-                            {getFileIcon(doc.type, doc.isFolder)}
-                            <span className="text-xs truncate flex-1">{doc.name}</span>
-                            <ExternalLink size={12} />
-                          </a>
-                        ))}
+                        {msg.documents.map((doc, j) => renderDocLink(doc, j))}
                       </div>
                     )}
                   </div>
@@ -626,29 +666,7 @@ const DocumentLibrary: React.FC<{ onLoadDocuments: () => void; documents: Docume
             </div>
           ) : filteredDocs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto">
-              {filteredDocs.map((doc) => (
-                
-                  key={doc.id}
-                  href={doc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white rounded-2xl p-4 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all group"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-all shrink-0">
-                      {getFileIcon(doc.type, doc.isFolder)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-slate-800 truncate group-hover:text-blue-600 transition-all">{doc.name}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full">{getFileTypeName(doc.type)}</span>
-                        <span className="text-xs text-slate-400">{doc.modified ? new Date(doc.modified).toLocaleDateString() : ''}</span>
-                      </div>
-                    </div>
-                    <ExternalLink className="text-slate-300 group-hover:text-blue-500 shrink-0" size={16} />
-                  </div>
-                </a>
-              ))}
+              {filteredDocs.map((doc) => renderDocCard(doc))}
             </div>
           ) : (
             <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
