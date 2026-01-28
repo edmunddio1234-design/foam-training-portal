@@ -3,7 +3,7 @@ import {
   ArrowLeft, FileText, DollarSign, Calendar, Search, RefreshCw,
   AlertTriangle, CheckCircle2, Clock, TrendingUp, X, Filter,
   PieChart, Building2, ChevronRight, ExternalLink, XCircle,
-  Award, Send, Eye, Plus
+  Award, Send, Eye, Plus, Edit2, Trash2
 } from 'lucide-react';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
@@ -16,7 +16,7 @@ interface Grant {
   contactperson: string;
   contactemail: string;
   applicationdeadline?: string;
-  applicatriondeadline?: string; // Handle typo in sheet
+  applicatriondeadline?: string;
   submissiondate: string;
   amountrequested: string;
   amountapproved: string;
@@ -27,11 +27,15 @@ interface Grant {
 }
 
 interface ActionItem {
-  id: number;
+  id: string;
   priority: string;
   action: string;
   deadline: string;
   status: string;
+  grantName?: string;
+  source?: string;
+  createdAt?: string;
+  completedAt?: string;
 }
 
 interface GrantStats {
@@ -61,6 +65,14 @@ interface NewGrantForm {
   grantstatus: string;
   fundertype: string;
   submissionyear: string;
+}
+
+interface ActionItemForm {
+  priority: string;
+  action: string;
+  deadline: string;
+  status: string;
+  grantName: string;
 }
 
 type TabType = 'dashboard' | 'all' | 'approved' | 'pending' | 'denied';
@@ -94,6 +106,20 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
     submissionyear: new Date().getFullYear().toString()
   });
 
+  // Action Items State - NEW
+  const [actionItems, setActionItems] = useState<ActionItem[]>([]);
+  const [showActionModal, setShowActionModal] = useState(false);
+  const [editingAction, setEditingAction] = useState<ActionItem | null>(null);
+  const [actionForm, setActionForm] = useState<ActionItemForm>({
+    priority: 'MEDIUM',
+    action: '',
+    deadline: '',
+    status: 'Pending',
+    grantName: ''
+  });
+  const [actionSubmitting, setActionSubmitting] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+
   // Load data on mount
   useEffect(() => {
     loadData();
@@ -103,9 +129,10 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
     setIsLoading(true);
     setError(null);
     try {
-      const [grantsRes, statsRes] = await Promise.all([
+      const [grantsRes, statsRes, actionsRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/grants`),
-        fetch(`${API_BASE_URL}/api/grants/stats`)
+        fetch(`${API_BASE_URL}/api/grants/stats`),
+        fetch(`${API_BASE_URL}/api/grants/action-items`)
       ]);
 
       if (!grantsRes.ok || !statsRes.ok) {
@@ -114,9 +141,11 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
 
       const grantsData = await grantsRes.json();
       const statsData = await statsRes.json();
+      const actionsData = await actionsRes.json();
 
       console.log('Grants data:', grantsData);
       console.log('Stats data:', statsData);
+      console.log('Actions data:', actionsData);
 
       if (grantsData.success) {
         setGrants(grantsData.data);
@@ -124,12 +153,135 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
       if (statsData.success) {
         setStats(statsData.data);
       }
+      if (actionsData.success) {
+        setActionItems(actionsData.data || []);
+      }
     } catch (err: any) {
       console.error('Error loading data:', err);
       setError(err.message || 'Failed to load grant data');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Load action items separately - NEW
+  const loadActionItems = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/grants/action-items`);
+      const data = await res.json();
+      if (data.success) {
+        setActionItems(data.data || []);
+      }
+    } catch (err) {
+      console.error('Error loading action items:', err);
+    }
+  };
+
+  // Add/Edit Action Item - NEW
+  const handleSaveAction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setActionSubmitting(true);
+    setActionError(null);
+
+    try {
+      const url = editingAction 
+        ? `${API_BASE_URL}/api/grants/action-items/${editingAction.id}`
+        : `${API_BASE_URL}/api/grants/action-items`;
+      
+      const method = editingAction ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(actionForm)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to save action item');
+      }
+
+      // Reset and reload
+      setShowActionModal(false);
+      setEditingAction(null);
+      setActionForm({
+        priority: 'MEDIUM',
+        action: '',
+        deadline: '',
+        status: 'Pending',
+        grantName: ''
+      });
+      loadActionItems();
+    } catch (err: any) {
+      setActionError(err.message);
+    } finally {
+      setActionSubmitting(false);
+    }
+  };
+
+  // Delete Action Item - NEW
+  const handleDeleteAction = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this action item?')) return;
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/grants/action-items/${id}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to delete');
+      }
+      
+      loadActionItems();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
+  // Mark Action Complete - NEW
+  const handleMarkComplete = async (item: ActionItem) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/grants/action-items/${item.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Completed' })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        loadActionItems();
+      }
+    } catch (err) {
+      console.error('Error marking complete:', err);
+    }
+  };
+
+  // Open Edit Modal - NEW
+  const openEditAction = (item: ActionItem) => {
+    setEditingAction(item);
+    setActionForm({
+      priority: item.priority,
+      action: item.action,
+      deadline: item.deadline || '',
+      status: item.status,
+      grantName: item.grantName || ''
+    });
+    setShowActionModal(true);
+  };
+
+  // Open Add Modal - NEW
+  const openAddAction = () => {
+    setEditingAction(null);
+    setActionForm({
+      priority: 'MEDIUM',
+      action: '',
+      deadline: '',
+      status: 'Pending',
+      grantName: ''
+    });
+    setShowActionModal(true);
   };
 
   const handleAddGrant = async (e: React.FormEvent) => {
@@ -155,7 +307,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
 
       setSubmitSuccess(true);
       
-      // Reset form
       setNewGrant({
         grantname: '',
         grantsource: '',
@@ -171,7 +322,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
         submissionyear: new Date().getFullYear().toString()
       });
 
-      // Reload data after short delay
       setTimeout(() => {
         setShowAddModal(false);
         setSubmitSuccess(false);
@@ -210,11 +360,9 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
     return 'bg-blue-100 text-blue-700';
   };
 
-  // Filter grants based on active tab
   const getFilteredGrants = () => {
     let filtered = grants;
     
-    // Filter by tab
     if (activeTab === 'approved') {
       filtered = grants.filter(g => 
         g.grantstatus?.toLowerCase().includes('approved') || 
@@ -233,7 +381,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
       );
     }
 
-    // Filter by search
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(g => 
@@ -248,7 +395,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
 
   const filteredGrants = getFilteredGrants();
 
-  // Count grants by status for tabs
   const approvedCount = grants.filter(g => 
     g.grantstatus?.toLowerCase().includes('approved') || 
     g.grantstatus?.toLowerCase().includes('awarded')
@@ -265,7 +411,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
     g.grantstatus?.toLowerCase().includes('rejected')
   ).length;
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
@@ -277,7 +422,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
@@ -449,31 +593,79 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               </div>
 
-              {/* Action Items */}
+              {/* Action Items - UPDATED WITH CRUD */}
               <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                  <AlertTriangle size={20} className="text-amber-500" />
-                  Action Items
-                </h3>
-                {stats.actionItems && stats.actionItems.length > 0 ? (
-                  <div className="space-y-3 max-h-72 overflow-y-auto">
-                    {stats.actionItems.map((item) => (
-                      <div key={item.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <AlertTriangle size={20} className="text-amber-500" />
+                    Action Items
+                  </h3>
+                  <button
+                    onClick={openAddAction}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium"
+                  >
+                    <Plus size={16} />
+                    Add
+                  </button>
+                </div>
+                {actionItems && actionItems.length > 0 ? (
+                  <div className="space-y-3 max-h-80 overflow-y-auto">
+                    {actionItems.map((item) => (
+                      <div key={item.id} className={`p-3 rounded-lg border ${item.status === 'Completed' ? 'bg-slate-50 border-slate-200 opacity-60' : 'bg-slate-50 border-slate-200'}`}>
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1">
-                            <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold mb-2 ${getPriorityColor(item.priority)}`}>
-                              {item.priority}
-                            </span>
-                            <p className="text-sm text-slate-800 font-medium">{item.action}</p>
-                            <p className="text-xs text-slate-500 mt-1">Due: {item.deadline}</p>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${getPriorityColor(item.priority)}`}>
+                                {item.priority}
+                              </span>
+                              {item.source === 'auto-deadline' && (
+                                <span className="text-xs text-slate-400 italic">Auto</span>
+                              )}
+                            </div>
+                            <p className={`text-sm font-medium ${item.status === 'Completed' ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                              {item.action}
+                            </p>
+                            <p className="text-xs text-slate-500 mt-1">
+                              {item.deadline && `Due: ${item.deadline}`}
+                              {item.grantName && ` • ${item.grantName}`}
+                            </p>
                           </div>
-                          <span className={`text-xs px-2 py-1 rounded font-medium ${
-                            item.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
-                            item.status === 'Monitoring' ? 'bg-blue-100 text-blue-700' :
-                            'bg-slate-100 text-slate-600'
-                          }`}>
-                            {item.status}
-                          </span>
+                          <div className="flex flex-col items-end gap-2">
+                            <span className={`text-xs px-2 py-1 rounded font-medium ${
+                              item.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
+                              item.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
+                              item.status === 'Urgent' || item.status === 'Overdue' ? 'bg-red-100 text-red-700' :
+                              'bg-blue-100 text-blue-700'
+                            }`}>
+                              {item.status}
+                            </span>
+                            {/* Only show actions for manual items */}
+                            {item.source !== 'auto-deadline' && item.status !== 'Completed' && (
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleMarkComplete(item)}
+                                  className="p-1 hover:bg-emerald-100 rounded text-emerald-600"
+                                  title="Mark Complete"
+                                >
+                                  <CheckCircle2 size={16} />
+                                </button>
+                                <button
+                                  onClick={() => openEditAction(item)}
+                                  className="p-1 hover:bg-blue-100 rounded text-blue-600"
+                                  title="Edit"
+                                >
+                                  <Edit2 size={16} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteAction(item.id)}
+                                  className="p-1 hover:bg-red-100 rounded text-red-600"
+                                  title="Delete"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -587,7 +779,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
             className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-t-2xl text-white relative">
               <button 
                 onClick={() => setSelectedGrant(null)}
@@ -599,9 +790,7 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
               <p className="text-blue-100">{selectedGrant.grantsource}</p>
             </div>
             
-            {/* Modal Body */}
             <div className="p-6 space-y-4">
-              {/* Amounts */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <p className="text-sm text-slate-500">Amount Requested</p>
@@ -613,7 +802,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               </div>
 
-              {/* Status */}
               <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                 <p className="text-sm text-slate-500 mb-2">Status</p>
                 <span className={`px-3 py-1.5 rounded-full text-sm font-medium border ${getStatusColor(selectedGrant.grantstatus)}`}>
@@ -621,7 +809,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </span>
               </div>
 
-              {/* Purpose */}
               {selectedGrant.purpose && (
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <p className="text-sm text-slate-500 mb-1">Purpose</p>
@@ -629,7 +816,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               )}
 
-              {/* Dates */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <p className="text-sm text-slate-500 mb-1">Application Deadline</p>
@@ -641,7 +827,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               </div>
 
-              {/* Contact */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <p className="text-sm text-slate-500 mb-1">Contact Person</p>
@@ -653,7 +838,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               </div>
 
-              {/* Funder Type */}
               {selectedGrant.fundertype && (
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                   <p className="text-sm text-slate-500 mb-1">Funder Type</p>
@@ -672,7 +856,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
             className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
             <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-6 rounded-t-2xl text-white relative">
               <button 
                 onClick={() => !isSubmitting && setShowAddModal(false)}
@@ -688,9 +871,7 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
               <p className="text-emerald-100">Enter the grant details below</p>
             </div>
             
-            {/* Modal Body - Form */}
             <form onSubmit={handleAddGrant} className="p-6 space-y-4">
-              {/* Success Message */}
               {submitSuccess && (
                 <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
                   <CheckCircle2 className="text-emerald-600" size={24} />
@@ -701,7 +882,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               )}
 
-              {/* Error Message */}
               {submitError && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
                   <XCircle className="text-red-600" size={24} />
@@ -712,7 +892,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               )}
 
-              {/* Grant Name & Source - Required */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -744,7 +923,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               </div>
 
-              {/* Purpose */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Purpose</label>
                 <textarea
@@ -757,7 +935,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 />
               </div>
 
-              {/* Contact Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Contact Person</label>
@@ -783,7 +960,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               </div>
 
-              {/* Dates */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Application Deadline</label>
@@ -807,7 +983,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               </div>
 
-              {/* Amounts */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Amount Requested</label>
@@ -833,7 +1008,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               </div>
 
-              {/* Status & Funder Type */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
@@ -872,7 +1046,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               </div>
 
-              {/* Submission Year */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Submission Year</label>
@@ -887,7 +1060,6 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                 </div>
               </div>
 
-              {/* Submit Button */}
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
                 <button
                   type="button"
@@ -911,6 +1083,139 @@ const GrantDashboard: React.FC<GrantDashboardProps> = ({ onBack }) => {
                     <>
                       <Plus size={18} />
                       Add Grant
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Action Item Modal - NEW */}
+      {showActionModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => !actionSubmitting && setShowActionModal(false)}>
+          <div 
+            className="bg-white rounded-2xl max-w-lg w-full shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-gradient-to-r from-amber-500 to-amber-600 p-6 rounded-t-2xl text-white relative">
+              <button 
+                onClick={() => !actionSubmitting && setShowActionModal(false)}
+                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full"
+                disabled={actionSubmitting}
+              >
+                <X size={20} />
+              </button>
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                {editingAction ? <Edit2 size={24} /> : <Plus size={24} />}
+                {editingAction ? 'Edit Action Item' : 'Add Action Item'}
+              </h2>
+              <p className="text-amber-100">
+                {editingAction ? 'Update the action item details' : 'Create a new action item'}
+              </p>
+            </div>
+            
+            <form onSubmit={handleSaveAction} className="p-6 space-y-4">
+              {actionError && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+                  <XCircle className="text-red-600" size={24} />
+                  <p className="text-sm text-red-600">{actionError}</p>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Action Description <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  required
+                  value={actionForm.action}
+                  onChange={(e) => setActionForm({...actionForm, action: e.target.value})}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
+                  rows={3}
+                  placeholder="What needs to be done?"
+                  disabled={actionSubmitting}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Priority</label>
+                  <select
+                    value={actionForm.priority}
+                    onChange={(e) => setActionForm({...actionForm, priority: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
+                    disabled={actionSubmitting}
+                  >
+                    <option value="HIGH">HIGH</option>
+                    <option value="MEDIUM">MEDIUM</option>
+                    <option value="LOW">LOW</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                  <select
+                    value={actionForm.status}
+                    onChange={(e) => setActionForm({...actionForm, status: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
+                    disabled={actionSubmitting}
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Urgent">Urgent</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Deadline</label>
+                  <input
+                    type="date"
+                    value={actionForm.deadline}
+                    onChange={(e) => setActionForm({...actionForm, deadline: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
+                    disabled={actionSubmitting}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Related Grant</label>
+                  <input
+                    type="text"
+                    value={actionForm.grantName}
+                    onChange={(e) => setActionForm({...actionForm, grantName: e.target.value})}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800"
+                    placeholder="Optional"
+                    disabled={actionSubmitting}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setShowActionModal(false)}
+                  className="px-6 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium"
+                  disabled={actionSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionSubmitting}
+                  className="px-6 py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white rounded-lg font-medium flex items-center gap-2"
+                >
+                  {actionSubmitting ? (
+                    <>
+                      <RefreshCw className="animate-spin" size={18} />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 size={18} />
+                      {editingAction ? 'Update' : 'Create'}
                     </>
                   )}
                 </button>
