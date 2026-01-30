@@ -16,7 +16,7 @@ type TabType = 'dashboard' | 'clients' | 'referrals' | 'team';
 type ReferralSubTab = 'referred_in' | 'referred_out';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
-const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1-5Z_cGrxvNCLy3cxDK5oqWN0PsdTpESOSi5vSCqi19c/edit';
+const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1oYvechQ8A5H06ik_z8GNaBGsDZgR3w6Y5yYmDItyRGI/edit';
 
 // 8 Resources aligned with tracker
 const RESOURCE_TYPES = [
