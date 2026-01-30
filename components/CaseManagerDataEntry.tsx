@@ -323,12 +323,21 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     }
   };
 
+  // FIXED: Now calls both referrals-in and referrals-out endpoints
   const loadReferrals = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/cm/referrals`);
-      const data = await response.json();
-      if (data.success) setReferrals(data.data);
+      const [inRes, outRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/cm/referrals-in`),
+        fetch(`${API_BASE_URL}/api/cm/referrals-out`)
+      ]);
+      const inData = await inRes.json();
+      const outData = await outRes.json();
+      const allReferrals = [
+        ...(inData.success ? inData.data.map((r: any) => ({ ...r, referralType: 'referred_in' })) : []),
+        ...(outData.success ? outData.data.map((r: any) => ({ ...r, referralType: 'referred_out' })) : [])
+      ];
+      setReferrals(allReferrals);
     } catch (err) {
       console.error('Failed to load referrals:', err);
     } finally {
@@ -416,6 +425,7 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     }
   };
 
+  // FIXED: Now calls /api/cm/referrals-in endpoint
   const addFatherReferral = async () => {
     if (!fatherReferralForm.firstName.trim() || !fatherReferralForm.lastName.trim()) {
       alert('First name and last name are required');
@@ -428,7 +438,7 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     setIsLoading(true);
     try {
       const fullName = `${fatherReferralForm.lastName}, ${fatherReferralForm.firstName}${fatherReferralForm.middleInitial ? ' ' + fatherReferralForm.middleInitial + '.' : ''}`;
-      const response = await fetch(`${API_BASE_URL}/api/cm/referrals`, {
+      const response = await fetch(`${API_BASE_URL}/api/cm/referrals-in`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -468,6 +478,7 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     }
   };
 
+  // FIXED: Now calls /api/cm/referrals-out endpoint
   const addReferralOut = async () => {
     if (!referralOutForm.clientName.trim() || !referralOutForm.resourceNeeded.trim()) {
       alert('Client name and resource needed are required');
@@ -475,7 +486,7 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     }
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/cm/referrals`, {
+      const response = await fetch(`${API_BASE_URL}/api/cm/referrals-out`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...referralOutForm, referralType: 'referred_out' })
@@ -703,7 +714,6 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
             </div>
           </div>
         </div>
-
         <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
           <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
             <ArrowUpRight className="w-5 h-5 text-purple-600" /> Referred Out Summary
@@ -856,7 +866,7 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
   );
 
   // ========================================
-  // RENDER: Referrals (shortened for brevity - keeping full functionality)
+  // RENDER: Referrals
   // ========================================
   const renderReferrals = () => (
     <div className="space-y-4">
@@ -1133,7 +1143,7 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     </div>
   );
 
-  // Father Referral Form Modal (simplified for space - full form fields maintained)
+  // Father Referral Form Modal
   const renderFatherReferralModal = () => (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowAddReferralIn(false)}>
       <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[95vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
@@ -1606,7 +1616,7 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
     </div>
   );
 
-  // Print Preview (simplified)
+  // Print Preview
   const renderPrintPreview = () => {
     if (!printReferral || !showPrintPreview) return null;
     return (
@@ -1674,7 +1684,6 @@ const CaseManagerDataEntry: React.FC<CaseManagerDataEntryProps> = ({ onClose }) 
             </button>
           </div>
         </div>
-
         {/* Tabs */}
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex gap-1 overflow-x-auto">
