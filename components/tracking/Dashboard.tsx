@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Father } from '../../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
-import { Users, GraduationCap, UserX, AlertTriangle, X, Phone, Mail, CheckCircle2, Circle, Download, FileText, UserCheck, UserMinus, Clock } from 'lucide-react';
+import { Users, GraduationCap, UserX, AlertTriangle, X, Phone, Mail, CheckCircle2, Circle, Download, FileText, UserCheck, UserMinus, Clock, Printer, Calendar, Bell, Award } from 'lucide-react';
+
+// Backend API URL for certificate generation
+const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
 
 interface Module {
   id: number;
@@ -43,6 +46,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
   const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
   const [showListModal, setShowListModal] = useState(false);
   const [listType, setListType] = useState<'active' | 'inactive' | 'atRisk' | 'all'>('all');
+  
+  // Certificate date picker state
+  const [certificateDate, setCertificateDate] = useState<string>('');
 
   // ===== TIME-BASED ACTIVITY CALCULATIONS =====
   const now = new Date();
@@ -75,6 +81,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
   
   const graduatedFathers = fathers.filter(f => (f.completedModules?.length || 0) === 14);
   const graduates = stats?.graduated || graduatedFathers.length;
+  
+  // NEW: Fathers at 13 modules (graduating soon)
+  const graduatingSoonFathers = fathers.filter(f => (f.completedModules?.length || 0) === 13);
+  const graduatingSoonCount = graduatingSoonFathers.length;
   
   const activeFathersList = fathers.filter(f => getActivityStatus(f) === 'active');
   const activeFathersCount = activeFathersList.length;
@@ -153,9 +163,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
   const handleClick = (father: Father) => {
     setSelectedFather(father);
     setHoveredFather(null);
+    setCertificateDate(''); // Reset date when opening new father
   };
 
-  const closeModal = () => setSelectedFather(null);
+  const closeModal = () => {
+    setSelectedFather(null);
+    setCertificateDate('');
+  };
 
   const openListModal = (type: 'active' | 'inactive' | 'atRisk' | 'all') => {
     setListType(type);
@@ -171,6 +185,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
       case 'inactive': return inactiveFathersList;
       default: return fathers;
     }
+  };
+
+  // ===== PRINT CERTIFICATE FUNCTION =====
+  const handlePrintCertificate = (father: Father) => {
+    let url = `${API_BASE_URL}/api/fathers/${father.id}/certificate`;
+    if (certificateDate) {
+      url += `?date=${certificateDate}`;
+    }
+    window.open(url, '_blank');
   };
 
   const downloadCSV = () => {
@@ -292,6 +315,92 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
         </div>
       </div>
 
+      {/* GRADUATION ZONE - NEW SECTION */}
+      {(graduatingSoonCount > 0 || graduates > 0) && (
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-6 shadow-lg">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 bg-white/20 rounded-xl">
+              <GraduationCap size={24} className="text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-black text-white">Graduation Zone</h3>
+              <p className="text-emerald-100 text-sm">Track upcoming and completed graduates</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Graduating Soon Card */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <div className="flex items-center gap-2 mb-3">
+                <Bell size={18} className="text-yellow-300" />
+                <span className="font-bold text-white">Graduating Soon</span>
+                <span className="ml-auto bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded-full text-xs font-bold">{graduatingSoonCount}</span>
+              </div>
+              {graduatingSoonCount > 0 ? (
+                <div className="space-y-2 max-h-32 overflow-y-auto">
+                  {graduatingSoonFathers.map(f => (
+                    <div 
+                      key={f.id} 
+                      onClick={() => handleClick(f)}
+                      className="flex items-center justify-between bg-white/10 rounded-lg p-2 cursor-pointer hover:bg-white/20 transition-all"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-xs font-bold text-yellow-900">
+                          {f.firstName.charAt(0)}{f.lastName?.charAt(0) || ''}
+                        </div>
+                        <div>
+                          <p className="text-white font-medium text-sm">{f.firstName} {f.lastName}</p>
+                          <p className="text-emerald-200 text-xs">13/14 modules</p>
+                        </div>
+                      </div>
+                      <span className="text-yellow-300 text-xs font-medium">1 class left!</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-emerald-200 text-sm">No fathers at 13 modules right now</p>
+              )}
+            </div>
+
+            {/* Graduates Ready for Certificate Card */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <div className="flex items-center gap-2 mb-3">
+                <Award size={18} className="text-emerald-300" />
+                <span className="font-bold text-white">Ready for Certificate</span>
+                <span className="ml-auto bg-emerald-400 text-emerald-900 px-2 py-0.5 rounded-full text-xs font-bold">{graduates}</span>
+              </div>
+              {graduates > 0 ? (
+                <div className="space-y-2 max-h-32 overflow-y-auto">
+                  {graduatedFathers.slice(0, 5).map(f => (
+                    <div 
+                      key={f.id}
+                      onClick={() => handleClick(f)}
+                      className="flex items-center justify-between bg-white/10 rounded-lg p-2 cursor-pointer hover:bg-white/20 transition-all"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-emerald-400 rounded-lg flex items-center justify-center text-xs font-bold text-emerald-900">
+                          {f.firstName.charAt(0)}{f.lastName?.charAt(0) || ''}
+                        </div>
+                        <div>
+                          <p className="text-white font-medium text-sm">{f.firstName} {f.lastName}</p>
+                          <p className="text-emerald-200 text-xs">14/14 ✓ Complete</p>
+                        </div>
+                      </div>
+                      <Printer size={16} className="text-white/70" />
+                    </div>
+                  ))}
+                  {graduates > 5 && (
+                    <p className="text-emerald-200 text-xs text-center mt-2">+ {graduates - 5} more graduates</p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-emerald-200 text-sm">No graduates yet</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Stats Cards: Active | Alumni | At Risk | Inactive */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Card 1: Active Fathers */}
@@ -382,6 +491,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
             const completedCount = f.completedModules?.length || 0;
             const activityStatus = getActivityStatus(f);
             const daysSince = getDaysSinceActivity(f);
+            const isGraduatingSoon = completedCount === 13;
             return (
               <div
                 key={f.id}
@@ -389,6 +499,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
                 onMouseLeave={handleMouseLeave}
                 onClick={() => handleClick(f)}
                 className={`group relative bg-white border rounded-2xl p-4 transition-all cursor-pointer hover:shadow-lg hover:-translate-y-1 text-center ${
+                  activityStatus === 'graduated' ? 'border-emerald-300 bg-emerald-50/50' :
+                  isGraduatingSoon ? 'border-yellow-300 bg-yellow-50/50' :
                   activityStatus === 'atRisk' ? 'border-amber-300 bg-amber-50/50' : 
                   activityStatus === 'inactive' ? 'border-slate-200 bg-slate-50/50 opacity-60' : 
                   'border-slate-100 hover:border-blue-300'
@@ -397,6 +509,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
                 <div className={`w-4 h-4 rounded-full mx-auto mb-3 shadow-sm ${getStatusColor(f)}`}></div>
                 <p className="text-[11px] font-bold text-slate-800 truncate w-full">{f.firstName} {f.lastName?.charAt(0)}.</p>
                 <p className="text-[9px] font-mono text-slate-400">{completedCount}/14</p>
+                {activityStatus === 'graduated' && (
+                  <GraduationCap size={12} className="mx-auto mt-1 text-emerald-500" />
+                )}
+                {isGraduatingSoon && (
+                  <Bell size={12} className="mx-auto mt-1 text-yellow-500" />
+                )}
                 {(activityStatus === 'atRisk' || activityStatus === 'inactive') && (
                   <p className={`text-[8px] mt-1 ${activityStatus === 'atRisk' ? 'text-amber-600 font-bold' : 'text-slate-400'}`}>{daysSince}d ago</p>
                 )}
@@ -417,6 +535,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
               <p>Last Active: <span className="text-white font-medium">{getDaysSinceActivity(hoveredFather)} days ago</span></p>
               <p>Status: <span className={`px-2 py-0.5 rounded text-xs ${getStatusBadgeColor(hoveredFather)}`}>{getStatusText(hoveredFather)}</span></p>
               {hoveredFather.phone && <p>Phone: <span className="text-white">{hoveredFather.phone}</span></p>}
+              {(hoveredFather.completedModules?.length || 0) === 13 && (
+                <p className="text-yellow-400 font-bold mt-1">⚡ Graduating next class!</p>
+              )}
+              {(hoveredFather.completedModules?.length || 0) === 14 && (
+                <p className="text-emerald-400 font-bold mt-1">🎓 Click to print certificate</p>
+              )}
               <p className="text-blue-400 mt-2">Click to view full profile →</p>
             </div>
             <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-slate-900"></div>
@@ -424,24 +548,86 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
         )}
       </div>
 
-      {/* Father Detail Modal */}
+      {/* Father Detail Modal - UPDATED WITH CERTIFICATE SECTION */}
       {selectedFather && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={closeModal}>
           <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-t-3xl text-white relative">
+            <div className={`p-6 rounded-t-3xl text-white relative ${
+              getActivityStatus(selectedFather) === 'graduated' 
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600' 
+                : 'bg-gradient-to-r from-slate-800 to-slate-900'
+            }`}>
               <button onClick={closeModal} className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full transition-all"><X size={20} /></button>
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-2xl font-black">
-                  {selectedFather.firstName.charAt(0)}{selectedFather.lastName?.charAt(0) || ''}
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black ${
+                  getActivityStatus(selectedFather) === 'graduated' ? 'bg-white/20' : 'bg-blue-600'
+                }`}>
+                  {getActivityStatus(selectedFather) === 'graduated' ? (
+                    <GraduationCap size={32} />
+                  ) : (
+                    <>{selectedFather.firstName.charAt(0)}{selectedFather.lastName?.charAt(0) || ''}</>
+                  )}
                 </div>
                 <div>
                   <h2 className="text-2xl font-black">{selectedFather.firstName} {selectedFather.lastName}</h2>
-                  <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-bold ${getStatusBadgeColor(selectedFather)}`}>{getStatusText(selectedFather)}</span>
+                  <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-bold ${
+                    getActivityStatus(selectedFather) === 'graduated' 
+                      ? 'bg-white/20 text-white' 
+                      : getStatusBadgeColor(selectedFather)
+                  }`}>{getStatusText(selectedFather)}</span>
                 </div>
               </div>
             </div>
 
             <div className="p-6 space-y-6">
+              {/* GRADUATING SOON ALERT (13 modules) */}
+              {(selectedFather.completedModules?.length || 0) === 13 && (
+                <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-yellow-700 mb-2">
+                    <Bell size={18} />
+                    <span className="font-bold text-sm">Graduating Next Class!</span>
+                  </div>
+                  <p className="text-xs text-yellow-600">This father has completed 13/14 modules. Prepare their certificate for next Tuesday's class!</p>
+                </div>
+              )}
+
+              {/* CERTIFICATE SECTION (14 modules - graduated) */}
+              {(selectedFather.completedModules?.length || 0) === 14 && (
+                <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-emerald-700 mb-3">
+                    <Award size={18} />
+                    <span className="font-bold text-sm">🎓 Print Certificate</span>
+                  </div>
+                  
+                  {/* Date Picker */}
+                  <div className="mb-3">
+                    <label className="block text-xs font-medium text-emerald-700 mb-1">
+                      Ceremony Date (optional)
+                    </label>
+                    <div className="relative">
+                      <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500" />
+                      <input
+                        type="date"
+                        value={certificateDate}
+                        onChange={(e) => setCertificateDate(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 border border-emerald-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        placeholder="Select date"
+                      />
+                    </div>
+                    <p className="text-xs text-emerald-600 mt-1">Leave blank to use today's date</p>
+                  </div>
+
+                  {/* Print Button */}
+                  <button
+                    onClick={() => handlePrintCertificate(selectedFather)}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                  >
+                    <Printer size={18} />
+                    Print Certificate
+                  </button>
+                </div>
+              )}
+
               {getActivityStatus(selectedFather) === 'atRisk' && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                   <div className="flex items-center gap-2 text-amber-700 mb-2"><Clock size={16} /><span className="font-bold text-sm">At Risk - {getDaysSinceActivity(selectedFather)} Days Inactive</span></div>
@@ -473,7 +659,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
                   <span className="text-sm text-slate-500">{selectedFather.completedModules?.length || 0}/14</span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-3">
-                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full" style={{ width: `${((selectedFather.completedModules?.length || 0) / 14) * 100}%` }}></div>
+                  <div className={`h-3 rounded-full ${
+                    (selectedFather.completedModules?.length || 0) === 14 
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-500' 
+                      : 'bg-gradient-to-r from-blue-500 to-blue-600'
+                  }`} style={{ width: `${((selectedFather.completedModules?.length || 0) / 14) * 100}%` }}></div>
                 </div>
               </div>
 
