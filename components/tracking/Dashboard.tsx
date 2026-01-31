@@ -336,6 +336,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
                 <span className="font-bold text-white">Graduating Soon</span>
                 <span className="ml-auto bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded-full text-xs font-bold">{graduatingSoonCount}</span>
               </div>
+              
+              {/* Date Picker for Graduating Soon certificates */}
+              {graduatingSoonCount > 0 && (
+                <div className="mb-3 p-2 bg-white/10 rounded-lg">
+                  <label className="block text-xs font-medium text-yellow-200 mb-1">
+                    <Calendar size={12} className="inline mr-1" />
+                    Ceremony Date
+                  </label>
+                  <input
+                    type="date"
+                    value={certificateDate}
+                    onChange={(e) => setCertificateDate(e.target.value)}
+                    className="w-full px-3 py-1.5 border border-yellow-400/50 rounded-lg text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  />
+                  <p className="text-xs text-yellow-200/70 mt-1">Leave blank for today's date</p>
+                </div>
+              )}
+              
               {graduatingSoonCount > 0 ? (
                 <div className="space-y-2 max-h-32 overflow-y-auto">
                   {graduatingSoonFathers.map(f => (
@@ -360,7 +378,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(`${API_BASE_URL}/api/fathers/${f.id}/certificate`, '_blank');
+                            let url = `${API_BASE_URL}/api/fathers/${f.id}/certificate`;
+                            if (certificateDate) {
+                              url += `?date=${certificateDate}`;
+                            }
+                            window.open(url, '_blank');
                           }}
                           className="p-1.5 bg-yellow-400 hover:bg-yellow-300 rounded-lg transition-all"
                           title="Prepare Certificate"
@@ -383,6 +405,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
                 <span className="font-bold text-white">Ready for Certificate</span>
                 <span className="ml-auto bg-emerald-400 text-emerald-900 px-2 py-0.5 rounded-full text-xs font-bold">{graduates}</span>
               </div>
+              
+              {/* Date Picker for Graduate certificates */}
+              {graduates > 0 && (
+                <div className="mb-3 p-2 bg-white/10 rounded-lg">
+                  <label className="block text-xs font-medium text-emerald-200 mb-1">
+                    <Calendar size={12} className="inline mr-1" />
+                    Ceremony Date
+                  </label>
+                  <input
+                    type="date"
+                    value={certificateDate}
+                    onChange={(e) => setCertificateDate(e.target.value)}
+                    className="w-full px-3 py-1.5 border border-emerald-400/50 rounded-lg text-sm bg-white/90 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  />
+                  <p className="text-xs text-emerald-200/70 mt-1">Leave blank for today's date</p>
+                </div>
+              )}
+              
               {graduates > 0 ? (
                 <div className="space-y-2 max-h-32 overflow-y-auto">
                   {graduatedFathers.slice(0, 5).map(f => (
@@ -400,7 +440,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
                           <p className="text-emerald-200 text-xs">14/14 ✓ Complete</p>
                         </div>
                       </div>
-                      <Printer size={16} className="text-white/70" />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          let url = `${API_BASE_URL}/api/fathers/${f.id}/certificate`;
+                          if (certificateDate) {
+                            url += `?date=${certificateDate}`;
+                          }
+                          window.open(url, '_blank');
+                        }}
+                        className="p-1.5 bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-all"
+                        title="Print Certificate"
+                      >
+                        <Printer size={14} className="text-emerald-900" />
+                      </button>
                     </div>
                   ))}
                   {graduates > 5 && (
