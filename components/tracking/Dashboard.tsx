@@ -341,10 +341,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
                   {graduatingSoonFathers.map(f => (
                     <div 
                       key={f.id} 
-                      onClick={() => handleClick(f)}
-                      className="flex items-center justify-between bg-white/10 rounded-lg p-2 cursor-pointer hover:bg-white/20 transition-all"
+                      className="flex items-center justify-between bg-white/10 rounded-lg p-2 hover:bg-white/20 transition-all"
                     >
-                      <div className="flex items-center gap-2">
+                      <div 
+                        className="flex items-center gap-2 cursor-pointer flex-1"
+                        onClick={() => handleClick(f)}
+                      >
                         <div className="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-xs font-bold text-yellow-900">
                           {f.firstName.charAt(0)}{f.lastName?.charAt(0) || ''}
                         </div>
@@ -353,7 +355,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
                           <p className="text-emerald-200 text-xs">13/14 modules</p>
                         </div>
                       </div>
-                      <span className="text-yellow-300 text-xs font-medium">1 class left!</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-yellow-300 text-xs font-medium hidden sm:block">1 left!</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`${API_BASE_URL}/api/fathers/${f.id}/certificate`, '_blank');
+                          }}
+                          className="p-1.5 bg-yellow-400 hover:bg-yellow-300 rounded-lg transition-all"
+                          title="Prepare Certificate"
+                        >
+                          <Printer size={14} className="text-yellow-900" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -587,7 +601,34 @@ export const Dashboard: React.FC<DashboardProps> = ({ fathers, stats, modules })
                     <Bell size={18} />
                     <span className="font-bold text-sm">Graduating Next Class!</span>
                   </div>
-                  <p className="text-xs text-yellow-600">This father has completed 13/14 modules. Prepare their certificate for next Tuesday's class!</p>
+                  <p className="text-xs text-yellow-600 mb-3">This father has completed 13/14 modules. Prepare their certificate for next Tuesday's class!</p>
+                  
+                  {/* Date Picker for 13-module fathers */}
+                  <div className="mb-3">
+                    <label className="block text-xs font-medium text-yellow-700 mb-1">
+                      Ceremony Date (optional)
+                    </label>
+                    <div className="relative">
+                      <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-500" />
+                      <input
+                        type="date"
+                        value={certificateDate}
+                        onChange={(e) => setCertificateDate(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 border border-yellow-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-white"
+                        placeholder="Select date"
+                      />
+                    </div>
+                    <p className="text-xs text-yellow-600 mt-1">Leave blank to use today's date</p>
+                  </div>
+
+                  {/* Prepare Certificate Button */}
+                  <button
+                    onClick={() => handlePrintCertificate(selectedFather)}
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-yellow-900 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                  >
+                    <Printer size={18} />
+                    Prepare Certificate
+                  </button>
                 </div>
               )}
 
