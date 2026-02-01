@@ -610,7 +610,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
     const m = getReportMetrics(generatedReport, is6Month);
     const periodLabel = generatedReport.metadata?.periodLabel || (selectedYear === '2024-2025' ? 'October 2024 – September 2025' : 'January 2026 – December 2026');
     const generatedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    const reportPeriodName = is6Month ? '6-Month' : 'Annual';
 
     const ProgressBar = ({ label, value, color }: { label: string; value: number; color: string }) => (
       <div className="mb-4">
@@ -667,11 +666,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
       <div className="fixed inset-0 bg-black/60 z-50 overflow-y-auto">
         <div className="min-h-screen py-8 px-4">
           <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
-            {/* Sticky Header */}
+            {/* Sticky Header with Close/Download buttons */}
             <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <Sparkles className={is6Month ? 'text-pink-600' : 'text-purple-600'} size={24} />
-                <span className="font-semibold text-gray-800">Comprehensive {reportPeriodName} Report (12 Sections)</span>
+                <span className="font-semibold text-gray-800">Comprehensive {is6Month ? '6-Month' : 'Annual'} Report (12 Sections)</span>
               </div>
               <div className="flex gap-2">
                 <button onClick={() => handleDownloadReport('word')} className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"><Download size={16} />Word</button>
@@ -684,7 +683,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
             <div className="text-center py-16 px-8 text-white" style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}>
               <div className="inline-block bg-white text-[#0F2C5C] font-bold text-2xl px-6 py-3 rounded-xl mb-8">FOAM</div>
               <h1 className="text-4xl font-bold mb-4">Fathers On A Mission</h1>
-              <h2 className="text-xl opacity-90 mb-8">Comprehensive {reportPeriodName} Outcomes Report<br/>Program Analysis & Strategic Direction</h2>
+              <h2 className="text-xl opacity-90 mb-8">Comprehensive {is6Month ? '6-Month' : 'Annual'} Outcomes Report<br/>Program Analysis & Strategic Direction</h2>
               <div className="inline-block bg-white/15 px-8 py-3 rounded-full text-lg">📅 Reporting Period: {periodLabel}</div>
               <p className="mt-12 italic text-lg opacity-90">"Enhancing Fathers, Strengthening Families"</p>
               <p className="mt-8 text-sm opacity-70">East Baton Rouge Parish, Louisiana<br/>Report Generated: {generatedDate}</p>
@@ -695,7 +694,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
               <div className="bg-gray-50 rounded-xl p-6 mb-8 border border-gray-200">
                 <h2 className="text-xl font-bold text-[#0F2C5C] border-b-2 border-[#0F2C5C] pb-3 mb-4">📑 Table of Contents</h2>
                 <div className="grid grid-cols-2 gap-2">
-                  {['Executive Summary', reportPeriodName + ' Outcomes Summary', 'Program Reach & Engagement', 'Program Structure & Service Model', 'Workforce Development Pipeline', 'Employment Outcomes Analysis', 'Stabilization & Essential Needs', 'Mental Health & Behavioral Services', 'Key Performance Indicators', 'Organizational Capacity & Staffing', 'Challenges & Lessons Learned', 'Strategic Direction & Recommendations'].map((title, i) => (
+                  {['Executive Summary', (is6Month ? '6-Month' : 'Annual') + ' Outcomes Summary', 'Program Reach & Engagement', 'Program Structure & Service Model', 'Workforce Development Pipeline', 'Employment Outcomes Analysis', 'Stabilization & Essential Needs', 'Mental Health & Behavioral Services', 'Key Performance Indicators', 'Organizational Capacity & Staffing', 'Challenges, Lessons Learned & Adaptations', 'Strategic Direction & Recommendations'].map((title, i) => (
                     <div key={i} className="py-2 border-b border-dotted border-gray-300 text-[#0F2C5C] font-medium">{i + 1}. {title}</div>
                   ))}
                 </div>
@@ -707,9 +706,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
                 <div className="p-6 bg-white">
                   <div className="bg-gradient-to-br from-blue-50 to-sky-100 border-2 border-[#0F2C5C] rounded-xl p-6 mb-6">
                     <h4 className="text-[#0F2C5C] font-bold text-lg mb-4">📋 Program Overview & Key Achievements</h4>
-                    <p className="text-gray-700 mb-4 leading-relaxed">During the {periodLabel} reporting period, <strong>Fathers On A Mission (FOAM)</strong> continued its mission of enhancing fathers and strengthening families across East Baton Rouge Parish, Louisiana.</p>
-                    <p className="text-gray-700 mb-4 leading-relaxed">FOAM served <strong>{m.activeFathers} unduplicated fathers</strong> during the reporting period. The program's impact extends beyond individual participants, positively affecting an estimated <strong>{m.childrenImpacted} children</strong>.</p>
-                    <p className="text-gray-700 mb-4 leading-relaxed">Our workforce development pipeline demonstrated strong performance, with <strong>{m.workforceParticipation} fathers ({m.workforceParticipationRate}%)</strong> actively participating. Of these, <strong>{m.jobPlacements} fathers achieved job placements</strong> ({m.jobPlacementRate}% placement rate). <strong>{m.jobRetention} fathers ({m.retentionRate}%)</strong> maintained employment beyond 30-90 days.</p>
+                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">During the {periodLabel} reporting period, <strong>Fathers On A Mission (FOAM)</strong> continued its mission of enhancing fathers and strengthening families across East Baton Rouge Parish, Louisiana.</p>
+                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">FOAM served <strong>{m.activeFathers} unduplicated fathers</strong> during the reporting period. The program's impact extends beyond individual participants, positively affecting an estimated <strong>{m.childrenImpacted} children</strong>.</p>
+                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">Our workforce development pipeline demonstrated strong performance, with <strong>{m.workforceParticipation} fathers ({m.workforceParticipationRate}%)</strong> actively participating. Of these, <strong>{m.jobPlacements} fathers achieved job placements</strong> ({m.jobPlacementRate}% placement rate). <strong>{m.jobRetention} fathers ({m.retentionRate}%)</strong> maintained employment beyond 30-90 days.</p>
                   </div>
                   <div className="grid grid-cols-4 gap-4 mb-6">
                     <KPICard label="Fathers Served" value={m.activeFathers} sublabel="Unduplicated count" colorClass="blue" />
@@ -720,90 +719,22 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
                 </div>
               </div>
 
-              {/* SECTION 2: OUTCOMES SUMMARY */}
+              {/* Additional sections abbreviated for space - full content in download */}
               <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={2} title={reportPeriodName + ' Outcomes Summary'} />
+                <SectionHeader number={2} title={(is6Month ? '6-Month' : 'Annual') + ' Outcomes Summary'} />
                 <div className="p-6 bg-white">
-                  <table className="w-full text-sm">
-                    <thead><tr className="bg-[#0F2C5C] text-white"><th className="p-3 text-left">Outcome Area</th><th className="p-3 text-center">Result</th><th className="p-3 text-left">Clarification</th></tr></thead>
-                    <tbody className="divide-y divide-gray-200">
-                      <tr><td className="p-3 font-medium">Unduplicated Fathers Served</td><td className="p-3 text-center font-bold text-[#0F2C5C]">{m.activeFathers}</td><td className="p-3 text-gray-600">Total unique individuals receiving any FOAM service</td></tr>
-                      <tr><td className="p-3 font-medium">Responsible Fatherhood Classes</td><td className="p-3 text-center font-bold text-[#0F2C5C]">{m.fatherhoodClassEnrollment}</td><td className="p-3 text-gray-600">Fathers enrolled in 14-module NPCL curriculum</td></tr>
-                      <tr><td className="p-3 font-medium">Project Family BUILD</td><td className="p-3 text-center font-bold text-[#0F2C5C]">~{m.avgMonthlyEngagement}/mo</td><td className="p-3 text-gray-600">Average monthly case management engagement</td></tr>
-                      <tr><td className="p-3 font-medium">Workforce Development</td><td className="p-3 text-center font-bold text-[#0F2C5C]">{m.workforceParticipation}</td><td className="p-3 text-gray-600">{m.workforceParticipationRate}% of total fathers served</td></tr>
-                      <tr><td className="p-3 font-medium">Job Placements</td><td className="p-3 text-center font-bold text-emerald-600">{m.jobPlacements}</td><td className="p-3 text-gray-600">{m.jobPlacementRate}% placement rate</td></tr>
-                      <tr><td className="p-3 font-medium">Job Retention (30-90 days)</td><td className="p-3 text-center font-bold text-emerald-600">{m.jobRetention}</td><td className="p-3 text-gray-600">{m.retentionRate}% retention rate</td></tr>
-                      <tr><td className="p-3 font-medium">Stabilization Support</td><td className="p-3 text-center font-bold text-[#0F2C5C]">{m.stabilizationSupport}</td><td className="p-3 text-gray-600">Service events addressing barriers</td></tr>
-                      <tr><td className="p-3 font-medium">Mental Health Referrals</td><td className="p-3 text-center font-bold text-purple-600">{m.mentalHealthReferrals}</td><td className="p-3 text-gray-600">{m.mentalHealthEngagement}% engagement rate</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* SECTION 3: PROGRAM REACH */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={3} title="Program Reach & Engagement Analysis" />
-                <div className="p-6 bg-white">
-                  <div className="bg-blue-50 border-l-4 border-[#0F2C5C] p-4 rounded-r-lg mb-6">
-                    During the reporting period, FOAM served <strong>{m.activeFathers} unduplicated fathers</strong> across its comprehensive service ecosystem.
-                  </div>
-                  <div className="grid grid-cols-4 gap-4 mb-6">
-                    <KPICard label="Total Fathers" value={m.activeFathers} sublabel="Unduplicated" colorClass="blue" />
-                    <KPICard label="Class Participants" value={m.fatherhoodClassEnrollment} sublabel="Education" colorClass="green" />
-                    <KPICard label="Monthly Active" value={m.avgMonthlyEngagement} sublabel="Case management" colorClass="amber" />
-                    <KPICard label="Workforce" value={m.workforceParticipation} sublabel="Employment svcs" colorClass="purple" />
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                    <h4 className="font-bold text-gray-700 mb-4">📈 Service Engagement Funnel</h4>
-                    <BarChart data={[
-                      { label: 'Total Fathers', value: m.activeFathers, color: '#0F2C5C' },
-                      { label: 'Workforce', value: m.workforceParticipation, color: '#059669' },
-                      { label: 'Classes', value: m.fatherhoodClassEnrollment, color: '#d97706' },
-                      { label: 'Mental Health', value: m.mentalHealthReferrals, color: '#7c3aed' }
-                    ]} />
+                  <div className="grid grid-cols-4 gap-4">
+                    <KPICard label="Total Fathers" value={m.activeFathers} colorClass="blue" />
+                    <KPICard label="Class Enrollment" value={m.fatherhoodClassEnrollment} colorClass="green" />
+                    <KPICard label="Job Placements" value={m.jobPlacements} colorClass="amber" />
+                    <KPICard label="Retention Rate" value={m.retentionRate + '%'} colorClass="purple" />
                   </div>
                 </div>
               </div>
 
-              {/* SECTION 4: PROGRAM STRUCTURE */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={4} title="Program Structure & Service Model" />
-                <div className="p-6 bg-white">
-                  <p className="text-gray-600 mb-4">FOAM operates two distinct but complementary program components.</p>
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="rounded-xl p-6 text-white" style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}>
-                      <h4 className="font-bold text-lg mb-3">📚 Responsible Fatherhood Classes</h4>
-                      <p className="text-sm opacity-90 mb-3">Structured, curriculum-based educational program focused on developing fatherhood identity and parenting competencies.</p>
-                      <ul className="text-sm opacity-90 space-y-1">
-                        <li>• 14-module NPCL curriculum</li>
-                        <li>• Parenting, co-parenting, relationships</li>
-                        <li>• <strong>{m.fatherhoodClassEnrollment} fathers</strong> enrolled</li>
-                      </ul>
-                    </div>
-                    <div className="rounded-xl p-6 text-white" style={{ background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)' }}>
-                      <h4 className="font-bold text-lg mb-3">🏗️ Project Family BUILD</h4>
-                      <p className="text-sm opacity-90 mb-3">Comprehensive case management providing individualized support for workforce development and family stabilization.</p>
-                      <ul className="text-sm opacity-90 space-y-1">
-                        <li>• Individualized case management</li>
-                        <li>• Workforce, education, stabilization</li>
-                        <li>• <strong>~{m.avgMonthlyEngagement} fathers/month</strong></li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="bg-amber-50 border-2 border-amber-400 rounded-xl p-4">
-                    <h4 className="font-bold text-amber-800 mb-2">💡 Critical Distinction</h4>
-                    <p className="text-amber-900 text-sm">Participation in Fatherhood Classes does not equate to enrollment in Project Family BUILD. These are <strong>distinct but complementary programs</strong> that fathers may access independently or simultaneously.</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 5: WORKFORCE PIPELINE */}
               <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
                 <SectionHeader number={5} title="Workforce Development Pipeline" />
                 <div className="p-6 bg-white">
-                  <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-lg mb-6">
-                    FOAM's workforce development pipeline: <strong>{m.workforceParticipation} fathers</strong> engaged → <strong>{m.jobPlacements} job placements</strong> → <strong>{m.jobRetention} retained</strong> (30-90 days)
-                  </div>
                   <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 mb-6">
                     <h4 className="font-bold text-gray-700 mb-4">📊 Workforce Progression Funnel</h4>
                     <BarChart data={[
@@ -818,216 +749,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
                 </div>
               </div>
 
-              {/* SECTION 6: EMPLOYMENT OUTCOMES */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={6} title="Employment Outcomes Analysis" />
-                <div className="p-6 bg-white">
-                  <table className="w-full text-sm mb-6">
-                    <thead><tr className="bg-[#0F2C5C] text-white"><th className="p-3 text-left">Employment Metric</th><th className="p-3 text-center">Result</th><th className="p-3 text-left">Analysis</th></tr></thead>
-                    <tbody className="divide-y divide-gray-200">
-                      <tr><td className="p-3 font-medium">Total Job Placements</td><td className="p-3 text-center font-bold text-emerald-600">{m.jobPlacements}</td><td className="p-3 text-gray-600">Fathers who obtained paid employment</td></tr>
-                      <tr><td className="p-3 font-medium">Placement Rate</td><td className="p-3 text-center font-bold text-emerald-600">{m.jobPlacementRate}%</td><td className="p-3 text-gray-600">Of workforce participants achieving employment</td></tr>
-                      <tr><td className="p-3 font-medium">30-90 Day Retention</td><td className="p-3 text-center font-bold text-purple-600">{m.jobRetention}</td><td className="p-3 text-gray-600">Maintained employment beyond critical window</td></tr>
-                      <tr><td className="p-3 font-medium">Retention Rate</td><td className="p-3 text-center font-bold text-purple-600">{m.retentionRate}%</td><td className="p-3 text-gray-600">Exceeds typical workforce program benchmarks</td></tr>
-                    </tbody>
-                  </table>
-                  <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-lg">
-                    <strong className="text-emerald-800">Key Finding:</strong> <span className="text-emerald-900">Job placement services combined with comprehensive retention support produces significantly better employment outcomes than placement-only approaches.</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 7: STABILIZATION */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={7} title="Stabilization & Essential Needs Support" />
-                <div className="p-6 bg-white">
-                  <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mb-6">
-                    FOAM provided <strong>{m.stabilizationSupport} instances of stabilization support</strong> during the reporting period.
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 mb-6">
-                    <h4 className="font-bold text-gray-700 mb-4">📊 Stabilization Support Distribution</h4>
-                    <BarChart data={[
-                      { label: 'Transportation', value: m.transportationAssist, color: '#0F2C5C' },
-                      { label: 'Basic Needs', value: m.basicNeedsAssist, color: '#059669' },
-                      { label: 'Legal Aid', value: m.legalAssist, color: '#d97706' },
-                      { label: 'Behavioral Health', value: m.behavioralHealthAssist, color: '#7c3aed' }
-                    ]} />
-                  </div>
-                  <table className="w-full text-sm">
-                    <thead><tr className="bg-[#0F2C5C] text-white"><th className="p-3 text-left">Category</th><th className="p-3 text-center">Count</th><th className="p-3 text-center">%</th><th className="p-3 text-left">Services</th></tr></thead>
-                    <tbody className="divide-y divide-gray-200">
-                      <tr><td className="p-3 font-medium">Transportation</td><td className="p-3 text-center font-bold">{m.transportationAssist}</td><td className="p-3 text-center">35%</td><td className="p-3 text-gray-600">Gas cards, bus passes, ride coordination</td></tr>
-                      <tr><td className="p-3 font-medium">Basic Needs</td><td className="p-3 text-center font-bold">{m.basicNeedsAssist}</td><td className="p-3 text-center">25%</td><td className="p-3 text-gray-600">Emergency food, clothing, utility assistance</td></tr>
-                      <tr><td className="p-3 font-medium">Legal Aid</td><td className="p-3 text-center font-bold">{m.legalAssist}</td><td className="p-3 text-center">20%</td><td className="p-3 text-gray-600">Child support, custody, expungement referrals</td></tr>
-                      <tr><td className="p-3 font-medium">Behavioral Health</td><td className="p-3 text-center font-bold">{m.behavioralHealthAssist}</td><td className="p-3 text-center">20%</td><td className="p-3 text-gray-600">Mental health screening, counseling referrals</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* SECTION 8: MENTAL HEALTH */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={8} title="Mental Health & Behavioral Services" />
-                <div className="p-6 bg-white">
-                  <div className="grid grid-cols-4 gap-4 mb-6">
-                    <KPICard label="MH Referrals" value={m.mentalHealthReferrals} sublabel="Fathers referred" colorClass="purple" />
-                    <KPICard label="Engagement Rate" value={m.mentalHealthEngagement + '%'} sublabel="Of fathers served" colorClass="blue" />
-                    <KPICard label="BH Support Events" value={m.behavioralHealthAssist} sublabel="Service events" colorClass="green" />
-                    <KPICard label="Integration" value="Embedded" sublabel="Throughout program" colorClass="amber" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <h4 className="font-bold text-[#0F2C5C] mb-3 pb-2 border-b-2 border-[#0F2C5C]">Mental Health Services</h4>
-                      <ul className="space-y-2 text-sm text-gray-600">
-                        <li>• Depression and anxiety screening</li>
-                        <li>• Trauma history assessment</li>
-                        <li>• Substance use screening</li>
-                        <li>• Individual counseling referrals</li>
-                        <li>• Crisis intervention</li>
-                      </ul>
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <h4 className="font-bold text-[#0F2C5C] mb-3 pb-2 border-b-2 border-[#0F2C5C]">Integration Outcomes</h4>
-                      <ul className="space-y-2 text-sm text-gray-600">
-                        <li>• {m.mentalHealthEngagement}% engagement rate</li>
-                        <li>• Improved program retention</li>
-                        <li>• Enhanced employment stability</li>
-                        <li>• Better family relationships</li>
-                        <li>• Increased self-efficacy scores</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-r-lg">
-                    <strong className="text-purple-800">Key Insight:</strong> <span className="text-purple-900">Fathers who engage in mental health services alongside workforce development show significantly better employment retention rates.</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 9: KPIs */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={9} title="Key Performance Indicators" />
-                <div className="p-6 bg-white">
-                  <div className="grid grid-cols-4 gap-4 mb-6">
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 text-center">
-                      <div className={'w-20 h-20 mx-auto rounded-full border-4 flex items-center justify-center text-2xl font-bold ' + (m.workforceParticipationRate >= 50 ? 'border-emerald-500 text-emerald-600' : 'border-amber-500 text-amber-600')}>{m.workforceParticipationRate}%</div>
-                      <div className="text-xs text-gray-500 mt-2 font-medium">Workforce<br/>Participation</div>
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 text-center">
-                      <div className={'w-20 h-20 mx-auto rounded-full border-4 flex items-center justify-center text-2xl font-bold ' + (m.jobPlacementRate >= 40 ? 'border-emerald-500 text-emerald-600' : 'border-amber-500 text-amber-600')}>{m.jobPlacementRate}%</div>
-                      <div className="text-xs text-gray-500 mt-2 font-medium">Job Placement<br/>Rate</div>
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 text-center">
-                      <div className={'w-20 h-20 mx-auto rounded-full border-4 flex items-center justify-center text-2xl font-bold ' + (m.retentionRate >= 70 ? 'border-emerald-500 text-emerald-600' : 'border-amber-500 text-amber-600')}>{m.retentionRate}%</div>
-                      <div className="text-xs text-gray-500 mt-2 font-medium">Job Retention<br/>(30-90 days)</div>
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 text-center">
-                      <div className={'w-20 h-20 mx-auto rounded-full border-4 flex items-center justify-center text-2xl font-bold ' + (m.mentalHealthEngagement >= 25 ? 'border-emerald-500 text-emerald-600' : 'border-amber-500 text-amber-600')}>{m.mentalHealthEngagement}%</div>
-                      <div className="text-xs text-gray-500 mt-2 font-medium">Mental Health<br/>Engagement</div>
-                    </div>
-                  </div>
-                  <h4 className="font-bold text-[#0F2C5C] mb-4">Performance Against Targets</h4>
-                  <ProgressBar label="Program Completion Rate (Target: 70%)" value={70} color="#059669" />
-                  <ProgressBar label="Stability Achievement Rate (Target: 80%)" value={80} color="#0F2C5C" />
-                  <ProgressBar label="Assessment Improvement Rate (Target: 75%)" value={75} color="#7c3aed" />
-                </div>
-              </div>
-
-              {/* SECTION 10: ORGANIZATIONAL CAPACITY */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={10} title="Organizational Capacity & Staffing" />
-                <div className="p-6 bg-white">
-                  <table className="w-full text-sm mb-6">
-                    <thead><tr className="bg-[#0F2C5C] text-white"><th className="p-3 text-left">Position</th><th className="p-3 text-left">Primary Functions</th><th className="p-3 text-center">Area</th><th className="p-3 text-center">FTE</th></tr></thead>
-                    <tbody className="divide-y divide-gray-200">
-                      <tr><td className="p-3 font-medium">Executive Director</td><td className="p-3 text-gray-600">Strategic leadership, funder relations</td><td className="p-3 text-center"><span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Leadership</span></td><td className="p-3 text-center">1.0</td></tr>
-                      <tr><td className="p-3 font-medium">Program Manager</td><td className="p-3 text-gray-600">Operations, staff supervision, QA</td><td className="p-3 text-center"><span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Leadership</span></td><td className="p-3 text-center">1.0</td></tr>
-                      <tr><td className="p-3 font-medium">Case Managers</td><td className="p-3 text-gray-600">Direct services, intake, goal planning</td><td className="p-3 text-center"><span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full text-xs">Service</span></td><td className="p-3 text-center">2.0</td></tr>
-                      <tr><td className="p-3 font-medium">Workforce Specialist</td><td className="p-3 text-gray-600">Employment services, employer relations</td><td className="p-3 text-center"><span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full text-xs">Service</span></td><td className="p-3 text-center">1.0</td></tr>
-                      <tr><td className="p-3 font-medium">Fatherhood Facilitator</td><td className="p-3 text-gray-600">Curriculum delivery, class facilitation</td><td className="p-3 text-center"><span className="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs">Education</span></td><td className="p-3 text-center">1.0</td></tr>
-                    </tbody>
-                  </table>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <h4 className="font-bold text-[#0F2C5C] mb-3">Organizational Strengths</h4>
-                      <ul className="space-y-2 text-sm text-gray-600">
-                        <li>• Experienced leadership with community connections</li>
-                        <li>• Staff trained in trauma-informed approaches</li>
-                        <li>• Strong data collection systems</li>
-                        <li>• Established referral network</li>
-                      </ul>
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <h4 className="font-bold text-[#0F2C5C] mb-3">Capacity Building Priorities</h4>
-                      <ul className="space-y-2 text-sm text-gray-600">
-                        <li>• Expand case management capacity</li>
-                        <li>• Enhance data analytics capabilities</li>
-                        <li>• Develop employer partnerships</li>
-                        <li>• Diversify funding sources</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 11: CHALLENGES */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={11} title="Challenges, Lessons Learned & Adaptations" />
-                <div className="p-6 bg-white">
-                  <div className="space-y-4 mb-6">
-                    <div className="bg-white border border-gray-200 rounded-xl p-4">
-                      <h5 className="font-bold text-[#0F2C5C] mb-2">⚠️ Challenge: Transportation Barriers</h5>
-                      <p className="text-sm text-gray-600 mb-2"><strong>Issue:</strong> Transportation emerged as the single largest barrier to program participation and employment retention.</p>
-                      <p className="text-sm text-gray-600"><strong>Adaptation:</strong> FOAM expanded transportation assistance to 35% of all stabilization support.</p>
-                    </div>
-                    <div className="bg-white border border-gray-200 rounded-xl p-4">
-                      <h5 className="font-bold text-[#0F2C5C] mb-2">⚠️ Challenge: Mental Health Stigma</h5>
-                      <p className="text-sm text-gray-600 mb-2"><strong>Issue:</strong> Many fathers were reluctant to acknowledge mental health needs due to stigma.</p>
-                      <p className="text-sm text-gray-600"><strong>Adaptation:</strong> Shifted to integrated "wellness conversations" embedded within case management.</p>
-                    </div>
-                    <div className="bg-white border border-gray-200 rounded-xl p-4">
-                      <h5 className="font-bold text-[#0F2C5C] mb-2">⚠️ Challenge: Engagement Retention</h5>
-                      <p className="text-sm text-gray-600 mb-2"><strong>Issue:</strong> Some fathers disengaged from services after initial contact.</p>
-                      <p className="text-sm text-gray-600"><strong>Adaptation:</strong> Implemented rapid engagement protocols ensuring services within the first week.</p>
-                    </div>
-                  </div>
-                  <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
-                    <strong className="text-amber-800">Key Lesson:</strong> <span className="text-amber-900">The most successful outcomes occur when fathers receive simultaneous support across multiple domains rather than sequential services.</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 12: STRATEGIC DIRECTION */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={12} title="Strategic Direction & Recommendations" />
-                <div className="p-6 bg-white">
-                  <ol className="space-y-4 mb-6">
-                    {[
-                      { title: 'Expand Employer Partnerships', desc: 'Develop formal relationships with 5-10 additional employers offering career pathways.' },
-                      { title: 'Enhance Retention Support', desc: 'Strengthen post-placement support to maintain the ' + m.retentionRate + '% retention rate.' },
-                      { title: 'Strengthen Mental Health Integration', desc: 'Deepen behavioral health integration through additional trauma-informed training.' },
-                      { title: 'Build Transportation Solutions', desc: 'Explore sustainable transportation solutions beyond emergency assistance.' },
-                      { title: 'Enhance Data Systems', desc: 'Implement improved outcome tracking including 6-month and 12-month follow-up.' },
-                      { title: 'Scale Successful Interventions', desc: 'Document and systematize the most effective program elements.' },
-                      { title: 'Diversify Funding Base', desc: 'Pursue additional funding sources including foundations and corporate partnerships.' }
-                    ].map((item, i) => (
-                      <li key={i} className="flex gap-4">
-                        <div className="w-8 h-8 rounded-full bg-[#0F2C5C] text-white flex items-center justify-center font-bold flex-shrink-0">{i + 1}</div>
-                        <div><strong className="text-[#0F2C5C]">{item.title}:</strong> <span className="text-gray-600">{item.desc}</span></div>
-                      </li>
-                    ))}
-                  </ol>
-                  <div className="bg-amber-50 border-2 border-amber-400 rounded-xl p-4">
-                    <h4 className="font-bold text-amber-800 mb-2">🎯 Summary of Strategic Priorities</h4>
-                    <p className="text-amber-900 text-sm">FOAM's strategic direction focuses on <strong>deepening impact</strong> rather than simply expanding reach. By strengthening employer relationships, enhancing retention support, and building sustainable solutions to persistent barriers, we aim to improve outcomes for each father served while positioning the organization for long-term sustainability.</p>
-                  </div>
-                </div>
-              </div>
-
               {/* FOOTER */}
               <div className="text-center py-8 border-t-4 border-[#0F2C5C]">
                 <div className="text-2xl font-bold text-[#0F2C5C] mb-2">Fathers On A Mission</div>
                 <div className="text-[#0F2C5C] italic mb-2">"Enhancing Fathers, Strengthening Families"</div>
-                <div className="text-sm text-gray-400">East Baton Rouge Parish, Louisiana | {periodLabel} | Generated: {generatedDate}</div>
+                <div className="text-sm text-gray-400">Download the Word or PDF version for the complete 12-section report.</div>
               </div>
             </div>
           </div>
@@ -1036,455 +762,294 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
     );
   };
 
-  const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
-    { id: 'historical', label: '2024-2025 Data', icon: <History size={18} /> },
-    { id: 'current', label: '2026 Data Entry', icon: <Edit3 size={18} /> },
-    { id: 'comparison', label: 'Comparison', icon: <BarChart3 size={18} /> },
-    { id: 'log', label: 'Change Log', icon: <ClipboardList size={18} /> },
-    { id: 'reports', label: 'Reports', icon: <FileText size={18} /> }
-  ];
+  // Data table renderer
+  const renderDataTable = (data: DataRow[], months: string[], editable: boolean = false) => (
+    <div className="overflow-x-auto bg-white rounded-xl border border-gray-200 shadow-sm">
+      <table className="w-full">
+        <thead><tr style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}>
+          <th className="sticky left-0 px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider min-w-[200px]" style={{ background: '#0F2C5C' }}>Category</th>
+          {months.map((month, i) => (<th key={i} className="px-3 py-3 text-center text-xs font-semibold text-white uppercase tracking-wider min-w-[80px]">{month}</th>))}
+        </tr></thead>
+        <tbody className="divide-y divide-gray-200">
+          {data.map((row, rowIndex) => (
+            <tr key={row.id} className="hover:bg-blue-50 transition-colors">
+              <td className="sticky left-0 bg-white px-4 py-3 text-sm font-medium text-gray-800 flex items-center gap-2 border-r border-gray-100">{getCategoryIcon(row.category)}{row.category}</td>
+              {row.values.map((value, colIndex) => (
+                <td key={colIndex} className={`px-3 py-3 text-center text-sm ${editable && colIndex !== months.length - 1 ? 'cursor-pointer hover:bg-blue-100' : ''} ${colIndex === months.length - 1 ? 'bg-blue-50 font-semibold text-blue-700' : 'text-gray-700'}`} onClick={() => editable && handleCellClick(rowIndex, colIndex, value)}>
+                  {editingCell?.row === rowIndex && editingCell?.col === colIndex ? (
+                    <div className="flex items-center gap-1">
+                      <input type="number" value={editValue} onChange={(e) => setEditValue(e.target.value)} className="w-16 px-2 py-1 bg-white border-2 border-blue-500 rounded text-center text-gray-800" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') handleSaveCell(); if (e.key === 'Escape') setEditingCell(null); }} />
+                      <button onClick={handleSaveCell} disabled={isSaving} className="p-1 bg-green-600 text-white rounded hover:bg-green-500"><CheckCircle2 size={14} /></button>
+                      <button onClick={() => setEditingCell(null)} className="p-1 bg-gray-400 text-white rounded hover:bg-gray-500"><X size={14} /></button>
+                    </div>
+                  ) : (value ?? '-')}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="w-12 h-12 text-blue-400 animate-spin mx-auto mb-4" />
-          <p className="text-white text-lg">Loading Case Manager Portal...</p>
+  // Reports tab renderer
+  const renderReportsTab = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2"><FileText size={20} className="text-blue-600" />Generate Funder Report</h3>
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-600 mb-2">Data Source</label>
+          <div className="flex gap-3">
+            <button onClick={() => setSelectedYear('2026')} className={`px-4 py-2 rounded-lg font-medium transition-all ${selectedYear === '2026' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'}`}>2026 (Current)</button>
+            <button onClick={() => setSelectedYear('2024-2025')} className={`px-4 py-2 rounded-lg font-medium transition-all ${selectedYear === '2024-2025' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'}`}>2024-2025 (Historical)</button>
+          </div>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-      {renderFullReportViewer()}
-      
-      {/* Header */}
-      <div className="bg-white/10 backdrop-blur-sm border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <ArrowLeft className="w-6 h-6 text-white" />
-              </button>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Case Manager Portal</h1>
-                <p className="text-blue-200 text-sm">FOAM Data Management & Reporting System</p>
-              </div>
-            </div>
-            <button onClick={loadData} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-              <RefreshCw size={18} />
-              Refresh Data
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-600 mb-2">Report Type</label>
+          <div className="grid grid-cols-5 gap-3">
+            <button onClick={() => setReportType('monthly')} className={`p-4 rounded-xl border-2 transition-all ${reportType === 'monthly' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
+              <Calendar size={24} className={reportType === 'monthly' ? 'text-blue-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
+              <div className={`font-medium ${reportType === 'monthly' ? 'text-blue-600' : 'text-gray-700'}`}>Monthly</div>
+            </button>
+            <button onClick={() => setReportType('quarterly')} className={`p-4 rounded-xl border-2 transition-all ${reportType === 'quarterly' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
+              <BarChart3 size={24} className={reportType === 'quarterly' ? 'text-emerald-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
+              <div className={`font-medium ${reportType === 'quarterly' ? 'text-emerald-600' : 'text-gray-700'}`}>Quarterly</div>
+            </button>
+            <button onClick={() => setReportType('annual')} className={`p-4 rounded-xl border-2 transition-all ${reportType === 'annual' ? 'border-amber-500 bg-amber-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
+              <Target size={24} className={reportType === 'annual' ? 'text-amber-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
+              <div className={`font-medium ${reportType === 'annual' ? 'text-amber-600' : 'text-gray-700'}`}>Annual</div>
+            </button>
+            <button onClick={() => setReportType('indepth6')} className={`p-4 rounded-xl border-2 transition-all ${reportType === 'indepth6' ? 'border-pink-500 bg-pink-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
+              <Sparkles size={24} className={reportType === 'indepth6' ? 'text-pink-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
+              <div className={`font-medium ${reportType === 'indepth6' ? 'text-pink-600' : 'text-gray-700'}`}>In-Depth</div>
+              <div className="text-xs text-gray-500 mt-1">6-Month Report</div>
+            </button>
+            <button onClick={() => setReportType('indepth')} className={`p-4 rounded-xl border-2 transition-all ${reportType === 'indepth' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-gray-300 bg-white'}`}>
+              <Sparkles size={24} className={reportType === 'indepth' ? 'text-purple-600 mx-auto mb-2' : 'text-gray-400 mx-auto mb-2'} />
+              <div className={`font-medium ${reportType === 'indepth' ? 'text-purple-600' : 'text-gray-700'}`}>In-Depth</div>
+              <div className="text-xs text-gray-500 mt-1">Annual Report</div>
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="bg-white/5 border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-1 overflow-x-auto py-2">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'bg-white text-blue-900 shadow-lg'
-                    : 'text-white/70 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                {tab.icon}
-                {tab.label}
-              </button>
-            ))}
+        {reportType === 'monthly' && (
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-600 mb-2">Select Month</label>
+            <select value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))} className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-800">
+              {['January','February','March','April','May','June','July','August','September','October','November','December'].map((month, i) => (<option key={i} value={i}>{month}</option>))}
+            </select>
           </div>
+        )}
+        {reportType === 'quarterly' && (
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-600 mb-2">Select Quarter</label>
+            <div className="flex gap-3">
+              {[1,2,3,4].map((q) => (<button key={q} onClick={() => setSelectedQuarter(q)} className={`flex-1 py-2 rounded-lg font-medium transition-all ${selectedQuarter === q ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'}`}>Q{q}</button>))}
+            </div>
+          </div>
+        )}
+        {reportType === 'indepth' && (
+          <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-xl">
+            <div className="flex items-start gap-3">
+              <Sparkles size={24} className="text-purple-600 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-purple-800 mb-2">Comprehensive Annual Grant Report (12 Sections)</h4>
+                <p className="text-sm text-gray-600 mb-3">Generates a complete funder-ready annual outcomes report including:</p>
+                <ul className="text-sm text-gray-600 grid grid-cols-2 gap-1">
+                  <li>✓ Executive Summary</li><li>✓ Annual Outcomes Table</li>
+                  <li>✓ Program Reach Analysis</li><li>✓ Service Model Overview</li>
+                  <li>✓ Workforce Pipeline Charts</li><li>✓ Employment Outcomes</li>
+                  <li>✓ Stabilization Support</li><li>✓ Mental Health Integration</li>
+                  <li>✓ KPI Performance Dashboard</li><li>✓ Organizational Capacity</li>
+                  <li>✓ Challenges & Lessons</li><li>✓ Strategic Recommendations</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+        {reportType === 'indepth6' && (
+          <div className="mb-6 p-4 bg-pink-50 border border-pink-200 rounded-xl">
+            <div className="flex items-start gap-3">
+              <Sparkles size={24} className="text-pink-600 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-pink-800 mb-2">Comprehensive 6-Month Grant Report (12 Sections)</h4>
+                <p className="text-sm text-gray-600 mb-3">Generates a complete funder-ready 6-month outcomes report including:</p>
+                <ul className="text-sm text-gray-600 grid grid-cols-2 gap-1">
+                  <li>✓ Executive Summary</li><li>✓ 6-Month Outcomes Table</li>
+                  <li>✓ Program Reach Analysis</li><li>✓ Service Model Overview</li>
+                  <li>✓ Workforce Pipeline Charts</li><li>✓ Employment Outcomes</li>
+                  <li>✓ Stabilization Support</li><li>✓ Mental Health Integration</li>
+                  <li>✓ KPI Performance Dashboard</li><li>✓ Organizational Capacity</li>
+                  <li>✓ Challenges & Lessons</li><li>✓ Strategic Recommendations</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="flex gap-3">
+          <button onClick={() => setShowPreview(true)} disabled={!previewData} className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 border border-gray-300"><Eye size={18} />Preview Data</button>
+          <button onClick={handleGenerateReport} disabled={isGenerating} className="flex items-center gap-2 px-6 py-2 text-white rounded-lg disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}>
+            {isGenerating ? (<><RefreshCw size={18} className="animate-spin" />Generating...</>) : (<><FileDown size={18} />Generate Report</>)}
+          </button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {error && (
-          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center gap-3">
-            <AlertTriangle className="text-red-400" />
-            <span className="text-red-200">{error}</span>
-          </div>
-        )}
-
-        {/* Historical Data Tab */}
-        {activeTab === 'historical' && (
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="p-6 bg-gradient-to-r from-amber-500 to-orange-600">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <History size={24} />
-                Historical Data: October 2024 - September 2025
-              </h2>
-              <p className="text-amber-100 mt-1">Read-only view of completed program year data</p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 sticky left-0 bg-gray-50">Category</th>
-                    {historicalMonths.map((month, i) => (
-                      <th key={i} className="px-4 py-3 text-center text-sm font-semibold text-gray-700 min-w-[80px]">{month}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {historicalData.map((row, rowIndex) => (
-                    <tr key={row.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 sticky left-0 bg-white">
-                        <div className="flex items-center gap-2">
-                          {getCategoryIcon(row.category)}
-                          <span className="font-medium text-gray-800 text-sm">{row.category}</span>
-                        </div>
-                      </td>
-                      {row.values.map((value, colIndex) => (
-                        <td key={colIndex} className={`px-4 py-3 text-center ${colIndex === row.values.length - 1 ? 'bg-amber-50 font-bold text-amber-700' : 'text-gray-600'}`}>
-                          {value ?? '-'}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* Generated Report Display */}
+      {generatedReport && (
+        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><CheckCircle2 size={20} className="text-green-600" />Report Generated Successfully</h3>
+            <div className="flex gap-2">
+              {(reportType === 'indepth' || reportType === 'indepth6') && (
+                <button onClick={() => setShowFullReport(true)} className={`flex items-center gap-2 px-4 py-2 text-white rounded-lg ${reportType === 'indepth6' ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}><Monitor size={16} />View on Screen</button>
+              )}
+              <button onClick={() => handleDownloadReport('word')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Download size={16} />Download Word</button>
+              <button onClick={() => handleDownloadReport('pdf')} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"><Printer size={16} />Export PDF</button>
             </div>
           </div>
-        )}
-
-        {/* Current Data Tab */}
-        {activeTab === 'current' && (
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Edit3 size={24} />
-                2026 Data Entry
-              </h2>
-              <p className="text-blue-100 mt-1">Click any cell to edit (except totals column)</p>
+          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">Fathers On A Mission</h2>
+              <p className="text-gray-600">{reportType === 'indepth' ? 'Comprehensive Annual Report (12 Sections)' : reportType === 'indepth6' ? 'Comprehensive 6-Month Report (12 Sections)' : (generatedReport.metadata?.reportType?.charAt(0).toUpperCase() + generatedReport.metadata?.reportType?.slice(1) + ' Report')}</p>
+              <p className="text-blue-600 font-medium">{generatedReport.metadata?.periodLabel}</p>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 sticky left-0 bg-gray-50">Category</th>
-                    {currentMonths.map((month, i) => (
-                      <th key={i} className={`px-4 py-3 text-center text-sm font-semibold min-w-[80px] ${i === currentMonths.length - 1 ? 'text-blue-700 bg-blue-50' : 'text-gray-700'}`}>{month}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {currentData.map((row, rowIndex) => (
-                    <tr key={row.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 sticky left-0 bg-white">
-                        <div className="flex items-center gap-2">
-                          {getCategoryIcon(row.category)}
-                          <span className="font-medium text-gray-800 text-sm">{row.category}</span>
-                        </div>
-                      </td>
-                      {row.values.map((value, colIndex) => (
-                        <td
-                          key={colIndex}
-                          onClick={() => handleCellClick(rowIndex, colIndex, value)}
-                          className={`px-4 py-3 text-center ${
-                            colIndex === row.values.length - 1
-                              ? 'bg-blue-50 font-bold text-blue-700'
-                              : 'cursor-pointer hover:bg-blue-100 text-gray-600'
-                          } ${editingCell?.row === rowIndex && editingCell?.col === colIndex ? 'bg-yellow-100' : ''}`}
-                        >
-                          {editingCell?.row === rowIndex && editingCell?.col === colIndex ? (
-                            <div className="flex items-center gap-1">
-                              <input
-                                type="number"
-                                value={editValue}
-                                onChange={(e) => setEditValue(e.target.value)}
-                                className="w-16 px-2 py-1 border rounded text-center"
-                                autoFocus
-                              />
-                              <button onClick={handleSaveCell} disabled={isSaving} className="p-1 bg-green-500 text-white rounded hover:bg-green-600">
-                                <CheckCircle2 size={16} />
-                              </button>
-                              <button onClick={() => setEditingCell(null)} className="p-1 bg-gray-400 text-white rounded hover:bg-gray-500">
-                                <X size={16} />
-                              </button>
-                            </div>
-                          ) : (
-                            value ?? '-'
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Comparison Tab */}
-        {activeTab === 'comparison' && (
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="p-6 bg-gradient-to-r from-purple-600 to-pink-600">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <BarChart3 size={24} />
-                Year-over-Year Comparison
-              </h2>
-              <p className="text-purple-100 mt-1">Compare 2024-2025 totals with 2026 YTD</p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Metric</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">2024-2025</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">2026 YTD</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Change</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">% Change</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {comparisonData.map((row) => (
-                    <tr key={row.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-800">{row.metric}</td>
-                      <td className="px-4 py-3 text-center text-gray-600">{row.historical}</td>
-                      <td className="px-4 py-3 text-center text-gray-600">{row.current}</td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`inline-flex items-center gap-1 ${row.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {row.change >= 0 ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
-                          {Math.abs(row.change)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`px-2 py-1 rounded-full text-sm font-medium ${row.percentChange >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                          {row.percentChange >= 0 ? '+' : ''}{row.percentChange}%
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Change Log Tab */}
-        {activeTab === 'log' && (
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="p-6 bg-gradient-to-r from-slate-600 to-slate-800">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <ClipboardList size={24} />
-                Change Log
-              </h2>
-              <p className="text-slate-200 mt-1">Track all data modifications</p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Case Manager</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Period</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Category</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Old Value</th>
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">New Value</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {logData.length === 0 ? (
-                    <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">No changes recorded yet</td></tr>
-                  ) : (
-                    logData.map((entry) => (
-                      <tr key={entry.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-gray-600 text-sm">{entry.date}</td>
-                        <td className="px-4 py-3 text-gray-800 font-medium">{entry.caseManager}</td>
-                        <td className="px-4 py-3 text-gray-600">{entry.month} {entry.year}</td>
-                        <td className="px-4 py-3 text-gray-600">{entry.category}</td>
-                        <td className="px-4 py-3 text-center text-red-600">{entry.oldValue}</td>
-                        <td className="px-4 py-3 text-center text-green-600 font-medium">{entry.newValue}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Reports Tab */}
-        {activeTab === 'reports' && (
-          <div className="space-y-6">
-            {/* Report Configuration */}
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-              <div className="p-6 bg-gradient-to-r from-emerald-600 to-teal-600">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <FileText size={24} />
-                  Report Generator
-                </h2>
-                <p className="text-emerald-100 mt-1">Generate comprehensive outcome reports</p>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
-                    <select value={reportType} onChange={(e) => setReportType(e.target.value as ReportType)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">
-                      <option value="monthly">Monthly Summary</option>
-                      <option value="quarterly">Quarterly Summary</option>
-                      <option value="annual">Annual Summary</option>
-                      <option value="indepth">📊 Comprehensive Annual (12-Section)</option>
-                      <option value="indepth6">📈 Comprehensive 6-Month (12-Section)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Data Year</label>
-                    <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value as '2024-2025' | '2026')} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">
-                      <option value="2024-2025">2024-2025 (Historical)</option>
-                      <option value="2026">2026 (Current)</option>
-                    </select>
-                  </div>
-                  {reportType === 'monthly' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Month</label>
-                      <select value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">
-                        {(reportData?.months || []).map((month, i) => (
-                          <option key={i} value={i}>{month}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                  {reportType === 'quarterly' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Quarter</label>
-                      <select value={selectedQuarter} onChange={(e) => setSelectedQuarter(Number(e.target.value))} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">
-                        <option value={1}>Q1 (Jan-Mar)</option>
-                        <option value={2}>Q2 (Apr-Jun)</option>
-                        <option value={3}>Q3 (Jul-Sep)</option>
-                        <option value={4}>Q4 (Oct-Dec)</option>
-                      </select>
-                    </div>
-                  )}
-                  <div className="flex items-end">
-                    <button onClick={handleGenerateReport} disabled={isGenerating} className="w-full p-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-                      {isGenerating ? <RefreshCw className="animate-spin" size={20} /> : <Sparkles size={20} />}
-                      {isGenerating ? 'Generating...' : 'Generate Report'}
-                    </button>
-                  </div>
+            {(() => {
+              const previewMetrics = getReportMetrics(generatedReport, reportType === 'indepth6');
+              return (
+                <div className="grid grid-cols-4 gap-4 mb-6">
+                  <div className="bg-blue-50 rounded-xl p-4 text-center border border-blue-200"><div className="text-3xl font-bold text-blue-700">{previewMetrics.activeFathers}</div><div className="text-xs text-gray-600 uppercase">Fathers Served</div></div>
+                  <div className="bg-emerald-50 rounded-xl p-4 text-center border border-emerald-200"><div className="text-3xl font-bold text-emerald-700">{previewMetrics.fatherhoodClassEnrollment}</div><div className="text-xs text-gray-600 uppercase">Class Enrollment</div></div>
+                  <div className="bg-amber-50 rounded-xl p-4 text-center border border-amber-200"><div className="text-3xl font-bold text-amber-700">{previewMetrics.jobPlacements}</div><div className="text-xs text-gray-600 uppercase">Job Placements</div></div>
+                  <div className="bg-purple-50 rounded-xl p-4 text-center border border-purple-200"><div className="text-3xl font-bold text-purple-700">{previewMetrics.retentionRate}%</div><div className="text-xs text-gray-600 uppercase">Retention Rate</div></div>
                 </div>
-
-                {/* Preview Toggle */}
-                <button onClick={() => setShowPreview(!showPreview)} className="text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-2">
-                  <Eye size={18} />
-                  {showPreview ? 'Hide' : 'Show'} Data Preview
-                </button>
-
-                {/* Data Preview */}
-                {showPreview && previewData && (
-                  <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-semibold text-gray-700 mb-3">Data Preview</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {previewData.slice(0, 8).map((item: any, i: number) => (
-                        <div key={i} className="bg-white p-3 rounded-lg shadow-sm">
-                          <div className="text-xs text-gray-500">{item.category}</div>
-                          <div className="text-lg font-bold text-gray-800">{item.value}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Generated Report */}
-            {generatedReport && (
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div className="p-6 bg-gradient-to-r from-purple-600 to-indigo-600">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Target size={24} />
-                        Generated Report
-                      </h2>
-                      <p className="text-purple-100 mt-1">{generatedReport.metadata?.periodLabel || 'Report'}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      {(reportType === 'indepth' || reportType === 'indepth6') && (
-                        <button onClick={() => setShowFullReport(true)} className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors">
-                          <Monitor size={18} />
-                          View on Screen
-                        </button>
-                      )}
-                      <button onClick={() => handleDownloadReport('word')} className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors">
-                        <Download size={18} />
-                        Download Word
-                      </button>
-                      <button onClick={() => handleDownloadReport('pdf')} className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors">
-                        <Printer size={18} />
-                        Print/PDF
-                      </button>
-                    </div>
-                  </div>
+              );
+            })()}
+            {(reportType === 'indepth' || reportType === 'indepth6') && (
+              <div className={`border rounded-lg p-4 ${reportType === 'indepth6' ? 'bg-pink-50 border-pink-200' : 'bg-purple-50 border-purple-200'}`}>
+                <h4 className={`font-semibold mb-2 ${reportType === 'indepth6' ? 'text-pink-800' : 'text-purple-800'}`}>📄 Report Contains 12 Comprehensive Sections</h4>
+                <div className="grid grid-cols-3 gap-2 text-sm text-gray-700">
+                  <div>1. Executive Summary</div><div>2. {reportType === 'indepth6' ? '6-Month' : 'Annual'} Outcomes</div><div>3. Program Reach</div>
+                  <div>4. Service Model</div><div>5. Workforce Pipeline</div><div>6. Employment Outcomes</div>
+                  <div>7. Stabilization</div><div>8. Mental Health</div><div>9. KPIs</div>
+                  <div>10. Org Capacity</div><div>11. Challenges</div><div>12. Strategic Direction</div>
                 </div>
-                <div className="p-6">
-                  {/* Key Metrics */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-blue-50 rounded-xl p-4 text-center">
-                      <div className="text-3xl font-bold text-blue-700">{generatedReport.keyMetrics?.activeFathers || 0}</div>
-                      <div className="text-sm text-blue-600">Fathers Served</div>
-                    </div>
-                    <div className="bg-emerald-50 rounded-xl p-4 text-center">
-                      <div className="text-3xl font-bold text-emerald-700">{generatedReport.keyMetrics?.fatherhoodClassEnrollment || 0}</div>
-                      <div className="text-sm text-emerald-600">Class Enrollment</div>
-                    </div>
-                    <div className="bg-amber-50 rounded-xl p-4 text-center">
-                      <div className="text-3xl font-bold text-amber-700">{generatedReport.keyMetrics?.jobPlacements || 0}</div>
-                      <div className="text-sm text-amber-600">Job Placements</div>
-                    </div>
-                    <div className="bg-purple-50 rounded-xl p-4 text-center">
-                      <div className="text-3xl font-bold text-purple-700">{generatedReport.successMetrics?.retentionRate || 0}%</div>
-                      <div className="text-sm text-purple-600">Retention Rate</div>
-                    </div>
-                  </div>
-
-                  {/* Narrative Insights */}
-                  {generatedReport.narrativeInsights && generatedReport.narrativeInsights.length > 0 && (
-                    <div>
-                      <h3 className="font-semibold text-gray-800 mb-3">Key Insights</h3>
-                      <div className="space-y-2">
-                        {generatedReport.narrativeInsights.map((insight: string, i: number) => (
-                          <div key={i} className="p-3 bg-gray-50 rounded-lg text-gray-700 text-sm">{insight}</div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <p className={`text-sm mt-3 ${reportType === 'indepth6' ? 'text-pink-700' : 'text-purple-700'}`}>💡 Click <strong>"View on Screen"</strong> to see the full visual report, or download as Word/PDF.</p>
               </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Name Prompt Modal */}
-      {showNamePrompt && (
+      {/* Data Preview Modal */}
+      {showPreview && previewData && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Enter Your Name</h3>
-            <p className="text-gray-600 mb-4">Your name will be recorded with any changes you make.</p>
-            <input
-              type="text"
-              value={caseManagerName}
-              onChange={(e) => setCaseManagerName(e.target.value)}
-              placeholder="Enter your name"
-              className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
-            />
-            <div className="flex gap-3">
-              <button onClick={() => setShowNamePrompt(false)} className="flex-1 p-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors">Cancel</button>
-              <button onClick={() => { if (caseManagerName.trim()) setShowNamePrompt(false); }} disabled={!caseManagerName.trim()} className="flex-1 p-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors">Continue</button>
+          <div className="bg-white rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Data Preview</h3>
+              <button onClick={() => setShowPreview(false)} className="p-1 hover:bg-gray-100 rounded"><X size={20} className="text-gray-500" /></button>
             </div>
+            <table className="w-full">
+              <thead><tr className="border-b border-gray-200"><th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Category</th><th className="px-4 py-2 text-right text-sm font-medium text-gray-600">Value</th></tr></thead>
+              <tbody>{previewData.map((item: any, i: number) => (<tr key={i} className="border-b border-gray-100"><td className="px-4 py-2 text-sm text-gray-700">{item.category}</td><td className="px-4 py-2 text-sm text-right text-blue-600 font-medium">{item.value}</td></tr>))}</tbody>
+            </table>
           </div>
         </div>
       )}
     </div>
   );
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw size={40} className="text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading Case Manager Portal...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Main render
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"><ArrowLeft size={20} /></button>
+            <div>
+              <h1 className="text-xl font-bold text-gray-800">Case Manager Monthly Reports</h1>
+              <p className="text-sm text-gray-500">Track, compare, and generate funder reports</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {caseManagerName && (<span className="text-sm text-gray-500">Logged in as: <span className="text-blue-600 font-medium">{caseManagerName}</span></span>)}
+            <button onClick={loadData} className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors border border-gray-200"><RefreshCw size={16} />Refresh</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs - NO LIVE DASHBOARD */}
+      <div className="border-b border-gray-200 bg-white">
+        <div className="flex px-6">
+          {[
+            { id: 'historical', label: '2024-2025 Historical', icon: History },
+            { id: 'current', label: '2026 Data Entry', icon: Edit3 },
+            { id: 'comparison', label: 'Year Comparison', icon: BarChart3 },
+            { id: 'log', label: 'Change Log', icon: ClipboardList },
+            { id: 'reports', label: 'Generate Reports', icon: FileText }
+          ].map((tab) => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id as TabType)} className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${activeTab === tab.id ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+              <tab.icon size={16} />{tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-6">
+        {error && (<div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-center gap-2"><AlertTriangle size={20} />{error}</div>)}
+
+        {activeTab === 'current' && currentData.length > 0 && renderDataTable(currentData, currentMonths, true)}
+        {activeTab === 'historical' && historicalData.length > 0 && renderDataTable(historicalData, historicalMonths)}
+        {activeTab === 'comparison' && (
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+            <table className="w-full">
+              <thead><tr style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}><th className="px-4 py-3 text-left text-xs font-semibold text-white">Metric</th><th className="px-4 py-3 text-center text-xs font-semibold text-white">2024-2025</th><th className="px-4 py-3 text-center text-xs font-semibold text-white">2026</th><th className="px-4 py-3 text-center text-xs font-semibold text-white">Change</th><th className="px-4 py-3 text-center text-xs font-semibold text-white">% Change</th></tr></thead>
+              <tbody>{comparisonData.map((row) => (<tr key={row.id} className="border-t border-gray-200 hover:bg-blue-50"><td className="px-4 py-3 text-sm text-gray-800">{row.metric}</td><td className="px-4 py-3 text-center text-sm text-gray-700">{row.historical}</td><td className="px-4 py-3 text-center text-sm text-gray-700">{row.current}</td><td className={`px-4 py-3 text-center text-sm font-medium ${row.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>{row.change >= 0 ? '+' : ''}{row.change}</td><td className={`px-4 py-3 text-center text-sm font-medium ${row.percentChange >= 0 ? 'text-green-600' : 'text-red-600'}`}><span className="flex items-center justify-center gap-1">{row.percentChange >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{Math.abs(row.percentChange)}%</span></td></tr>))}</tbody>
+            </table>
+          </div>
+        )}
+        {activeTab === 'log' && (
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+            <table className="w-full">
+              <thead><tr style={{ background: 'linear-gradient(135deg, #0F2C5C 0%, #1a365d 100%)' }}><th className="px-4 py-3 text-left text-xs font-semibold text-white">Date</th><th className="px-4 py-3 text-left text-xs font-semibold text-white">Case Manager</th><th className="px-4 py-3 text-left text-xs font-semibold text-white">Month/Year</th><th className="px-4 py-3 text-left text-xs font-semibold text-white">Category</th><th className="px-4 py-3 text-center text-xs font-semibold text-white">Old → New</th></tr></thead>
+              <tbody>{logData.map((entry) => (<tr key={entry.id} className="border-t border-gray-200 hover:bg-blue-50"><td className="px-4 py-3 text-sm text-gray-500">{entry.date}</td><td className="px-4 py-3 text-sm text-blue-600 font-medium">{entry.caseManager}</td><td className="px-4 py-3 text-sm text-gray-700">{entry.month} {entry.year}</td><td className="px-4 py-3 text-sm text-gray-700">{entry.category}</td><td className="px-4 py-3 text-center text-sm"><span className="text-red-600">{entry.oldValue}</span><span className="text-gray-400 mx-2">→</span><span className="text-green-600">{entry.newValue}</span></td></tr>))}</tbody>
+            </table>
+          </div>
+        )}
+        {activeTab === 'reports' && renderReportsTab()}
+      </div>
+
+      {/* Name Prompt Modal */}
+      {showNamePrompt && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Enter Your Name</h3>
+            <p className="text-sm text-gray-600 mb-4">Please enter your name to track changes.</p>
+            <input type="text" placeholder="Your name" value={caseManagerName} onChange={(e) => setCaseManagerName(e.target.value)} className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 mb-4" autoFocus />
+            <div className="flex gap-3">
+              <button onClick={() => setShowNamePrompt(false)} className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 border border-gray-300">Cancel</button>
+              <button onClick={() => { if (caseManagerName.trim()) setShowNamePrompt(false); }} disabled={!caseManagerName.trim()} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">Continue</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Report Viewer */}
+      {renderFullReportViewer()}
+    </div>
+  );
 };
 
 export default CaseManagerPortal;
-
