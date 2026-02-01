@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 
 const API_BASE_URL = 'https://foamla-backend-2.onrender.com';
+const PROGRAM_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1-ymLPrHBu7VoNSTI4QsSKhj1go5FNfwQyHFWD6CuxtY';
 
 // Type definitions
 interface PFBClient {
@@ -89,11 +90,48 @@ const ProgramManagement: React.FC<ProgramManagementProps> = ({ onClose }) => {
       ]);
       if (pfbRes.ok) {
         const pfbData = await pfbRes.json();
-        if (pfbData.success && Array.isArray(pfbData.data)) setPfbClients(pfbData.data);
+        if (pfbData.success && Array.isArray(pfbData.data)) {
+          // Map API response to frontend format with null checks
+          const mappedPfb = pfbData.data.map((item: any) => ({
+            id: item.id || '',
+            name: item.fullName || item.name || `${item.firstName || ''} ${item.lastName || ''}`.trim() || 'Unknown',
+            phone: item.phone || '',
+            dateOfLastContact: item.intakeDate || item.dateOfLastContact || new Date().toISOString().split('T')[0],
+            method: item.method || 'Call',
+            notes: item.notes || '',
+            needsFollowUp: true,
+            status: (item.status || 'active').toLowerCase() as 'active' | 'inactive' | 'completed',
+            servicesNeeded: item.servicesNeeded || [],
+            dateEnrolled: item.intakeDate || item.dateEnrolled || ''
+          }));
+          setPfbClients(mappedPfb);
+        } else {
+          setPfbClients(getSamplePFBData());
+        }
       } else { setPfbClients(getSamplePFBData()); }
+      
       if (wfdRes.ok) {
         const wfdData = await wfdRes.json();
-        if (wfdData.success && Array.isArray(wfdData.data)) setWfdClients(wfdData.data);
+        if (wfdData.success && Array.isArray(wfdData.data)) {
+          // Map API response to frontend format with null checks
+          const mappedWfd = wfdData.data.map((item: any) => ({
+            id: item.id || '',
+            name: item.fullName || item.name || `${item.firstName || ''} ${item.lastName || ''}`.trim() || 'Unknown',
+            phone: item.phone || '',
+            dateOfLastContact: item.enrollmentDate || item.dateOfLastContact || new Date().toISOString().split('T')[0],
+            method: item.method || 'Text',
+            answer: (item.answer || item.employmentStatus === 'Employed' ? 'YES' : 'PENDING') as 'YES' | 'NO' | 'PENDING',
+            status: item.employmentStatus === 'Employed' ? 'employed' : 
+                   item.employmentStatus === 'Seeking' ? 'searching' : 
+                   (item.status || 'active').toLowerCase() as 'active' | 'employed' | 'searching' | 'inactive',
+            employer: item.employer || '',
+            position: item.jobTitle || item.position || '',
+            dateEnrolled: item.enrollmentDate || item.dateEnrolled || ''
+          }));
+          setWfdClients(mappedWfd);
+        } else {
+          setWfdClients(getSampleWFDData());
+        }
       } else { setWfdClients(getSampleWFDData()); }
     } catch (err: any) {
       setPfbClients(getSamplePFBData());
@@ -144,14 +182,24 @@ const ProgramManagement: React.FC<ProgramManagementProps> = ({ onClose }) => {
     return { pfb: { total: pfbClients.length, active: pfbActive, followUp: pfbFollowUp, serviceBreakdown }, wfd: { total: wfdClients.length, active: wfdActive, employed: wfdEmployed, responded: wfdResponded } };
   }, [pfbClients, wfdClients]);
 
+  // Safe string helper for null checks
+  const safeString = (str: string | undefined | null): string => str || '';
+
   const filteredPFB = useMemo(() => pfbClients.filter(client => {
-    const matchesSearch = client.name.toLowerCase().includes(searchQuery.toLowerCase()) || client.phone.includes(searchQuery) || client.notes.toLowerCase().includes(searchQuery.toLowerCase());
+    const name = safeString(client.name).toLowerCase();
+    const phone = safeString(client.phone);
+    const notes = safeString(client.notes).toLowerCase();
+    const query = searchQuery.toLowerCase();
+    const matchesSearch = name.includes(query) || phone.includes(searchQuery) || notes.includes(query);
     const matchesFilter = filterStatus === 'all' || client.status === filterStatus;
     return matchesSearch && matchesFilter;
   }), [pfbClients, searchQuery, filterStatus]);
 
   const filteredWFD = useMemo(() => wfdClients.filter(client => {
-    const matchesSearch = client.name.toLowerCase().includes(searchQuery.toLowerCase()) || client.phone.includes(searchQuery);
+    const name = safeString(client.name).toLowerCase();
+    const phone = safeString(client.phone);
+    const query = searchQuery.toLowerCase();
+    const matchesSearch = name.includes(query) || phone.includes(searchQuery);
     const matchesFilter = filterStatus === 'all' || client.status === filterStatus;
     return matchesSearch && matchesFilter;
   }), [wfdClients, searchQuery, filterStatus]);
@@ -191,8 +239,8 @@ const ProgramManagement: React.FC<ProgramManagementProps> = ({ onClose }) => {
   const handleDeletePFB = (id: string) => { if (window.confirm('Remove this client from Project Family BUILD?')) { setPfbClients(prev => prev.filter(c => c.id !== id)); setSuccess('Client removed'); } };
   const handleDeleteWFD = (id: string) => { if (window.confirm('Remove this client from Workforce Development?')) { setWfdClients(prev => prev.filter(c => c.id !== id)); setSuccess('Client removed'); } };
 
-  const formatDate = (dateStr: string) => { try { return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); } catch { return dateStr; } };
-  const formatPhone = (phone: string) => { const cleaned = phone.replace(/\D/g, ''); if (cleaned.length === 10) return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`; return phone; };
+  const formatDate = (dateStr: string) => { try { if (!dateStr) return 'N/A'; return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); } catch { return dateStr || 'N/A'; } };
+  const formatPhone = (phone: string) => { if (!phone) return 'N/A'; const cleaned = phone.replace(/\D/g, ''); if (cleaned.length === 10) return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`; return phone; };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -294,13 +342,13 @@ const ProgramManagement: React.FC<ProgramManagementProps> = ({ onClose }) => {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between"><h3 className="font-bold text-slate-800 flex items-center gap-2"><Clock size={20} className="text-[#0F2C5C]" /> Recent Activity</h3><span className="text-xs text-slate-500">Last 5 contacts</span></div>
         <div className="divide-y divide-slate-100">
-          {[...pfbClients, ...wfdClients].sort((a, b) => new Date(b.dateOfLastContact).getTime() - new Date(a.dateOfLastContact).getTime()).slice(0, 5).map((client, i) => {
+          {[...pfbClients, ...wfdClients].sort((a, b) => new Date(b.dateOfLastContact || 0).getTime() - new Date(a.dateOfLastContact || 0).getTime()).slice(0, 5).map((client, i) => {
             const isPFB = 'needsFollowUp' in client;
             return (
               <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#0F2C5C]/10 text-[#0F2C5C]">{isPFB ? <Building2 size={18} /> : <Briefcase size={18} />}</div>
-                  <div><div className="font-medium text-slate-800">{client.name}</div><div className="text-xs text-slate-500">{isPFB ? 'PFB' : 'WFD'} • {client.method}</div></div>
+                  <div><div className="font-medium text-slate-800">{safeString(client.name) || 'Unknown'}</div><div className="text-xs text-slate-500">{isPFB ? 'PFB' : 'WFD'} • {client.method || 'N/A'}</div></div>
                 </div>
                 <div className="text-right"><div className="text-sm text-slate-600">{formatDate(client.dateOfLastContact)}</div><div className="text-xs text-slate-400">{formatPhone(client.phone)}</div></div>
               </div>
@@ -312,7 +360,7 @@ const ProgramManagement: React.FC<ProgramManagementProps> = ({ onClose }) => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <button onClick={() => { setActiveTab('pfb'); setModalType('add-pfb'); }} className="p-4 bg-white border border-slate-200 rounded-xl hover:border-[#0F2C5C]/30 hover:bg-[#0F2C5C]/5 transition-all group"><UserPlus size={24} className="text-[#0F2C5C] mb-2" /><div className="font-medium text-slate-800">Add to PFB</div><div className="text-xs text-slate-500">Case management</div></button>
         <button onClick={() => { setActiveTab('wfd'); setModalType('add-wfd'); }} className="p-4 bg-white border border-slate-200 rounded-xl hover:border-[#0F2C5C]/30 hover:bg-[#0F2C5C]/5 transition-all group"><UserPlus size={24} className="text-[#0F2C5C] mb-2" /><div className="font-medium text-slate-800">Add to WFD</div><div className="text-xs text-slate-500">Workforce client</div></button>
-        <a href="https://docs.google.com/spreadsheets/d/" target="_blank" rel="noopener noreferrer" className="p-4 bg-white border border-slate-200 rounded-xl hover:border-[#0F2C5C]/30 hover:bg-[#0F2C5C]/5 transition-all group"><ExternalLink size={24} className="text-[#0F2C5C] mb-2" /><div className="font-medium text-slate-800">Open Sheet</div><div className="text-xs text-slate-500">Google Sheets</div></a>
+        <a href={PROGRAM_SHEET_URL} target="_blank" rel="noopener noreferrer" className="p-4 bg-white border border-slate-200 rounded-xl hover:border-[#0F2C5C]/30 hover:bg-[#0F2C5C]/5 transition-all group"><ExternalLink size={24} className="text-[#0F2C5C] mb-2" /><div className="font-medium text-slate-800">Open Sheet</div><div className="text-xs text-slate-500">Google Sheets</div></a>
         <button onClick={loadAllData} className="p-4 bg-white border border-slate-200 rounded-xl hover:border-[#0F2C5C]/30 hover:bg-[#0F2C5C]/5 transition-all group"><RefreshCw size={24} className="text-[#0F2C5C] mb-2" /><div className="font-medium text-slate-800">Refresh</div><div className="text-xs text-slate-500">Sync data</div></button>
       </div>
     </div>
@@ -326,6 +374,7 @@ const ProgramManagement: React.FC<ProgramManagementProps> = ({ onClose }) => {
         <div className="flex items-center gap-3">
           <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input type="text" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0F2C5C] focus:border-[#0F2C5C] outline-none w-64" /></div>
           <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0F2C5C] outline-none"><option value="all">All Status</option>{PFB_STATUSES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}</select>
+          <a href={`${PROGRAM_SHEET_URL}/edit#gid=0`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors flex items-center gap-2 font-medium"><ExternalLink size={18} /> Open Sheet</a>
           <button onClick={() => setModalType('add-pfb')} className="px-4 py-2 bg-[#0F2C5C] text-white rounded-xl hover:bg-[#0F2C5C]/90 transition-colors flex items-center gap-2 font-medium"><Plus size={18} /> Add Client</button>
         </div>
       </div>
@@ -335,14 +384,15 @@ const ProgramManagement: React.FC<ProgramManagementProps> = ({ onClose }) => {
         <div className="space-y-3">
           {filteredPFB.map((client) => {
             const isExpanded = expandedRows.has(client.id || '');
+            const clientName = safeString(client.name) || 'Unknown';
             return (
               <div key={client.id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:border-[#0F2C5C]/30 transition-colors">
                 <div className="px-5 py-4 flex items-center justify-between cursor-pointer" onClick={() => toggleRowExpand(client.id || '')}>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-[#0F2C5C]/10 rounded-full flex items-center justify-center text-[#0F2C5C] font-bold text-lg">{client.name.charAt(0)}</div>
-                    <div><div className="font-semibold text-slate-800 flex items-center gap-2">{client.name}{client.needsFollowUp && <AlertCircle size={14} className="text-amber-500" />}</div><div className="text-sm text-slate-500 flex items-center gap-3"><span className="flex items-center gap-1"><Phone size={12} /> {formatPhone(client.phone)}</span><span className="flex items-center gap-1"><Calendar size={12} /> {formatDate(client.dateOfLastContact)}</span></div></div>
+                    <div className="w-12 h-12 bg-[#0F2C5C]/10 rounded-full flex items-center justify-center text-[#0F2C5C] font-bold text-lg">{clientName.charAt(0)}</div>
+                    <div><div className="font-semibold text-slate-800 flex items-center gap-2">{clientName}{client.needsFollowUp && <AlertCircle size={14} className="text-amber-500" />}</div><div className="text-sm text-slate-500 flex items-center gap-3"><span className="flex items-center gap-1"><Phone size={12} /> {formatPhone(client.phone)}</span><span className="flex items-center gap-1"><Calendar size={12} /> {formatDate(client.dateOfLastContact)}</span></div></div>
                   </div>
-                  <div className="flex items-center gap-3"><span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(client.status || 'active')}`}>{client.status?.toUpperCase() || 'ACTIVE'}</span>{isExpanded ? <ChevronUp size={18} className="text-slate-400" /> : <ChevronDown size={18} className="text-slate-400" />}</div>
+                  <div className="flex items-center gap-3"><span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(client.status || 'active')}`}>{(client.status || 'active').toUpperCase()}</span>{isExpanded ? <ChevronUp size={18} className="text-slate-400" /> : <ChevronDown size={18} className="text-slate-400" />}</div>
                 </div>
                 {isExpanded && (
                   <div className="px-5 py-4 bg-slate-50 border-t border-slate-200">
@@ -351,7 +401,7 @@ const ProgramManagement: React.FC<ProgramManagementProps> = ({ onClose }) => {
                       <div><label className="text-xs text-slate-500 uppercase tracking-wider">Notes</label><p className="text-sm text-slate-700 mt-2">{client.notes || 'No notes'}</p></div>
                     </div>
                     <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between">
-                      <div className="text-xs text-slate-500">Enrolled: {client.dateEnrolled ? formatDate(client.dateEnrolled) : 'Unknown'} • {client.method}</div>
+                      <div className="text-xs text-slate-500">Enrolled: {client.dateEnrolled ? formatDate(client.dateEnrolled) : 'Unknown'} • {client.method || 'N/A'}</div>
                       <div className="flex items-center gap-2"><button onClick={(e) => { e.stopPropagation(); setEditingClient(client); setModalType('edit-pfb'); }} className="p-2 text-slate-500 hover:text-[#0F2C5C] hover:bg-[#0F2C5C]/10 rounded-lg transition-colors"><Edit3 size={16} /></button><button onClick={(e) => { e.stopPropagation(); handleDeletePFB(client.id || ''); }} className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16} /></button></div>
                     </div>
                   </div>
@@ -372,6 +422,7 @@ const ProgramManagement: React.FC<ProgramManagementProps> = ({ onClose }) => {
         <div className="flex items-center gap-3">
           <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input type="text" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0F2C5C] outline-none w-64" /></div>
           <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0F2C5C] outline-none"><option value="all">All Status</option>{WFD_STATUSES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}</select>
+          <a href={`${PROGRAM_SHEET_URL}/edit#gid=1`} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors flex items-center gap-2 font-medium"><ExternalLink size={18} /> Open Sheet</a>
           <button onClick={() => setModalType('add-wfd')} className="px-4 py-2 bg-[#0F2C5C] text-white rounded-xl hover:bg-[#0F2C5C]/90 transition-colors flex items-center gap-2 font-medium"><Plus size={18} /> Add Client</button>
         </div>
       </div>
@@ -382,17 +433,20 @@ const ProgramManagement: React.FC<ProgramManagementProps> = ({ onClose }) => {
           <table className="w-full">
             <thead><tr style={{ background: '#0F2C5C' }}><th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Name</th><th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Phone</th><th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Last Contact</th><th className="px-4 py-3 text-center text-xs font-semibold text-white uppercase">Response</th><th className="px-4 py-3 text-center text-xs font-semibold text-white uppercase">Status</th><th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Employment</th><th className="px-4 py-3 text-center text-xs font-semibold text-white uppercase">Actions</th></tr></thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredWFD.map((client) => (
-                <tr key={client.id} className="hover:bg-[#0F2C5C]/5 transition-colors">
-                  <td className="px-4 py-3"><div className="flex items-center gap-3"><div className="w-8 h-8 bg-[#0F2C5C]/10 rounded-full flex items-center justify-center text-[#0F2C5C] font-bold text-sm">{client.name.charAt(0)}</div><span className="font-medium text-slate-800">{client.name}</span></div></td>
-                  <td className="px-4 py-3 text-sm text-slate-600">{formatPhone(client.phone)}</td>
-                  <td className="px-4 py-3 text-sm text-slate-600">{formatDate(client.dateOfLastContact)}</td>
-                  <td className="px-4 py-3 text-center"><div className="flex items-center justify-center gap-1">{getAnswerIcon(client.answer)}<span className="text-xs text-slate-500">{client.answer}</span></div></td>
-                  <td className="px-4 py-3 text-center"><span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(client.status || 'active')}`}>{client.status?.toUpperCase() || 'ACTIVE'}</span></td>
-                  <td className="px-4 py-3 text-sm">{client.employer ? <div><div className="text-slate-800 font-medium">{client.employer}</div><div className="text-xs text-slate-500">{client.position}</div></div> : <span className="text-slate-400">-</span>}</td>
-                  <td className="px-4 py-3 text-center"><div className="flex items-center justify-center gap-1"><button onClick={() => { setEditingClient(client); setModalType('edit-wfd'); }} className="p-1.5 text-slate-500 hover:text-[#0F2C5C] hover:bg-[#0F2C5C]/10 rounded-lg transition-colors"><Edit3 size={14} /></button><button onClick={() => handleDeleteWFD(client.id || '')} className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={14} /></button></div></td>
-                </tr>
-              ))}
+              {filteredWFD.map((client) => {
+                const clientName = safeString(client.name) || 'Unknown';
+                return (
+                  <tr key={client.id} className="hover:bg-[#0F2C5C]/5 transition-colors">
+                    <td className="px-4 py-3"><div className="flex items-center gap-3"><div className="w-8 h-8 bg-[#0F2C5C]/10 rounded-full flex items-center justify-center text-[#0F2C5C] font-bold text-sm">{clientName.charAt(0)}</div><span className="font-medium text-slate-800">{clientName}</span></div></td>
+                    <td className="px-4 py-3 text-sm text-slate-600">{formatPhone(client.phone)}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600">{formatDate(client.dateOfLastContact)}</td>
+                    <td className="px-4 py-3 text-center"><div className="flex items-center justify-center gap-1">{getAnswerIcon(client.answer || 'PENDING')}<span className="text-xs text-slate-500">{client.answer || 'PENDING'}</span></div></td>
+                    <td className="px-4 py-3 text-center"><span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(client.status || 'active')}`}>{(client.status || 'active').toUpperCase()}</span></td>
+                    <td className="px-4 py-3 text-sm">{client.employer ? <div><div className="text-slate-800 font-medium">{client.employer}</div><div className="text-xs text-slate-500">{client.position}</div></div> : <span className="text-slate-400">-</span>}</td>
+                    <td className="px-4 py-3 text-center"><div className="flex items-center justify-center gap-1"><button onClick={() => { setEditingClient(client); setModalType('edit-wfd'); }} className="p-1.5 text-slate-500 hover:text-[#0F2C5C] hover:bg-[#0F2C5C]/10 rounded-lg transition-colors"><Edit3 size={14} /></button><button onClick={() => handleDeleteWFD(client.id || '')} className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={14} /></button></div></td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
