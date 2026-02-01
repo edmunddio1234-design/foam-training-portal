@@ -1036,3 +1036,455 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
     );
   };
 
+  const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
+    { id: 'historical', label: '2024-2025 Data', icon: <History size={18} /> },
+    { id: 'current', label: '2026 Data Entry', icon: <Edit3 size={18} /> },
+    { id: 'comparison', label: 'Comparison', icon: <BarChart3 size={18} /> },
+    { id: 'log', label: 'Change Log', icon: <ClipboardList size={18} /> },
+    { id: 'reports', label: 'Reports', icon: <FileText size={18} /> }
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-12 h-12 text-blue-400 animate-spin mx-auto mb-4" />
+          <p className="text-white text-lg">Loading Case Manager Portal...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      {renderFullReportViewer()}
+      
+      {/* Header */}
+      <div className="bg-white/10 backdrop-blur-sm border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                <ArrowLeft className="w-6 h-6 text-white" />
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Case Manager Portal</h1>
+                <p className="text-blue-200 text-sm">FOAM Data Management & Reporting System</p>
+              </div>
+            </div>
+            <button onClick={loadData} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+              <RefreshCw size={18} />
+              Refresh Data
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="bg-white/5 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex gap-1 overflow-x-auto py-2">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? 'bg-white text-blue-900 shadow-lg'
+                    : 'text-white/70 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center gap-3">
+            <AlertTriangle className="text-red-400" />
+            <span className="text-red-200">{error}</span>
+          </div>
+        )}
+
+        {/* Historical Data Tab */}
+        {activeTab === 'historical' && (
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="p-6 bg-gradient-to-r from-amber-500 to-orange-600">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <History size={24} />
+                Historical Data: October 2024 - September 2025
+              </h2>
+              <p className="text-amber-100 mt-1">Read-only view of completed program year data</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 sticky left-0 bg-gray-50">Category</th>
+                    {historicalMonths.map((month, i) => (
+                      <th key={i} className="px-4 py-3 text-center text-sm font-semibold text-gray-700 min-w-[80px]">{month}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {historicalData.map((row, rowIndex) => (
+                    <tr key={row.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 sticky left-0 bg-white">
+                        <div className="flex items-center gap-2">
+                          {getCategoryIcon(row.category)}
+                          <span className="font-medium text-gray-800 text-sm">{row.category}</span>
+                        </div>
+                      </td>
+                      {row.values.map((value, colIndex) => (
+                        <td key={colIndex} className={`px-4 py-3 text-center ${colIndex === row.values.length - 1 ? 'bg-amber-50 font-bold text-amber-700' : 'text-gray-600'}`}>
+                          {value ?? '-'}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Current Data Tab */}
+        {activeTab === 'current' && (
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-600">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Edit3 size={24} />
+                2026 Data Entry
+              </h2>
+              <p className="text-blue-100 mt-1">Click any cell to edit (except totals column)</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 sticky left-0 bg-gray-50">Category</th>
+                    {currentMonths.map((month, i) => (
+                      <th key={i} className={`px-4 py-3 text-center text-sm font-semibold min-w-[80px] ${i === currentMonths.length - 1 ? 'text-blue-700 bg-blue-50' : 'text-gray-700'}`}>{month}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {currentData.map((row, rowIndex) => (
+                    <tr key={row.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 sticky left-0 bg-white">
+                        <div className="flex items-center gap-2">
+                          {getCategoryIcon(row.category)}
+                          <span className="font-medium text-gray-800 text-sm">{row.category}</span>
+                        </div>
+                      </td>
+                      {row.values.map((value, colIndex) => (
+                        <td
+                          key={colIndex}
+                          onClick={() => handleCellClick(rowIndex, colIndex, value)}
+                          className={`px-4 py-3 text-center ${
+                            colIndex === row.values.length - 1
+                              ? 'bg-blue-50 font-bold text-blue-700'
+                              : 'cursor-pointer hover:bg-blue-100 text-gray-600'
+                          } ${editingCell?.row === rowIndex && editingCell?.col === colIndex ? 'bg-yellow-100' : ''}`}
+                        >
+                          {editingCell?.row === rowIndex && editingCell?.col === colIndex ? (
+                            <div className="flex items-center gap-1">
+                              <input
+                                type="number"
+                                value={editValue}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                className="w-16 px-2 py-1 border rounded text-center"
+                                autoFocus
+                              />
+                              <button onClick={handleSaveCell} disabled={isSaving} className="p-1 bg-green-500 text-white rounded hover:bg-green-600">
+                                <CheckCircle2 size={16} />
+                              </button>
+                              <button onClick={() => setEditingCell(null)} className="p-1 bg-gray-400 text-white rounded hover:bg-gray-500">
+                                <X size={16} />
+                              </button>
+                            </div>
+                          ) : (
+                            value ?? '-'
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Comparison Tab */}
+        {activeTab === 'comparison' && (
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="p-6 bg-gradient-to-r from-purple-600 to-pink-600">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <BarChart3 size={24} />
+                Year-over-Year Comparison
+              </h2>
+              <p className="text-purple-100 mt-1">Compare 2024-2025 totals with 2026 YTD</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Metric</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">2024-2025</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">2026 YTD</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Change</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">% Change</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {comparisonData.map((row) => (
+                    <tr key={row.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 font-medium text-gray-800">{row.metric}</td>
+                      <td className="px-4 py-3 text-center text-gray-600">{row.historical}</td>
+                      <td className="px-4 py-3 text-center text-gray-600">{row.current}</td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-flex items-center gap-1 ${row.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {row.change >= 0 ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+                          {Math.abs(row.change)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`px-2 py-1 rounded-full text-sm font-medium ${row.percentChange >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                          {row.percentChange >= 0 ? '+' : ''}{row.percentChange}%
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Change Log Tab */}
+        {activeTab === 'log' && (
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="p-6 bg-gradient-to-r from-slate-600 to-slate-800">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <ClipboardList size={24} />
+                Change Log
+              </h2>
+              <p className="text-slate-200 mt-1">Track all data modifications</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Case Manager</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Period</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Category</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Old Value</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">New Value</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {logData.length === 0 ? (
+                    <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">No changes recorded yet</td></tr>
+                  ) : (
+                    logData.map((entry) => (
+                      <tr key={entry.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 text-gray-600 text-sm">{entry.date}</td>
+                        <td className="px-4 py-3 text-gray-800 font-medium">{entry.caseManager}</td>
+                        <td className="px-4 py-3 text-gray-600">{entry.month} {entry.year}</td>
+                        <td className="px-4 py-3 text-gray-600">{entry.category}</td>
+                        <td className="px-4 py-3 text-center text-red-600">{entry.oldValue}</td>
+                        <td className="px-4 py-3 text-center text-green-600 font-medium">{entry.newValue}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Reports Tab */}
+        {activeTab === 'reports' && (
+          <div className="space-y-6">
+            {/* Report Configuration */}
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+              <div className="p-6 bg-gradient-to-r from-emerald-600 to-teal-600">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <FileText size={24} />
+                  Report Generator
+                </h2>
+                <p className="text-emerald-100 mt-1">Generate comprehensive outcome reports</p>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
+                    <select value={reportType} onChange={(e) => setReportType(e.target.value as ReportType)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">
+                      <option value="monthly">Monthly Summary</option>
+                      <option value="quarterly">Quarterly Summary</option>
+                      <option value="annual">Annual Summary</option>
+                      <option value="indepth">📊 Comprehensive Annual (12-Section)</option>
+                      <option value="indepth6">📈 Comprehensive 6-Month (12-Section)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Data Year</label>
+                    <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value as '2024-2025' | '2026')} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">
+                      <option value="2024-2025">2024-2025 (Historical)</option>
+                      <option value="2026">2026 (Current)</option>
+                    </select>
+                  </div>
+                  {reportType === 'monthly' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Month</label>
+                      <select value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">
+                        {(reportData?.months || []).map((month, i) => (
+                          <option key={i} value={i}>{month}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  {reportType === 'quarterly' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Quarter</label>
+                      <select value={selectedQuarter} onChange={(e) => setSelectedQuarter(Number(e.target.value))} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500">
+                        <option value={1}>Q1 (Jan-Mar)</option>
+                        <option value={2}>Q2 (Apr-Jun)</option>
+                        <option value={3}>Q3 (Jul-Sep)</option>
+                        <option value={4}>Q4 (Oct-Dec)</option>
+                      </select>
+                    </div>
+                  )}
+                  <div className="flex items-end">
+                    <button onClick={handleGenerateReport} disabled={isGenerating} className="w-full p-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                      {isGenerating ? <RefreshCw className="animate-spin" size={20} /> : <Sparkles size={20} />}
+                      {isGenerating ? 'Generating...' : 'Generate Report'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Preview Toggle */}
+                <button onClick={() => setShowPreview(!showPreview)} className="text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-2">
+                  <Eye size={18} />
+                  {showPreview ? 'Hide' : 'Show'} Data Preview
+                </button>
+
+                {/* Data Preview */}
+                {showPreview && previewData && (
+                  <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                    <h4 className="font-semibold text-gray-700 mb-3">Data Preview</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {previewData.slice(0, 8).map((item: any, i: number) => (
+                        <div key={i} className="bg-white p-3 rounded-lg shadow-sm">
+                          <div className="text-xs text-gray-500">{item.category}</div>
+                          <div className="text-lg font-bold text-gray-800">{item.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Generated Report */}
+            {generatedReport && (
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div className="p-6 bg-gradient-to-r from-purple-600 to-indigo-600">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                        <Target size={24} />
+                        Generated Report
+                      </h2>
+                      <p className="text-purple-100 mt-1">{generatedReport.metadata?.periodLabel || 'Report'}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      {(reportType === 'indepth' || reportType === 'indepth6') && (
+                        <button onClick={() => setShowFullReport(true)} className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors">
+                          <Monitor size={18} />
+                          View on Screen
+                        </button>
+                      )}
+                      <button onClick={() => handleDownloadReport('word')} className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors">
+                        <Download size={18} />
+                        Download Word
+                      </button>
+                      <button onClick={() => handleDownloadReport('pdf')} className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors">
+                        <Printer size={18} />
+                        Print/PDF
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6">
+                  {/* Key Metrics */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-blue-50 rounded-xl p-4 text-center">
+                      <div className="text-3xl font-bold text-blue-700">{generatedReport.keyMetrics?.activeFathers || 0}</div>
+                      <div className="text-sm text-blue-600">Fathers Served</div>
+                    </div>
+                    <div className="bg-emerald-50 rounded-xl p-4 text-center">
+                      <div className="text-3xl font-bold text-emerald-700">{generatedReport.keyMetrics?.fatherhoodClassEnrollment || 0}</div>
+                      <div className="text-sm text-emerald-600">Class Enrollment</div>
+                    </div>
+                    <div className="bg-amber-50 rounded-xl p-4 text-center">
+                      <div className="text-3xl font-bold text-amber-700">{generatedReport.keyMetrics?.jobPlacements || 0}</div>
+                      <div className="text-sm text-amber-600">Job Placements</div>
+                    </div>
+                    <div className="bg-purple-50 rounded-xl p-4 text-center">
+                      <div className="text-3xl font-bold text-purple-700">{generatedReport.successMetrics?.retentionRate || 0}%</div>
+                      <div className="text-sm text-purple-600">Retention Rate</div>
+                    </div>
+                  </div>
+
+                  {/* Narrative Insights */}
+                  {generatedReport.narrativeInsights && generatedReport.narrativeInsights.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-gray-800 mb-3">Key Insights</h3>
+                      <div className="space-y-2">
+                        {generatedReport.narrativeInsights.map((insight: string, i: number) => (
+                          <div key={i} className="p-3 bg-gray-50 rounded-lg text-gray-700 text-sm">{insight}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Name Prompt Modal */}
+      {showNamePrompt && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Enter Your Name</h3>
+            <p className="text-gray-600 mb-4">Your name will be recorded with any changes you make.</p>
+            <input
+              type="text"
+              value={caseManagerName}
+              onChange={(e) => setCaseManagerName(e.target.value)}
+              placeholder="Enter your name"
+              className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
+            />
+            <div className="flex gap-3">
+              <button onClick={() => setShowNamePrompt(false)} className="flex-1 p-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors">Cancel</button>
+              <button onClick={() => { if (caseManagerName.trim()) setShowNamePrompt(false); }} disabled={!caseManagerName.trim()} className="flex-1 p-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors">Continue</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CaseManagerPortal;
+
