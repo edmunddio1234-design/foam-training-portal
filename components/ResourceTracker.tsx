@@ -17,7 +17,7 @@ interface ResourceTrackerProps { onBack?: () => void; }
 type TabType = 'dashboard' | 'diapers' | 'donations' | 'transport' | 'utilities';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const DIAPER_SIZES = ['Newborn', 'Size 1', 'Size 2', 'Size 3', 'Size 4', 'Size 5', 'Size 6'];
+const DIAPER_SIZES = ['Newborn', 'Size 1', 'Size 2', 'Size 3', 'Size 4', 'Size 5', 'Size 6', '2T-3T', '3T-4T', '4T-5T', '5T-6T'];
 const DONATION_ITEM_TYPES = ['Clothes - Adult', 'Clothes - Children', 'Clothes - Baby', 'Household Supplies', 'Baby Items', 'Food/Groceries', 'Furniture', 'Electronics', 'School Supplies', 'Hygiene Products', 'Toys', 'Books', 'Other'];
 const BUS_PASS_TYPES = ['Single Ride', 'Daily Pass', '3-Day Pass', 'Weekly Pass', 'Monthly Pass'];
 const ELECTRIC_PROVIDERS = ['Entergy', 'DEMCO', 'Cleco', 'SLECA', 'Other'];
