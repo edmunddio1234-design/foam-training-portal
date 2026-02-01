@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, TrendingUp, TrendingDown, Users, DollarSign, Package, Gift, Bus, Car, Droplets, Zap, Home, Calendar, BarChart3, PieChart, Activity, Target, Clock, ChevronRight, Plus, Sparkles, Award, AlertCircle } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Users, DollarSign, Package, Gift, Bus, Car, Droplets, Zap, Home, Calendar, BarChart3, PieChart, Activity, Target, Plus, Sparkles, Award, ChevronDown, ChevronUp } from 'lucide-react';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://foamla-backend-2.onrender.com';
 
@@ -23,6 +23,59 @@ const BUS_PASS_TYPES = ['Single Ride', 'Daily Pass', '3-Day Pass', 'Weekly Pass'
 const ELECTRIC_PROVIDERS = ['Entergy', 'DEMCO', 'Cleco', 'SLECA', 'Other'];
 const WATER_PROVIDERS = ['Baton Rouge Water Company', 'Parish Utilities', 'City of Baker', 'Other'];
 const RIDE_PURPOSES = ['Job Interview', 'Work', 'Medical Appointment', 'Court', 'Child Visitation', 'FOAM Class', 'Other'];
+
+// Collapsible Section Component
+const CollapsibleSection: React.FC<{ title: string; icon: React.ReactNode; count: number; color: string; children: React.ReactNode; defaultOpen?: boolean }> = ({ title, icon, count, color, children, defaultOpen = true }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full px-6 py-4 flex items-center justify-between ${color} text-white hover:opacity-90 transition-opacity`}
+      >
+        <div className="flex items-center gap-3">
+          {icon}
+          <span className="font-semibold text-lg">{title}</span>
+          <span className="bg-white/20 px-2 py-0.5 rounded-full text-sm">{count} entries</span>
+        </div>
+        {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+      </button>
+      {isOpen && <div className="p-4">{children}</div>}
+    </div>
+  );
+};
+
+// Data Table Component
+const DataTable: React.FC<{ headers: string[]; children: React.ReactNode; emptyMessage?: string; isEmpty?: boolean }> = ({ headers, children, emptyMessage = "No entries yet", isEmpty = false }) => {
+  if (isEmpty) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <p>{emptyMessage}</p>
+      </div>
+    );
+  }
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-gray-200">
+            {headers.map((header, i) => (
+              <th key={i} className="text-left py-3 px-4 font-semibold text-gray-700 bg-gray-50">{header}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>{children}</tbody>
+      </table>
+    </div>
+  );
+};
+
+// Format date helper
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
 
 // Animated Counter Component
 const AnimatedCounter: React.FC<{ value: number; duration?: number; prefix?: string; suffix?: string }> = ({ value, duration = 1000, prefix = '', suffix = '' }) => {
@@ -58,23 +111,6 @@ const ProgressRing: React.FC<{ progress: number; size?: number; strokeWidth?: nu
     <svg width={size} height={size} className="transform -rotate-90">
       <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="#e5e7eb" strokeWidth={strokeWidth} />
       <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke={color} strokeWidth={strokeWidth} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
-    </svg>
-  );
-};
-
-// Mini Sparkline Component
-const Sparkline: React.FC<{ data: number[]; color: string; height?: number }> = ({ data, color, height = 40 }) => {
-  if (data.length < 2) return null;
-  const max = Math.max(...data, 1);
-  const min = Math.min(...data, 0);
-  const range = max - min || 1;
-  const width = 120;
-  const points = data.map((v, i) => `${(i / (data.length - 1)) * width},${height - ((v - min) / range) * (height - 4)}`).join(' ');
-
-  return (
-    <svg width={width} height={height} className="overflow-visible">
-      <polyline points={points} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={(data.length - 1) / (data.length - 1) * width} cy={height - ((data[data.length - 1] - min) / range) * (height - 4)} r="3" fill={color} />
     </svg>
   );
 };
@@ -132,179 +168,9 @@ const DonutChart: React.FC<{ data: { label: string; value: number; color: string
 };
 
 // ============================================
-// FIXED: Separate Form Components with Local State
-// This prevents the parent from re-rendering on every keystroke
+// FORM MODAL COMPONENTS
 // ============================================
 
-interface UberFormProps {
-  show: boolean;
-  onClose: () => void;
-  onSubmit: (entry: UberEntry) => void;
-  loading: boolean;
-  initialData: UberEntry;
-}
-
-const UberFormModal: React.FC<UberFormProps> = ({ show, onClose, onSubmit, loading, initialData }) => {
-  const [formData, setFormData] = useState<UberEntry>(initialData);
-
-  // Reset form when modal opens
-  useEffect(() => {
-    if (show) {
-      setFormData(initialData);
-    }
-  }, [show, initialData]);
-
-  const handleChange = (field: keyof UberEntry, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-  if (!show) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="bg-gray-800 text-white px-6 py-4 rounded-t-xl flex items-center justify-between sticky top-0">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Car size={20} /> Log Uber Ride
-          </h3>
-          <button onClick={onClose} className="text-white/80 hover:text-white text-xl">✕</button>
-        </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date *</label>
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => handleChange('date', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Purpose *</label>
-              <select
-                value={formData.purpose}
-                onChange={(e) => handleChange('purpose', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-              >
-                {RIDE_PURPOSES.map(p => <option key={p} value={p}>{p}</option>)}
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Client Name *</label>
-            <input
-              type="text"
-              value={formData.clientName}
-              onChange={(e) => handleChange('clientName', e.target.value)}
-              placeholder="Enter client's name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-              required
-              autoComplete="off"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Pickup *</label>
-              <input
-                type="text"
-                value={formData.pickup}
-                onChange={(e) => handleChange('pickup', e.target.value)}
-                placeholder="e.g., FOAM Office"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                required
-                autoComplete="off"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Destination *</label>
-              <input
-                type="text"
-                value={formData.destination}
-                onChange={(e) => handleChange('destination', e.target.value)}
-                placeholder="e.g., Job Interview"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-                required
-                autoComplete="off"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Cost ($) *</label>
-            <input
-              type="number"
-              value={formData.cost || ''}
-              onChange={(e) => handleChange('cost', Number(e.target.value))}
-              min="0"
-              step="0.01"
-              placeholder="0.00"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-            <textarea
-              value={formData.notes}
-              onChange={(e) => handleChange('notes', e.target.value)}
-              rows={2}
-              placeholder="Optional notes..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
-            />
-          </div>
-          <div className="flex gap-3 pt-4">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">
-              Cancel
-            </button>
-            <button type="submit" disabled={loading} className="flex-1 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 disabled:opacity-50 font-medium">
-              {loading ? 'Saving...' : 'Save Entry'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-// Generic Form Modal for other forms (keeping original pattern but fixed)
-interface FormModalProps {
-  show: boolean;
-  onClose: () => void;
-  title: string;
-  onSubmit: (e: React.FormEvent) => void;
-  children: React.ReactNode;
-  color: string;
-  loading: boolean;
-}
-
-const FormModal: React.FC<FormModalProps> = ({ show, onClose, title, onSubmit, children, color, loading }) => {
-  if (!show) return null;
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className={`${color} text-white px-6 py-4 rounded-t-xl flex items-center justify-between sticky top-0`}>
-          <h3 className="text-lg font-semibold">{title}</h3>
-          <button onClick={onClose} className="text-white/80 hover:text-white text-xl">✕</button>
-        </div>
-        <form onSubmit={onSubmit} className="p-6 space-y-4">
-          {children}
-          <div className="flex gap-3 pt-4">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">Cancel</button>
-            <button type="submit" disabled={loading} className={`flex-1 px-4 py-2 ${color} text-white rounded-lg hover:opacity-90 disabled:opacity-50 font-medium`}>{loading ? 'Saving...' : 'Save Entry'}</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-// Diaper Form Component
 interface DiaperFormProps {
   show: boolean;
   onClose: () => void;
@@ -379,82 +245,6 @@ const DiaperFormModal: React.FC<DiaperFormProps> = ({ show, onClose, onSubmit, l
   );
 };
 
-// Bus Pass Form Component
-interface BusPassFormProps {
-  show: boolean;
-  onClose: () => void;
-  onSubmit: (entry: BusPassEntry) => void;
-  loading: boolean;
-  initialData: BusPassEntry;
-}
-
-const BusPassFormModal: React.FC<BusPassFormProps> = ({ show, onClose, onSubmit, loading, initialData }) => {
-  const [formData, setFormData] = useState<BusPassEntry>(initialData);
-
-  useEffect(() => {
-    if (show) setFormData(initialData);
-  }, [show, initialData]);
-
-  const handleChange = (field: keyof BusPassEntry, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-  if (!show) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="bg-purple-600 text-white px-6 py-4 rounded-t-xl flex items-center justify-between sticky top-0">
-          <h3 className="text-lg font-semibold flex items-center gap-2"><Bus size={20} /> Log C.A.T. Bus Pass</h3>
-          <button onClick={onClose} className="text-white/80 hover:text-white text-xl">✕</button>
-        </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date *</label>
-              <input type="date" value={formData.date} onChange={(e) => handleChange('date', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Pass Type *</label>
-              <select value={formData.passType} onChange={(e) => handleChange('passType', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
-                {BUS_PASS_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Client Name *</label>
-            <input type="text" value={formData.clientName} onChange={(e) => handleChange('clientName', e.target.value)} placeholder="Enter client's name" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" required autoComplete="off" />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-              <input type="number" value={formData.quantity || ''} onChange={(e) => handleChange('quantity', Number(e.target.value))} min="1" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Cost ($) *</label>
-              <input type="number" value={formData.cost || ''} onChange={(e) => handleChange('cost', Number(e.target.value))} min="0" step="0.01" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" required />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-            <textarea value={formData.notes} onChange={(e) => handleChange('notes', e.target.value)} rows={2} placeholder="Optional notes..." className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" />
-          </div>
-          <div className="flex gap-3 pt-4">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">Cancel</button>
-            <button type="submit" disabled={loading} className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 font-medium">{loading ? 'Saving...' : 'Save Entry'}</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-// Donation Given Form Component
 interface DonationGivenFormProps {
   show: boolean;
   onClose: () => void;
@@ -533,7 +323,6 @@ const DonationGivenFormModal: React.FC<DonationGivenFormProps> = ({ show, onClos
   );
 };
 
-// In-Kind Donation Form Component
 interface InKindFormProps {
   show: boolean;
   onClose: () => void;
@@ -612,7 +401,158 @@ const InKindFormModal: React.FC<InKindFormProps> = ({ show, onClose, onSubmit, l
   );
 };
 
-// Water Form Component
+interface BusPassFormProps {
+  show: boolean;
+  onClose: () => void;
+  onSubmit: (entry: BusPassEntry) => void;
+  loading: boolean;
+  initialData: BusPassEntry;
+}
+
+const BusPassFormModal: React.FC<BusPassFormProps> = ({ show, onClose, onSubmit, loading, initialData }) => {
+  const [formData, setFormData] = useState<BusPassEntry>(initialData);
+
+  useEffect(() => {
+    if (show) setFormData(initialData);
+  }, [show, initialData]);
+
+  const handleChange = (field: keyof BusPassEntry, value: string | number) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  if (!show) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="bg-purple-600 text-white px-6 py-4 rounded-t-xl flex items-center justify-between sticky top-0">
+          <h3 className="text-lg font-semibold flex items-center gap-2"><Bus size={20} /> Log C.A.T. Bus Pass</h3>
+          <button onClick={onClose} className="text-white/80 hover:text-white text-xl">✕</button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+              <input type="date" value={formData.date} onChange={(e) => handleChange('date', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Pass Type *</label>
+              <select value={formData.passType} onChange={(e) => handleChange('passType', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                {BUS_PASS_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Client Name *</label>
+            <input type="text" value={formData.clientName} onChange={(e) => handleChange('clientName', e.target.value)} placeholder="Enter client's name" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" required autoComplete="off" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+              <input type="number" value={formData.quantity || ''} onChange={(e) => handleChange('quantity', Number(e.target.value))} min="1" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Cost ($) *</label>
+              <input type="number" value={formData.cost || ''} onChange={(e) => handleChange('cost', Number(e.target.value))} min="0" step="0.01" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" required />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <textarea value={formData.notes} onChange={(e) => handleChange('notes', e.target.value)} rows={2} placeholder="Optional notes..." className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" />
+          </div>
+          <div className="flex gap-3 pt-4">
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">Cancel</button>
+            <button type="submit" disabled={loading} className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 font-medium">{loading ? 'Saving...' : 'Save Entry'}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+interface UberFormProps {
+  show: boolean;
+  onClose: () => void;
+  onSubmit: (entry: UberEntry) => void;
+  loading: boolean;
+  initialData: UberEntry;
+}
+
+const UberFormModal: React.FC<UberFormProps> = ({ show, onClose, onSubmit, loading, initialData }) => {
+  const [formData, setFormData] = useState<UberEntry>(initialData);
+
+  useEffect(() => {
+    if (show) setFormData(initialData);
+  }, [show, initialData]);
+
+  const handleChange = (field: keyof UberEntry, value: string | number) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  if (!show) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="bg-gray-800 text-white px-6 py-4 rounded-t-xl flex items-center justify-between sticky top-0">
+          <h3 className="text-lg font-semibold flex items-center gap-2"><Car size={20} /> Log Uber Ride</h3>
+          <button onClick={onClose} className="text-white/80 hover:text-white text-xl">✕</button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+              <input type="date" value={formData.date} onChange={(e) => handleChange('date', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Purpose *</label>
+              <select value={formData.purpose} onChange={(e) => handleChange('purpose', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500">
+                {RIDE_PURPOSES.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Client Name *</label>
+            <input type="text" value={formData.clientName} onChange={(e) => handleChange('clientName', e.target.value)} placeholder="Enter client's name" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" required autoComplete="off" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Pickup *</label>
+              <input type="text" value={formData.pickup} onChange={(e) => handleChange('pickup', e.target.value)} placeholder="e.g., FOAM Office" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" required autoComplete="off" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Destination *</label>
+              <input type="text" value={formData.destination} onChange={(e) => handleChange('destination', e.target.value)} placeholder="e.g., Job Interview" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" required autoComplete="off" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Cost ($) *</label>
+            <input type="number" value={formData.cost || ''} onChange={(e) => handleChange('cost', Number(e.target.value))} min="0" step="0.01" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" required />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <textarea value={formData.notes} onChange={(e) => handleChange('notes', e.target.value)} rows={2} placeholder="Optional notes..." className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" />
+          </div>
+          <div className="flex gap-3 pt-4">
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium">Cancel</button>
+            <button type="submit" disabled={loading} className="flex-1 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 disabled:opacity-50 font-medium">{loading ? 'Saving...' : 'Save Entry'}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 interface WaterFormProps {
   show: boolean;
   onClose: () => void;
@@ -687,7 +627,6 @@ const WaterFormModal: React.FC<WaterFormProps> = ({ show, onClose, onSubmit, loa
   );
 };
 
-// Electric Form Component
 interface ElectricFormProps {
   show: boolean;
   onClose: () => void;
@@ -762,7 +701,6 @@ const ElectricFormModal: React.FC<ElectricFormProps> = ({ show, onClose, onSubmi
   );
 };
 
-// Rent Form Component
 interface RentFormProps {
   show: boolean;
   onClose: () => void;
@@ -860,19 +798,6 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
   const [showWaterForm, setShowWaterForm] = useState(false);
   const [showElectricForm, setShowElectricForm] = useState(false);
   const [showRentForm, setShowRentForm] = useState(false);
-  const [showQuickLogDropdown, setShowQuickLogDropdown] = useState(false);
-  const quickLogRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (quickLogRef.current && !quickLogRef.current.contains(event.target as Node)) {
-        setShowQuickLogDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const getDefaultDate = () => new Date().toISOString().split('T')[0];
 
@@ -937,108 +862,15 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
     }
   };
 
-  // Submit handlers for each form
-  const handleDiaperSubmit = (entry: DiaperEntry) => {
-    handleSubmitEntry('diapers', entry, 'Diaper distribution logged!', () => setShowDiaperForm(false));
-  };
-
-  const handleDonationGivenSubmit = (entry: DonationGivenEntry) => {
-    // Backend expects /api/resources/donations-given
-    const payload = {
-      date: entry.date,
-      clientName: entry.clientName,
-      itemType: entry.itemType,
-      description: entry.description,
-      quantity: entry.quantity,
-      estimatedValue: entry.estimatedValue,
-      notes: entry.notes
-    };
-    handleSubmitEntry('donations-given', payload, 'Donation given logged!', () => setShowDonationGivenForm(false));
-  };
-
-  const handleInKindSubmit = (entry: InKindDonationEntry) => {
-    // Backend expects /api/resources/donations-inkind
-    const payload = {
-      date: entry.date,
-      donorName: entry.donorName,
-      itemType: entry.itemType,
-      description: entry.description,
-      quantity: entry.quantity,
-      estimatedValue: entry.estimatedValue,
-      notes: entry.notes
-    };
-    handleSubmitEntry('donations-inkind', payload, 'In-kind donation logged!', () => setShowInKindForm(false));
-  };
-
-  const handleBusSubmit = (entry: BusPassEntry) => {
-    // Backend expects /api/resources/transport with transportType in body
-    const payload = {
-      transportType: 'bus',
-      date: entry.date,
-      clientName: entry.clientName,
-      quantity: entry.quantity,
-      cost: entry.cost,
-      typeOrDestination: entry.passType,
-      notes: entry.notes
-    };
-    handleSubmitEntry('transport', payload, 'Bus pass logged!', () => setShowBusForm(false));
-  };
-
-  const handleUberSubmit = (entry: UberEntry) => {
-    // Backend expects /api/resources/transport with transportType in body
-    const payload = {
-      transportType: 'uber',
-      date: entry.date,
-      clientName: entry.clientName,
-      quantity: 1,
-      cost: entry.cost,
-      typeOrDestination: `${entry.pickup} to ${entry.destination} - ${entry.purpose}`,
-      notes: entry.notes
-    };
-    handleSubmitEntry('transport', payload, 'Uber ride logged!', () => setShowUberForm(false));
-  };
-
-  const handleWaterSubmit = (entry: WaterEntry) => {
-    // Backend expects /api/resources/utilities with utilityType in body
-    const payload = {
-      utilityType: 'water',
-      date: entry.date,
-      clientName: entry.clientName,
-      amount: entry.amount,
-      accountOrLandlord: entry.accountNumber,
-      providerOrProperty: entry.provider,
-      notes: entry.notes
-    };
-    handleSubmitEntry('utilities', payload, 'Water assistance logged!', () => setShowWaterForm(false));
-  };
-
-  const handleElectricSubmit = (entry: ElectricEntry) => {
-    // Backend expects /api/resources/utilities with utilityType in body
-    const payload = {
-      utilityType: 'electric',
-      date: entry.date,
-      clientName: entry.clientName,
-      amount: entry.amount,
-      accountOrLandlord: entry.accountNumber,
-      providerOrProperty: entry.provider,
-      notes: entry.notes
-    };
-    handleSubmitEntry('utilities', payload, 'Electric assistance logged!', () => setShowElectricForm(false));
-  };
-
-  const handleRentSubmit = (entry: RentEntry) => {
-    // Backend expects /api/resources/utilities with utilityType in body
-    const payload = {
-      utilityType: 'rent',
-      date: entry.date,
-      clientName: entry.clientName,
-      amount: entry.amount,
-      accountOrLandlord: entry.landlordName,
-      providerOrProperty: entry.propertyAddress,
-      notes: entry.notes
-    };
-    handleSubmitEntry('utilities', payload, 'Rent assistance logged!', () => setShowRentForm(false));
-  };
+  // Submit handlers
+  const handleDiaperSubmit = (entry: DiaperEntry) => handleSubmitEntry('diapers', entry, 'Diaper distribution logged!', () => setShowDiaperForm(false));
+  const handleDonationGivenSubmit = (entry: DonationGivenEntry) => handleSubmitEntry('donations-given', entry, 'Donation given logged!', () => setShowDonationGivenForm(false));
+  const handleInKindSubmit = (entry: InKindDonationEntry) => handleSubmitEntry('donations-inkind', entry, 'In-kind donation logged!', () => setShowInKindForm(false));
+  const handleBusSubmit = (entry: BusPassEntry) => handleSubmitEntry('transport', { transportType: 'bus', ...entry, typeOrDestination: entry.passType }, 'Bus pass logged!', () => setShowBusForm(false));
+  const handleUberSubmit = (entry: UberEntry) => handleSubmitEntry('transport', { transportType: 'uber', ...entry, quantity: 1, typeOrDestination: `${entry.pickup} to ${entry.destination} - ${entry.purpose}` }, 'Uber ride logged!', () => setShowUberForm(false));
+  const handleWaterSubmit = (entry: WaterEntry) => handleSubmitEntry('utilities', { utilityType: 'water', ...entry, accountOrLandlord: entry.accountNumber, providerOrProperty: entry.provider }, 'Water assistance logged!', () => setShowWaterForm(false));
+  const handleElectricSubmit = (entry: ElectricEntry) => handleSubmitEntry('utilities', { utilityType: 'electric', ...entry, accountOrLandlord: entry.accountNumber, providerOrProperty: entry.provider }, 'Electric assistance logged!', () => setShowElectricForm(false));
+  const handleRentSubmit = (entry: RentEntry) => handleSubmitEntry('utilities', { utilityType: 'rent', ...entry, accountOrLandlord: entry.landlordName, providerOrProperty: entry.propertyAddress }, 'Rent assistance logged!', () => setShowRentForm(false));
 
   // Stats calculations
   const stats = {
@@ -1055,7 +887,6 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
   const totalUniqueClients = new Set([...diaperEntries.map(e => e.clientName), ...donationsGiven.map(e => e.clientName), ...busPassEntries.map(e => e.clientName), ...uberEntries.map(e => e.clientName), ...waterEntries.map(e => e.clientName), ...electricEntries.map(e => e.clientName), ...rentEntries.map(e => e.clientName)].filter(Boolean)).size;
   const totalResourceValue = stats.donationsGiven.value + stats.inKindDonations.value + stats.busPass.cost + stats.uber.cost + stats.water.amount + stats.electric.amount + stats.rent.amount;
 
-  // Monthly goals
   const goals = { diapers: 500, donations: 2000, transport: 500, utilities: 3000 };
 
   // Stat Card component
@@ -1067,25 +898,6 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
       {subtext && <div className="text-xs opacity-75 mt-1">{subtext}</div>}
     </div>
   );
-
-  // Simple Bar Chart component
-  const SimpleBarChart: React.FC<{ data: [string, number][]; color: string; maxBars?: number }> = ({ data, color, maxBars = 6 }) => {
-    const d = data.slice(0, maxBars);
-    const max = Math.max(...d.map(x => x[1]), 1);
-    return (
-      <div className="space-y-2">
-        {d.map(([label, value], i) => (
-          <div key={i} className="flex items-center gap-2">
-            <div className="w-24 text-xs text-gray-600 truncate" title={label}>{label}</div>
-            <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden">
-              <div className={`h-full ${color} rounded-full transition-all duration-500`} style={{ width: `${(value / max) * 100}%` }} />
-            </div>
-            <div className="w-16 text-xs font-medium text-right">{value.toLocaleString()}</div>
-          </div>
-        ))}
-      </div>
-    );
-  };
 
   // Dashboard render
   const renderDashboard = () => {
@@ -1115,93 +927,27 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
                 <Package className="mb-2 text-blue-300" size={24} />
                 <div className="text-3xl font-bold"><AnimatedCounter value={stats.diapers.qty} /></div>
                 <div className="text-sm text-blue-200">Diapers Distributed</div>
-                <div className="mt-2 flex items-center gap-1 text-xs text-green-300">
-                  <TrendingUp size={12} /> <span>{stats.diapers.clients} families</span>
-                </div>
+                <div className="mt-2 flex items-center gap-1 text-xs text-green-300"><TrendingUp size={12} /> <span>{stats.diapers.clients} families</span></div>
               </div>
               <div className="bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition-all cursor-pointer" onClick={() => setActiveTab('donations')}>
                 <Gift className="mb-2 text-green-300" size={24} />
                 <div className="text-3xl font-bold"><AnimatedCounter value={stats.donationsGiven.value + stats.inKindDonations.value} prefix="$" /></div>
                 <div className="text-sm text-blue-200">Donation Value</div>
-                <div className="mt-2 flex items-center gap-1 text-xs text-green-300">
-                  <TrendingUp size={12} /> <span>{stats.donationsGiven.clients} recipients</span>
-                </div>
+                <div className="mt-2 flex items-center gap-1 text-xs text-green-300"><TrendingUp size={12} /> <span>{stats.donationsGiven.clients} recipients</span></div>
               </div>
               <div className="bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition-all cursor-pointer" onClick={() => setActiveTab('transport')}>
                 <Bus className="mb-2 text-purple-300" size={24} />
                 <div className="text-3xl font-bold"><AnimatedCounter value={transportTotal} prefix="$" /></div>
                 <div className="text-sm text-blue-200">Transportation</div>
-                <div className="mt-2 flex items-center gap-1 text-xs text-green-300">
-                  <TrendingUp size={12} /> <span>{stats.busPass.count + stats.uber.rides} trips</span>
-                </div>
+                <div className="mt-2 flex items-center gap-1 text-xs text-green-300"><TrendingUp size={12} /> <span>{stats.busPass.count + stats.uber.rides} trips</span></div>
               </div>
               <div className="bg-white/10 backdrop-blur rounded-xl p-4 hover:bg-white/20 transition-all cursor-pointer" onClick={() => setActiveTab('utilities')}>
                 <Zap className="mb-2 text-yellow-300" size={24} />
                 <div className="text-3xl font-bold"><AnimatedCounter value={utilitiesTotal} prefix="$" /></div>
                 <div className="text-sm text-blue-200">Utility Assistance</div>
-                <div className="mt-2 flex items-center gap-1 text-xs text-green-300">
-                  <TrendingUp size={12} /> <span>{stats.water.families + stats.electric.families + stats.rent.families} families</span>
-                </div>
+                <div className="mt-2 flex items-center gap-1 text-xs text-green-300"><TrendingUp size={12} /> <span>{stats.water.families + stats.electric.families + stats.rent.families} families</span></div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="relative" ref={quickLogRef}>
-              <button
-                onClick={() => setShowQuickLogDropdown(!showQuickLogDropdown)}
-                className="font-semibold text-gray-800 flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors"
-              >
-                <Plus size={18} className="text-blue-600" />
-                Quick Log
-                <svg className={`w-4 h-4 text-gray-500 transition-transform ${showQuickLogDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {showQuickLogDropdown && (
-                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
-                  {[
-                    { label: 'Log Diapers', icon: <Package size={16} />, color: 'text-blue-600', bg: 'hover:bg-blue-50', action: () => { setShowDiaperForm(true); setShowQuickLogDropdown(false); } },
-                    { label: 'Log Donation Given', icon: <Gift size={16} />, color: 'text-green-600', bg: 'hover:bg-green-50', action: () => { setShowDonationGivenForm(true); setShowQuickLogDropdown(false); } },
-                    { label: 'Log In-Kind Received', icon: <Gift size={16} />, color: 'text-emerald-600', bg: 'hover:bg-emerald-50', action: () => { setShowInKindForm(true); setShowQuickLogDropdown(false); } },
-                    { label: 'Log Bus Pass', icon: <Bus size={16} />, color: 'text-purple-600', bg: 'hover:bg-purple-50', action: () => { setShowBusForm(true); setShowQuickLogDropdown(false); } },
-                    { label: 'Log Uber Ride', icon: <Car size={16} />, color: 'text-gray-700', bg: 'hover:bg-gray-50', action: () => { setShowUberForm(true); setShowQuickLogDropdown(false); } },
-                    { label: 'Log Water Bill', icon: <Droplets size={16} />, color: 'text-blue-500', bg: 'hover:bg-blue-50', action: () => { setShowWaterForm(true); setShowQuickLogDropdown(false); } },
-                    { label: 'Log Electric Bill', icon: <Zap size={16} />, color: 'text-yellow-600', bg: 'hover:bg-yellow-50', action: () => { setShowElectricForm(true); setShowQuickLogDropdown(false); } },
-                    { label: 'Log Rent Payment', icon: <Home size={16} />, color: 'text-orange-600', bg: 'hover:bg-orange-50', action: () => { setShowRentForm(true); setShowQuickLogDropdown(false); } },
-                  ].map((item, i) => (
-                    <button
-                      key={i}
-                      onClick={item.action}
-                      className={`w-full px-4 py-2 flex items-center gap-3 ${item.bg} transition-colors`}
-                    >
-                      <span className={item.color}>{item.icon}</span>
-                      <span className="text-sm font-medium text-gray-700">{item.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
-            {[
-              { label: 'Diapers', icon: <Package size={16} />, color: 'bg-blue-500 hover:bg-blue-600', action: () => setShowDiaperForm(true) },
-              { label: 'Donation', icon: <Gift size={16} />, color: 'bg-green-500 hover:bg-green-600', action: () => setShowDonationGivenForm(true) },
-              { label: 'In-Kind', icon: <Gift size={16} />, color: 'bg-emerald-500 hover:bg-emerald-600', action: () => setShowInKindForm(true) },
-              { label: 'Bus Pass', icon: <Bus size={16} />, color: 'bg-purple-500 hover:bg-purple-600', action: () => setShowBusForm(true) },
-              { label: 'Uber', icon: <Car size={16} />, color: 'bg-gray-700 hover:bg-gray-800', action: () => setShowUberForm(true) },
-              { label: 'Water', icon: <Droplets size={16} />, color: 'bg-blue-400 hover:bg-blue-500', action: () => setShowWaterForm(true) },
-              { label: 'Electric', icon: <Zap size={16} />, color: 'bg-yellow-500 hover:bg-yellow-600', action: () => setShowElectricForm(true) },
-              { label: 'Rent', icon: <Home size={16} />, color: 'bg-orange-500 hover:bg-orange-600', action: () => setShowRentForm(true) },
-            ].map((btn, i) => (
-              <button key={i} onClick={btn.action} className={`${btn.color} text-white rounded-lg p-3 flex flex-col items-center gap-1 transition-all transform hover:scale-105 active:scale-95`}>
-                {btn.icon}
-                <span className="text-xs font-medium">{btn.label}</span>
-              </button>
-            ))}
           </div>
         </div>
 
@@ -1230,7 +976,6 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
               <div className="flex flex-col items-center justify-center py-12 text-gray-400">
                 <PieChart size={48} className="mb-2 opacity-50" />
                 <p>No spending data yet</p>
-                <p className="text-sm">Log entries to see breakdown</p>
               </div>
             )}
           </div>
@@ -1321,8 +1066,7 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
           </div>
           <div className="flex items-center gap-4">
             <select value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))} className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-white/50">{MONTHS.map((m, i) => <option key={m} value={i} className="text-gray-900">{m} 2026</option>)}</select>
-<a href="https://docs.google.com/spreadsheets/d/1KsviLMZoTTuYv5jsAemZ1UcWs3b-ZATUakHTH8GpvPk/edit" target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Open Sheet</a>
-            
+            <a href="https://docs.google.com/spreadsheets/d/1KsviLMZoTTuYv5jsAemZ1UcWs3b-ZATUakHTH8GpvPk/edit" target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Open Sheet</a>
           </div>
         </div>
       </header>
@@ -1349,11 +1093,13 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
         ) : (
           <>
             {activeTab === 'dashboard' && renderDashboard()}
+
+            {/* DIAPERS TAB */}
             {activeTab === 'diapers' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-800">📦 Diaper Distribution - {MONTHS[selectedMonth]}</h2>
-                  <button onClick={() => setShowDiaperForm(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"><span>+</span> Log Distribution</button>
+                  <button onClick={() => setShowDiaperForm(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"><Plus size={18} /> Log Distribution</button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <StatCard icon={<Package size={20} />} label="Total Diapers" value={stats.diapers.qty} color="bg-gradient-to-br from-blue-500 to-blue-600" />
@@ -1361,52 +1107,195 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
                   <StatCard icon={<Users size={20} />} label="Families Served" value={stats.diapers.clients} color="bg-gradient-to-br from-blue-600 to-blue-700" />
                   <StatCard icon={<Calendar size={20} />} label="Distributions" value={stats.diapers.entries} color="bg-gradient-to-br from-blue-500 to-indigo-600" />
                 </div>
+                
+                {/* Diaper Entries Table */}
+                <CollapsibleSection title="Distribution Records" icon={<Package size={20} />} count={diaperEntries.length} color="bg-blue-600">
+                  <DataTable headers={['Date', 'Client Name', 'Size', 'Qty', 'Packs', 'Notes']} isEmpty={diaperEntries.length === 0} emptyMessage="No diaper distributions recorded yet">
+                    {diaperEntries.map((entry, i) => (
+                      <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4">{formatDate(entry.date)}</td>
+                        <td className="py-3 px-4 font-medium">{entry.clientName}</td>
+                        <td className="py-3 px-4"><span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">{entry.diaperSize}</span></td>
+                        <td className="py-3 px-4">{entry.diapersQty}</td>
+                        <td className="py-3 px-4">{entry.packs || '-'}</td>
+                        <td className="py-3 px-4 text-gray-500 text-sm">{entry.notes || '-'}</td>
+                      </tr>
+                    ))}
+                  </DataTable>
+                </CollapsibleSection>
               </div>
             )}
+
+            {/* DONATIONS TAB */}
             {activeTab === 'donations' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-800">🎁 Donations - {MONTHS[selectedMonth]}</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-gray-800">🎁 Donations - {MONTHS[selectedMonth]}</h2>
+                  <div className="flex gap-2">
+                    <button onClick={() => setShowDonationGivenForm(true)} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"><Plus size={18} /> Log Given</button>
+                    <button onClick={() => setShowInKindForm(true)} className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center gap-2"><Plus size={18} /> Log In-Kind</button>
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <StatCard icon={<Gift size={20} />} label="Given Out Value" value={`$${stats.donationsGiven.value.toLocaleString()}`} subtext={`${stats.donationsGiven.items} items`} color="bg-gradient-to-br from-green-500 to-green-600" />
                   <StatCard icon={<Users size={20} />} label="Clients Helped" value={stats.donationsGiven.clients} color="bg-gradient-to-br from-green-400 to-green-500" />
                   <StatCard icon={<DollarSign size={20} />} label="In-Kind Received" value={`$${stats.inKindDonations.value.toLocaleString()}`} subtext={`${stats.inKindDonations.items} items`} color="bg-gradient-to-br from-emerald-500 to-emerald-600" />
                   <StatCard icon={<Users size={20} />} label="Active Donors" value={stats.inKindDonations.donors} color="bg-gradient-to-br from-emerald-400 to-emerald-500" />
                 </div>
-                <div className="flex gap-4">
-                  <button onClick={() => setShowDonationGivenForm(true)} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">+ Log Donation Given</button>
-                  <button onClick={() => setShowInKindForm(true)} className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">+ Log In-Kind Received</button>
-                </div>
+                
+                {/* Donations Given Table */}
+                <CollapsibleSection title="Donations Given to Clients" icon={<Gift size={20} />} count={donationsGiven.length} color="bg-green-600">
+                  <DataTable headers={['Date', 'Client Name', 'Item Type', 'Description', 'Qty', 'Value', 'Notes']} isEmpty={donationsGiven.length === 0} emptyMessage="No donations given yet">
+                    {donationsGiven.map((entry, i) => (
+                      <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4">{formatDate(entry.date)}</td>
+                        <td className="py-3 px-4 font-medium">{entry.clientName}</td>
+                        <td className="py-3 px-4"><span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">{entry.itemType}</span></td>
+                        <td className="py-3 px-4">{entry.description}</td>
+                        <td className="py-3 px-4">{entry.quantity}</td>
+                        <td className="py-3 px-4 font-medium text-green-600">${entry.estimatedValue?.toFixed(2) || '0.00'}</td>
+                        <td className="py-3 px-4 text-gray-500 text-sm">{entry.notes || '-'}</td>
+                      </tr>
+                    ))}
+                  </DataTable>
+                </CollapsibleSection>
+
+                {/* In-Kind Donations Table */}
+                <CollapsibleSection title="In-Kind Donations Received" icon={<Gift size={20} />} count={inKindDonations.length} color="bg-emerald-600">
+                  <DataTable headers={['Date', 'Donor Name', 'Item Type', 'Description', 'Qty', 'Value', 'Notes']} isEmpty={inKindDonations.length === 0} emptyMessage="No in-kind donations received yet">
+                    {inKindDonations.map((entry, i) => (
+                      <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4">{formatDate(entry.date)}</td>
+                        <td className="py-3 px-4 font-medium">{entry.donorName}</td>
+                        <td className="py-3 px-4"><span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs">{entry.itemType}</span></td>
+                        <td className="py-3 px-4">{entry.description}</td>
+                        <td className="py-3 px-4">{entry.quantity}</td>
+                        <td className="py-3 px-4 font-medium text-emerald-600">${entry.estimatedValue?.toFixed(2) || '0.00'}</td>
+                        <td className="py-3 px-4 text-gray-500 text-sm">{entry.notes || '-'}</td>
+                      </tr>
+                    ))}
+                  </DataTable>
+                </CollapsibleSection>
               </div>
             )}
+
+            {/* TRANSPORT TAB */}
             {activeTab === 'transport' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-800">🚌 Transportation - {MONTHS[selectedMonth]}</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-gray-800">🚌 Transportation - {MONTHS[selectedMonth]}</h2>
+                  <div className="flex gap-2">
+                    <button onClick={() => setShowBusForm(true)} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2"><Plus size={18} /> Log Bus Pass</button>
+                    <button onClick={() => setShowUberForm(true)} className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 flex items-center gap-2"><Plus size={18} /> Log Uber</button>
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <StatCard icon={<Bus size={20} />} label="Bus Passes" value={stats.busPass.count} subtext={`$${stats.busPass.cost} total`} color="bg-gradient-to-br from-purple-500 to-purple-600" />
                   <StatCard icon={<Users size={20} />} label="Bus Clients" value={stats.busPass.clients} color="bg-gradient-to-br from-purple-400 to-purple-500" />
                   <StatCard icon={<Car size={20} />} label="Uber Rides" value={stats.uber.rides} subtext={`$${stats.uber.cost} total`} color="bg-gradient-to-br from-gray-700 to-gray-800" />
                   <StatCard icon={<Users size={20} />} label="Uber Clients" value={stats.uber.clients} color="bg-gradient-to-br from-gray-600 to-gray-700" />
                 </div>
-                <div className="flex gap-4">
-                  <button onClick={() => setShowBusForm(true)} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">+ Log Bus Pass</button>
-                  <button onClick={() => setShowUberForm(true)} className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800">+ Log Uber Ride</button>
-                </div>
+                
+                {/* Bus Pass Table */}
+                <CollapsibleSection title="C.A.T. Bus Passes" icon={<Bus size={20} />} count={busPassEntries.length} color="bg-purple-600">
+                  <DataTable headers={['Date', 'Client Name', 'Pass Type', 'Qty', 'Cost', 'Notes']} isEmpty={busPassEntries.length === 0} emptyMessage="No bus passes logged yet">
+                    {busPassEntries.map((entry, i) => (
+                      <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4">{formatDate(entry.date)}</td>
+                        <td className="py-3 px-4 font-medium">{entry.clientName}</td>
+                        <td className="py-3 px-4"><span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">{entry.passType}</span></td>
+                        <td className="py-3 px-4">{entry.quantity}</td>
+                        <td className="py-3 px-4 font-medium text-purple-600">${entry.cost?.toFixed(2) || '0.00'}</td>
+                        <td className="py-3 px-4 text-gray-500 text-sm">{entry.notes || '-'}</td>
+                      </tr>
+                    ))}
+                  </DataTable>
+                </CollapsibleSection>
+
+                {/* Uber Rides Table */}
+                <CollapsibleSection title="Uber Rides" icon={<Car size={20} />} count={uberEntries.length} color="bg-gray-700">
+                  <DataTable headers={['Date', 'Client Name', 'Pickup', 'Destination', 'Purpose', 'Cost', 'Notes']} isEmpty={uberEntries.length === 0} emptyMessage="No Uber rides logged yet">
+                    {uberEntries.map((entry, i) => (
+                      <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4">{formatDate(entry.date)}</td>
+                        <td className="py-3 px-4 font-medium">{entry.clientName}</td>
+                        <td className="py-3 px-4">{entry.pickup}</td>
+                        <td className="py-3 px-4">{entry.destination}</td>
+                        <td className="py-3 px-4"><span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">{entry.purpose}</span></td>
+                        <td className="py-3 px-4 font-medium text-gray-700">${entry.cost?.toFixed(2) || '0.00'}</td>
+                        <td className="py-3 px-4 text-gray-500 text-sm">{entry.notes || '-'}</td>
+                      </tr>
+                    ))}
+                  </DataTable>
+                </CollapsibleSection>
               </div>
             )}
+
+            {/* UTILITIES TAB */}
             {activeTab === 'utilities' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-800">⚡ Utility Assistance - {MONTHS[selectedMonth]}</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-gray-800">⚡ Utility Assistance - {MONTHS[selectedMonth]}</h2>
+                  <div className="flex gap-2">
+                    <button onClick={() => setShowWaterForm(true)} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"><Plus size={18} /> Water</button>
+                    <button onClick={() => setShowElectricForm(true)} className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 flex items-center gap-2"><Plus size={18} /> Electric</button>
+                    <button onClick={() => setShowRentForm(true)} className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 flex items-center gap-2"><Plus size={18} /> Rent</button>
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <StatCard icon={<DollarSign size={20} />} label="Total Assistance" value={`$${(stats.water.amount + stats.electric.amount + stats.rent.amount).toLocaleString()}`} color="bg-gradient-to-br from-orange-500 to-orange-600" />
                   <StatCard icon={<Droplets size={20} />} label="Water" value={`$${stats.water.amount.toLocaleString()}`} subtext={`${stats.water.families} families`} color="bg-gradient-to-br from-blue-500 to-blue-600" />
                   <StatCard icon={<Zap size={20} />} label="Electric" value={`$${stats.electric.amount.toLocaleString()}`} subtext={`${stats.electric.families} families`} color="bg-gradient-to-br from-yellow-500 to-yellow-600" />
                   <StatCard icon={<Home size={20} />} label="Rent" value={`$${stats.rent.amount.toLocaleString()}`} subtext={`${stats.rent.families} families`} color="bg-gradient-to-br from-orange-500 to-red-500" />
                 </div>
-                <div className="flex gap-4">
-                  <button onClick={() => setShowWaterForm(true)} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">+ Log Water</button>
-                  <button onClick={() => setShowElectricForm(true)} className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">+ Log Electric</button>
-                  <button onClick={() => setShowRentForm(true)} className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600">+ Log Rent</button>
-                </div>
+                
+                {/* Water Table */}
+                <CollapsibleSection title="Water Bill Assistance" icon={<Droplets size={20} />} count={waterEntries.length} color="bg-blue-500">
+                  <DataTable headers={['Date', 'Client Name', 'Provider', 'Account #', 'Amount', 'Notes']} isEmpty={waterEntries.length === 0} emptyMessage="No water assistance logged yet">
+                    {waterEntries.map((entry, i) => (
+                      <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4">{formatDate(entry.date)}</td>
+                        <td className="py-3 px-4 font-medium">{entry.clientName}</td>
+                        <td className="py-3 px-4">{entry.provider}</td>
+                        <td className="py-3 px-4 text-gray-500">{entry.accountNumber || '-'}</td>
+                        <td className="py-3 px-4 font-medium text-blue-600">${entry.amount?.toFixed(2) || '0.00'}</td>
+                        <td className="py-3 px-4 text-gray-500 text-sm">{entry.notes || '-'}</td>
+                      </tr>
+                    ))}
+                  </DataTable>
+                </CollapsibleSection>
+
+                {/* Electric Table */}
+                <CollapsibleSection title="Electric Bill Assistance" icon={<Zap size={20} />} count={electricEntries.length} color="bg-yellow-500">
+                  <DataTable headers={['Date', 'Client Name', 'Provider', 'Account #', 'Amount', 'Notes']} isEmpty={electricEntries.length === 0} emptyMessage="No electric assistance logged yet">
+                    {electricEntries.map((entry, i) => (
+                      <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4">{formatDate(entry.date)}</td>
+                        <td className="py-3 px-4 font-medium">{entry.clientName}</td>
+                        <td className="py-3 px-4">{entry.provider}</td>
+                        <td className="py-3 px-4 text-gray-500">{entry.accountNumber || '-'}</td>
+                        <td className="py-3 px-4 font-medium text-yellow-600">${entry.amount?.toFixed(2) || '0.00'}</td>
+                        <td className="py-3 px-4 text-gray-500 text-sm">{entry.notes || '-'}</td>
+                      </tr>
+                    ))}
+                  </DataTable>
+                </CollapsibleSection>
+
+                {/* Rent Table */}
+                <CollapsibleSection title="Rent Assistance" icon={<Home size={20} />} count={rentEntries.length} color="bg-orange-500">
+                  <DataTable headers={['Date', 'Client Name', 'Landlord', 'Property Address', 'Amount', 'Notes']} isEmpty={rentEntries.length === 0} emptyMessage="No rent assistance logged yet">
+                    {rentEntries.map((entry, i) => (
+                      <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4">{formatDate(entry.date)}</td>
+                        <td className="py-3 px-4 font-medium">{entry.clientName}</td>
+                        <td className="py-3 px-4">{entry.landlordName}</td>
+                        <td className="py-3 px-4 text-gray-500">{entry.propertyAddress || '-'}</td>
+                        <td className="py-3 px-4 font-medium text-orange-600">${entry.amount?.toFixed(2) || '0.00'}</td>
+                        <td className="py-3 px-4 text-gray-500 text-sm">{entry.notes || '-'}</td>
+                      </tr>
+                    ))}
+                  </DataTable>
+                </CollapsibleSection>
               </div>
             )}
           </>
@@ -1416,73 +1305,15 @@ const ResourceTracker: React.FC<ResourceTrackerProps> = ({ onBack }) => {
       {/* Footer */}
       <footer className="bg-white border-t py-4 px-6 mt-auto"><div className="max-w-7xl mx-auto text-center text-sm text-gray-500">FOAM Resource Tracker 2026 • Connected to Google Sheets</div></footer>
 
-      {/* ============================================ */}
-      {/* FIXED FORM MODALS - Each with isolated state */}
-      {/* ============================================ */}
-
-      <DiaperFormModal
-        show={showDiaperForm}
-        onClose={() => setShowDiaperForm(false)}
-        onSubmit={handleDiaperSubmit}
-        loading={loading}
-        initialData={defaultDiaperEntry}
-      />
-
-      <DonationGivenFormModal
-        show={showDonationGivenForm}
-        onClose={() => setShowDonationGivenForm(false)}
-        onSubmit={handleDonationGivenSubmit}
-        loading={loading}
-        initialData={defaultDonationGiven}
-      />
-
-      <InKindFormModal
-        show={showInKindForm}
-        onClose={() => setShowInKindForm(false)}
-        onSubmit={handleInKindSubmit}
-        loading={loading}
-        initialData={defaultInKindDonation}
-      />
-
-      <BusPassFormModal
-        show={showBusForm}
-        onClose={() => setShowBusForm(false)}
-        onSubmit={handleBusSubmit}
-        loading={loading}
-        initialData={defaultBusPass}
-      />
-
-      <UberFormModal
-        show={showUberForm}
-        onClose={() => setShowUberForm(false)}
-        onSubmit={handleUberSubmit}
-        loading={loading}
-        initialData={defaultUberEntry}
-      />
-
-      <WaterFormModal
-        show={showWaterForm}
-        onClose={() => setShowWaterForm(false)}
-        onSubmit={handleWaterSubmit}
-        loading={loading}
-        initialData={defaultWaterEntry}
-      />
-
-      <ElectricFormModal
-        show={showElectricForm}
-        onClose={() => setShowElectricForm(false)}
-        onSubmit={handleElectricSubmit}
-        loading={loading}
-        initialData={defaultElectricEntry}
-      />
-
-      <RentFormModal
-        show={showRentForm}
-        onClose={() => setShowRentForm(false)}
-        onSubmit={handleRentSubmit}
-        loading={loading}
-        initialData={defaultRentEntry}
-      />
+      {/* Form Modals */}
+      <DiaperFormModal show={showDiaperForm} onClose={() => setShowDiaperForm(false)} onSubmit={handleDiaperSubmit} loading={loading} initialData={defaultDiaperEntry} />
+      <DonationGivenFormModal show={showDonationGivenForm} onClose={() => setShowDonationGivenForm(false)} onSubmit={handleDonationGivenSubmit} loading={loading} initialData={defaultDonationGiven} />
+      <InKindFormModal show={showInKindForm} onClose={() => setShowInKindForm(false)} onSubmit={handleInKindSubmit} loading={loading} initialData={defaultInKindDonation} />
+      <BusPassFormModal show={showBusForm} onClose={() => setShowBusForm(false)} onSubmit={handleBusSubmit} loading={loading} initialData={defaultBusPass} />
+      <UberFormModal show={showUberForm} onClose={() => setShowUberForm(false)} onSubmit={handleUberSubmit} loading={loading} initialData={defaultUberEntry} />
+      <WaterFormModal show={showWaterForm} onClose={() => setShowWaterForm(false)} onSubmit={handleWaterSubmit} loading={loading} initialData={defaultWaterEntry} />
+      <ElectricFormModal show={showElectricForm} onClose={() => setShowElectricForm(false)} onSubmit={handleElectricSubmit} loading={loading} initialData={defaultElectricEntry} />
+      <RentFormModal show={showRentForm} onClose={() => setShowRentForm(false)} onSubmit={handleRentSubmit} loading={loading} initialData={defaultRentEntry} />
     </div>
   );
 };
