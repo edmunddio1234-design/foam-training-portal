@@ -5,7 +5,7 @@ import {
   HeartHandshake, Phone, BookOpen, ChevronRight, Search, X, Info,
   RefreshCw, File, FileImage, BookMarked, CheckSquare, CheckCircle,
   Circle, ChevronDown, Clock, Target, Upload, Calendar, AlertCircle,
-  ArrowRight
+  ArrowRight, Building2
 } from 'lucide-react';
 import ResourceTracker from './ResourceTracker';
 import ResourceGuideRolodex from './ResourceGuideRolodex';
@@ -14,6 +14,7 @@ interface CaseManagerLandingProps {
   onClose: () => void;
   onOpenReports: () => void;
   onOpenDataEntry: () => void;
+  onOpenPrograms: () => void;
 }
 
 type TabType = 'home' | 'resources' | 'documents' | 'checklist';
@@ -171,7 +172,7 @@ const PROTOCOL_LINKS: Record<string, string> = {
   'Workforce Engagement': 'https://docs.google.com/document/d/1_workforce_engagement/edit'
 };
 
-const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpenReports, onOpenDataEntry }) => {
+const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpenReports, onOpenDataEntry, onOpenPrograms }) => {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
@@ -595,7 +596,7 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
     resource.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Portal cards
+  // Portal cards - NOW WITH 6 CARDS INCLUDING PROGRAM MANAGEMENT
   const portalCards = [
     {
       id: 'reports',
@@ -650,6 +651,22 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
           alert('Error: Data Entry function not available. Please refresh the page.');
         }
       }
+    },
+    {
+      id: 'programs',
+      title: 'Program Management',
+      description: 'Track Project Family BUILD & Workforce Development enrollments.',
+      icon: Building2,
+      color: 'bg-indigo-600',
+      shadow: 'shadow-indigo-200',
+      action: () => {
+        if (typeof onOpenPrograms === 'function') {
+          onOpenPrograms();
+        } else {
+          console.error('onOpenPrograms is not a function!');
+          alert('Error: Program Management function not available. Please refresh the page.');
+        }
+      }
     }
   ];
 
@@ -677,10 +694,10 @@ const CaseManagerLanding: React.FC<CaseManagerLandingProps> = ({ onClose, onOpen
 
   const handleOpenLink = (url: string) => window.open(url, '_blank', 'noopener,noreferrer');
 
-  // renderHomeView with 5 cards + checklist card
+  // renderHomeView with 6 cards + checklist card
   const renderHomeView = () => (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
         {portalCards.map((card) => {
           const IconComponent = card.icon;
           return (
