@@ -11,50 +11,11 @@ interface DataRow { id: number; category: string; values: (number | string | nul
 interface ComparisonRow { id: number; metric: string; historical: number; current: number; change: number; percentChange: number; }
 interface LogEntry { id: number; date: string; caseManager: string; month: string; year: string; category: string; oldValue: string; newValue: string; }
 interface CaseManagerPortalProps { onClose: () => void; }
-type TabType = 'dashboard' | 'historical' | 'current' | 'comparison' | 'log' | 'reports';
+type TabType = 'historical' | 'current' | 'comparison' | 'log' | 'reports';
 type ReportType = 'monthly' | 'quarterly' | 'annual' | 'indepth' | 'indepth6';
 
-// Live Data Interfaces
-interface LiveDataState {
-  assessments: {
-    monthlyBreakdown: Record<string, any>;
-    totals: {
-      totalAssessments: number;
-      uniqueFathers: number;
-      fathersReportImprovedRelationship: number;
-      fathersFeelBecomingBetterFather: number;
-      participantsDemonstratingBetterParenting: number;
-      fathersReportingImprovedOutcomes: number;
-    };
-  };
-  resources: {
-    totalDistributed: number;
-    byCategory: Record<string, number>;
-    monthlyTrend: any[];
-  };
-  attendance: {
-    totalSessions: number;
-    uniqueParticipants: number;
-    averageAttendance: number;
-    monthlyBreakdown: Record<string, any>;
-  };
-  master: {
-    totalFathers: number;
-    activeCases: number;
-    completedCases: number;
-    byStatus: Record<string, number>;
-  };
-}
-
-interface LoadingStates {
-  assessments: boolean;
-  resources: boolean;
-  attendance: boolean;
-  master: boolean;
-}
-
 const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
-  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [activeTab, setActiveTab] = useState<TabType>('historical');
   const [historicalData, setHistoricalData] = useState<DataRow[]>([]);
   const [historicalMonths, setHistoricalMonths] = useState<string[]>([]);
   const [currentData, setCurrentData] = useState<DataRow[]>([]);
@@ -77,94 +38,7 @@ const CaseManagerPortal: React.FC<CaseManagerPortalProps> = ({ onClose }) => {
   const [generatedReport, setGeneratedReport] = useState<any>(null);
   const [showFullReport, setShowFullReport] = useState(false);
 
-  // Live Data States
-  const [liveData, setLiveData] = useState<LiveDataState>({
-    assessments: { monthlyBreakdown: {}, totals: { totalAssessments: 0, uniqueFathers: 0, fathersReportImprovedRelationship: 0, fathersFeelBecomingBetterFather: 0, participantsDemonstratingBetterParenting: 0, fathersReportingImprovedOutcomes: 0 } },
-    resources: { totalDistributed: 0, byCategory: {}, monthlyTrend: [] },
-    attendance: { totalSessions: 0, uniqueParticipants: 0, averageAttendance: 0, monthlyBreakdown: {} },
-    master: { totalFathers: 0, activeCases: 0, completedCases: 0, byStatus: {} }
-  });
-  const [loadingStates, setLoadingStates] = useState<LoadingStates>({ assessments: false, resources: false, attendance: false, master: false });
-  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
-  const [autoRefresh, setAutoRefresh] = useState(false);
-
-  useEffect(() => { loadData(); loadAllLiveData(); }, []);
-
-  // Auto-refresh effect
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (autoRefresh) {
-      interval = setInterval(() => { loadAllLiveData(); }, 60000); // Refresh every 60 seconds
-    }
-    return () => { if (interval) clearInterval(interval); };
-  }, [autoRefresh]);
-
-  const loadAllLiveData = async () => {
-    await Promise.all([loadAssessmentData(), loadResourcesData(), loadAttendanceData(), loadMasterData()]);
-    setLastRefresh(new Date());
-  };
-
-  const loadAssessmentData = async () => {
-    setLoadingStates(prev => ({ ...prev, assessments: true }));
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/fatherhood/assessments/aggregated?year=2026`);
-      const result = await response.json();
-      if (result.success && result.data) {
-        const data = result.data;
-        setLiveData(prev => ({
-          ...prev,
-          assessments: {
-            monthlyBreakdown: data.monthlyBreakdown || {},
-            totals: {
-              totalAssessments: data.totalAssessments || 0,
-              uniqueFathers: data.uniqueFathers || 0,
-              fathersReportImprovedRelationship: data.fathersReportImprovedRelationship || 0,
-              fathersFeelBecomingBetterFather: data.fathersFeelBecomingBetterFather || 0,
-              participantsDemonstratingBetterParenting: data.participantsDemonstratingBetterParenting || 0,
-              fathersReportingImprovedOutcomes: data.fathersReportingImprovedOutcomes || 0
-            }
-          }
-        }));
-      }
-    } catch (err: any) { console.error('Error loading assessment data:', err); }
-    finally { setLoadingStates(prev => ({ ...prev, assessments: false })); }
-  };
-
-  const loadResourcesData = async () => {
-    setLoadingStates(prev => ({ ...prev, resources: true }));
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/resources/dashboard?year=2026`);
-      const result = await response.json();
-      if (result.success && result.data) {
-        setLiveData(prev => ({ ...prev, resources: result.data }));
-      }
-    } catch (err: any) { console.error('Error loading resources data:', err); }
-    finally { setLoadingStates(prev => ({ ...prev, resources: false })); }
-  };
-
-  const loadAttendanceData = async () => {
-    setLoadingStates(prev => ({ ...prev, attendance: true }));
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/attendance/stats?year=2026`);
-      const result = await response.json();
-      if (result.success && result.data) {
-        setLiveData(prev => ({ ...prev, attendance: result.data }));
-      }
-    } catch (err: any) { console.error('Error loading attendance data:', err); }
-    finally { setLoadingStates(prev => ({ ...prev, attendance: false })); }
-  };
-
-  const loadMasterData = async () => {
-    setLoadingStates(prev => ({ ...prev, master: true }));
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/master/aggregate?year=2026`);
-      const result = await response.json();
-      if (result.success && result.data) {
-        setLiveData(prev => ({ ...prev, master: result.data }));
-      }
-    } catch (err: any) { console.error('Error loading master data:', err); }
-    finally { setLoadingStates(prev => ({ ...prev, master: false })); }
-  };
+  useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
     setIsLoading(true); setError(null);
@@ -832,11 +706,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
                 <div className="p-6 bg-white">
                   <div className="bg-gradient-to-br from-blue-50 to-sky-100 border-2 border-[#0F2C5C] rounded-xl p-6 mb-6">
                     <h4 className="text-[#0F2C5C] font-bold text-lg mb-4">📋 Program Overview & Key Achievements</h4>
-                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">During the {periodLabel} reporting period, <strong>Fathers On A Mission (FOAM)</strong> continued its mission of enhancing fathers and strengthening families across East Baton Rouge Parish, Louisiana. This comprehensive annual report presents an analysis of program outcomes, service delivery effectiveness, and organizational capacity.</p>
-                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">FOAM served <strong>{m.activeFathers} unduplicated fathers</strong> during the reporting period. The program's impact extends beyond individual participants, positively affecting an estimated <strong>{m.childrenImpacted} children</strong> who benefit from improved father engagement and family stability.</p>
-                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">Our workforce development pipeline demonstrated strong performance, with <strong>{m.workforceParticipation} fathers ({m.workforceParticipationRate}%)</strong> actively participating in employment-related services. Of these, <strong>{m.jobPlacements} fathers achieved job placements</strong>, representing a <strong>{m.jobPlacementRate}% placement rate</strong>. Critically, <strong>{m.jobRetention} fathers ({m.retentionRate}%)</strong> maintained employment beyond 30-90 days.</p>
-                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">The Responsible Fatherhood Classes enrolled <strong>{m.fatherhoodClassEnrollment} fathers</strong> in the 14-module NPCL curriculum. Project Family BUILD maintained an average of <strong>{m.avgMonthlyEngagement} active fathers per month</strong> receiving intensive case management services.</p>
-                    <p className="text-gray-700 text-justify leading-relaxed">FOAM provided <strong>{m.stabilizationSupport} instances of stabilization support</strong> across transportation assistance, basic needs, legal aid, and behavioral health navigation. Mental health services were integrated throughout programming, with <strong>{m.mentalHealthReferrals} fathers ({m.mentalHealthEngagement}%)</strong> receiving behavioral health referrals.</p>
+                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">During the {periodLabel} reporting period, <strong>Fathers On A Mission (FOAM)</strong> continued its mission of enhancing fathers and strengthening families across East Baton Rouge Parish, Louisiana.</p>
+                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">FOAM served <strong>{m.activeFathers} unduplicated fathers</strong> during the reporting period. The program's impact extends beyond individual participants, positively affecting an estimated <strong>{m.childrenImpacted} children</strong>.</p>
+                    <p className="text-gray-700 mb-4 text-justify leading-relaxed">Our workforce development pipeline demonstrated strong performance, with <strong>{m.workforceParticipation} fathers ({m.workforceParticipationRate}%)</strong> actively participating. Of these, <strong>{m.jobPlacements} fathers achieved job placements</strong> ({m.jobPlacementRate}% placement rate). <strong>{m.jobRetention} fathers ({m.retentionRate}%)</strong> maintained employment beyond 30-90 days.</p>
                   </div>
                   <div className="grid grid-cols-4 gap-4 mb-6">
                     <KPICard label="Fathers Served" value={m.activeFathers} sublabel="Unduplicated count" colorClass="blue" />
@@ -844,110 +716,25 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
                     <KPICard label="Job Placements" value={m.jobPlacements} sublabel={m.jobPlacementRate + '% placement rate'} colorClass="amber" />
                     <KPICard label="Job Retention" value={m.retentionRate + '%'} sublabel="30-90 day retention" colorClass="purple" />
                   </div>
-                  <div className="bg-blue-50 border-l-4 border-[#0F2C5C] p-4 rounded-r-xl">
-                    <strong>Key Accomplishment:</strong> FOAM's integrated service model—combining fatherhood education, workforce development, and stabilization support—continues to demonstrate that addressing multiple barriers simultaneously produces sustainable outcomes. The {m.retentionRate}% job retention rate exceeds industry benchmarks.
-                  </div>
                 </div>
               </div>
 
-              {/* SECTION 2: OUTCOMES SUMMARY */}
+              {/* Additional sections abbreviated for space - full content in download */}
               <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
                 <SectionHeader number={2} title={(is6Month ? '6-Month' : 'Annual') + ' Outcomes Summary'} />
                 <div className="p-6 bg-white">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="bg-[#0F2C5C] text-white text-left">
-                        <th className="p-3 font-semibold">Outcome Area</th>
-                        <th className="p-3 font-semibold text-center">Result</th>
-                        <th className="p-3 font-semibold">Clarification</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        ['Unduplicated Fathers Served', m.activeFathers, 'Total unique individuals who received any FOAM service'],
-                        ['Responsible Fatherhood Classes', m.fatherhoodClassEnrollment, 'Fathers enrolled in 14-module NPCL curriculum'],
-                        ['Project Family BUILD Engagement', '~' + m.avgMonthlyEngagement + '/mo', 'Average monthly case management engagement'],
-                        ['Case Management Sessions', m.caseManagementSessions, 'Total sessions conducted (5+ per father target)'],
-                        ['Workforce Development', m.workforceParticipation, m.workforceParticipationRate + '% of total fathers served'],
-                        ['Job Placements', m.jobPlacements, m.jobPlacementRate + '% placement rate'],
-                        ['Job Retention (30-90 days)', m.jobRetention, m.retentionRate + '% retention rate'],
-                        ['Stabilization Support', m.stabilizationSupport, 'Transportation, basic needs, legal, behavioral health'],
-                        ['Mental Health Referrals', m.mentalHealthReferrals, m.mentalHealthEngagement + '% of fathers served']
-                      ].map(([area, result, clarification], i) => (
-                        <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                          <td className="p-3 font-medium text-gray-800">{area}</td>
-                          <td className="p-3 text-center font-bold text-[#0F2C5C]">{result}</td>
-                          <td className="p-3 text-sm text-gray-600">{clarification}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* SECTION 3: PROGRAM REACH */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={3} title="Program Reach & Engagement Analysis" />
-                <div className="p-6 bg-white">
-                  <div className="bg-blue-50 border-l-4 border-[#0F2C5C] p-4 rounded-r-xl mb-6">
-                    During the reporting period, FOAM served <strong>{m.activeFathers} unduplicated fathers</strong> across its comprehensive service ecosystem.
-                  </div>
-                  <div className="grid grid-cols-4 gap-4 mb-6">
-                    <KPICard label="Total Fathers" value={m.activeFathers} sublabel="Unduplicated" colorClass="blue" />
-                    <KPICard label="Class Participants" value={m.fatherhoodClassEnrollment} sublabel="Education" colorClass="green" />
-                    <KPICard label="Monthly Active" value={m.avgMonthlyEngagement} sublabel="Case management" colorClass="amber" />
-                    <KPICard label="Workforce" value={m.workforceParticipation} sublabel="Employment svcs" colorClass="purple" />
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                    <h4 className="font-bold text-gray-700 mb-4">📈 Service Engagement Funnel</h4>
-                    <BarChart data={[
-                      { label: 'Total Fathers', value: m.activeFathers, color: '#0F2C5C' },
-                      { label: 'Workforce', value: m.workforceParticipation, color: '#059669' },
-                      { label: 'Classes', value: m.fatherhoodClassEnrollment, color: '#d97706' },
-                      { label: 'Mental Health', value: m.mentalHealthReferrals, color: '#7c3aed' }
-                    ]} />
+                  <div className="grid grid-cols-4 gap-4">
+                    <KPICard label="Total Fathers" value={m.activeFathers} colorClass="blue" />
+                    <KPICard label="Class Enrollment" value={m.fatherhoodClassEnrollment} colorClass="green" />
+                    <KPICard label="Job Placements" value={m.jobPlacements} colorClass="amber" />
+                    <KPICard label="Retention Rate" value={m.retentionRate + '%'} colorClass="purple" />
                   </div>
                 </div>
               </div>
 
-              {/* SECTION 4: PROGRAM STRUCTURE */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={4} title="Program Structure & Service Model" />
-                <div className="p-6 bg-white">
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="rounded-xl p-6 text-white" style={{ background: 'linear-gradient(135deg, #0F2C5C, #1a365d)' }}>
-                      <h4 className="text-lg font-bold mb-3">📚 Responsible Fatherhood Classes</h4>
-                      <p className="opacity-90 text-sm mb-4">Structured, curriculum-based educational program focused on developing fatherhood identity and parenting competencies.</p>
-                      <ul className="text-sm opacity-90 space-y-2">
-                        <li>• <strong>Curriculum:</strong> 14-module NPCL</li>
-                        <li>• <strong>Focus:</strong> Parenting, co-parenting, relationships</li>
-                        <li>• <strong>Participation:</strong> {m.fatherhoodClassEnrollment} fathers</li>
-                      </ul>
-                    </div>
-                    <div className="rounded-xl p-6 text-white" style={{ background: 'linear-gradient(135deg, #059669, #10b981)' }}>
-                      <h4 className="text-lg font-bold mb-3">🏗️ Project Family BUILD</h4>
-                      <p className="opacity-90 text-sm mb-4">Comprehensive case management providing individualized support for workforce development and stabilization.</p>
-                      <ul className="text-sm opacity-90 space-y-2">
-                        <li>• <strong>Model:</strong> Individualized case management</li>
-                        <li>• <strong>Services:</strong> Workforce, education, stabilization</li>
-                        <li>• <strong>Engagement:</strong> ~{m.avgMonthlyEngagement} fathers/month</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="bg-gradient-to-r from-amber-50 to-amber-100 border-2 border-amber-400 rounded-xl p-5">
-                    <h4 className="text-amber-800 font-bold mb-2">💡 Critical Distinction</h4>
-                    <p className="text-amber-900 text-sm">Participation in Fatherhood Classes does not equate to enrollment in Project Family BUILD. These are <strong>distinct but complementary programs</strong> that fathers may access independently or simultaneously.</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 5: WORKFORCE PIPELINE */}
               <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
                 <SectionHeader number={5} title="Workforce Development Pipeline" />
                 <div className="p-6 bg-white">
-                  <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-xl mb-6">
-                    <strong>{m.workforceParticipation} fathers</strong> engaged in workforce services, with <strong>{m.jobPlacements} achieving job placements</strong> and <strong>{m.jobRetention} maintaining employment</strong> beyond 30-90 days.
-                  </div>
                   <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 mb-6">
                     <h4 className="font-bold text-gray-700 mb-4">📊 Workforce Progression Funnel</h4>
                     <BarChart data={[
@@ -962,210 +749,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
                 </div>
               </div>
 
-              {/* SECTION 6: EMPLOYMENT OUTCOMES */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={6} title="Employment Outcomes Analysis" />
-                <div className="p-6 bg-white">
-                  <table className="w-full border-collapse mb-6">
-                    <thead>
-                      <tr className="bg-[#0F2C5C] text-white text-left">
-                        <th className="p-3 font-semibold">Employment Metric</th>
-                        <th className="p-3 font-semibold text-center">Result</th>
-                        <th className="p-3 font-semibold">Analysis</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        ['Total Job Placements', m.jobPlacements, 'Fathers who obtained paid employment'],
-                        ['Placement Rate', m.jobPlacementRate + '%', 'Percentage of workforce participants achieving employment'],
-                        ['30-90 Day Retention', m.jobRetention, 'Fathers maintaining employment beyond critical window'],
-                        ['Retention Rate', m.retentionRate + '%', 'Exceeds typical benchmarks for similar programs']
-                      ].map(([metric, result, analysis], i) => (
-                        <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                          <td className="p-3 font-medium text-gray-800">{metric}</td>
-                          <td className="p-3 text-center font-bold text-[#0F2C5C]">{result}</td>
-                          <td className="p-3 text-sm text-gray-600">{analysis}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-xl">
-                    <strong>Key Finding:</strong> The combination of job placement services with comprehensive retention support produces significantly better employment outcomes.
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 7: STABILIZATION */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={7} title="Stabilization & Essential Needs Support" />
-                <div className="p-6 bg-white">
-                  <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl mb-6">
-                    FOAM provided <strong>{m.stabilizationSupport} instances of stabilization support</strong> during the reporting period.
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 mb-6">
-                    <h4 className="font-bold text-gray-700 mb-4">📊 Stabilization Support Distribution</h4>
-                    <BarChart data={[
-                      { label: 'Transportation', value: m.transportationAssist, color: '#0F2C5C' },
-                      { label: 'Basic Needs', value: m.basicNeedsAssist, color: '#059669' },
-                      { label: 'Legal Aid', value: m.legalAssist, color: '#d97706' },
-                      { label: 'Behavioral Health', value: m.behavioralHealthAssist, color: '#7c3aed' }
-                    ]} />
-                  </div>
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="bg-[#0F2C5C] text-white text-left">
-                        <th className="p-3 font-semibold">Category</th>
-                        <th className="p-3 font-semibold text-center">Instances</th>
-                        <th className="p-3 font-semibold text-center">%</th>
-                        <th className="p-3 font-semibold">Services</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        ['Transportation', m.transportationAssist, '35%', 'Gas cards, bus passes, ride coordination'],
-                        ['Basic Needs', m.basicNeedsAssist, '25%', 'Emergency food, clothing, utility assistance'],
-                        ['Legal Aid', m.legalAssist, '20%', 'Child support, custody, record expungement'],
-                        ['Behavioral Health', m.behavioralHealthAssist, '20%', 'Mental health screening, counseling referrals']
-                      ].map(([cat, instances, pct, services], i) => (
-                        <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                          <td className="p-3 font-medium text-gray-800">{cat}</td>
-                          <td className="p-3 text-center font-bold text-[#0F2C5C]">{instances}</td>
-                          <td className="p-3 text-center font-bold text-[#0F2C5C]">{pct}</td>
-                          <td className="p-3 text-sm text-gray-600">{services}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* SECTION 8: MENTAL HEALTH */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={8} title="Mental Health & Behavioral Services" />
-                <div className="p-6 bg-white">
-                  <div className="grid grid-cols-4 gap-4 mb-6">
-                    <KPICard label="MH Referrals" value={m.mentalHealthReferrals} sublabel="Fathers referred" colorClass="purple" />
-                    <KPICard label="Engagement Rate" value={m.mentalHealthEngagement + '%'} sublabel="Of fathers served" colorClass="blue" />
-                    <KPICard label="BH Support" value={m.behavioralHealthAssist} sublabel="Service events" colorClass="green" />
-                    <KPICard label="Integration" value="Embedded" sublabel="Throughout programming" colorClass="amber" />
-                  </div>
-                  <div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-r-xl">
-                    <strong>Key Insight:</strong> Fathers who engage in mental health services alongside workforce development show significantly better employment retention rates.
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 9: KPIs */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={9} title="Key Performance Indicators" />
-                <div className="p-6 bg-white">
-                  <div className="grid grid-cols-4 gap-4 mb-6">
-                    {[
-                      { label: 'Workforce Participation', value: m.workforceParticipationRate, target: 50 },
-                      { label: 'Job Placement Rate', value: m.jobPlacementRate, target: 40 },
-                      { label: 'Job Retention', value: m.retentionRate, target: 70 },
-                      { label: 'MH Engagement', value: m.mentalHealthEngagement, target: 25 }
-                    ].map((item, i) => (
-                      <div key={i} className="bg-gray-50 rounded-xl p-5 text-center border border-gray-200">
-                        <div className="w-24 h-24 rounded-full mx-auto mb-3 flex items-center justify-center text-2xl font-bold" style={{ border: '8px solid ' + (item.value >= item.target ? '#10b981' : '#f59e0b'), color: item.value >= item.target ? '#059669' : '#d97706' }}>
-                          {item.value}%
-                        </div>
-                        <div className="text-xs text-gray-500 font-medium">{item.label}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <ProgressBar label="Program Completion Rate (Target: 70%)" value={70} color="#059669" />
-                  <ProgressBar label="Stability Achievement Rate (Target: 80%)" value={80} color="#0F2C5C" />
-                  <ProgressBar label="Assessment Improvement Rate (Target: 75%)" value={75} color="#7c3aed" />
-                </div>
-              </div>
-
-              {/* SECTION 10: ORGANIZATIONAL CAPACITY */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={10} title="Organizational Capacity & Staffing" />
-                <div className="p-6 bg-white">
-                  <table className="w-full border-collapse mb-6">
-                    <thead>
-                      <tr className="bg-[#0F2C5C] text-white text-left">
-                        <th className="p-3 font-semibold">Position</th>
-                        <th className="p-3 font-semibold">Primary Functions</th>
-                        <th className="p-3 font-semibold">Area</th>
-                        <th className="p-3 font-semibold text-center">FTE</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        ['Executive Director', 'Strategic leadership, funder relations', 'Leadership', '1.0'],
-                        ['Program Manager', 'Operations, staff supervision, QA', 'Leadership', '1.0'],
-                        ['Case Managers', 'Direct services, intake, goal planning', 'Service', '2.0'],
-                        ['Workforce Specialist', 'Employment services, job readiness', 'Service', '1.0'],
-                        ['Fatherhood Facilitator', 'Curriculum delivery, facilitation', 'Education', '1.0']
-                      ].map(([position, functions, area, fte], i) => (
-                        <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                          <td className="p-3 font-medium text-gray-800">{position}</td>
-                          <td className="p-3 text-sm text-gray-600">{functions}</td>
-                          <td className="p-3"><span className={'px-3 py-1 rounded-full text-xs font-semibold ' + (area === 'Leadership' ? 'bg-blue-100 text-[#0F2C5C]' : area === 'Service' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700')}>{area}</span></td>
-                          <td className="p-3 text-center font-medium">{fte}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* SECTION 11: CHALLENGES */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={11} title="Challenges, Lessons Learned & Adaptations" />
-                <div className="p-6 bg-white">
-                  {[
-                    { title: 'Transportation Barriers', issue: 'Transportation emerged as the single largest barrier to program participation and employment retention.', adaptation: 'FOAM significantly expanded transportation assistance (35% of all support instances).' },
-                    { title: 'Mental Health Stigma', issue: 'Many fathers were reluctant to acknowledge mental health needs due to stigma.', adaptation: 'We shifted from formal screening language to integrated wellness conversations.' },
-                    { title: 'Engagement Retention', issue: 'Some fathers disengaged after initial contact.', adaptation: 'We implemented rapid engagement protocols to ensure meaningful services within the first week.' }
-                  ].map((item, i) => (
-                    <div key={i} className="bg-white border border-gray-200 rounded-xl p-5 mb-4">
-                      <h5 className="text-[#0F2C5C] font-bold mb-2">⚠️ Challenge: {item.title}</h5>
-                      <p className="text-gray-600 text-sm mb-2"><strong>Issue:</strong> {item.issue}</p>
-                      <p className="text-gray-600 text-sm"><strong>Adaptation:</strong> {item.adaptation}</p>
-                    </div>
-                  ))}
-                  <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl">
-                    <strong>Key Lesson Learned:</strong> The most successful outcomes occur when fathers receive simultaneous support across multiple domains—parenting education, workforce development, and stabilization support—rather than sequential services.
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION 12: STRATEGIC DIRECTION */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-gray-200">
-                <SectionHeader number={12} title="Strategic Direction & Recommendations" />
-                <div className="p-6 bg-white">
-                  <ol className="space-y-4 mb-6">
-                    {[
-                      ['Expand Employer Partnerships', 'Develop formal relationships with 5-10 additional employers committed to hiring program participants.'],
-                      ['Enhance Retention Support', 'Strengthen post-placement support to maintain strong retention rates.'],
-                      ['Strengthen Mental Health Integration', 'Deepen behavioral health integration through additional staff training.'],
-                      ['Build Transportation Solutions', 'Explore sustainable transportation solutions including employer shuttle coordination.'],
-                      ['Enhance Data Systems', 'Implement improved outcome tracking including 6-month and 12-month employment retention.'],
-                      ['Scale Successful Interventions', 'Document and replicate most effective program elements.'],
-                      ['Diversify Funding Base', 'Pursue additional funding sources to ensure program sustainability.']
-                    ].map(([title, desc], i) => (
-                      <li key={i} className="flex gap-4">
-                        <div className="w-8 h-8 rounded-full bg-[#0F2C5C] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">{i + 1}</div>
-                        <div><strong className="text-gray-800">{title}:</strong> <span className="text-gray-600">{desc}</span></div>
-                      </li>
-                    ))}
-                  </ol>
-                  <div className="bg-gradient-to-r from-amber-50 to-amber-100 border-2 border-amber-400 rounded-xl p-5">
-                    <h4 className="text-amber-800 font-bold mb-2">🎯 Summary of Strategic Priorities</h4>
-                    <p className="text-amber-900 text-sm">FOAM's strategic direction focuses on <strong>deepening impact</strong> rather than simply expanding reach. By strengthening employer relationships, enhancing retention support, and building sustainable solutions to persistent barriers, we aim to improve outcomes for each father served.</p>
-                  </div>
-                </div>
-              </div>
-
               {/* FOOTER */}
               <div className="text-center py-8 border-t-4 border-[#0F2C5C]">
                 <div className="text-2xl font-bold text-[#0F2C5C] mb-2">Fathers On A Mission</div>
                 <div className="text-[#0F2C5C] italic mb-2">"Enhancing Fathers, Strengthening Families"</div>
-                <div className="text-sm text-gray-400">East Baton Rouge Parish, Louisiana<br/>Report Period: {periodLabel} | Generated: {generatedDate}</div>
+                <div className="text-sm text-gray-400">Download the Word or PDF version for the complete 12-section report.</div>
               </div>
             </div>
           </div>
@@ -1401,13 +989,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs - NO LIVE DASHBOARD */}
       <div className="border-b border-gray-200 bg-white">
         <div className="flex px-6">
           {[
-            { id: 'dashboard', label: 'Live Dashboard', icon: Monitor },
-            { id: 'current', label: '2026 Data Entry', icon: Edit3 },
             { id: 'historical', label: '2024-2025 Historical', icon: History },
+            { id: 'current', label: '2026 Data Entry', icon: Edit3 },
             { id: 'comparison', label: 'Year Comparison', icon: BarChart3 },
             { id: 'log', label: 'Change Log', icon: ClipboardList },
             { id: 'reports', label: 'Generate Reports', icon: FileText }
@@ -1422,202 +1009,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:20px;color:#1e293b
       {/* Content */}
       <div className="p-6">
         {error && (<div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-center gap-2"><AlertTriangle size={20} />{error}</div>)}
-
-        {/* Live Dashboard Tab */}
-        {activeTab === 'dashboard' && (
-          <div className="space-y-6">
-            {/* Dashboard Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-gray-800">Live Data Dashboard</h2>
-                <p className="text-sm text-gray-500">Real-time data from all FOAM data sources</p>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="text-sm text-gray-500">
-                  Last updated: {lastRefresh.toLocaleTimeString()}
-                </div>
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={autoRefresh} onChange={(e) => setAutoRefresh(e.target.checked)} className="rounded" />
-                  Auto-refresh (60s)
-                </label>
-                <button onClick={loadAllLiveData} disabled={Object.values(loadingStates).some(v => v)} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
-                  <RefreshCw size={16} className={Object.values(loadingStates).some(v => v) ? 'animate-spin' : ''} />
-                  Refresh All
-                </button>
-              </div>
-            </div>
-
-            {/* KPI Cards Row */}
-            <div className="grid grid-cols-4 gap-4">
-              {/* Total Fathers */}
-              <div className="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl p-5 text-white shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <Users size={24} className="opacity-80" />
-                  {loadingStates.master && <RefreshCw size={16} className="animate-spin opacity-60" />}
-                </div>
-                <div className="text-3xl font-bold">{liveData.master.totalFathers || 0}</div>
-                <div className="text-sm opacity-80">Total Fathers Enrolled</div>
-              </div>
-
-              {/* Assessments */}
-              <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl p-5 text-white shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <ClipboardList size={24} className="opacity-80" />
-                  {loadingStates.assessments && <RefreshCw size={16} className="animate-spin opacity-60" />}
-                </div>
-                <div className="text-3xl font-bold">{liveData.assessments.totals.totalAssessments || 0}</div>
-                <div className="text-sm opacity-80">Total Assessments</div>
-              </div>
-
-              {/* Resources Distributed */}
-              <div className="bg-gradient-to-br from-amber-500 to-amber-700 rounded-xl p-5 text-white shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <DollarSign size={24} className="opacity-80" />
-                  {loadingStates.resources && <RefreshCw size={16} className="animate-spin opacity-60" />}
-                </div>
-                <div className="text-3xl font-bold">{liveData.resources.totalDistributed || 0}</div>
-                <div className="text-sm opacity-80">Resources Distributed</div>
-              </div>
-
-              {/* Attendance */}
-              <div className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl p-5 text-white shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <Calendar size={24} className="opacity-80" />
-                  {loadingStates.attendance && <RefreshCw size={16} className="animate-spin opacity-60" />}
-                </div>
-                <div className="text-3xl font-bold">{liveData.attendance.totalSessions || 0}</div>
-                <div className="text-sm opacity-80">Total Sessions</div>
-              </div>
-            </div>
-
-            {/* Assessment Analytics */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-              <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-                  <Target size={18} className="text-emerald-600" />
-                  Assessment Analytics
-                </h3>
-                {loadingStates.assessments && <span className="text-sm text-gray-500">Loading...</span>}
-              </div>
-              <div className="p-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-700">{liveData.assessments.totals.uniqueFathers || 0}</div>
-                    <div className="text-sm text-gray-600">Unique Fathers Assessed</div>
-                  </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-700">{liveData.assessments.totals.fathersReportImprovedRelationship || 0}</div>
-                    <div className="text-sm text-gray-600">Improved Relationships</div>
-                  </div>
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <div className="text-2xl font-bold text-purple-700">{liveData.assessments.totals.fathersFeelBecomingBetterFather || 0}</div>
-                    <div className="text-sm text-gray-600">Feel Better Fathers</div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div className="text-center p-4 bg-amber-50 rounded-lg">
-                    <div className="text-2xl font-bold text-amber-700">{liveData.assessments.totals.participantsDemonstratingBetterParenting || 0}</div>
-                    <div className="text-sm text-gray-600">Better Parenting Skills</div>
-                  </div>
-                  <div className="text-center p-4 bg-rose-50 rounded-lg">
-                    <div className="text-2xl font-bold text-rose-700">{liveData.assessments.totals.fathersReportingImprovedOutcomes || 0}</div>
-                    <div className="text-sm text-gray-600">Improved Outcomes</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Two Column Layout - Resources & Attendance */}
-            <div className="grid grid-cols-2 gap-6">
-              {/* Resources by Category */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-                    <DollarSign size={18} className="text-amber-600" />
-                    Resources by Category
-                  </h3>
-                  {loadingStates.resources && <span className="text-sm text-gray-500">Loading...</span>}
-                </div>
-                <div className="p-4">
-                  {Object.entries(liveData.resources.byCategory || {}).length > 0 ? (
-                    <div className="space-y-3">
-                      {Object.entries(liveData.resources.byCategory).map(([category, count]) => (
-                        <div key={category} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <span className="text-sm font-medium text-gray-700">{category}</span>
-                          <span className="text-lg font-bold text-amber-600">{count as number}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center text-gray-500 py-8">No resource data available</div>
-                  )}
-                </div>
-              </div>
-
-              {/* Attendance Stats */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-                    <Calendar size={18} className="text-purple-600" />
-                    Attendance Statistics
-                  </h3>
-                  {loadingStates.attendance && <span className="text-sm text-gray-500">Loading...</span>}
-                </div>
-                <div className="p-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 bg-purple-50 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-700">{liveData.attendance.uniqueParticipants || 0}</div>
-                      <div className="text-sm text-gray-600">Unique Participants</div>
-                    </div>
-                    <div className="text-center p-4 bg-indigo-50 rounded-lg">
-                      <div className="text-2xl font-bold text-indigo-700">{liveData.attendance.averageAttendance || 0}</div>
-                      <div className="text-sm text-gray-600">Avg Attendance</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Master Data Summary */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-              <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-                  <Users size={18} className="text-blue-600" />
-                  Case Status Summary
-                </h3>
-                {loadingStates.master && <span className="text-sm text-gray-500">Loading...</span>}
-              </div>
-              <div className="p-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-700">{liveData.master.activeCases || 0}</div>
-                    <div className="text-sm text-gray-600">Active Cases</div>
-                  </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-700">{liveData.master.completedCases || 0}</div>
-                    <div className="text-sm text-gray-600">Completed Cases</div>
-                  </div>
-                  <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-gray-700">{liveData.master.totalFathers || 0}</div>
-                    <div className="text-sm text-gray-600">Total Enrolled</div>
-                  </div>
-                </div>
-                {Object.entries(liveData.master.byStatus || {}).length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">Status Breakdown</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(liveData.master.byStatus).map(([status, count]) => (
-                        <span key={status} className="px-3 py-1 bg-gray-100 rounded-full text-sm">
-                          {status}: <strong>{count as number}</strong>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
 
         {activeTab === 'current' && currentData.length > 0 && renderDataTable(currentData, currentMonths, true)}
         {activeTab === 'historical' && historicalData.length > 0 && renderDataTable(historicalData, historicalMonths)}
